@@ -51,8 +51,8 @@
       "domain": "LAB_ISO",
       "eda_policy": "isolated",
       "pins": [
-        "SYNC_IN_CAPTURE",
-        "ISO_HEALTH_CHALLENGE"
+        "SYNC_IN_LAB",
+        "LAB_ISO_GND"
       ]
     },
     {
@@ -60,8 +60,8 @@
       "domain": "LAB_ISO",
       "eda_policy": "isolated",
       "pins": [
-        "SYNC_OUT_DRIVE",
-        "ISO_HEALTH_STATUS"
+        "SYNC_OUT_LAB",
+        "LAB_ISO_GND"
       ]
     },
     {
