@@ -1,0 +1,194 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/contracts/session-record.schema.json",
+  "title": "Session Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "provenance",
+    "device_time_start_us",
+    "device_time_end_us",
+    "status_flags",
+    "crc32c"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "record_type": {
+      "$ref": "#/$defs/recordType"
+    },
+    "provenance": {
+      "$ref": "#/$defs/provenance"
+    },
+    "device_time_start_us": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "device_time_end_us": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "status_flags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "crc32c": {
+      "type": "string",
+      "pattern": "^[0-9A-Fa-f]{8}$"
+    },
+    "source_stream_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "source_sequence_ranges": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["stream_id", "first_sequence", "last_sequence"],
+        "properties": {
+          "stream_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "first_sequence": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "last_sequence": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "artifact_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "decision_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "actuation_evidence_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "dropped_first_sequence": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "dropped_last_sequence": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "cause": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "$defs": {
+    "provenance": {
+      "type": "string",
+      "enum": [
+        "RAW_MEASURED",
+        "DERIVED",
+        "MODEL_INFERRED",
+        "SIMULATED",
+        "TEST",
+        "INTERVENTION"
+      ]
+    },
+    "recordType": {
+      "type": "string",
+      "enum": [
+        "SESSION_HEADER",
+        "STREAM_DESCRIPTOR",
+        "SAMPLE_CHUNK",
+        "EVENT",
+        "CLOCK_MAPPING",
+        "CONFIG_CHANGE",
+        "GAP",
+        "FAULT",
+        "MODEL_RESULT",
+        "INTERVENTION",
+        "SESSION_TRAILER"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "required": ["provenance"],
+        "properties": {
+          "provenance": {
+            "const": "MODEL_INFERRED"
+          }
+        }
+      },
+      "then": {
+        "required": ["source_stream_ids", "source_sequence_ranges", "model"]
+      }
+    },
+    {
+      "if": {
+        "required": ["provenance"],
+        "properties": {
+          "provenance": {
+            "const": "INTERVENTION"
+          }
+        }
+      },
+      "then": {
+        "required": ["decision_id", "actuation_evidence_ids"]
+      }
+    },
+    {
+      "if": {
+        "required": ["record_type"],
+        "properties": {
+          "record_type": {
+            "const": "GAP"
+          }
+        }
+      },
+      "then": {
+        "required": ["dropped_first_sequence", "dropped_last_sequence", "cause"]
+      }
+    }
+  ]
+}
