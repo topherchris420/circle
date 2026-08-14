@@ -1,0 +1,31 @@
+flowchart LR
+    subgraph BAT_HUMAN["BAT_HUMAN domain"]
+        USB[USB_PRESENT]
+        DEBUG[DEBUG_ATTACHED]
+        EXP[EXTERNAL_EXPANSION_ATTACHED]
+        GOOD[BATTERY_VALID + SAFETY_POWER_GOOD + EDA_ANALOG_GOOD]
+        FW[EDA_FW_REQUEST]
+        Gate[Hardware fail-off EDA gate]
+        EDA[EDA front end + normally-open electrode switches]
+        Compute[Compute]
+        Storage[Storage]
+        Haptic[Haptic]
+        USB --> Gate
+        DEBUG --> Gate
+        EXP --> Gate
+        GOOD --> Gate
+        FW --> Gate
+        Gate --> EDA
+    end
+    ISOW[ISOW7742 reinforced isolation]:::barrier
+    subgraph LAB_ISO["LAB_ISO domain"]
+        BNCIN[BNC SYNC IN conditioning]
+        BNCOUT[BNC SYNC OUT open-drain]
+        LABGND[LAB_ISO_GND]
+    end
+    BNCIN --> ISOW
+    ISOW --> Compute
+    Compute --> ISOW
+    ISOW --> BNCOUT
+    Hazard["Procedural hazard: arbitrary grounded probes bypass intended attach detection"] -.-> BAT_HUMAN
+    classDef barrier fill:#f4b860,stroke:#161b22,stroke-width:3px;

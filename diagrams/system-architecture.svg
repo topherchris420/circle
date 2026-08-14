@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-label="CIRCLE Rev A Closed-Loop Architecture">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#30343b" />
+    </marker>
+  </defs>
+  <rect width="1200" height="720" fill="#fbfaf6" />
+  <text x="600" y="34" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#a32622">ENGINEERING REVIEW ONLY — NOT FOR HUMAN CONNECTION</text>
+  <text x="600" y="70" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#161b22">CIRCLE Rev A Closed-Loop Architecture</text>
+  <line x1="115.0" y1="141.0" x2="285.0" y2="141.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="200.0" y="135.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">sense</text>
+  <line x1="285.0" y1="141.0" x2="455.0" y2="141.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="370.0" y="135.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">synchronize</text>
+  <line x1="455.0" y1="141.0" x2="625.0" y2="141.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="540.0" y="135.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">model</text>
+  <line x1="625.0" y1="141.0" x2="795.0" y2="141.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="710.0" y="135.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">decide</text>
+  <line x1="795.0" y1="141.0" x2="1005.0" y2="141.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="900.0" y="135.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">command</text>
+  <line x1="1005.0" y1="141.0" x2="115.0" y2="141.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="560.0" y="135.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">intervene</text>
+  <line x1="115.0" y1="141.0" x2="285.0" y2="141.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="200.0" y="135.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">measure</text>
+  <line x1="115.0" y1="361.0" x2="285.0" y2="361.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="200.0" y="355.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">samples</text>
+  <line x1="285.0" y1="361.0" x2="455.0" y2="361.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="370.0" y="355.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">DMA</text>
+  <line x1="455.0" y1="361.0" x2="625.0" y2="361.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="540.0" y="355.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">spill</text>
+  <line x1="625.0" y1="361.0" x2="795.0" y2="361.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="710.0" y="355.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">async write</text>
+  <line x1="285.0" y1="361.0" x2="455.0" y2="501.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="370.0" y="425.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">records</text>
+  <line x1="455.0" y1="501.0" x2="795.0" y2="501.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="625.0" y="495.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">lower priority</text>
+  <line x1="162.5" y1="621.0" x2="285.0" y2="361.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="223.75" y="485.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">timestamps</text>
+  <line x1="162.5" y1="621.0" x2="1005.0" y2="141.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="583.75" y="375.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">action time</text>
+  <line x1="162.5" y1="621.0" x2="455.0" y2="501.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="308.75" y="555.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">metadata</text>
+  <line x1="455.0" y1="501.0" x2="722.5" y2="621.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="588.75" y="555.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">preserve</text>
+  <rect x="40" y="110" width="150" height="62" rx="10" fill="#f3e8d1" stroke="#30343b" stroke-width="2" />
+  <text x="115.0" y="146" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Human</text>
+  <rect x="210" y="110" width="150" height="62" rx="10" fill="#b9d8f2" stroke="#30343b" stroke-width="2" />
+  <text x="285.0" y="146" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">CIRCLE</text>
+  <rect x="380" y="110" width="150" height="62" rx="10" fill="#c9e6cf" stroke="#30343b" stroke-width="2" />
+  <text x="455.0" y="146" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">VitalSync</text>
+  <rect x="550" y="110" width="150" height="62" rx="10" fill="#c9e6cf" stroke="#30343b" stroke-width="2" />
+  <text x="625.0" y="146" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">DRR</text>
+  <rect x="720" y="110" width="150" height="62" rx="10" fill="#d7c6f2" stroke="#30343b" stroke-width="2" />
+  <text x="795.0" y="146" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">AdaptiveDecision</text>
+  <rect x="930" y="110" width="150" height="62" rx="10" fill="#f2c2b8" stroke="#30343b" stroke-width="2" />
+  <text x="1005.0" y="146" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Feedback</text>
+  <rect x="40" y="330" width="150" height="62" rx="10" fill="#cfe8e8" stroke="#30343b" stroke-width="2" />
+  <text x="115.0" y="366" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Sensors</text>
+  <rect x="210" y="330" width="150" height="62" rx="10" fill="#b9d8f2" stroke="#30343b" stroke-width="2" />
+  <text x="285.0" y="366" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Capture</text>
+  <rect x="380" y="330" width="150" height="62" rx="10" fill="#d9dde3" stroke="#30343b" stroke-width="2" />
+  <text x="455.0" y="366" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">SRAM</text>
+  <rect x="550" y="330" width="150" height="62" rx="10" fill="#d9dde3" stroke="#30343b" stroke-width="2" />
+  <text x="625.0" y="366" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">PSRAM</text>
+  <rect x="720" y="330" width="150" height="62" rx="10" fill="#d9dde3" stroke="#30343b" stroke-width="2" />
+  <text x="795.0" y="366" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">microSD</text>
+  <rect x="380" y="470" width="150" height="62" rx="10" fill="#b9d8f2" stroke="#30343b" stroke-width="2" />
+  <text x="455.0" y="506" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Record Assembly</text>
+  <rect x="720" y="470" width="150" height="62" rx="10" fill="#c9e6cf" stroke="#30343b" stroke-width="2" />
+  <text x="795.0" y="506" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Telemetry</text>
+  <rect x="40" y="590" width="245" height="62" rx="10" fill="#ffe29a" stroke="#30343b" stroke-width="2" />
+  <text x="162.5" y="626" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Authoritative Device Monotonic Clock</text>
+  <rect x="600" y="590" width="245" height="62" rx="10" fill="#fff1bf" stroke="#30343b" stroke-width="2" />
+  <text x="722.5" y="626" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Raw + Timing + Sequence + Quality + Provenance Evidence</text>
+</svg>

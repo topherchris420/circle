@@ -1,0 +1,19 @@
+flowchart LR
+    Human[Human] --> CIRCLE[CIRCLE]
+    CIRCLE --> VitalSync[VitalSync]
+    VitalSync --> DRR[DRR]
+    DRR --> AdaptiveDecision[AdaptiveDecision]
+    AdaptiveDecision --> Feedback[Feedback]
+    Feedback --> Human
+    Human -->|measurement| CIRCLE
+
+    Sensors[Sensors] --> Capture[Deterministic Capture]
+    Capture --> SRAM[SRAM Ring]
+    SRAM --> PSRAM[PSRAM Spill]
+    PSRAM --> SD[microSD]
+    Capture --> RecordAssembly[Record Assembly]
+    RecordAssembly --> Telemetry[BLE / Wi-Fi / USB Telemetry]
+    DeviceClock[Authoritative Device Monotonic Clock] --> Capture
+    DeviceClock --> Feedback
+    DeviceClock --> RecordAssembly
+    RecordAssembly --> Evidence[Raw + Timing + Sequence + Quality + Provenance Evidence]
