@@ -1,0 +1,126 @@
+{
+  "connectors": [
+    {
+      "name": "USB_C",
+      "domain": "BAT_HUMAN",
+      "eda_policy": "forces_disabled",
+      "pins": [
+        "VBUS_5V",
+        "USB_DN",
+        "USB_DP",
+        "USB_CC1",
+        "USB_CC2",
+        "USB_SHIELD"
+      ]
+    },
+    {
+      "name": "BATTERY",
+      "domain": "BAT_HUMAN",
+      "eda_policy": "internal_only",
+      "pins": [
+        "BAT_POS",
+        "BAT_NEG",
+        "BAT_NTC"
+      ]
+    },
+    {
+      "name": "EDA_ELECTRODES",
+      "domain": "BAT_HUMAN",
+      "eda_policy": "internal_only",
+      "pins": [
+        "EDA_DRIVE_P",
+        "EDA_DRIVE_N",
+        "EDA_SENSE_P",
+        "EDA_SENSE_N"
+      ]
+    },
+    {
+      "name": "PPG_HEAD",
+      "domain": "BAT_HUMAN",
+      "eda_policy": "internal_only",
+      "pins": [
+        "PPG_3V3",
+        "PPG_SDA_3V3",
+        "PPG_SCL_3V3",
+        "PPG_INT",
+        "BAT_HUMAN_GND"
+      ]
+    },
+    {
+      "name": "SYNC_IN_BNC",
+      "domain": "LAB_ISO",
+      "eda_policy": "isolated",
+      "pins": [
+        "SYNC_IN_CAPTURE",
+        "ISO_HEALTH_CHALLENGE"
+      ]
+    },
+    {
+      "name": "SYNC_OUT_BNC",
+      "domain": "LAB_ISO",
+      "eda_policy": "isolated",
+      "pins": [
+        "SYNC_OUT_DRIVE",
+        "ISO_HEALTH_STATUS"
+      ]
+    },
+    {
+      "name": "DEBUG",
+      "domain": "BAT_HUMAN",
+      "eda_policy": "forces_disabled",
+      "pins": [
+        "UART_TX",
+        "UART_RX",
+        "DEBUG_ATTACHED",
+        "BAT_HUMAN_GND"
+      ]
+    },
+    {
+      "name": "INTERNAL_EXPANSION",
+      "domain": "BAT_HUMAN",
+      "eda_policy": "internal_only",
+      "pins": [
+        "I2C_SDA_3V3",
+        "I2C_SCL_3V3",
+        "GPIO_EXP_INT",
+        "BAT_HUMAN_GND"
+      ]
+    },
+    {
+      "name": "EXTERNAL_EXPANSION",
+      "domain": "BAT_HUMAN",
+      "eda_policy": "forces_disabled",
+      "pins": [
+        "EXP_3V3",
+        "EXP_UART_TX",
+        "EXP_UART_RX",
+        "EXTERNAL_EXPANSION_ATTACHED",
+        "BAT_HUMAN_GND"
+      ]
+    },
+    {
+      "name": "HAPTIC",
+      "domain": "BAT_HUMAN",
+      "eda_policy": "internal_only",
+      "pins": [
+        "HAPTIC_VDRV",
+        "HAPTIC_CURRENT_EDGE",
+        "BAT_HUMAN_GND"
+      ]
+    },
+    {
+      "name": "MICROSD",
+      "domain": "BAT_HUMAN",
+      "eda_policy": "internal_only",
+      "pins": [
+        "SD_D0",
+        "SD_D1",
+        "SD_D2",
+        "SD_D3",
+        "SD_CLK",
+        "SD_CMD",
+        "BAT_HUMAN_GND"
+      ]
+    }
+  ]
+}

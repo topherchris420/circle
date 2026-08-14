@@ -1,0 +1,92 @@
+{
+  "schema": 1,
+  "release_class": "ENGINEERING_REVIEW_ONLY",
+  "boards": {
+    "circle-main": {
+      "domain": "BAT_HUMAN",
+      "sheets": [
+        {
+          "name": "00_root",
+          "title": "Hierarchy and safety domains"
+        },
+        {
+          "name": "01_compute_usb",
+          "title": "ESP32-S3 compute and USB"
+        },
+        {
+          "name": "02_power",
+          "title": "Battery, charging, and partitioned rails"
+        },
+        {
+          "name": "03_eda_safety",
+          "title": "EDA acquisition and fail-off interlocks"
+        },
+        {
+          "name": "04_sensors",
+          "title": "IMU and optical-head interface"
+        },
+        {
+          "name": "05_storage",
+          "title": "4-bit SDMMC recorder"
+        },
+        {
+          "name": "06_sync_isolation",
+          "title": "Isolated SYNC IN and OUT"
+        },
+        {
+          "name": "07_feedback_expansion",
+          "title": "Haptic and expansion"
+        },
+        {
+          "name": "08_observability",
+          "title": "Test points and fault injection"
+        }
+      ]
+    },
+    "circle-ppg": {
+      "domain": "BAT_HUMAN",
+      "sheets": [
+        {
+          "name": "00_ppg_root",
+          "title": "PPG contact board"
+        }
+      ]
+    }
+  },
+  "required_nets": [
+    "EDA_PREPARE",
+    "EDA_ACTIVE",
+    "BATTERY_VALID",
+    "USB_PRESENT",
+    "DEBUG_ATTACHED",
+    "EXTERNAL_EXPANSION_ATTACHED",
+    "SAFETY_POWER_GOOD",
+    "EDA_ANALOG_GOOD",
+    "PPG_SDA_3V3",
+    "PPG_SCL_3V3",
+    "PPG_INT",
+    "IMU_DRDY",
+    "EDA_DRDY",
+    "SD_D0",
+    "SD_D1",
+    "SD_D2",
+    "SD_D3",
+    "SD_CLK",
+    "SD_CMD",
+    "SYNC_IN_CAPTURE",
+    "SYNC_OUT_DRIVE",
+    "ISO_HEALTH_CHALLENGE",
+    "ISO_HEALTH_STATUS",
+    "HAPTIC_CURRENT_EDGE"
+  ],
+  "parts": [],
+  "review_gates": [
+    "EDA_LIMIT_NETWORK",
+    "EDA_SWITCH_SELECTION",
+    "BATTERY_AND_CHARGE_CURRENT",
+    "POWER_MAGNETICS_AND_THERMALS",
+    "ISOLATION_CREEPAGE_CLEARANCE",
+    "PPG_CABLE_SIGNAL_INTEGRITY",
+    "FOOTPRINT_VERIFICATION"
+  ]
+}
