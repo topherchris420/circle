@@ -79,7 +79,685 @@
     "ISO_HEALTH_STATUS",
     "HAPTIC_CURRENT_EDGE"
   ],
-  "parts": [],
+  "parts": [
+    {
+      "ref": "U1",
+      "value": "ESP32-S3-WROOM-1-N16R8",
+      "sheet": "01_compute_usb",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "J1",
+      "value": "USB-C-USB2",
+      "sheet": "01_compute_usb",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "D1",
+      "value": "TPD4E05U06",
+      "sheet": "01_compute_usb",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "R1",
+      "value": "5.1k",
+      "sheet": "01_compute_usb",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "R2",
+      "value": "5.1k",
+      "sheet": "01_compute_usb",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "R3",
+      "value": "22R",
+      "sheet": "01_compute_usb",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "R4",
+      "value": "22R",
+      "sheet": "01_compute_usb",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "S1",
+      "value": "BOOT",
+      "sheet": "01_compute_usb",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "S2",
+      "value": "RESET",
+      "sheet": "01_compute_usb",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "U6",
+      "value": "MCP23017",
+      "sheet": "01_compute_usb",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN",
+      "notes": "observability only; never EDA permission"
+    },
+    {
+      "ref": "U2",
+      "value": "BQ24074",
+      "sheet": "02_power",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN",
+      "review_gate": "BATTERY_AND_CHARGE_CURRENT"
+    },
+    {
+      "ref": "U3",
+      "value": "TPS63070",
+      "sheet": "02_power",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN",
+      "review_gate": "POWER_MAGNETICS_AND_THERMALS"
+    },
+    {
+      "ref": "U4",
+      "value": "TPS3700",
+      "sheet": "02_power",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "U5",
+      "value": "TPS3700",
+      "sheet": "02_power",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "J2",
+      "value": "LIPO_1S_NTC",
+      "sheet": "02_power",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN",
+      "review_gate": "FOOTPRINT_VERIFICATION"
+    },
+    {
+      "ref": "F1",
+      "value": "USB_INPUT_FUSE",
+      "sheet": "02_power",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "Q1",
+      "value": "SD_RAIL_SWITCH",
+      "sheet": "02_power",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "Q2",
+      "value": "PPG_LED_RAIL_SWITCH",
+      "sheet": "02_power",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "Q3",
+      "value": "HAPTIC_RAIL_SWITCH",
+      "sheet": "02_power",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "Q4",
+      "value": "ISOLATION_RAIL_SWITCH",
+      "sheet": "02_power",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "Q5",
+      "value": "EXPANSION_RAIL_SWITCH",
+      "sheet": "02_power",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "RSH1",
+      "value": "CURRENT_SHUNT",
+      "sheet": "02_power",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "RSH2",
+      "value": "CURRENT_SHUNT",
+      "sheet": "02_power",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "RSH3",
+      "value": "CURRENT_SHUNT",
+      "sheet": "02_power",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "RSH4",
+      "value": "CURRENT_SHUNT",
+      "sheet": "02_power",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "RSH5",
+      "value": "CURRENT_SHUNT",
+      "sheet": "02_power",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "RSH6",
+      "value": "CURRENT_SHUNT",
+      "sheet": "02_power",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "JP1",
+      "value": "KELVIN_MEASURE_JUMPER",
+      "sheet": "02_power",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "JP2",
+      "value": "KELVIN_MEASURE_JUMPER",
+      "sheet": "02_power",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "JP3",
+      "value": "KELVIN_MEASURE_JUMPER",
+      "sheet": "02_power",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "JP4",
+      "value": "KELVIN_MEASURE_JUMPER",
+      "sheet": "02_power",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "JP5",
+      "value": "KELVIN_MEASURE_JUMPER",
+      "sheet": "02_power",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "JP6",
+      "value": "KELVIN_MEASURE_JUMPER",
+      "sheet": "02_power",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "U10",
+      "value": "ADS1220",
+      "sheet": "03_eda_safety",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "U11",
+      "value": "OPA2192",
+      "sheet": "03_eda_safety",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "U12",
+      "value": "REF5020",
+      "sheet": "03_eda_safety",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "U13",
+      "value": "TPS3700",
+      "sheet": "03_eda_safety",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "U14",
+      "value": "TPS3700",
+      "sheet": "03_eda_safety",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "U15",
+      "value": "TPS3700",
+      "sheet": "03_eda_safety",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "K1",
+      "value": "REVIEW_GATE:EDA_SWITCH_SELECTION",
+      "sheet": "03_eda_safety",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN",
+      "review_gate": "EDA_SWITCH_SELECTION"
+    },
+    {
+      "ref": "K2",
+      "value": "REVIEW_GATE:EDA_SWITCH_SELECTION",
+      "sheet": "03_eda_safety",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN",
+      "review_gate": "EDA_SWITCH_SELECTION"
+    },
+    {
+      "ref": "R_EDA_A1",
+      "value": "REVIEW_GATE:EDA_LIMIT_NETWORK",
+      "sheet": "03_eda_safety",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN",
+      "review_gate": "EDA_LIMIT_NETWORK"
+    },
+    {
+      "ref": "R_EDA_A2",
+      "value": "REVIEW_GATE:EDA_LIMIT_NETWORK",
+      "sheet": "03_eda_safety",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN",
+      "review_gate": "EDA_LIMIT_NETWORK"
+    },
+    {
+      "ref": "R_EDA_B1",
+      "value": "REVIEW_GATE:EDA_LIMIT_NETWORK",
+      "sheet": "03_eda_safety",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN",
+      "review_gate": "EDA_LIMIT_NETWORK"
+    },
+    {
+      "ref": "R_EDA_B2",
+      "value": "REVIEW_GATE:EDA_LIMIT_NETWORK",
+      "sheet": "03_eda_safety",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN",
+      "review_gate": "EDA_LIMIT_NETWORK"
+    },
+    {
+      "ref": "J10",
+      "value": "EDA_ELECTRODES",
+      "sheet": "03_eda_safety",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "J11",
+      "value": "CAL_INJECTION_BEHIND_LIMITS",
+      "sheet": "03_eda_safety",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "U20",
+      "value": "ICM-42688-P",
+      "sheet": "04_sensors",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "J20",
+      "value": "KEYED_PPG_HEAD",
+      "sheet": "04_sensors",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "D20",
+      "value": "PPG_CABLE_ESD_BAT_DOMAIN",
+      "sheet": "04_sensors",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "J21",
+      "value": "MICROSD_4BIT_CARD_DETECT",
+      "sheet": "05_storage",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "D21",
+      "value": "SD_ESD_BAT_DOMAIN",
+      "sheet": "05_storage",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "S20",
+      "value": "SAFE_EJECT",
+      "sheet": "05_storage",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "RSD1",
+      "value": "SDMMC_SERIES_DAMPING",
+      "sheet": "05_storage",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "RSD2",
+      "value": "SDMMC_SERIES_DAMPING",
+      "sheet": "05_storage",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "RSD3",
+      "value": "SDMMC_SERIES_DAMPING",
+      "sheet": "05_storage",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "RSD4",
+      "value": "SDMMC_SERIES_DAMPING",
+      "sheet": "05_storage",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "RSD5",
+      "value": "SDMMC_SERIES_DAMPING",
+      "sheet": "05_storage",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "RSD6",
+      "value": "SDMMC_SERIES_DAMPING",
+      "sheet": "05_storage",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "U30",
+      "value": "ISOW7742",
+      "sheet": "06_sync_isolation",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN",
+      "review_gate": "ISOLATION_CREEPAGE_CLEARANCE"
+    },
+    {
+      "ref": "U31",
+      "value": "TTL_WINDOW_COMPARATOR",
+      "sheet": "06_sync_isolation",
+      "board": "circle-main",
+      "domain": "LAB_ISO"
+    },
+    {
+      "ref": "Q30",
+      "value": "SYNC_OUT_OPEN_DRAIN",
+      "sheet": "06_sync_isolation",
+      "board": "circle-main",
+      "domain": "LAB_ISO"
+    },
+    {
+      "ref": "J30",
+      "value": "SYNC_IN_BNC",
+      "sheet": "06_sync_isolation",
+      "board": "circle-main",
+      "domain": "LAB_ISO"
+    },
+    {
+      "ref": "J31",
+      "value": "SYNC_OUT_BNC",
+      "sheet": "06_sync_isolation",
+      "board": "circle-main",
+      "domain": "LAB_ISO"
+    },
+    {
+      "ref": "U40",
+      "value": "DRV2605L",
+      "sheet": "07_feedback_expansion",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "U41",
+      "value": "HAPTIC_CURRENT_COMPARATOR",
+      "sheet": "07_feedback_expansion",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "J40",
+      "value": "HAPTIC_ACTUATOR",
+      "sheet": "07_feedback_expansion",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "J41",
+      "value": "INTERNAL_EXPANSION",
+      "sheet": "07_feedback_expansion",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "J42",
+      "value": "EXTERNAL_EXPANSION",
+      "sheet": "07_feedback_expansion",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "TP1",
+      "value": "RAIL_OR_SAFETY_TEST_POINT",
+      "sheet": "08_observability",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "TP2",
+      "value": "RAIL_OR_SAFETY_TEST_POINT",
+      "sheet": "08_observability",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "TP3",
+      "value": "RAIL_OR_SAFETY_TEST_POINT",
+      "sheet": "08_observability",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "TP4",
+      "value": "RAIL_OR_SAFETY_TEST_POINT",
+      "sheet": "08_observability",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "TP5",
+      "value": "RAIL_OR_SAFETY_TEST_POINT",
+      "sheet": "08_observability",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "TP6",
+      "value": "RAIL_OR_SAFETY_TEST_POINT",
+      "sheet": "08_observability",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "TP7",
+      "value": "RAIL_OR_SAFETY_TEST_POINT",
+      "sheet": "08_observability",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "TP8",
+      "value": "RAIL_OR_SAFETY_TEST_POINT",
+      "sheet": "08_observability",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "TP9",
+      "value": "RAIL_OR_SAFETY_TEST_POINT",
+      "sheet": "08_observability",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "TP10",
+      "value": "RAIL_OR_SAFETY_TEST_POINT",
+      "sheet": "08_observability",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "TP11",
+      "value": "RAIL_OR_SAFETY_TEST_POINT",
+      "sheet": "08_observability",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "TP12",
+      "value": "RAIL_OR_SAFETY_TEST_POINT",
+      "sheet": "08_observability",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "TP13",
+      "value": "RAIL_OR_SAFETY_TEST_POINT",
+      "sheet": "08_observability",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "TP14",
+      "value": "RAIL_OR_SAFETY_TEST_POINT",
+      "sheet": "08_observability",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "TP15",
+      "value": "RAIL_OR_SAFETY_TEST_POINT",
+      "sheet": "08_observability",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "TP16",
+      "value": "RAIL_OR_SAFETY_TEST_POINT",
+      "sheet": "08_observability",
+      "board": "circle-main",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "U101",
+      "value": "MAX30102",
+      "sheet": "00_ppg_root",
+      "board": "circle-ppg",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "U102",
+      "value": "1V8_LOW_NOISE_LDO",
+      "sheet": "00_ppg_root",
+      "board": "circle-ppg",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "U103",
+      "value": "I2C_LEVEL_TRANSLATOR",
+      "sheet": "00_ppg_root",
+      "board": "circle-ppg",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "U104",
+      "value": "AT24CS02",
+      "sheet": "00_ppg_root",
+      "board": "circle-ppg",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "U105",
+      "value": "LIS2DW12",
+      "sheet": "00_ppg_root",
+      "board": "circle-ppg",
+      "domain": "BAT_HUMAN",
+      "status": "DNI"
+    },
+    {
+      "ref": "D101",
+      "value": "PPG_CABLE_ESD",
+      "sheet": "00_ppg_root",
+      "board": "circle-ppg",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "R101",
+      "value": "I2C_DAMPING",
+      "sheet": "00_ppg_root",
+      "board": "circle-ppg",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "R102",
+      "value": "I2C_DAMPING",
+      "sheet": "00_ppg_root",
+      "board": "circle-ppg",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "C101",
+      "value": "LOGIC_DECOUPLING",
+      "sheet": "00_ppg_root",
+      "board": "circle-ppg",
+      "domain": "BAT_HUMAN"
+    },
+    {
+      "ref": "C102",
+      "value": "LED_FILTER",
+      "sheet": "00_ppg_root",
+      "board": "circle-ppg",
+      "domain": "BAT_HUMAN"
+    }
+  ],
   "review_gates": [
     "EDA_LIMIT_NETWORK",
     "EDA_SWITCH_SELECTION",
@@ -88,5 +766,87 @@
     "ISOLATION_CREEPAGE_CLEARANCE",
     "PPG_CABLE_SIGNAL_INTEGRITY",
     "FOOTPRINT_VERIFICATION"
-  ]
+  ],
+  "gpio_allocation": {
+    "GPIO0": "BOOT_BUTTON_ONLY",
+    "GPIO1": "SYNC_IN_CAPTURE",
+    "GPIO2": "SYNC_OUT_DRIVE",
+    "GPIO3": "RESERVED_STRAP",
+    "GPIO4": "SD_CLK",
+    "GPIO5": "SD_CMD",
+    "GPIO6": "SD_D0",
+    "GPIO7": "SD_D1",
+    "GPIO8": "SYS_I2C_SDA",
+    "GPIO9": "SYS_I2C_SCL",
+    "GPIO10": "IMU_SCLK",
+    "GPIO11": "IMU_MOSI",
+    "GPIO12": "IMU_MISO",
+    "GPIO13": "IMU_CS_N",
+    "GPIO14": "IMU_DRDY",
+    "GPIO15": "SD_D2",
+    "GPIO16": "SD_D3",
+    "GPIO17": "PPG_SDA_3V3",
+    "GPIO18": "PPG_SCL_3V3",
+    "GPIO19": "USB_D_MINUS",
+    "GPIO20": "USB_D_PLUS",
+    "GPIO21": "PPG_INT_N_WIRED_OR",
+    "GPIO35": "UNAVAILABLE_OCTAL_PSRAM",
+    "GPIO36": "UNAVAILABLE_OCTAL_PSRAM",
+    "GPIO37": "UNAVAILABLE_OCTAL_PSRAM",
+    "GPIO38": "ISO_HEALTH_CHALLENGE",
+    "GPIO39": "EDA_SCLK",
+    "GPIO40": "EDA_MOSI",
+    "GPIO41": "EDA_MISO",
+    "GPIO42": "EDA_CS_N",
+    "GPIO43": "DEBUG_UART_TX",
+    "GPIO44": "DEBUG_UART_RX",
+    "GPIO45": "EDA_FW_REQUEST",
+    "GPIO46": "HAPTIC_CURRENT_EDGE",
+    "GPIO47": "EDA_DRDY",
+    "GPIO48": "SYS_STATUS_INT_N"
+  },
+  "safety_paths": {
+    "USB_PRESENT": [
+      "EDA_RAIL_DISABLE",
+      "K1_DRIVE_DISABLE",
+      "K2_DRIVE_DISABLE"
+    ],
+    "DEBUG_ATTACHED": [
+      "EDA_RAIL_DISABLE",
+      "K1_DRIVE_DISABLE",
+      "K2_DRIVE_DISABLE"
+    ],
+    "EXTERNAL_EXPANSION_ATTACHED": [
+      "EDA_RAIL_DISABLE",
+      "K1_DRIVE_DISABLE",
+      "K2_DRIVE_DISABLE"
+    ],
+    "EDA_PREPARE": [
+      "EDA_ANALOG_RAIL_ENABLE"
+    ],
+    "EDA_ACTIVE": [
+      "K1_DRIVE",
+      "K2_DRIVE"
+    ]
+  },
+  "power_path_evidence": {
+    "USB_PRESENT_origin": "J1_VBUS_BEFORE_U2",
+    "VBAT_monitor": "U4_BATTERY_VALID",
+    "GPIO45_reset": "LOW_FAIL_OFF",
+    "GPIO46_reset": "LOW_HAPTIC_COMPARATOR"
+  },
+  "observability_only": {
+    "U6": [
+      "USB_PRESENT",
+      "DEBUG_ATTACHED",
+      "EXTERNAL_EXPANSION_ATTACHED",
+      "BATTERY_VALID",
+      "SAFETY_POWER_GOOD",
+      "EDA_ANALOG_GOOD",
+      "SD_CARD_DETECT",
+      "HAPTIC_FAULT",
+      "ISO_HEALTH_STATUS"
+    ],
+    "interrupt": "GPIO48"
+  }
 }

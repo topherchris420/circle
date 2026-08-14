@@ -24,7 +24,7 @@ EXPECTED_CONNECTORS = [
     {"name": "USB_C", "domain": "BAT_HUMAN", "eda_policy": "forces_disabled", "pins": ["VBUS_5V", "USB_DN", "USB_DP", "USB_CC1", "USB_CC2", "USB_SHIELD"]},
     {"name": "BATTERY", "domain": "BAT_HUMAN", "eda_policy": "internal_only", "pins": ["BAT_POS", "BAT_NEG", "BAT_NTC"]},
     {"name": "EDA_ELECTRODES", "domain": "BAT_HUMAN", "eda_policy": "internal_only", "pins": ["EDA_DRIVE_P", "EDA_DRIVE_N", "EDA_SENSE_P", "EDA_SENSE_N"]},
-    {"name": "PPG_HEAD", "domain": "BAT_HUMAN", "eda_policy": "internal_only", "pins": ["PPG_3V3", "PPG_SDA_3V3", "PPG_SCL_3V3", "PPG_INT", "BAT_HUMAN_GND"]},
+    {"name": "PPG_HEAD", "domain": "BAT_HUMAN", "eda_policy": "internal_only", "pins": ["PPG_3V3", "PPG_LED_PWR", "PPG_SDA_3V3", "PPG_SCL_3V3", "PPG_INT", "PPG_MOTION_INT", "PPG_BOARD_ID", "PPG_LOGIC_GND", "PPG_LED_GND"]},
     {"name": "SYNC_IN_BNC", "domain": "LAB_ISO", "eda_policy": "isolated", "pins": ["SYNC_IN_LAB", "LAB_ISO_GND"]},
     {"name": "SYNC_OUT_BNC", "domain": "LAB_ISO", "eda_policy": "isolated", "pins": ["SYNC_OUT_LAB", "LAB_ISO_GND"]},
     {"name": "DEBUG", "domain": "BAT_HUMAN", "eda_policy": "forces_disabled", "pins": ["UART_TX", "UART_RX", "DEBUG_ATTACHED", "BAT_HUMAN_GND"]},

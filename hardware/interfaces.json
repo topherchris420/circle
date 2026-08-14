@@ -40,10 +40,14 @@
       "eda_policy": "internal_only",
       "pins": [
         "PPG_3V3",
+        "PPG_LED_PWR",
         "PPG_SDA_3V3",
         "PPG_SCL_3V3",
         "PPG_INT",
-        "BAT_HUMAN_GND"
+        "PPG_MOTION_INT",
+        "PPG_BOARD_ID",
+        "PPG_LOGIC_GND",
+        "PPG_LED_GND"
       ]
     },
     {
