@@ -1,0 +1,10 @@
+* text=auto
+*.md text eol=lf
+*.json text eol=lf
+*.py text eol=lf
+*.sch text eol=lf
+*.lib text eol=lf
+*.kicad_pro text eol=lf
+*.kicad_sch text eol=lf
+*.svg text eol=lf
+*.pdf binary

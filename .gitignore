@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+*.bak
+*.lck
+*-backups/
+hardware/reports/work/
