@@ -6,7 +6,13 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title "IMU and optical-head interface"
+Date "2026-08-14"
+Rev "A"
+Comp "Vers3Dynamics"
 Comment1 "ENGINEERING REVIEW ONLY - NOT FOR HUMAN CONNECTION"
+Comment2 "Generated artifact - edit manifest/generator"
+Comment3 ""
+Comment4 ""
 $EndDescr
 $Comp
 L ICM_42688_P U20
@@ -14,6 +20,9 @@ U 1 1 00000001
 P 1300 1200
 F 0 "U20" H 1400 1300 50  0000 C CNN
 F 1 "ICM-42688-P" H 1400 1100 50  0000 C CNN
+F 2 "" H 1300 1200 50  0001 C CNN
+F 3 "" H 1300 1200 50  0001 C CNN
+	1    1300 1200
 	1    0    0    -1
 $EndComp
 $Comp
@@ -22,6 +31,9 @@ U 1 1 00000002
 P 3400 1200
 F 0 "J20" H 3500 1300 50  0000 C CNN
 F 1 "KEYED_PPG_HEAD" H 3500 1100 50  0000 C CNN
+F 2 "" H 3400 1200 50  0001 C CNN
+F 3 "" H 3400 1200 50  0001 C CNN
+	1    3400 1200
 	1    0    0    -1
 $EndComp
 $Comp
@@ -30,28 +42,31 @@ U 1 1 00000003
 P 5500 1200
 F 0 "D20" H 5600 1300 50  0000 C CNN
 F 1 "PPG_CABLE_ESD_BAT_DOMAIN" H 5600 1100 50  0000 C CNN
+F 2 "" H 5500 1200 50  0001 C CNN
+F 3 "" H 5500 1200 50  0001 C CNN
+	1    5500 1200
 	1    0    0    -1
 $EndComp
-Text Label 700 5600 0    50   ~ 0
-IMU_SCLK
-Text Label 700 5840 0    50   ~ 0
-IMU_MOSI
-Text Label 700 6080 0    50   ~ 0
-IMU_MISO
-Text Label 700 6320 0    50   ~ 0
-IMU_CS_N
-Text Label 700 6560 0    50   ~ 0
-IMU_DRDY
-Text Label 700 6800 0    50   ~ 0
-PPG_SDA_3V3
-Text Label 700 7040 0    50   ~ 0
-PPG_SCL_3V3
-Text Label 700 7280 0    50   ~ 0
-PPG_INT
-Text Label 6000 5600 0    50   ~ 0
-PPG_MOTION_INT
-Text Label 6000 5840 0    50   ~ 0
-PPG_BOARD_ID
 Text Notes 600 400 0    50   ~ 0
 ENGINEERING REVIEW ONLY - NOT FOR HUMAN CONNECTION
+Text Notes 700 5600 0    50   ~ 0
+NET:IMU_SCLK
+Text Notes 700 5850 0    50   ~ 0
+NET:IMU_MOSI
+Text Notes 700 6100 0    50   ~ 0
+NET:IMU_MISO
+Text Notes 700 6350 0    50   ~ 0
+NET:IMU_CS_N
+Text Notes 700 6600 0    50   ~ 0
+NET:IMU_DRDY
+Text Notes 700 6850 0    50   ~ 0
+NET:PPG_SDA_3V3
+Text Notes 700 7100 0    50   ~ 0
+NET:PPG_SCL_3V3
+Text Notes 700 7350 0    50   ~ 0
+NET:PPG_INT
+Text Notes 6000 5600 0    50   ~ 0
+NET:PPG_MOTION_INT
+Text Notes 6000 5850 0    50   ~ 0
+NET:PPG_BOARD_ID
 $EndSCHEMATC

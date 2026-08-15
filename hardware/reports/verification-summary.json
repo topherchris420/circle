@@ -1,0 +1,158 @@
+{
+  "verified": true,
+  "release_class": "ENGINEERING_REVIEW_ONLY",
+  "steps": [
+    {
+      "command": [
+        "C:\\Users\\chris\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.797
+    },
+    {
+      "command": [
+        "C:\\Users\\chris\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "tools/check_design_manifest.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.347
+    },
+    {
+      "command": [
+        "C:\\Users\\chris\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "tools/check_record_schema.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.231
+    },
+    {
+      "command": [
+        "C:\\Users\\chris\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "tools/render_diagrams.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.223
+    },
+    {
+      "command": [
+        "C:\\Users\\chris\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "tools/generate_schematics.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.367
+    },
+    {
+      "command": [
+        "C:\\Users\\chris\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "tools/generate_schematics.py",
+        "--board",
+        "circle-ppg"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.223
+    },
+    {
+      "command": [
+        "C:\\Users\\chris\\AppData\\Local\\Programs\\KiCad\\10.0\\bin\\kicad-cli.exe",
+        "version"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.696
+    },
+    {
+      "command": [
+        "C:\\Users\\chris\\AppData\\Local\\Programs\\KiCad\\10.0\\bin\\kicad-cli.exe",
+        "sch",
+        "erc",
+        "--format",
+        "json",
+        "--severity-all",
+        "--output",
+        "hardware/reports/circle-main-erc.json",
+        "hardware/circle-main/legacy/00_root.sch"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 19.654
+    },
+    {
+      "command": [
+        "C:\\Users\\chris\\AppData\\Local\\Programs\\KiCad\\10.0\\bin\\kicad-cli.exe",
+        "sch",
+        "erc",
+        "--format",
+        "json",
+        "--severity-all",
+        "--output",
+        "hardware/reports/circle-ppg-erc.json",
+        "hardware/circle-ppg/legacy/00_ppg_root.sch"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 14.903
+    },
+    {
+      "command": [
+        "C:\\Users\\chris\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "tools/check_erc.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.236
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "docs\\superpowers\\specs\\2026-08-14-circle-rev-a-design.md",
+      "sha256": "f016fba651f6ddc5154a6ab6056111ea209986fc3bad21d084d903d1e110eb52"
+    },
+    {
+      "path": "hardware\\design-manifest.json",
+      "sha256": "8e92c1bd8d47faa49f4cd6d777c6d2fbf0e681c62cb5a91ee00102f6d9423071"
+    },
+    {
+      "path": "hardware\\interfaces.json",
+      "sha256": "fb8dd7d6f5a409663db0b934ea8d78aac5521cf795f27763b0a4b39cac89f602"
+    },
+    {
+      "path": "hardware\\circle-main\\legacy\\00_root.sch",
+      "sha256": "1668fbf31b4e699637c165203ce1e18e401d27e93603a4871cd1b1268d17df57"
+    },
+    {
+      "path": "hardware\\circle-ppg\\legacy\\00_ppg_root.sch",
+      "sha256": "3dabcc5205f1b49b98981e440a54df5c83e64eb32e2b8d3751ab9d478fc606e3"
+    },
+    {
+      "path": "hardware\\reports\\circle-main-erc.json",
+      "sha256": "120e456ac570dee1d40739c863b2f37ef578830aa7453855641a31561df3fb00"
+    },
+    {
+      "path": "hardware\\reports\\circle-ppg-erc.json",
+      "sha256": "e90a560a9159a2b756f27886a2735e34a214f19ca3abf5ce7959ae4b05c6e83b"
+    },
+    {
+      "path": "hardware\\reports\\bom\\circle-main.csv",
+      "sha256": "74a5eef9c33640030b19ef71c990490f44ff0468297dec8617383ddca32a98c5"
+    },
+    {
+      "path": "hardware\\reports\\bom\\circle-ppg.csv",
+      "sha256": "74a5eef9c33640030b19ef71c990490f44ff0468297dec8617383ddca32a98c5"
+    },
+    {
+      "path": "hardware\\reports\\pdf\\circle-main.pdf",
+      "sha256": "4da04e9686af10387524cf233e4979d6a399b71bf259eac5a7d0a0dbeaf21b66"
+    },
+    {
+      "path": "hardware\\reports\\pdf\\circle-ppg.pdf",
+      "sha256": "be8cb11d36b58ab82acb8921e44a343152b3a214ab94ddcee0872ede4ba20a54"
+    }
+  ],
+  "disallowed_placeholders": [],
+  "limitations": [
+    "KiCad 10 CLI parses, ERC-checks, and exports legacy sources but does not import legacy .sch into native .kicad_sch.",
+    "ERC validates parser-visible structure; architecture-level NET annotations do not constitute fabrication-ready electrical connectivity.",
+    "No fabrication, powered-electrode, human, EMC, or regulatory validation performed."
+  ]
+}

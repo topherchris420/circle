@@ -51,6 +51,8 @@ class LegacySheet:
     components: list[Component] = field(default_factory=list)
     wires: list[tuple[int, int, int, int]] = field(default_factory=list)
     labels: list[tuple[str, int, int]] = field(default_factory=list)
+    no_connects: list[tuple[int, int]] = field(default_factory=list)
+    global_labels: list[tuple[str, int, int]] = field(default_factory=list)
     notes: list[tuple[str, int, int]] = field(default_factory=list)
     children: list[tuple[str, str, int, int]] = field(default_factory=list)
     def add(self, component):
@@ -63,17 +65,25 @@ class LegacySheet:
         _coord(x, y)
         if re.search(r"\s", name): raise ValueError("labels cannot contain whitespace")
         self.labels.append((name, x, y)); return self
+    def global_label(self, name, x, y):
+        _coord(x, y)
+        if re.search(r"\s", name): raise ValueError("labels cannot contain whitespace")
+        self.global_labels.append((name, x, y)); return self
+    def no_connect(self, x, y):
+        _coord(x, y); self.no_connects.append((x, y)); return self
     def note(self, text, x, y):
         _coord(x, y); self.notes.append((text, x, y)); return self
     def child_sheet(self, title, filename, x, y):
         _coord(x, y); self.children.append((title, filename, x, y)); return self
     def emit(self):
-        lines = ["EESchema Schematic File Version 4", "LIBS:circle-cache", "EELAYER 29 0", "EELAYER END", "$Descr A4 11693 8268", "encoding utf-8", "Sheet 1 1", f'Title "{self.title}"', 'Comment1 "ENGINEERING REVIEW ONLY - NOT FOR HUMAN CONNECTION"', "$EndDescr"]
+        lines = ["EESchema Schematic File Version 4", "LIBS:circle-cache", "EELAYER 29 0", "EELAYER END", "$Descr A4 11693 8268", "encoding utf-8", "Sheet 1 1", f'Title "{self.title}"', 'Date "2026-08-14"', 'Rev "A"', 'Comp "Vers3Dynamics"', 'Comment1 "ENGINEERING REVIEW ONLY - NOT FOR HUMAN CONNECTION"', 'Comment2 "Generated artifact - edit manifest/generator"', 'Comment3 ""', 'Comment4 ""', "$EndDescr"]
         for index, component in enumerate(self.components, 1):
-            lines += ["$Comp", f"L {component.symbol} {component.ref}", f"U 1 1 {index:08X}", f"P {component.x} {component.y}", f'F 0 "{component.ref}" H {component.x + 100} {component.y + 100} 50  0000 C CNN', f'F 1 "{component.value}" H {component.x + 100} {component.y - 100} 50  0000 C CNN', "\t1    0    0    -1", "$EndComp"]
+            lines += ["$Comp", f"L {component.symbol} {component.ref}", f"U 1 1 {index:08X}", f"P {component.x} {component.y}", f'F 0 "{component.ref}" H {component.x + 100} {component.y + 100} 50  0000 C CNN', f'F 1 "{component.value}" H {component.x + 100} {component.y - 100} 50  0000 C CNN', f'F 2 "" H {component.x} {component.y} 50  0001 C CNN', f'F 3 "" H {component.x} {component.y} 50  0001 C CNN', f"\t1    {component.x} {component.y}", "\t1    0    0    -1", "$EndComp"]
         for index, (title, filename, x, y) in enumerate(self.children, 1):
             lines += ["$Sheet", f"S {x} {y} 1300 700", f"U {0x10000000 + index:08X}", f'F0 "{title}" 50', f'F1 "{filename}" 50', "$EndSheet"]
         for x1, y1, x2, y2 in self.wires: lines += ["Wire Wire Line", f"\t{x1} {y1} {x2} {y2}"]
+        for name, x, y in self.global_labels: lines.append(f"Text GLabel {x} {y} 0    50   Input ~ 0\n{name}")
+        for x, y in self.no_connects: lines.append(f"NoConn ~ {x} {y}")
         for name, x, y in self.labels: lines.append(f"Text Label {x} {y} 0    50   ~ 0\n{name}")
         for text, x, y in self.notes: lines.append(f"Text Notes {x} {y} 0    50   ~ 0\n{text}")
         return "\n".join(lines + ["$EndSCHEMATC", ""])

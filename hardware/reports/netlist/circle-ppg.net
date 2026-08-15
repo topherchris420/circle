@@ -1,0 +1,62 @@
+(export
+	(version "E")
+	(design
+		(source "C:\\Users\\chris\\.config\\superpowers\\worktrees\\circle-rev-a\\rev-a-schematic\\hardware\\circle-ppg\\legacy\\00_ppg_root.sch")
+		(date "2026-08-14T19:59:52")
+		(tool "Eeschema 10.0.5")
+		(sheet
+			(number "1")
+			(name "/")
+			(tstamps "/")
+			(title_block
+				(title "PPG contact board")
+				(company "Vers3Dynamics")
+				(rev "A")
+				(date "2026-08-14")
+				(source "00_ppg_root.sch")
+				(comment
+					(number "1")
+					(value "ENGINEERING REVIEW ONLY - NOT FOR HUMAN CONNECTION")
+				)
+				(comment
+					(number "2")
+					(value "Generated artifact - edit manifest/generator")
+				)
+				(comment
+					(number "3")
+					(value "")
+				)
+				(comment
+					(number "4")
+					(value "")
+				)
+				(comment
+					(number "5")
+					(value "")
+				)
+				(comment
+					(number "6")
+					(value "")
+				)
+				(comment
+					(number "7")
+					(value "")
+				)
+				(comment
+					(number "8")
+					(value "")
+				)
+				(comment
+					(number "9")
+					(value "")
+				)
+			)
+		)
+	)
+	(components)
+	(groups)
+	(variants)
+	(libparts)
+	(libraries)
+	(nets)
+)

@@ -46,8 +46,8 @@ def make_sheet(name, title, parts, child_names=()):
     for index, child in enumerate(child_names):
         sheet.child_sheet(child, child + ".sch", 900 + (index % 2) * 4800, 1100 + (index // 2) * 1300)
     for index, net in enumerate(SHEET_NETS[name]):
-        y = 5600 + (index % 8) * 240; x = 700 if index < 8 else 6000
-        if re.fullmatch(r"[A-Z0-9_]+", net): sheet.label(net, x, y)
+        y = 5600 + (index % 8) * 250; x = 700 if index < 8 else 6000
+        if re.fullmatch(r"[A-Z0-9_]+", net): sheet.note(f"NET:{net}", x, y)
         else: sheet.note(net, x, y)
     return sheet
 

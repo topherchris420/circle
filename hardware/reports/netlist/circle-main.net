@@ -1,0 +1,446 @@
+(export
+	(version "E")
+	(design
+		(source "C:\\Users\\chris\\.config\\superpowers\\worktrees\\circle-rev-a\\rev-a-schematic\\hardware\\circle-main\\legacy\\00_root.sch")
+		(date "2026-08-14T19:59:51")
+		(tool "Eeschema 10.0.5")
+		(sheet
+			(number "1")
+			(name "/")
+			(tstamps "/")
+			(title_block
+				(title "Hierarchy and safety domains")
+				(company "Vers3Dynamics")
+				(rev "A")
+				(date "2026-08-14")
+				(source "00_root.sch")
+				(comment
+					(number "1")
+					(value "ENGINEERING REVIEW ONLY - NOT FOR HUMAN CONNECTION")
+				)
+				(comment
+					(number "2")
+					(value "Generated artifact - edit manifest/generator")
+				)
+				(comment
+					(number "3")
+					(value "")
+				)
+				(comment
+					(number "4")
+					(value "")
+				)
+				(comment
+					(number "5")
+					(value "")
+				)
+				(comment
+					(number "6")
+					(value "")
+				)
+				(comment
+					(number "7")
+					(value "")
+				)
+				(comment
+					(number "8")
+					(value "")
+				)
+				(comment
+					(number "9")
+					(value "")
+				)
+			)
+		)
+		(sheet
+			(number "2")
+			(name "/01_compute_usb/")
+			(tstamps "/00000000-0000-0000-0000-000010000001/")
+			(title_block
+				(title "ESP32-S3 compute and USB")
+				(company "Vers3Dynamics")
+				(rev "A")
+				(date "2026-08-14")
+				(source "01_compute_usb.sch")
+				(comment
+					(number "1")
+					(value "ENGINEERING REVIEW ONLY - NOT FOR HUMAN CONNECTION")
+				)
+				(comment
+					(number "2")
+					(value "Generated artifact - edit manifest/generator")
+				)
+				(comment
+					(number "3")
+					(value "")
+				)
+				(comment
+					(number "4")
+					(value "")
+				)
+				(comment
+					(number "5")
+					(value "")
+				)
+				(comment
+					(number "6")
+					(value "")
+				)
+				(comment
+					(number "7")
+					(value "")
+				)
+				(comment
+					(number "8")
+					(value "")
+				)
+				(comment
+					(number "9")
+					(value "")
+				)
+			)
+		)
+		(sheet
+			(number "3")
+			(name "/03_eda_safety/")
+			(tstamps "/00000000-0000-0000-0000-000010000003/")
+			(title_block
+				(title "EDA acquisition and fail-off interlocks")
+				(company "Vers3Dynamics")
+				(rev "A")
+				(date "2026-08-14")
+				(source "03_eda_safety.sch")
+				(comment
+					(number "1")
+					(value "ENGINEERING REVIEW ONLY - NOT FOR HUMAN CONNECTION")
+				)
+				(comment
+					(number "2")
+					(value "Generated artifact - edit manifest/generator")
+				)
+				(comment
+					(number "3")
+					(value "")
+				)
+				(comment
+					(number "4")
+					(value "")
+				)
+				(comment
+					(number "5")
+					(value "")
+				)
+				(comment
+					(number "6")
+					(value "")
+				)
+				(comment
+					(number "7")
+					(value "")
+				)
+				(comment
+					(number "8")
+					(value "")
+				)
+				(comment
+					(number "9")
+					(value "")
+				)
+			)
+		)
+		(sheet
+			(number "4")
+			(name "/05_storage/")
+			(tstamps "/00000000-0000-0000-0000-000010000005/")
+			(title_block
+				(title "4-bit SDMMC recorder")
+				(company "Vers3Dynamics")
+				(rev "A")
+				(date "2026-08-14")
+				(source "05_storage.sch")
+				(comment
+					(number "1")
+					(value "ENGINEERING REVIEW ONLY - NOT FOR HUMAN CONNECTION")
+				)
+				(comment
+					(number "2")
+					(value "Generated artifact - edit manifest/generator")
+				)
+				(comment
+					(number "3")
+					(value "")
+				)
+				(comment
+					(number "4")
+					(value "")
+				)
+				(comment
+					(number "5")
+					(value "")
+				)
+				(comment
+					(number "6")
+					(value "")
+				)
+				(comment
+					(number "7")
+					(value "")
+				)
+				(comment
+					(number "8")
+					(value "")
+				)
+				(comment
+					(number "9")
+					(value "")
+				)
+			)
+		)
+		(sheet
+			(number "5")
+			(name "/07_feedback_expansion/")
+			(tstamps "/00000000-0000-0000-0000-000010000007/")
+			(title_block
+				(title "Haptic and expansion")
+				(company "Vers3Dynamics")
+				(rev "A")
+				(date "2026-08-14")
+				(source "07_feedback_expansion.sch")
+				(comment
+					(number "1")
+					(value "ENGINEERING REVIEW ONLY - NOT FOR HUMAN CONNECTION")
+				)
+				(comment
+					(number "2")
+					(value "Generated artifact - edit manifest/generator")
+				)
+				(comment
+					(number "3")
+					(value "")
+				)
+				(comment
+					(number "4")
+					(value "")
+				)
+				(comment
+					(number "5")
+					(value "")
+				)
+				(comment
+					(number "6")
+					(value "")
+				)
+				(comment
+					(number "7")
+					(value "")
+				)
+				(comment
+					(number "8")
+					(value "")
+				)
+				(comment
+					(number "9")
+					(value "")
+				)
+			)
+		)
+		(sheet
+			(number "6")
+			(name "/02_power/")
+			(tstamps "/00000000-0000-0000-0000-000010000002/")
+			(title_block
+				(title "Battery, charging, and partitioned rails")
+				(company "Vers3Dynamics")
+				(rev "A")
+				(date "2026-08-14")
+				(source "02_power.sch")
+				(comment
+					(number "1")
+					(value "ENGINEERING REVIEW ONLY - NOT FOR HUMAN CONNECTION")
+				)
+				(comment
+					(number "2")
+					(value "Generated artifact - edit manifest/generator")
+				)
+				(comment
+					(number "3")
+					(value "")
+				)
+				(comment
+					(number "4")
+					(value "")
+				)
+				(comment
+					(number "5")
+					(value "")
+				)
+				(comment
+					(number "6")
+					(value "")
+				)
+				(comment
+					(number "7")
+					(value "")
+				)
+				(comment
+					(number "8")
+					(value "")
+				)
+				(comment
+					(number "9")
+					(value "")
+				)
+			)
+		)
+		(sheet
+			(number "7")
+			(name "/04_sensors/")
+			(tstamps "/00000000-0000-0000-0000-000010000004/")
+			(title_block
+				(title "IMU and optical-head interface")
+				(company "Vers3Dynamics")
+				(rev "A")
+				(date "2026-08-14")
+				(source "04_sensors.sch")
+				(comment
+					(number "1")
+					(value "ENGINEERING REVIEW ONLY - NOT FOR HUMAN CONNECTION")
+				)
+				(comment
+					(number "2")
+					(value "Generated artifact - edit manifest/generator")
+				)
+				(comment
+					(number "3")
+					(value "")
+				)
+				(comment
+					(number "4")
+					(value "")
+				)
+				(comment
+					(number "5")
+					(value "")
+				)
+				(comment
+					(number "6")
+					(value "")
+				)
+				(comment
+					(number "7")
+					(value "")
+				)
+				(comment
+					(number "8")
+					(value "")
+				)
+				(comment
+					(number "9")
+					(value "")
+				)
+			)
+		)
+		(sheet
+			(number "8")
+			(name "/06_sync_isolation/")
+			(tstamps "/00000000-0000-0000-0000-000010000006/")
+			(title_block
+				(title "Isolated SYNC IN and OUT")
+				(company "Vers3Dynamics")
+				(rev "A")
+				(date "2026-08-14")
+				(source "06_sync_isolation.sch")
+				(comment
+					(number "1")
+					(value "ENGINEERING REVIEW ONLY - NOT FOR HUMAN CONNECTION")
+				)
+				(comment
+					(number "2")
+					(value "Generated artifact - edit manifest/generator")
+				)
+				(comment
+					(number "3")
+					(value "")
+				)
+				(comment
+					(number "4")
+					(value "")
+				)
+				(comment
+					(number "5")
+					(value "")
+				)
+				(comment
+					(number "6")
+					(value "")
+				)
+				(comment
+					(number "7")
+					(value "")
+				)
+				(comment
+					(number "8")
+					(value "")
+				)
+				(comment
+					(number "9")
+					(value "")
+				)
+			)
+		)
+		(sheet
+			(number "9")
+			(name "/08_observability/")
+			(tstamps "/00000000-0000-0000-0000-000010000008/")
+			(title_block
+				(title "Test points and fault injection")
+				(company "Vers3Dynamics")
+				(rev "A")
+				(date "2026-08-14")
+				(source "08_observability.sch")
+				(comment
+					(number "1")
+					(value "ENGINEERING REVIEW ONLY - NOT FOR HUMAN CONNECTION")
+				)
+				(comment
+					(number "2")
+					(value "Generated artifact - edit manifest/generator")
+				)
+				(comment
+					(number "3")
+					(value "")
+				)
+				(comment
+					(number "4")
+					(value "")
+				)
+				(comment
+					(number "5")
+					(value "")
+				)
+				(comment
+					(number "6")
+					(value "")
+				)
+				(comment
+					(number "7")
+					(value "")
+				)
+				(comment
+					(number "8")
+					(value "")
+				)
+				(comment
+					(number "9")
+					(value "")
+				)
+			)
+		)
+	)
+	(components)
+	(groups)
+	(variants)
+	(libparts)
+	(libraries)
+	(nets)
+)

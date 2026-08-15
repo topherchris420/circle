@@ -1,0 +1,4 @@
+KiCad CLI: 10.0.5
+Python: 3.11.9
+CAD source: KiCad legacy v4 parsed/exported by KiCad 10.0.5
+Native conversion: unavailable in kicad-cli for legacy .sch input

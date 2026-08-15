@@ -6,7 +6,13 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title "Hierarchy and safety domains"
+Date "2026-08-14"
+Rev "A"
+Comp "Vers3Dynamics"
 Comment1 "ENGINEERING REVIEW ONLY - NOT FOR HUMAN CONNECTION"
+Comment2 "Generated artifact - edit manifest/generator"
+Comment3 ""
+Comment4 ""
 $EndDescr
 $Sheet
 S 900 1100 1300 700
@@ -56,16 +62,16 @@ U 10000008
 F0 "08_observability" 50
 F1 "08_observability.sch" 50
 $EndSheet
-Text Label 700 5600 0    50   ~ 0
-BAT_HUMAN
-Text Label 700 5840 0    50   ~ 0
-LAB_ISO
-Text Label 700 6080 0    50   ~ 0
-BAT_HUMAN_GND
-Text Label 700 6320 0    50   ~ 0
-LAB_ISO_GND
 Text Notes 600 400 0    50   ~ 0
 ENGINEERING REVIEW ONLY - NOT FOR HUMAN CONNECTION
-Text Notes 700 6560 0    50   ~ 0
+Text Notes 700 5600 0    50   ~ 0
+NET:BAT_HUMAN
+Text Notes 700 5850 0    50   ~ 0
+NET:LAB_ISO
+Text Notes 700 6100 0    50   ~ 0
+NET:BAT_HUMAN_GND
+Text Notes 700 6350 0    50   ~ 0
+NET:LAB_ISO_GND
+Text Notes 700 6600 0    50   ~ 0
 NO COPPER OR WIRE JOINS THE TWO GROUND DOMAINS
 $EndSCHEMATC

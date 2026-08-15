@@ -1,0 +1,77 @@
+{
+    "$schema": "https://schemas.kicad.org/erc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-08-14T20:19:05",
+    "ignored_checks": [
+        {
+            "description": "Global label only appears once in the schematic",
+            "key": "single_global_label"
+        },
+        {
+            "description": "Four connection points are joined together",
+            "key": "four_way_junction"
+        },
+        {
+            "description": "SPICE model issue",
+            "key": "simulation_model_issue"
+        },
+        {
+            "description": "Assigned footprint doesn't match footprint filters",
+            "key": "footprint_filter"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning",
+        "exclusion"
+    ],
+    "kicad_version": "10.0.5",
+    "sheets": [
+        {
+            "path": "/",
+            "uuid_path": "/964fb780-937f-4df0-86f6-79f1c4662973",
+            "violations": []
+        },
+        {
+            "path": "/01_compute_usb/",
+            "uuid_path": "/964fb780-937f-4df0-86f6-79f1c4662973/00000000-0000-0000-0000-000010000001",
+            "violations": []
+        },
+        {
+            "path": "/03_eda_safety/",
+            "uuid_path": "/964fb780-937f-4df0-86f6-79f1c4662973/00000000-0000-0000-0000-000010000003",
+            "violations": []
+        },
+        {
+            "path": "/05_storage/",
+            "uuid_path": "/964fb780-937f-4df0-86f6-79f1c4662973/00000000-0000-0000-0000-000010000005",
+            "violations": []
+        },
+        {
+            "path": "/07_feedback_expansion/",
+            "uuid_path": "/964fb780-937f-4df0-86f6-79f1c4662973/00000000-0000-0000-0000-000010000007",
+            "violations": []
+        },
+        {
+            "path": "/02_power/",
+            "uuid_path": "/964fb780-937f-4df0-86f6-79f1c4662973/00000000-0000-0000-0000-000010000002",
+            "violations": []
+        },
+        {
+            "path": "/04_sensors/",
+            "uuid_path": "/964fb780-937f-4df0-86f6-79f1c4662973/00000000-0000-0000-0000-000010000004",
+            "violations": []
+        },
+        {
+            "path": "/06_sync_isolation/",
+            "uuid_path": "/964fb780-937f-4df0-86f6-79f1c4662973/00000000-0000-0000-0000-000010000006",
+            "violations": []
+        },
+        {
+            "path": "/08_observability/",
+            "uuid_path": "/964fb780-937f-4df0-86f6-79f1c4662973/00000000-0000-0000-0000-000010000008",
+            "violations": []
+        }
+    ],
+    "source": "00_root.sch"
+}
