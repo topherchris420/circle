@@ -1,15 +1,99 @@
-### Footprint positions - created on 2026-08-17T13:20:11 ###
+### Footprint positions - created on 2026-08-17T17:48:05 ###
 ### Printed by KiCad version 10.0.5
 ## Unit = inches, Angle = deg.
 ## Side : All
-# Ref     Val                     Package                                         PosX       PosY       Rot  Side
-J1        USB4125-GF-A            USB_C_Receptacle_GCT_USB4125                  0.0787    -1.0827   90.0000  top
-J2        LIPO_1S_NTC             JST_PH_S3B-PH-K_1x03_P2.00mm_Horizontal       0.4724    -0.2362    0.0000  top
-J10       EDA_ELECTRODES          JST_PH_S4B-PH-K_1x04_P2.00mm_Horizontal       0.3150    -1.8110   90.0000  top
-J30       SYNC_IN_BNC             BNC_TEConnectivity_1-1337543-0_Horizontal     3.1890    -0.6299  180.0000  top
-J31       SYNC_OUT_BNC            BNC_TEConnectivity_1-1337543-0_Horizontal     3.1890    -1.5354  180.0000  top
-U1        ESP32-S3-WROOM-1-N16R8  ESP32-S3-WROOM-1                              1.8898    -0.8661    0.0000  top
-U2        BQ24074RGTR             QFN-16-1EP_3x3mm_P0.5mm_EP1.8x1.8mm           0.6299    -0.7087    0.0000  top
-U3        TPS63070RNMR            WQFN-15-1EP_2.5x3mm_P0.5mm_EP1.2x1.7mm        0.9449    -0.7087    0.0000  top
-U30       ISOW7742DWER            SOIC-16W_7.5x10.3mm_P1.27mm                   2.8346    -1.0827    0.0000  top
+# Ref     Val           Package                PosX       PosY       Rot  Side
+D1                      SOT-23-3             0.7874    -1.7717    0.0000  top
+D20                     SOT-23-3             0.9843    -0.1969    0.0000  top
+D21                     SOT-23-3             0.9843    -0.3937    0.0000  top
+D30                     SOT-23-3             0.9843    -0.5906    0.0000  top
+F1                      R_0402               0.9843    -0.7874    0.0000  top
+J1                      Header_16P           0.1181    -1.0827    0.0000  top
+J2                      Header_6P            1.3780    -1.5748    0.0000  top
+J3                      Header_6P            1.3780    -1.7717    0.0000  top
+J10                     Header_6P            1.5748    -0.1969    0.0000  top
+J11                     Header_6P            1.5748    -0.3937    0.0000  top
+J20                     Header_6P            1.5748    -0.5906    0.0000  top
+J21                     Header_6P            1.5748    -0.7874    0.0000  top
+J30                     Header_6P            1.5748    -0.9843    0.0000  top
+J31                     Header_6P            1.5748    -1.1811    0.0000  top
+J40                     Header_6P            1.5748    -1.3780    0.0000  top
+J41                     Header_6P            1.5748    -1.5748    0.0000  top
+J42                     Header_6P            1.5748    -1.7717    0.0000  top
+JP1                     Header_6P            2.1654    -0.3937    0.0000  top
+JP2                     Header_6P            2.1654    -0.5906    0.0000  top
+JP3                     Header_6P            2.1654    -0.7874    0.0000  top
+JP4                     Header_6P            2.1654    -0.9843    0.0000  top
+JP5                     Header_6P            2.1654    -1.1811    0.0000  top
+JP6                     Header_6P            2.1654    -1.3780    0.0000  top
+K1        RELAY         SOIC-4               0.5906    -1.7717    0.0000  top
+K2        RELAY         SOIC-4               0.7874    -0.1969    0.0000  top
+L1                      R_0402               0.9843    -0.9843    0.0000  top
+Q1                      SOT-23-3             0.7874    -0.3937    0.0000  top
+Q2                      SOT-23-3             0.7874    -0.5906    0.0000  top
+Q3                      SOT-23-3             0.7874    -0.7874    0.0000  top
+Q4                      SOT-23-3             0.7874    -0.9843    0.0000  top
+Q5                      SOT-23-3             0.7874    -1.1811    0.0000  top
+Q7                      SOT-23-3             0.7874    -1.3780    0.0000  top
+Q30                     SOT-23-3             0.7874    -1.5748    0.0000  top
+R1                      R_0402               1.1811    -0.1969    0.0000  top
+R2                      R_0402               1.1811    -0.3937    0.0000  top
+R3                      R_0402               1.1811    -0.5906    0.0000  top
+R4                      R_0402               1.1811    -0.7874    0.0000  top
+RSD1                    SOT-23-3             1.1811    -0.9843    0.0000  top
+RSD2                    SOT-23-3             1.1811    -1.1811    0.0000  top
+RSD3                    SOT-23-3             1.1811    -1.3780    0.0000  top
+RSD4                    SOT-23-3             1.1811    -1.5748    0.0000  top
+RSD5                    SOT-23-3             1.1811    -1.7717    0.0000  top
+RSD6                    SOT-23-3             1.3780    -0.1969    0.0000  top
+RSH1                    R_0402               1.3780    -0.3937    0.0000  top
+RSH2                    R_0402               1.3780    -0.5906    0.0000  top
+RSH3                    R_0402               1.3780    -0.7874    0.0000  top
+RSH4                    R_0402               1.3780    -0.9843    0.0000  top
+RSH5                    R_0402               1.3780    -1.1811    0.0000  top
+RSH6                    R_0402               1.3780    -1.3780    0.0000  top
+R_EDA_A1                SOT-23-3             0.9843    -1.1811    0.0000  top
+R_EDA_A2                SOT-23-3             0.9843    -1.3780    0.0000  top
+R_EDA_B1                SOT-23-3             0.9843    -1.5748    0.0000  top
+R_EDA_B2                SOT-23-3             0.9843    -1.7717    0.0000  top
+S1                      R_0402               1.7717    -0.1969    0.0000  top
+S2                      R_0402               1.7717    -0.3937    0.0000  top
+S20                     R_0402               1.7717    -0.5906    0.0000  top
+TP1                     R_0402               1.7717    -0.7874    0.0000  top
+TP2                     R_0402               1.7717    -0.9843    0.0000  top
+TP3                     R_0402               1.7717    -1.1811    0.0000  top
+TP4                     R_0402               1.7717    -1.3780    0.0000  top
+TP5                     R_0402               1.7717    -1.5748    0.0000  top
+TP6                     R_0402               1.7717    -1.7717    0.0000  top
+TP7                     R_0402               1.9685    -0.1969    0.0000  top
+TP8                     R_0402               1.9685    -0.3937    0.0000  top
+TP9                     R_0402               1.9685    -0.5906    0.0000  top
+TP10                    R_0402               1.9685    -0.7874    0.0000  top
+TP11                    R_0402               1.9685    -0.9843    0.0000  top
+TP12                    R_0402               1.9685    -1.1811    0.0000  top
+TP13                    R_0402               1.9685    -1.3780    0.0000  top
+TP14                    R_0402               1.9685    -1.5748    0.0000  top
+TP15                    R_0402               1.9685    -1.7717    0.0000  top
+TP16                    R_0402               2.1654    -0.1969    0.0000  top
+U1                      ESP32-S3-WROOM-1     1.6535    -0.8661    0.0000  top
+U2        BQ24074RGTR   QFN-16               0.3937    -0.5906    0.0000  top
+U3        TPS63070RNMR  QFN-15               0.3937    -0.9843    0.0000  top
+U4                      SOT-23-6             0.3937    -0.1969    0.0000  top
+U5                      SOT-23-6             0.3937    -0.3937    0.0000  top
+U6        MCP23017      SOIC-28              0.3937    -0.5906    0.0000  top
+U7                      SOT-23-6             0.3937    -0.7874    0.0000  top
+U10       ADS1220       SOIC-16              0.3937    -0.9843    0.0000  top
+U11       IC            SOIC-8               0.3937    -1.1811    0.0000  top
+U12       IC            SOIC-8               0.3937    -1.3780    0.0000  top
+U13                     SOT-23-6             0.3937    -1.5748    0.0000  top
+U14                     SOT-23-6             0.3937    -1.7717    0.0000  top
+U15                     SOT-23-6             0.5906    -0.1969    0.0000  top
+U20       ICM-42688-P   QFN-24               0.5906    -0.3937    0.0000  top
+U30       ISOW7742DWER  SOIC-16              2.8346    -1.0827    0.0000  top
+U31                     SOT-23-6             0.5906    -0.5906    0.0000  top
+U32                     SOT-23-6             0.5906    -0.7874    0.0000  top
+U33                     SOT-23-6             0.5906    -0.9843    0.0000  top
+U34                     SOT-23-6             0.5906    -1.1811    0.0000  top
+U40       DRV2605L      SOIC-10              0.5906    -1.3780    0.0000  top
+U41                     SOT-23-6             0.5906    -1.5748    0.0000  top
 ## End
