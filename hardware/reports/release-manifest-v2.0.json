@@ -417,13 +417,13 @@
     },
     {
       "path": "hardware/circle-main/circle-main.kicad_pcb",
-      "sha256": "813c529b334ecf00e8a66ee351c64141223db0c926739cc9cf3f8cfdbdc9bff5",
-      "size_bytes": 123463
+      "sha256": "c0d80b57274bf40323f6d9c7a5f6e4bd007d3ac87a04220b1b3703a4acc3bc91",
+      "size_bytes": 79063
     },
     {
       "path": "hardware/circle-ppg/circle-ppg.kicad_pcb",
-      "sha256": "199221ff6b5b9cd17788844097ec51c670ca48defbe1ab2ca2417840710c29b2",
-      "size_bytes": 19055
+      "sha256": "4aa66976f33d0947c1d0729c040dc8f42e94a8095d7735149924eaca973992a4",
+      "size_bytes": 12931
     },
     {
       "path": "hardware/libraries/circle-symbols.kicad_sym",
