@@ -14,7 +14,7 @@ It combines synchronized physiological sensing, deterministic recording, isolate
 
 Human physiology is inherently multimodal.
 
-Attention, stress, emotion, arousal, movement, and awareness do not emerge from a single measurement. They arise through the changing relationship between many signals and conditions.
+Attention, stress, emotion, arousal, movement, and awareness do not emerge from a single measurement. They arise from the changing relationships among many signals and conditions.
 
 CIRCLE is designed to capture several dimensions of physiological activity within a shared timing and provenance model, creating an experimental foundation for studying relationships between physiological state, movement, context, and feedback.
 
@@ -39,7 +39,7 @@ It is to create an instrument capable of studying **how signals change together*
 
 | | |
 | --- | --- |
-| **Purpose** | Experimental biosignal architecture, safety-contract, and schematic review |
+| **Purpose** | Experimental biosignal architecture, safety contract, and schematic review |
 | **Hardware** | `circle-main` compute/acquisition board + replaceable `circle-ppg` optical board |
 | **Electrical model** | Human-connected `BAT_HUMAN` domain separated from `LAB_ISO` through reinforced isolation |
 | **Compute** | ESP32-S3 |
@@ -89,7 +89,7 @@ Record assembly + provenance
    ↓
 Asynchronous microSD storage
    ↓
-Derived telemetry / feedback
+Derived telemetry/feedback
 ```
 
 ![CIRCLE system architecture](diagrams/system-architecture.svg)
