@@ -6,7 +6,7 @@ CIRCLE is an open-source biosignal research platform for exploring how physiolog
 
 It combines synchronized physiological sensing, deterministic recording, isolated laboratory synchronization, and locally evidenced feedback within a single reviewable architecture.
 
-> **ENGINEERING REVIEW ONLY** — Experimental research hardware. This repository is not approved for fabrication or human connection and does not establish medical-device, electrical-safety, EMC, or measurement-performance claims.
+> **ENGINEERING REVIEW ONLY** — Experimental research hardware. 
 
 ---
 
