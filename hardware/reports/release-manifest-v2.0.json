@@ -147,13 +147,13 @@
     },
     {
       "path": "hardware/reports/step/circle-main.step",
-      "sha256": "2752de19936a27e3f2fe8abb69e59ce95f7f5b147342cd3e887341587ec206d3",
-      "size_bytes": 198922
+      "sha256": "3aaee7ebd57c36d3802a13f368e76fe048b27b30c404bbf0afb2d635694986fa",
+      "size_bytes": 91235
     },
     {
       "path": "hardware/reports/step/circle-ppg.step",
-      "sha256": "b2bc56769c90719f29153a00b7f65e736f2835cb48a452e99fe4ad6bd6ddcd5d",
-      "size_bytes": 13605
+      "sha256": "e3bc4d68895b36198e9e1d2ee5f508b6bc19e276db8d254718de25b7ca36219d",
+      "size_bytes": 13264
     },
     {
       "path": "hardware/reports/netlist/circle-main.d356",
@@ -167,13 +167,13 @@
     },
     {
       "path": "hardware/reports/pos/circle-main-pos.csv",
-      "sha256": "27428d82c1917c7fee773e1a438b8b9f2dc4d80b3e258538d60d328c2cec919a",
-      "size_bytes": 7581
+      "sha256": "ece1a8f94614cb5c5bd092f6f5071d3b896a8521035ad82d0e4925b1aca78d98",
+      "size_bytes": 8076
     },
     {
       "path": "hardware/reports/pos/circle-ppg-pos.csv",
-      "sha256": "fb1d9e6e9310d4525228b1f2bc1dc485885dcb28e4caf7420d853b0f1a875295",
-      "size_bytes": 1415
+      "sha256": "69627486ef77644c022802dcd81ef83e45b321147c90b74c0799d44c297376f0",
+      "size_bytes": 1115
     },
     {
       "path": "hardware/reports/gerbers/circle-main/circle-main-B_Adhesive.gba",
@@ -182,23 +182,23 @@
     },
     {
       "path": "hardware/reports/gerbers/circle-main/circle-main-B_Courtyard.gbr",
-      "sha256": "6d4e228e6b1f2d5177276c8b9dca236ad9f47036fd34c358e612b676f3b33ee4",
+      "sha256": "178389855852890ef9d567bbeb86436bb5c0fc842917bada1a34fe0ef255ff20",
       "size_bytes": 443
     },
     {
       "path": "hardware/reports/gerbers/circle-main/circle-main-B_Cu.gbl",
-      "sha256": "265b5d047fcbe3ad9ce25c0240c141b7b715b9c5564f115866732ad3dcfc24ee",
-      "size_bytes": 12590
+      "sha256": "53b3a1f40e59dc23c5925f36f6736f87798546f354bd993a76b2f23223825d2f",
+      "size_bytes": 4352
     },
     {
       "path": "hardware/reports/gerbers/circle-main/circle-main-B_Fab.gbr",
-      "sha256": "9efa21e27c0512c14af30966f9c6dc5eb846f4165e2e0173b2684f6d8aebb22e",
+      "sha256": "00eb36220c5fc2c60064cb73d7c816a66c9473e499a6db819599aa27b8c70529",
       "size_bytes": 452
     },
     {
       "path": "hardware/reports/gerbers/circle-main/circle-main-B_Mask.gbs",
-      "sha256": "09bdb13b9d60d6f2c447508e87f1a99ff886f76e3ee13f2525b7eeb8e543cd1b",
-      "size_bytes": 3799
+      "sha256": "2bedfe46b9f0c5f5fea21a40120d6ab9e3168ada20c7c8fce13452fdb0da2259",
+      "size_bytes": 38451
     },
     {
       "path": "hardware/reports/gerbers/circle-main/circle-main-B_Paste.gbp",
@@ -207,17 +207,17 @@
     },
     {
       "path": "hardware/reports/gerbers/circle-main/circle-main-B_Silkscreen.gbo",
-      "sha256": "b8383acefa3950d7e557e7c17de04f812ab8146729d07a48386f96d0675df2b8",
+      "sha256": "3bc884eb53852db44bbbb957c519ab286db9bdeb6194925b62dcc87c269f4e2c",
       "size_bytes": 472
     },
     {
       "path": "hardware/reports/gerbers/circle-main/circle-main-BAT_HUMAN_GND.g1",
-      "sha256": "d750b15e3d542451f5713962dff293d0a215870ef9dae04decb861e5da4cfc16",
-      "size_bytes": 11072
+      "sha256": "27a1e4905d1a370b95a12d42ec7fcbc036c90f0068a0fb87ca7c73efeda1536d",
+      "size_bytes": 3804
     },
     {
       "path": "hardware/reports/gerbers/circle-main/circle-main-Edge_Cuts.gm1",
-      "sha256": "f97689346e7d12aceb0ff287356e0de536e8318b50c7f8a7b8a6fc0da0942eca",
+      "sha256": "82ddc7cccf61e8d558b9d77f2e7e6aeeca68dc2b02da76a6ae1589cf98121a5c",
       "size_bytes": 1392
     },
     {
@@ -227,23 +227,23 @@
     },
     {
       "path": "hardware/reports/gerbers/circle-main/circle-main-F_Courtyard.gbr",
-      "sha256": "6d4e228e6b1f2d5177276c8b9dca236ad9f47036fd34c358e612b676f3b33ee4",
+      "sha256": "178389855852890ef9d567bbeb86436bb5c0fc842917bada1a34fe0ef255ff20",
       "size_bytes": 443
     },
     {
       "path": "hardware/reports/gerbers/circle-main/circle-main-F_Cu.gtl",
-      "sha256": "5b40a28956fa34533fc48e1acea9c957ac0a74ea1bdef24ba1bbe91db93b9d9f",
-      "size_bytes": 60737
+      "sha256": "6cb6b897e5bfd912ca7083da9ef3c5d8614c4d0eede3e80d3dff79c5ea898afd",
+      "size_bytes": 26651
     },
     {
       "path": "hardware/reports/gerbers/circle-main/circle-main-F_Fab.gbr",
-      "sha256": "d85ccfc1d73dd4a61971f67717a3300f0a9e108c0650143d58cd7d0174c34c0c",
-      "size_bytes": 39644
+      "sha256": "b7f669a6d36e23a06dd688afe354747155cf81171277ff6f79e40397cb29bbbf",
+      "size_bytes": 390247
     },
     {
       "path": "hardware/reports/gerbers/circle-main/circle-main-F_Mask.gts",
-      "sha256": "02446c051a78cb84d9121e3eb6c1a9519352923d92f7fb14f27a2f54316f3d58",
-      "size_bytes": 15255
+      "sha256": "8b60e5e74f06638358284067ffb0d09d03f4eb955e49c3300ccd2d75ee0aac25",
+      "size_bytes": 243259
     },
     {
       "path": "hardware/reports/gerbers/circle-main/circle-main-F_Paste.gtp",
@@ -252,17 +252,17 @@
     },
     {
       "path": "hardware/reports/gerbers/circle-main/circle-main-F_Silkscreen.gto",
-      "sha256": "9417d4a8c5d285642c5c57e58239ed31ae1ddac1b25ebc488facbd2530720e41",
-      "size_bytes": 136104
+      "sha256": "89ed3d1954aaccdef7158833d733c84213d8c6b18c2dc455c57d030d111b25f3",
+      "size_bytes": 17683
     },
     {
       "path": "hardware/reports/gerbers/circle-main/circle-main-job.gbrjob",
-      "sha256": "55aa1ce9fd9ce8e5c699e9f5bdb98f412ee1193f715be3e0b0b14456a879cd2f",
-      "size_bytes": 3675
+      "sha256": "04ef9b60072ccdb649384f7742946d812b3837dd9bbe3ee0e36e0d1f105ed4a5",
+      "size_bytes": 3648
     },
     {
       "path": "hardware/reports/gerbers/circle-main/circle-main-Margin.gbr",
-      "sha256": "6d4e228e6b1f2d5177276c8b9dca236ad9f47036fd34c358e612b676f3b33ee4",
+      "sha256": "178389855852890ef9d567bbeb86436bb5c0fc842917bada1a34fe0ef255ff20",
       "size_bytes": 443
     },
     {
@@ -287,13 +287,13 @@
     },
     {
       "path": "hardware/reports/gerbers/circle-main/circle-main-V_SYS.g2",
-      "sha256": "b631506383d02d587608f1dc828e89e551a67b8bb8bad36367e5c8764a7c583d",
-      "size_bytes": 11072
+      "sha256": "a34ef28b7189ad9f7951597ebd00e9eada362428b5e1fc0f195d596fcdbdb294",
+      "size_bytes": 3804
     },
     {
       "path": "hardware/reports/gerbers/circle-main/circle-main.drl",
-      "sha256": "c2690c07f18fd34b16c4df2803d4cbc146e2bc10762ac0c5780a1636960508d5",
-      "size_bytes": 4045
+      "sha256": "1bffdf9068a345adc9b702e67f3ec5fd4a02ab75aaeb35992f6eb229b80eec80",
+      "size_bytes": 1182
     },
     {
       "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-B_Adhesive.gba",
@@ -302,22 +302,22 @@
     },
     {
       "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-B_Courtyard.gbr",
-      "sha256": "ae0b790f72ece10d50504361bfa77e4cab8b677705a579bc752323708fe1ba25",
+      "sha256": "5cdaae252b42ba7e535cb6e4e298e5cbc37c618afab91af89da6363eba786d66",
       "size_bytes": 442
     },
     {
       "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-B_Cu.gbl",
-      "sha256": "de72b3aa12d7215aaf59a7b4a73e0fff7715e661adeb6c8c4cd0a3b0ff100379",
-      "size_bytes": 1289
+      "sha256": "a82194ce7c6e04f652fd0eeffa83054176558ebf01471c75e64a813969c7efd0",
+      "size_bytes": 474
     },
     {
       "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-B_Fab.gbr",
-      "sha256": "5504cf0cea5197cbc4a2b38a387cd8bd71e476aaf65e31d27a4ea80f8e53bcf7",
+      "sha256": "e07139065423ffb9597e287356d0cd87dfb46323586f2d9ddde50a8848a6d4f3",
       "size_bytes": 451
     },
     {
       "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-B_Mask.gbs",
-      "sha256": "7c4408139983da11a16408e42d546705ff177739258ae7361c9e489b309345eb",
+      "sha256": "29f6c435d7bd6846e7e74cc48d734d1c96518ab72a249cfe1fc9f2a0d1bde1e0",
       "size_bytes": 475
     },
     {
@@ -327,13 +327,13 @@
     },
     {
       "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-B_Silkscreen.gbo",
-      "sha256": "21eca0fc251c14ef15a4a9e4d41642fb7b6a6be6c8ff9ee9af72c264d3e51707",
+      "sha256": "419cd9c7fd5db572f766b396f86e57e5baac29dea06bd46b85e71bd42244b7a6",
       "size_bytes": 471
     },
     {
       "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-Edge_Cuts.gm1",
-      "sha256": "654abd17a32964e0cc13cf8460fbd57c50fbc37d4fe239a72b62ae08ab76176b",
-      "size_bytes": 1038
+      "sha256": "3ad5e477c83eca33c3806b40546f42b5a931bb34402ba5520f5a8c2cc5537cdc",
+      "size_bytes": 1032
     },
     {
       "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-F_Adhesive.gta",
@@ -342,23 +342,23 @@
     },
     {
       "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-F_Courtyard.gbr",
-      "sha256": "ae0b790f72ece10d50504361bfa77e4cab8b677705a579bc752323708fe1ba25",
+      "sha256": "5cdaae252b42ba7e535cb6e4e298e5cbc37c618afab91af89da6363eba786d66",
       "size_bytes": 442
     },
     {
       "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-F_Cu.gtl",
-      "sha256": "498832d051820d695c0bc81c148835e4c752a25d0b540c9e402278078e71bc5e",
-      "size_bytes": 8321
+      "sha256": "08e7187ff6f0f8dbdc799dfd40becea563526dc53db6e25522321d307b0f7dd9",
+      "size_bytes": 4461
     },
     {
       "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-F_Fab.gbr",
-      "sha256": "e3b5ec3a6c0cb31fdd3cac523e5415250b6891a5800c84a1891a73db2476162e",
-      "size_bytes": 451
+      "sha256": "c33d5cc92480e60abfaa907b1ae4fd4a0628236ab2fbad8e0f6ec6c856ca2da5",
+      "size_bytes": 45281
     },
     {
       "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-F_Mask.gts",
-      "sha256": "d31eb55d7a01e70c2a28e123d97b2cc7ba3bcb68cc76d454ef795e6dad4b9106",
-      "size_bytes": 33413
+      "sha256": "12237a0a62bd5a23b78e788764378f823948e228e5927863969196a62d1a3676",
+      "size_bytes": 33456
     },
     {
       "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-F_Paste.gtp",
@@ -367,28 +367,28 @@
     },
     {
       "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-F_Silkscreen.gto",
-      "sha256": "5dee8265eddb1ba37413d50b5715bbbad9aeea960a46eb73089d0759a1bf844f",
-      "size_bytes": 23039
+      "sha256": "9b9b592ae9f4d841e337d44e20fdc9bab1c36ba60237895cdd5cd882a96df1f8",
+      "size_bytes": 12679
     },
     {
       "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-job.gbrjob",
-      "sha256": "7b32ecb2314a9b54ad949c7f8f22a5f4a0d31c862608a427aa3416057d338e89",
-      "size_bytes": 4880
+      "sha256": "a013811952d50313982aff5a39ce1c0c0166a5a73793fc70b256ef2741771b32",
+      "size_bytes": 3648
     },
     {
       "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-Margin.gbr",
-      "sha256": "ae0b790f72ece10d50504361bfa77e4cab8b677705a579bc752323708fe1ba25",
+      "sha256": "5cdaae252b42ba7e535cb6e4e298e5cbc37c618afab91af89da6363eba786d66",
       "size_bytes": 442
     },
     {
       "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-PPG_3V3.g2",
-      "sha256": "d04bed7ea2047cf74f32319e8f7f004694ed18219ab1d58bad05a602dec47d0c",
-      "size_bytes": 1289
+      "sha256": "76555ce034a973abd4a08a7d3744daa6087f0a61887118d692258a2b874a8bd2",
+      "size_bytes": 474
     },
     {
       "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-PPG_LOGIC_GND.g1",
-      "sha256": "242f4776a3b5f652d0864a11ff0194d72f7bf31735bef67408259ae15a5e1f95",
-      "size_bytes": 1289
+      "sha256": "bae90798ad152f4894ad4c5c1ddc4b8328572ea579b7f0fda253a5654294405b",
+      "size_bytes": 474
     },
     {
       "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-User_Comments.gbr",
@@ -412,8 +412,8 @@
     },
     {
       "path": "hardware/reports/gerbers/circle-ppg/circle-ppg.drl",
-      "sha256": "f5bcf14dbfb46285107717f91884450d776a67a314175bca8aa0402542c5d150",
-      "size_bytes": 721
+      "sha256": "e00f3b67c47e81a3697f08a4df807d5919501a64172772c19636d6814bf11bb8",
+      "size_bytes": 274
     },
     {
       "path": "hardware/circle-main/circle-main.kicad_pcb",

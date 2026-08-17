@@ -5,7 +5,7 @@
       "Application": "Pcbnew",
       "Version": "10.0.5"
     },
-    "CreationDate": "2026-08-17T17:48:19-04:00"
+    "CreationDate": "2026-08-17T19:03:23-04:00"
   },
   "GeneralSpecs": {
     "ProjectId": {
@@ -26,16 +26,15 @@
       "Layers": "Outer",
       "PadToPad": 0.2,
       "PadToTrack": 0.2,
-      "TrackToTrack": 0.2,
-      "MinLineWidth": 0.25
+      "TrackToTrack": 0.2
     },
     {
       "Layers": "Inner",
       "PadToPad": 0.2,
       "PadToTrack": 0.2,
       "TrackToTrack": 0.2,
-      "TrackToRegion": 0.2,
-      "RegionToRegion": 0.2
+      "TrackToRegion": 0.25,
+      "RegionToRegion": 0.25
     }
   ],
   "FilesAttributes": [
@@ -60,26 +59,6 @@
       "FilePolarity": "Positive"
     },
     {
-      "Path": "circle-ppg-F_Adhesive.gta",
-      "FileFunction": "Glue,Top",
-      "FilePolarity": "Positive"
-    },
-    {
-      "Path": "circle-ppg-B_Adhesive.gba",
-      "FileFunction": "Glue,Bot",
-      "FilePolarity": "Positive"
-    },
-    {
-      "Path": "circle-ppg-F_Paste.gtp",
-      "FileFunction": "SolderPaste,Top",
-      "FilePolarity": "Positive"
-    },
-    {
-      "Path": "circle-ppg-B_Paste.gbp",
-      "FileFunction": "SolderPaste,Bot",
-      "FilePolarity": "Positive"
-    },
-    {
       "Path": "circle-ppg-F_Silkscreen.gto",
       "FileFunction": "Legend,Top",
       "FilePolarity": "Positive"
@@ -98,26 +77,6 @@
       "Path": "circle-ppg-B_Mask.gbs",
       "FileFunction": "SolderMask,Bot",
       "FilePolarity": "Negative"
-    },
-    {
-      "Path": "circle-ppg-User_Drawings.gbr",
-      "FileFunction": "Other,User",
-      "FilePolarity": "Positive"
-    },
-    {
-      "Path": "circle-ppg-User_Comments.gbr",
-      "FileFunction": "Other,User",
-      "FilePolarity": "Positive"
-    },
-    {
-      "Path": "circle-ppg-User_Eco1.gbr",
-      "FileFunction": "Other,User",
-      "FilePolarity": "Positive"
-    },
-    {
-      "Path": "circle-ppg-User_Eco2.gbr",
-      "FileFunction": "Other,User",
-      "FilePolarity": "Positive"
     },
     {
       "Path": "circle-ppg-Edge_Cuts.gm1",
@@ -139,10 +98,6 @@
     {
       "Type": "Legend",
       "Name": "Top Silk Screen"
-    },
-    {
-      "Type": "SolderPaste",
-      "Name": "Top Solder Paste"
     },
     {
       "Type": "SolderMask",
@@ -194,10 +149,6 @@
       "Type": "SolderMask",
       "Thickness": 0.01,
       "Name": "Bottom Solder Mask"
-    },
-    {
-      "Type": "SolderPaste",
-      "Name": "Bottom Solder Paste"
     },
     {
       "Type": "Legend",
