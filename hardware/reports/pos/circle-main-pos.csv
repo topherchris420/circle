@@ -1,0 +1,15 @@
+### Footprint positions - created on 2026-08-17T13:20:11 ###
+### Printed by KiCad version 10.0.5
+## Unit = inches, Angle = deg.
+## Side : All
+# Ref     Val                     Package                                         PosX       PosY       Rot  Side
+J1        USB4125-GF-A            USB_C_Receptacle_GCT_USB4125                  0.0787    -1.0827   90.0000  top
+J2        LIPO_1S_NTC             JST_PH_S3B-PH-K_1x03_P2.00mm_Horizontal       0.4724    -0.2362    0.0000  top
+J10       EDA_ELECTRODES          JST_PH_S4B-PH-K_1x04_P2.00mm_Horizontal       0.3150    -1.8110   90.0000  top
+J30       SYNC_IN_BNC             BNC_TEConnectivity_1-1337543-0_Horizontal     3.1890    -0.6299  180.0000  top
+J31       SYNC_OUT_BNC            BNC_TEConnectivity_1-1337543-0_Horizontal     3.1890    -1.5354  180.0000  top
+U1        ESP32-S3-WROOM-1-N16R8  ESP32-S3-WROOM-1                              1.8898    -0.8661    0.0000  top
+U2        BQ24074RGTR             QFN-16-1EP_3x3mm_P0.5mm_EP1.8x1.8mm           0.6299    -0.7087    0.0000  top
+U3        TPS63070RNMR            WQFN-15-1EP_2.5x3mm_P0.5mm_EP1.2x1.7mm        0.9449    -0.7087    0.0000  top
+U30       ISOW7742DWER            SOIC-16W_7.5x10.3mm_P1.27mm                   2.8346    -1.0827    0.0000  top
+## End

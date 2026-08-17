@@ -1,0 +1,795 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-08-17T13:17:18",
+    "ignored_checks": [
+        {
+            "description": "Footprint has no courtyard defined",
+            "key": "missing_courtyard"
+        },
+        {
+            "description": "Track endpoint not centered on via",
+            "key": "track_not_centered_on_via"
+        },
+        {
+            "description": "Tuning profile track geometries",
+            "key": "tuning_profile_track_geometries"
+        },
+        {
+            "description": "Footprint doesn't match symbol's footprint filters",
+            "key": "footprint_filters_mismatch"
+        },
+        {
+            "description": "Footprint component type doesn't match footprint pads",
+            "key": "footprint_type_mismatch"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning",
+        "exclusion"
+    ],
+    "kicad_version": "10.0.5",
+    "schematic_parity": [],
+    "source": "circle-main.kicad_pcb",
+    "unconnected_items": [
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad A1 [BAT_HUMAN_GND] of J1 on F.Cu",
+                    "pos": {
+                        "x": -0.75,
+                        "y": 27.75
+                    },
+                    "uuid": "d77a9ca1-30e3-43be-97c0-49305cf5b8ae"
+                },
+                {
+                    "description": "Pad B1 [BAT_HUMAN_GND] of J1 on F.Cu",
+                    "pos": {
+                        "x": 4.75,
+                        "y": 27.75
+                    },
+                    "uuid": "1b0d916f-1d68-4c8e-9adb-14ef52f728f2"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad B1 [BAT_HUMAN_GND] of J1 on F.Cu",
+                    "pos": {
+                        "x": 4.75,
+                        "y": 27.75
+                    },
+                    "uuid": "1b0d916f-1d68-4c8e-9adb-14ef52f728f2"
+                },
+                {
+                    "description": "Pad 17 [BAT_HUMAN_GND] of U2 on F.Cu",
+                    "pos": {
+                        "x": 16.0,
+                        "y": 18.0
+                    },
+                    "uuid": "25a31540-44b1-462a-bf92-ecb0b30cdf6f"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "PTH pad 3 [BAT_HUMAN_GND] of J2",
+                    "pos": {
+                        "x": 14.0,
+                        "y": 6.0
+                    },
+                    "uuid": "144ed239-3d77-492b-bc12-ab9e2b384e1a"
+                },
+                {
+                    "description": "PTH pad 2 [BAT_HUMAN_GND] of J2",
+                    "pos": {
+                        "x": 12.0,
+                        "y": 6.0
+                    },
+                    "uuid": "94a84a8c-fd2e-42f6-8dea-e62fdf27e6d4"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 17 [BAT_HUMAN_GND] of U2 on F.Cu",
+                    "pos": {
+                        "x": 16.0,
+                        "y": 18.0
+                    },
+                    "uuid": "25a31540-44b1-462a-bf92-ecb0b30cdf6f"
+                },
+                {
+                    "description": "PTH pad 3 [BAT_HUMAN_GND] of J2",
+                    "pos": {
+                        "x": 14.0,
+                        "y": 6.0
+                    },
+                    "uuid": "144ed239-3d77-492b-bc12-ab9e2b384e1a"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 16 [BAT_HUMAN_GND] of U3 on F.Cu",
+                    "pos": {
+                        "x": 24.0,
+                        "y": 18.0
+                    },
+                    "uuid": "ec3d58e6-db3b-4621-a84b-bab38b39d6d0"
+                },
+                {
+                    "description": "Pad 17 [BAT_HUMAN_GND] of U2 on F.Cu",
+                    "pos": {
+                        "x": 16.0,
+                        "y": 18.0
+                    },
+                    "uuid": "25a31540-44b1-462a-bf92-ecb0b30cdf6f"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 16 [BAT_HUMAN_GND] of U3 on F.Cu",
+                    "pos": {
+                        "x": 24.0,
+                        "y": 18.0
+                    },
+                    "uuid": "ec3d58e6-db3b-4621-a84b-bab38b39d6d0"
+                },
+                {
+                    "description": "Pad 1 [BAT_HUMAN_GND] of U1 on F.Cu",
+                    "pos": {
+                        "x": 39.5,
+                        "y": 12.0
+                    },
+                    "uuid": "d41c51de-a945-46ef-86c7-429833e10130"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 41 [BAT_HUMAN_GND] of U1 on F.Cu",
+                    "pos": {
+                        "x": 48.0,
+                        "y": 22.0
+                    },
+                    "uuid": "4072ee69-12e5-4955-8a55-054e54bf57f4"
+                },
+                {
+                    "description": "Pad 1 [BAT_HUMAN_GND] of U1 on F.Cu",
+                    "pos": {
+                        "x": 39.5,
+                        "y": 12.0
+                    },
+                    "uuid": "d41c51de-a945-46ef-86c7-429833e10130"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 2 [BAT_HUMAN_GND] of U30 on F.Cu",
+                    "pos": {
+                        "x": 67.25,
+                        "y": 24.325
+                    },
+                    "uuid": "9aeb0fa2-d6ac-4f55-8851-4c6b4ee433e2"
+                },
+                {
+                    "description": "Pad 41 [BAT_HUMAN_GND] of U1 on F.Cu",
+                    "pos": {
+                        "x": 48.0,
+                        "y": 22.0
+                    },
+                    "uuid": "4072ee69-12e5-4955-8a55-054e54bf57f4"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 15 [LAB_ISO_GND] of U30 on F.Cu",
+                    "pos": {
+                        "x": 76.75,
+                        "y": 24.325
+                    },
+                    "uuid": "48640480-7fb6-4e06-8d65-3726753d07ac"
+                },
+                {
+                    "description": "PTH pad 3 [LAB_ISO_GND] of J31",
+                    "pos": {
+                        "x": 78.46,
+                        "y": 36.46
+                    },
+                    "uuid": "f419dbe5-c4bd-4918-ab7a-1390216e6587"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "PTH pad 3 [LAB_ISO_GND] of J30",
+                    "pos": {
+                        "x": 78.46,
+                        "y": 13.46
+                    },
+                    "uuid": "305a43a1-ff54-4f92-b8bd-f9c558700b54"
+                },
+                {
+                    "description": "Pad 15 [LAB_ISO_GND] of U30 on F.Cu",
+                    "pos": {
+                        "x": 76.75,
+                        "y": 24.325
+                    },
+                    "uuid": "48640480-7fb6-4e06-8d65-3726753d07ac"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "PTH pad 3 [LAB_ISO_GND] of J31",
+                    "pos": {
+                        "x": 78.46,
+                        "y": 36.46
+                    },
+                    "uuid": "f419dbe5-c4bd-4918-ab7a-1390216e6587"
+                },
+                {
+                    "description": "PTH pad 2 [LAB_ISO_GND] of J31",
+                    "pos": {
+                        "x": 83.54,
+                        "y": 36.46
+                    },
+                    "uuid": "36e5eac5-7175-475b-b00f-688e416e91c3"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "PTH pad 2 [LAB_ISO_GND] of J30",
+                    "pos": {
+                        "x": 83.54,
+                        "y": 13.46
+                    },
+                    "uuid": "d14d16ed-76ea-4e19-91fe-19ffd5314d02"
+                },
+                {
+                    "description": "PTH pad 3 [LAB_ISO_GND] of J30",
+                    "pos": {
+                        "x": 78.46,
+                        "y": 13.46
+                    },
+                    "uuid": "305a43a1-ff54-4f92-b8bd-f9c558700b54"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad A4 [VBUS_5V] of J1 on F.Cu",
+                    "pos": {
+                        "x": 0.75,
+                        "y": 27.75
+                    },
+                    "uuid": "404ea019-ea1e-4ea5-8581-e4ea1483e52e"
+                },
+                {
+                    "description": "Pad B4 [VBUS_5V] of J1 on F.Cu",
+                    "pos": {
+                        "x": 3.25,
+                        "y": 27.75
+                    },
+                    "uuid": "392be0f1-d01d-42ec-9584-b11a5f6ddea2"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad B4 [VBUS_5V] of J1 on F.Cu",
+                    "pos": {
+                        "x": 3.25,
+                        "y": 27.75
+                    },
+                    "uuid": "392be0f1-d01d-42ec-9584-b11a5f6ddea2"
+                },
+                {
+                    "description": "Pad 1 [VBUS_5V] of U2 on F.Cu",
+                    "pos": {
+                        "x": 14.6,
+                        "y": 17.25
+                    },
+                    "uuid": "b4e5d8cf-7a94-4e17-b476-4af58d4f9490"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "PTH pad 1 [VBAT] of J2",
+                    "pos": {
+                        "x": 10.0,
+                        "y": 6.0
+                    },
+                    "uuid": "f685a48d-0a06-4765-bdea-cd2f24f13b8b"
+                },
+                {
+                    "description": "Pad 13 [VBAT] of U2 on F.Cu",
+                    "pos": {
+                        "x": 17.4,
+                        "y": 18.25
+                    },
+                    "uuid": "34f1163a-c369-46b3-be3a-c31196be356f"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 10 [V_SYS] of U2 on F.Cu",
+                    "pos": {
+                        "x": 17.4,
+                        "y": 17.25
+                    },
+                    "uuid": "cf3d87b8-3700-4b25-9485-088aebd55a4c"
+                },
+                {
+                    "description": "Pad 1 [V_SYS] of U3 on F.Cu",
+                    "pos": {
+                        "x": 22.85,
+                        "y": 17.25
+                    },
+                    "uuid": "ac8be9fc-f3ab-4a07-9b09-075a3eb82491"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 2 [+3V3_DIG] of U1 on F.Cu",
+                    "pos": {
+                        "x": 39.5,
+                        "y": 13.27
+                    },
+                    "uuid": "cc2a4f9d-5f42-49c2-b3b8-54b1cf5d6ba1"
+                },
+                {
+                    "description": "Pad 8 [+3V3_DIG] of U3 on F.Cu",
+                    "pos": {
+                        "x": 25.15,
+                        "y": 18.25
+                    },
+                    "uuid": "e0a8ac35-e015-4416-b081-6548cc53c125"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 1 [+3V3_DIG] of U30 on F.Cu",
+                    "pos": {
+                        "x": 67.25,
+                        "y": 23.055
+                    },
+                    "uuid": "efb43b2a-4f0d-4218-a036-0d45936e2cd2"
+                },
+                {
+                    "description": "Pad 2 [+3V3_DIG] of U1 on F.Cu",
+                    "pos": {
+                        "x": 39.5,
+                        "y": 13.27
+                    },
+                    "uuid": "cc2a4f9d-5f42-49c2-b3b8-54b1cf5d6ba1"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        }
+    ],
+    "violations": [
+        {
+            "description": "Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)",
+            "items": [
+                {
+                    "description": "Rectangle on Edge.Cuts",
+                    "pos": {
+                        "x": 0.0,
+                        "y": 0.0
+                    },
+                    "uuid": "4d3abc54-5e58-4d1e-beef-0474afb11b8c"
+                },
+                {
+                    "description": "Pad A1 [BAT_HUMAN_GND] of J1 on F.Cu",
+                    "pos": {
+                        "x": -0.75,
+                        "y": 27.75
+                    },
+                    "uuid": "d77a9ca1-30e3-43be-97c0-49305cf5b8ae"
+                }
+            ],
+            "severity": "error",
+            "type": "copper_edge_clearance"
+        },
+        {
+            "description": "Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)",
+            "items": [
+                {
+                    "description": "Rectangle on Edge.Cuts",
+                    "pos": {
+                        "x": 0.0,
+                        "y": 0.0
+                    },
+                    "uuid": "4d3abc54-5e58-4d1e-beef-0474afb11b8c"
+                },
+                {
+                    "description": "Pad A4 [VBUS_5V] of J1 on F.Cu",
+                    "pos": {
+                        "x": 0.75,
+                        "y": 27.75
+                    },
+                    "uuid": "404ea019-ea1e-4ea5-8581-e4ea1483e52e"
+                }
+            ],
+            "severity": "error",
+            "type": "copper_edge_clearance"
+        },
+        {
+            "description": "Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.2100 mm)",
+            "items": [
+                {
+                    "description": "Rectangle on Edge.Cuts",
+                    "pos": {
+                        "x": 0.0,
+                        "y": 0.0
+                    },
+                    "uuid": "4d3abc54-5e58-4d1e-beef-0474afb11b8c"
+                },
+                {
+                    "description": "PTH pad 2 [LAB_ISO_GND] of J30",
+                    "pos": {
+                        "x": 83.54,
+                        "y": 13.46
+                    },
+                    "uuid": "d14d16ed-76ea-4e19-91fe-19ffd5314d02"
+                }
+            ],
+            "severity": "error",
+            "type": "copper_edge_clearance"
+        },
+        {
+            "description": "Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.2100 mm)",
+            "items": [
+                {
+                    "description": "Rectangle on Edge.Cuts",
+                    "pos": {
+                        "x": 0.0,
+                        "y": 0.0
+                    },
+                    "uuid": "4d3abc54-5e58-4d1e-beef-0474afb11b8c"
+                },
+                {
+                    "description": "PTH pad 2 [LAB_ISO_GND] of J31",
+                    "pos": {
+                        "x": 83.54,
+                        "y": 36.46
+                    },
+                    "uuid": "36e5eac5-7175-475b-b00f-688e416e91c3"
+                }
+            ],
+            "severity": "error",
+            "type": "copper_edge_clearance"
+        },
+        {
+            "description": "Silkscreen clipped by board edge",
+            "items": [
+                {
+                    "description": "Rectangle on Edge.Cuts",
+                    "pos": {
+                        "x": 0.0,
+                        "y": 0.0
+                    },
+                    "uuid": "4d3abc54-5e58-4d1e-beef-0474afb11b8c"
+                },
+                {
+                    "description": "PCB text 'LAB_ISO DOMAIN' on F.Silkscreen",
+                    "pos": {
+                        "x": 80.0,
+                        "y": 8.0
+                    },
+                    "uuid": "2e7d3869-48f7-4668-9f97-89359bd7c34a"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_edge_clearance"
+        },
+        {
+            "description": "Silkscreen clipped by board edge",
+            "items": [
+                {
+                    "description": "Rectangle on Edge.Cuts",
+                    "pos": {
+                        "x": 0.0,
+                        "y": 0.0
+                    },
+                    "uuid": "4d3abc54-5e58-4d1e-beef-0474afb11b8c"
+                },
+                {
+                    "description": "Reference field of J30",
+                    "pos": {
+                        "x": 0.0,
+                        "y": 7.0
+                    },
+                    "uuid": "f20702f2-93fc-4520-ad55-d506e31fe340"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_edge_clearance"
+        },
+        {
+            "description": "Silkscreen clipped by board edge",
+            "items": [
+                {
+                    "description": "Rectangle on Edge.Cuts",
+                    "pos": {
+                        "x": 0.0,
+                        "y": 0.0
+                    },
+                    "uuid": "4d3abc54-5e58-4d1e-beef-0474afb11b8c"
+                },
+                {
+                    "description": "Reference field of J31",
+                    "pos": {
+                        "x": 0.0,
+                        "y": 7.0
+                    },
+                    "uuid": "c027eea5-1318-4502-a773-e8120db65320"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_edge_clearance"
+        },
+        {
+            "description": "Footprint 'ESP32-S3-WROOM-1' not found in library 'Module'",
+            "items": [
+                {
+                    "description": "Footprint U1",
+                    "pos": {
+                        "x": 48.0,
+                        "y": 22.0
+                    },
+                    "uuid": "e9d4190c-e6f2-4e83-9393-555f6951b0b9"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_issues"
+        },
+        {
+            "description": "Footprint 'QFN-16-1EP_3x3mm_P0.5mm_EP1.8x1.8mm' not found in library 'Package_DFN_QFN'",
+            "items": [
+                {
+                    "description": "Footprint U2",
+                    "pos": {
+                        "x": 16.0,
+                        "y": 18.0
+                    },
+                    "uuid": "45091b29-32b3-42dc-bbe2-be2a93a3ba81"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_issues"
+        },
+        {
+            "description": "Footprint 'WQFN-15-1EP_2.5x3mm_P0.5mm_EP1.2x1.7mm' not found in library 'Package_DFN_QFN'",
+            "items": [
+                {
+                    "description": "Footprint U3",
+                    "pos": {
+                        "x": 24.0,
+                        "y": 18.0
+                    },
+                    "uuid": "36b4b874-0bb8-493b-8c0a-f61335488bf3"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_issues"
+        },
+        {
+            "description": "Footprint 'SOIC-16W_7.5x10.3mm_P1.27mm' does not match copy in library 'Package_SO'",
+            "items": [
+                {
+                    "description": "Footprint U30",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 27.5
+                    },
+                    "uuid": "b16c57a8-c92c-4fb5-87d0-e962912e0712"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'USB_C_Receptacle_GCT_USB4125' not found in library 'Connector_USB'",
+            "items": [
+                {
+                    "description": "Footprint J1",
+                    "pos": {
+                        "x": 2.0,
+                        "y": 27.5
+                    },
+                    "uuid": "ee5708b0-6d5d-430b-a3b8-b7fa4ba86206"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_issues"
+        },
+        {
+            "description": "Footprint 'JST_PH_S3B-PH-K_1x03_P2.00mm_Horizontal' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J2",
+                    "pos": {
+                        "x": 12.0,
+                        "y": 6.0
+                    },
+                    "uuid": "73fc50b5-cef6-403d-86ae-19e240819157"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_PH_S4B-PH-K_1x04_P2.00mm_Horizontal' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J10",
+                    "pos": {
+                        "x": 8.0,
+                        "y": 46.0
+                    },
+                    "uuid": "71ab4e2e-ecac-4dea-9c60-b1c2c4bde19c"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'BNC_TEConnectivity_1-1337543-0_Horizontal' not found in library 'Connector_Coaxial'",
+            "items": [
+                {
+                    "description": "Footprint J30",
+                    "pos": {
+                        "x": 81.0,
+                        "y": 16.0
+                    },
+                    "uuid": "801a7f26-eaa9-4e2a-8d87-81726b58ebf9"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_issues"
+        },
+        {
+            "description": "Footprint 'BNC_TEConnectivity_1-1337543-0_Horizontal' not found in library 'Connector_Coaxial'",
+            "items": [
+                {
+                    "description": "Footprint J31",
+                    "pos": {
+                        "x": 81.0,
+                        "y": 39.0
+                    },
+                    "uuid": "e337d7ce-804a-42d7-b31e-a41cebbd9108"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_issues"
+        },
+        {
+            "description": "Silkscreen clearance",
+            "items": [
+                {
+                    "description": "PCB text 'LAB_ISO DOMAIN' on F.Silkscreen",
+                    "pos": {
+                        "x": 80.0,
+                        "y": 8.0
+                    },
+                    "uuid": "2e7d3869-48f7-4668-9f97-89359bd7c34a"
+                },
+                {
+                    "description": "PCB text 'REINFORCED ISOLATION BARRIER (>= 8.0 mm)' on F.Silkscreen",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 27.5
+                    },
+                    "uuid": "9daa920f-b277-4bd2-9611-7f9c99eb639a"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance",
+            "items": [
+                {
+                    "description": "Reference field of J31",
+                    "pos": {
+                        "x": 0.0,
+                        "y": 7.0
+                    },
+                    "uuid": "c027eea5-1318-4502-a773-e8120db65320"
+                },
+                {
+                    "description": "Reference field of J30",
+                    "pos": {
+                        "x": 0.0,
+                        "y": 7.0
+                    },
+                    "uuid": "f20702f2-93fc-4520-ad55-d506e31fe340"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        }
+    ]
+}

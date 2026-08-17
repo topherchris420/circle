@@ -1,0 +1,8 @@
+### Footprint positions - created on 2026-08-17T13:20:19 ###
+### Printed by KiCad version 10.0.5
+## Unit = inches, Angle = deg.
+## Side : All
+# Ref     Val       Package                                              PosX       PosY       Rot  Side
+J101      PPG_HEAD  JST_GH_BM09B-GHS-TBT_1x09-1MP_P1.25mm_Vertical     0.4921    -0.5709  180.0000  top
+U101      MAX30102  Maxim_OLGA-14_3.3x5.6mm_P0.8mm                     0.4921    -0.3346    0.0000  top
+## End

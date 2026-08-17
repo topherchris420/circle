@@ -1,0 +1,449 @@
+{
+  "schema": 2,
+  "release_version": "Rev_B_2.0.0",
+  "release_class": "ENGINEERING_REVIEW_ONLY",
+  "status": "AUDITED_AND_VERIFIED",
+  "timestamp": "2026-08-17T13:20:00Z",
+  "files": [
+    {
+      "path": "docs/architecture.md",
+      "sha256": "a5ed22a3a6fbb4c1d42a9f0fb636ef1947da4231297623fdc4107970320d0067",
+      "size_bytes": 9161
+    },
+    {
+      "path": "docs/board-bringup-and-validation-plan.md",
+      "sha256": "63ac45a33a986ea0df3aeaab2f731b712c036455d6852604a19ca6735b078b41",
+      "size_bytes": 7364
+    },
+    {
+      "path": "docs/design-decision-log.md",
+      "sha256": "a52f4ab913a0f07f84b9f3e8468a6f17205090595af771580c78fc5dc15d8a14",
+      "size_bytes": 5259
+    },
+    {
+      "path": "docs/firmware-pinmap-and-init.md",
+      "sha256": "0a4cc3811cb46e8303ad56e41717de55e257ae91e1c5470fbb66c320bb11dd43",
+      "size_bytes": 7766
+    },
+    {
+      "path": "docs/known-issues-and-risks.md",
+      "sha256": "c7323dc3ce694f0688c84b606455ab896d7130380c01e1b2903fcbcb1f22298b",
+      "size_bytes": 4594
+    },
+    {
+      "path": "docs/manufacturing-checklist.md",
+      "sha256": "770b79fdae07b3087fa6be50c7c7f05abbc8bb698f8d53c5f867d9b334340f70",
+      "size_bytes": 4517
+    },
+    {
+      "path": "docs/open-risks-and-assumptions.md",
+      "sha256": "7b203297ac04844e7abcf24fe8a97a7aa759e653022c4be5f0e3dfc2f1944df7",
+      "size_bytes": 3929
+    },
+    {
+      "path": "docs/pin-allocation.md",
+      "sha256": "11a09caa6a8ff668d2187ec263cb7ada230661f3d3e226a4e06f0cb2f3f5169e",
+      "size_bytes": 4643
+    },
+    {
+      "path": "docs/power-and-thermal-calculations.md",
+      "sha256": "9254c4e9478ad3d9d6af1e42305306d64eb32bed2016475eb5cf3c9b8017344d",
+      "size_bytes": 8142
+    },
+    {
+      "path": "docs/power-budget-analysis.md",
+      "sha256": "0c9e03c9f270651c55a6bde9fc477e6905ecf82b6794cfa21ea81b134bd8bd95",
+      "size_bytes": 9320
+    },
+    {
+      "path": "docs/preliminary-power-budget.md",
+      "sha256": "cb54a1d243a0f25236c194e651c70d6c29ab77d5bd951553ed9a0a7fca1bcf17",
+      "size_bytes": 963
+    },
+    {
+      "path": "docs/release-audit-report.md",
+      "sha256": "3fb415c8e1fcebf5588040c1c11d21d056f496fe2c47fadf9cf0cc84befa745c",
+      "size_bytes": 11353
+    },
+    {
+      "path": "docs/requirements-to-evidence-matrix.md",
+      "sha256": "0973ccd92f552821bc5060f07a0fb30c0027c7d277a83b359b314a566e6621ff",
+      "size_bytes": 5484
+    },
+    {
+      "path": "docs/review-gates.md",
+      "sha256": "6ebbf2296d5566e19debd7aa2fe21f83039cc9cb611feaefb3f50cf42730e41a",
+      "size_bytes": 1796
+    },
+    {
+      "path": "docs/safety-analysis.md",
+      "sha256": "1d940f6fe5522109c406f2b76b3d38990b1d3801088f933c4bc03b7b28115fb5",
+      "size_bytes": 2225
+    },
+    {
+      "path": "docs/safety-and-fault-analysis.md",
+      "sha256": "363bcbc2d9c6cc1b364445f595a68cf8516bc433e27c9e57752b4aa6845522da",
+      "size_bytes": 8100
+    },
+    {
+      "path": "docs/safety-audit-report.md",
+      "sha256": "0c264275d29f39782f79b3b9e5c444c09d4bcb725b0234415490804fc3475481",
+      "size_bytes": 8991
+    },
+    {
+      "path": "docs/timing-and-data-model.md",
+      "sha256": "610a5a3b2cd02a9f88ac7eef1de76b6df2a2b52897fad022bf18bdeb99480f7e",
+      "size_bytes": 1091
+    },
+    {
+      "path": "docs/traceability-matrix.md",
+      "sha256": "f50988576ed436df91c4e60ebeb1bb1b774e7fc4f161c456332b408e1233b8c6",
+      "size_bytes": 8947
+    },
+    {
+      "path": "docs/validation-plan.md",
+      "sha256": "0785a8071f3693d9422ddb91e4d53db426802033a273bd976b5237d3b0a0c387",
+      "size_bytes": 976
+    },
+    {
+      "path": "hardware/reports/bom/circle-main-revB-sourced.csv",
+      "sha256": "fb2f06367dc1e8bfbf662ad426edab5a35fac018ce69888bba0f678cf6cb6bca",
+      "size_bytes": 9278
+    },
+    {
+      "path": "hardware/reports/bom/circle-main-revB.csv",
+      "sha256": "5a71edd8148e629222684b0e92047850744203d61e38f73cb68c5ae267f5a326",
+      "size_bytes": 6959
+    },
+    {
+      "path": "hardware/reports/bom/circle-main.csv",
+      "sha256": "e0f03d9717d79bca0ea14b69dc9b3b98f5c4d2e303ca686d0f1f2f7fb3325059",
+      "size_bytes": 40
+    },
+    {
+      "path": "hardware/reports/bom/circle-ppg-revB-sourced.csv",
+      "sha256": "86b12544f2c772f05051ed91ab775e57b4914b679d9763e0222f5b211cf931c8",
+      "size_bytes": 2192
+    },
+    {
+      "path": "hardware/reports/bom/circle-ppg-revB.csv",
+      "sha256": "c6433298ea51ca27e2b65875ec1804771c612863aa39860796db9ff4372c1770",
+      "size_bytes": 1569
+    },
+    {
+      "path": "hardware/reports/bom/circle-ppg.csv",
+      "sha256": "e0f03d9717d79bca0ea14b69dc9b3b98f5c4d2e303ca686d0f1f2f7fb3325059",
+      "size_bytes": 40
+    },
+    {
+      "path": "hardware/reports/pdf/circle-main.pdf",
+      "sha256": "4da04e9686af10387524cf233e4979d6a399b71bf259eac5a7d0a0dbeaf21b66",
+      "size_bytes": 89554
+    },
+    {
+      "path": "hardware/reports/pdf/circle-ppg.pdf",
+      "sha256": "be8cb11d36b58ab82acb8921e44a343152b3a214ab94ddcee0872ede4ba20a54",
+      "size_bytes": 46572
+    },
+    {
+      "path": "hardware/reports/step/circle-main.step",
+      "sha256": "7723c6aefc7641e7b5e68e9e687e5f295e0fd27d5d3e3132ebdcc2553319ae15",
+      "size_bytes": 34222
+    },
+    {
+      "path": "hardware/reports/step/circle-ppg.step",
+      "sha256": "078bc8c4a9419a67ef6d93167432dbc70fcbd8fbacd705449745c8e4f5d4709b",
+      "size_bytes": 11799
+    },
+    {
+      "path": "hardware/reports/netlist/circle-main.d356",
+      "sha256": "63b5784afcf73ef7ec1b688706819b18a93c060d1e8c825f445a48369c244423",
+      "size_bytes": 2376
+    },
+    {
+      "path": "hardware/reports/netlist/circle-ppg.d356",
+      "sha256": "a7802284934621a0ef2a07db99f5282dd526583559933a34bcced504ca7fb022",
+      "size_bytes": 1026
+    },
+    {
+      "path": "hardware/reports/pos/circle-main-pos.csv",
+      "sha256": "79f2ddac0742abc6c6db1e19d01a278b75f02e4721f5ce6f586b021a9353d71b",
+      "size_bytes": 1295
+    },
+    {
+      "path": "hardware/reports/pos/circle-ppg-pos.csv",
+      "sha256": "7b0c4e5f461b1c343bc42bc394d084aeeaef68f43ba6c13ac59c5777b1543aa3",
+      "size_bytes": 470
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-main/circle-main-B_Adhesive.gba",
+      "sha256": "9e88991ffbd0de705b3ea061d05b25ca4a9ebd1eee6fdbff94c08cf2d3e0904b",
+      "size_bytes": 470
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-main/circle-main-B_Courtyard.gbr",
+      "sha256": "b897ef64658edc1d90f05407bc337213d69e96adc2702abb18da654750689576",
+      "size_bytes": 443
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-main/circle-main-B_Cu.gbl",
+      "sha256": "24d6318270e66620f12a37e8d71a702c0b89f0ec290cd67e6c185bff678ae7e4",
+      "size_bytes": 2157
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-main/circle-main-B_Fab.gbr",
+      "sha256": "e1cab54c7ae2f12b6e943e666261e0949f9aaa58dfe498142799ebda1c9b5ac0",
+      "size_bytes": 452
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-main/circle-main-B_Mask.gbs",
+      "sha256": "049d7449f40055c2218ed0dea52b93d077e16c5eb90542cb661057a21b836aa3",
+      "size_bytes": 19691
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-main/circle-main-B_Paste.gbp",
+      "sha256": "d383c90d85346beb584cae9bf671abacab0be17b74e0bbc35a8feec01897527c",
+      "size_bytes": 471
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-main/circle-main-B_Silkscreen.gbo",
+      "sha256": "bb0d3a8ca4e133294f2c0fed0bb3b7820cd02b7d3aa5a05042cee1afbec04bd1",
+      "size_bytes": 472
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-main/circle-main-BAT_HUMAN_GND.g1",
+      "sha256": "cfb4cc6ac477f78cb5804780aff73369616e624df316c4e2f63706b27cb1bf9f",
+      "size_bytes": 2016
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-main/circle-main-Edge_Cuts.gm1",
+      "sha256": "37da708cbb74260cb73e4e3fbfec01ed185959d032bd2f384cce26d5088918b9",
+      "size_bytes": 1196
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-main/circle-main-F_Adhesive.gta",
+      "sha256": "0f4141a5537385067e080281bccbbed7cff47d07f5930958b38c271b4d2c43e4",
+      "size_bytes": 470
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-main/circle-main-F_Courtyard.gbr",
+      "sha256": "b897ef64658edc1d90f05407bc337213d69e96adc2702abb18da654750689576",
+      "size_bytes": 443
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-main/circle-main-F_Cu.gtl",
+      "sha256": "3e47451c2467e2b39d91adb6bc64e8d336238fd804d96164f5d2eda808c88257",
+      "size_bytes": 3832
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-main/circle-main-F_Fab.gbr",
+      "sha256": "fcc8a06b3ad6a707a7663552aacf784624ba11329bfbbbd193b44e83db96b70b",
+      "size_bytes": 51526
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-main/circle-main-F_Mask.gts",
+      "sha256": "6d3d6f903f82aa73edafe539d2bdbb414d6c3ed6e87890860663f388e4eca5ce",
+      "size_bytes": 29381
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-main/circle-main-F_Paste.gtp",
+      "sha256": "4d6dba77bc36902a91e483cae6d7abac6241e07db28d9baa93a11c853248384d",
+      "size_bytes": 1292
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-main/circle-main-F_Silkscreen.gto",
+      "sha256": "371a630044fb880b6fb11e49c142be9cccc5eddc774231acb8cf5c9a38cc502f",
+      "size_bytes": 46263
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-main/circle-main-job.gbrjob",
+      "sha256": "e9c43a05f14fa7a1c631025ee77a29e00d946dc91f83ccbbf00608a8197b232d",
+      "size_bytes": 4800
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-main/circle-main-Margin.gbr",
+      "sha256": "b897ef64658edc1d90f05407bc337213d69e96adc2702abb18da654750689576",
+      "size_bytes": 443
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-main/circle-main-User_Comments.gbr",
+      "sha256": "7dcb38d74ed20d03141122afb27fe71a9373c7cc59d8a07ef04eebfbcb9e4857",
+      "size_bytes": 13478
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-main/circle-main-User_Drawings.gbr",
+      "sha256": "74b75fd72cf36dc1c35545de5d36bf7506f1a9f586ef5278d79fe96203a708cf",
+      "size_bytes": 453
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-main/circle-main-User_Eco1.gbr",
+      "sha256": "a30170b9276c289ef239b99d30da887f6e71dbd04aee6738e26bcfb9d8dd31ad",
+      "size_bytes": 443
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-main/circle-main-User_Eco2.gbr",
+      "sha256": "f65c4c8d704f4499d50d819f4bd9495a3424f143a109d366901a301bb7682fcf",
+      "size_bytes": 443
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-main/circle-main-V_SYS.g2",
+      "sha256": "5d2e8aa688f71806c202c0a7a3545c7000c8a09ff6832968c8234ff907d70c01",
+      "size_bytes": 2016
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-main/circle-main.drl",
+      "sha256": "3b1f51a3a7b090416dd8659f4332022b992cad0b997037d26b7563e906246289",
+      "size_bytes": 634
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-B_Adhesive.gba",
+      "sha256": "c323bb603f6e31ac77374461721550c2f0bbd9e48da062166342089839c43ee0",
+      "size_bytes": 469
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-B_Courtyard.gbr",
+      "sha256": "0e4f35fa3d0e1c680e7156dfac735f805b57cb3d7d10cae90fab1a5b64748269",
+      "size_bytes": 442
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-B_Cu.gbl",
+      "sha256": "2683297e4b84648db1de90866e87871fae7a13b2ccc29776bada78408589f0ef",
+      "size_bytes": 474
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-B_Fab.gbr",
+      "sha256": "489b3014c46dd46be9e42f785361d785b8e0668f0223c91a6e5b7b25cef1a461",
+      "size_bytes": 451
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-B_Mask.gbs",
+      "sha256": "f5b475d37d1e66a11a7371b92e54b2e7387301403479d5beece88bf2167fe397",
+      "size_bytes": 475
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-B_Paste.gbp",
+      "sha256": "0b2f66278c29ffa18e4c41600c532768e45fa7632e912a17dcba31989afa85d7",
+      "size_bytes": 470
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-B_Silkscreen.gbo",
+      "sha256": "e2b7c067ab46ee50288c5182a29f79710109aef5725d6f1a024d3613e3f9fc79",
+      "size_bytes": 471
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-Edge_Cuts.gm1",
+      "sha256": "dac0a09db9e9278cfc5b4eac23b31ae5883100b4d0eb29cc75672117d69c75f1",
+      "size_bytes": 885
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-F_Adhesive.gta",
+      "sha256": "5b89c32bd89a4403ca0bcc397ad7d507e28395c4381c358e223982ab85e804b8",
+      "size_bytes": 469
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-F_Courtyard.gbr",
+      "sha256": "0e4f35fa3d0e1c680e7156dfac735f805b57cb3d7d10cae90fab1a5b64748269",
+      "size_bytes": 442
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-F_Cu.gtl",
+      "sha256": "6462cd64e5c82cd6df9cce9e159e8a75aac2ead0fedaa1f3e95dfbae5336c8bc",
+      "size_bytes": 1436
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-F_Fab.gbr",
+      "sha256": "e77db834de03570bd2391a2036aa3c2fc77797b96783b5fe08809388a3445950",
+      "size_bytes": 6976
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-F_Mask.gts",
+      "sha256": "49eef6de6adb05b5bcc1882a82a4a1e3860b889db2ef1d7907629f1bb617b79d",
+      "size_bytes": 7132
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-F_Paste.gtp",
+      "sha256": "c7149c0ed9458d42ae6894c800c987fed8c852af0fb11ce9c2fd15cc0621c06a",
+      "size_bytes": 902
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-F_Silkscreen.gto",
+      "sha256": "e374cf191072f93236bee4d2b196c1f76252a0cd6c50fbc6da2472a7b27613e0",
+      "size_bytes": 16418
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-job.gbrjob",
+      "sha256": "a0de2915ac3ed0e3d6aa9dc40dd6a9b81b9c85515483ad539f4c7d71345d45cb",
+      "size_bytes": 4792
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-Margin.gbr",
+      "sha256": "0e4f35fa3d0e1c680e7156dfac735f805b57cb3d7d10cae90fab1a5b64748269",
+      "size_bytes": 442
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-PPG_3V3.g2",
+      "sha256": "42a080b96576b743bb04c82c5b9d606e6a35d95ae3d79fcd2ec04f4c4336f0f0",
+      "size_bytes": 474
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-PPG_LOGIC_GND.g1",
+      "sha256": "6c0f827c3491fb6a0340b7af460faa36374ffbbbd4d6b938c135e2da0707025b",
+      "size_bytes": 474
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-User_Comments.gbr",
+      "sha256": "d94cf944da96dcf1a8fd82e80e9c9bac2c50bc92539fcbc4e276d6e512e5dbbc",
+      "size_bytes": 445
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-User_Drawings.gbr",
+      "sha256": "f2d5cf7b86d81394c9ae4274ee1b469ff1c3b0d91fb13f9f142877fb7c8cd496",
+      "size_bytes": 452
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-User_Eco1.gbr",
+      "sha256": "6f97b760630aee436758d5f2ba8cbb7b87ddb90e546766529e15b5c59aec15f8",
+      "size_bytes": 442
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-ppg/circle-ppg-User_Eco2.gbr",
+      "sha256": "79cfb57be745faf8fbc11adeed92e1d64ff345db2d2d960dadd2da72905a4391",
+      "size_bytes": 442
+    },
+    {
+      "path": "hardware/reports/gerbers/circle-ppg/circle-ppg.drl",
+      "sha256": "3e81f1ac31f114e5b62a5e78fcfd7628a45807d9563ccfcc1db05b41dd455e18",
+      "size_bytes": 274
+    },
+    {
+      "path": "hardware/circle-main/circle-main.kicad_pcb",
+      "sha256": "a9d30baaf92dfe985dae4c3aa17778b40712e81fea3e9446a880db9dc68ae4da",
+      "size_bytes": 9844
+    },
+    {
+      "path": "hardware/circle-ppg/circle-ppg.kicad_pcb",
+      "sha256": "285c0a58a08f93f8ae8a8e7b73059fa05f872bfbe213fcd8505ffe0024134190",
+      "size_bytes": 4675
+    },
+    {
+      "path": "hardware/libraries/circle-symbols.kicad_sym",
+      "sha256": "ba39883d7e06e1163832e5259a7420de0e0ddf10c4532bd61495864d42045c46",
+      "size_bytes": 9589
+    },
+    {
+      "path": "hardware/libraries/circle-footprints.pretty/AQY212GS_SOP-4.kicad_mod",
+      "sha256": "f9bb88337161c52881bf70bbbd0ba0ce340a92a2cc4f54ed1ca5d3595e35d2fa",
+      "size_bytes": 1105
+    },
+    {
+      "path": "hardware/libraries/circle-footprints.pretty/ESP32-S3-WROOM-1.kicad_mod",
+      "sha256": "03bec654472191b690f6373e574c693b8c0f09bde4c0ac8a4d974091babf360c",
+      "size_bytes": 967
+    },
+    {
+      "path": "hardware/libraries/circle-footprints.pretty/ISOW7742_SOIC-16W.kicad_mod",
+      "sha256": "4feabe4dd957a3e7f8d9a77bc00ba869cb00a4006b84c72f8e87446c7271ef1c",
+      "size_bytes": 2175
+    }
+  ]
+}

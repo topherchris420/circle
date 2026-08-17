@@ -12,7 +12,7 @@
         "tests"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.35
+      "elapsed_seconds": 0.788
     },
     {
       "command": [
@@ -20,7 +20,7 @@
         "tools/check_design_manifest.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.072
+      "elapsed_seconds": 0.102
     },
     {
       "command": [
@@ -28,7 +28,7 @@
         "tools/check_record_schema.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.089
+      "elapsed_seconds": 0.082
     },
     {
       "command": [
@@ -36,7 +36,7 @@
         "tools/render_diagrams.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.113
+      "elapsed_seconds": 0.102
     },
     {
       "command": [
@@ -44,7 +44,7 @@
         "tools/generate_schematics.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.174
+      "elapsed_seconds": 0.16
     },
     {
       "command": [
@@ -54,7 +54,7 @@
         "circle-ppg"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.164
+      "elapsed_seconds": 0.224
     },
     {
       "command": [
@@ -62,7 +62,7 @@
         "version"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.382
+      "elapsed_seconds": 0.333
     },
     {
       "command": [
@@ -77,7 +77,7 @@
         "hardware/circle-main/legacy/00_root.sch"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 8.436
+      "elapsed_seconds": 13.906
     },
     {
       "command": [
@@ -92,7 +92,7 @@
         "hardware/circle-ppg/legacy/00_ppg_root.sch"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 8.006
+      "elapsed_seconds": 10.916
     },
     {
       "command": [
@@ -100,7 +100,7 @@
         "tools/check_erc.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.219
+      "elapsed_seconds": 0.27
     }
   ],
   "artifacts": [
@@ -126,11 +126,15 @@
     },
     {
       "path": "hardware\\reports\\circle-main-erc.json",
-      "sha256": "fd193dd276dc008871e3c8b003b6077eac86a1caf9aa406913124b7bac126a92"
+      "sha256": "4fd098f7c6dfb9e015c83ae8a60c1d8bf5a28b3f0423f3ac32a83cf34b0c5d9e"
     },
     {
       "path": "hardware\\reports\\circle-ppg-erc.json",
-      "sha256": "8b7df4a54333d05204bd39a5021fbd56448dde3540514ebb7cb6ebb2373574bc"
+      "sha256": "745580fb0b52e0953f60abcd46bb03cfb8a62cc205b0bbaeb0809e5fefe67226"
+    },
+    {
+      "path": "hardware\\reports\\bom\\circle-main-revB-sourced.csv",
+      "sha256": "fb2f06367dc1e8bfbf662ad426edab5a35fac018ce69888bba0f678cf6cb6bca"
     },
     {
       "path": "hardware\\reports\\bom\\circle-main-revB.csv",
@@ -139,6 +143,10 @@
     {
       "path": "hardware\\reports\\bom\\circle-main.csv",
       "sha256": "e0f03d9717d79bca0ea14b69dc9b3b98f5c4d2e303ca686d0f1f2f7fb3325059"
+    },
+    {
+      "path": "hardware\\reports\\bom\\circle-ppg-revB-sourced.csv",
+      "sha256": "86b12544f2c772f05051ed91ab775e57b4914b679d9763e0222f5b211cf931c8"
     },
     {
       "path": "hardware\\reports\\bom\\circle-ppg-revB.csv",
