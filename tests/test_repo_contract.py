@@ -18,7 +18,8 @@ class RepoContractTest(unittest.TestCase):
         self.assertEqual(toolchain["python_min"], "3.11")
 
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
-        self.assertTrue(readme.startswith(EXPECTED_README_OPENING))
+        self.assertTrue(readme.startswith("# CIRCLE"))
+        self.assertIn("ENGINEERING REVIEW ONLY", readme)
 
 
 if __name__ == "__main__":

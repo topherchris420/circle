@@ -147,13 +147,13 @@
     },
     {
       "path": "hardware/reports/step/circle-main.step",
-      "sha256": "e9b0d3e7de0d75a6f62f13fe3ffbf88b75e8e657ae6c95838969667d1dd861ce",
-      "size_bytes": 194003
+      "sha256": "2752de19936a27e3f2fe8abb69e59ce95f7f5b147342cd3e887341587ec206d3",
+      "size_bytes": 198922
     },
     {
       "path": "hardware/reports/step/circle-ppg.step",
-      "sha256": "0e32923a7c1e8fd1d35b4235663ab7443a1fb7057a8323c78b8273458b6b16c2",
-      "size_bytes": 13261
+      "sha256": "b2bc56769c90719f29153a00b7f65e736f2835cb48a452e99fe4ad6bd6ddcd5d",
+      "size_bytes": 13605
     },
     {
       "path": "hardware/reports/netlist/circle-main.d356",
