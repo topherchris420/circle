@@ -23,15 +23,21 @@ $$\Delta_\text{net} = (\mu_\text{active} - \mu_\text{active\_base}) - (\mu_\text
 
 $$\text{Cohen's } d = \frac{\Delta_\text{net}}{\sigma_\text{pooled}}$$
 
-### B. Non-Parametric Permutation Testing
-Hypothesis significance is evaluated via exact two-sided label permutation testing (1,000 permutations) shuffling trial baseline and active intervals, yielding an empirical $p_\text{perm}$.
+### B. Circular Block Permutation Testing (Autocorrelation-Aware)
+Physiological time series (EDA, PPG, HRV) exhibit strong temporal autocorrelation ($\text{Cov}(x_t, x_{t+k}) > 0$). Naive sample-level permutation artificially deflates variance and produces spuriously tiny $p$-values.
 
-### C. Empirical Bootstrap Confidence Intervals for RRI
+CIRCLE implements **Circular Block Permutation** with block length $L_\text{block} \ge 5\text{ samples}$ (preserving the short-range autocorrelation structure within contiguous blocks). Condition assignments are shuffled across blocks to evaluate the null hypothesis:
+
+$$H_0: \Delta_\text{active} = \Delta_\text{sham}$$
+
+yielding an exact empirical $p_\text{perm}$.
+
+### C. Aligned Block Bootstrap Confidence Intervals for RRI
 The **Resonance Response Index ($RRI \in [0.0, 1.0]$)** is penalized by electromagnetic and thermal artifact risk:
 
 $$\text{RRI} = \left( \frac{|d|}{1.0 + |d|} \right) \cdot (1.0 - \text{Risk}_\text{EM})$$
 
-Uncertainty is quantified using 1,000 empirical bootstrap resamples to derive the true $95\%\text{ CI} = [RRI_{2.5}, RRI_{97.5}]$.
+Uncertainty is quantified using 1,000 empirical block bootstrap resamples across active baseline, active intervention, sham baseline, and sham intervention simultaneously, deriving the aligned $95\%\text{ CI} = [RRI_{2.5}, RRI_{97.5}]$.
 
 ### D. Phantom Baseline-Subtracted Delta Evaluation
 To prevent harmless DC offsets on dummy loads from generating false-positive interference alarms, phantom controls evaluate the dynamic change:

@@ -2,20 +2,18 @@
 
 Architecture Classification:
   Normalized phenomenological model of coupled geometric resonators.
-  Extracts physical electrostatic capacitances (C_ij), mutual coupling coefficients (k_ij),
-  and boundary mode structures from actual 3D geometric dimensions (D_outer, D_middle, D_inner,
-  and core geometry), integrating coupled non-linear differential equations in the time domain.
+  Extracts electrostatic capacitances (C_ij) and dimensionless coupling coefficients (k_ij)
+  from 3D geometric dimensions (D_outer, D_middle, D_inner, and core geometry), integrating
+  dimensionally scaled coupled non-linear differential equations in the time domain.
 
-Physics Pipeline:
-  Geometry G = {D_outer, D_middle, D_inner, Core}
-       ↓
-  Geometric Parameter Extraction {C_i, C_ij, k_ij, omega_0,i}
-       ↓
-  Coupled Duffing Oscillator State Space
-       ↓
-  Emergent Spectral Transformations (Harmonics, Intermods, Mode Splitting)
-       ↓
-  Strict Conservation of Energy Accounting (P_out <= P_in)
+Dimensional Coupling Formulation:
+  d2x_i/dt2 + gamma_i * dx_i/dt + omega_i^2 * x_i + alpha * x_i^3 + sum_j (k_ij * omega_i * omega_j) * (x_i - x_j) = F_i(t)
+  where k_ij in [0, 1] is the dimensionless geometric coupling coefficient and
+  kappa_ij = k_ij * omega_i * omega_j (s^-2) matches the scale of omega_i^2 (s^-2).
+
+Calibration Metadata:
+  All geometric cavity coupling parameters are classified as:
+  PHENOMENOLOGICAL_PARAMETER_NOT_PHYSICALLY_CALIBRATED
 """
 
 from __future__ import annotations
@@ -28,6 +26,8 @@ from typing import Any, Dict, List, Optional, Tuple
 PHI = (1.0 + math.sqrt(5.0)) / 2.0  # 1.618033988749895
 EPSILON_0 = 8.8541878128e-12        # Vacuum permittivity (F/m)
 SPEED_OF_LIGHT = 299792458.0        # m/s
+
+CALIBRATION_STATUS = "PHENOMENOLOGICAL_PARAMETER_NOT_PHYSICALLY_CALIBRATED"
 
 
 @dataclass(frozen=True)
@@ -61,18 +61,16 @@ class GeometryConfig:
 
 
 class GeometricParameterExtractor:
-    """Derives physical electrostatic capacitance, mutual coupling, and cavity parameters from geometry.
+    """Derives physical electrostatic capacitance and dimensionless mutual coupling from geometry.
     
-    Transforms physical dimensions G = (r_outer, r_middle, r_inner, core) into a physical
-    5x5 mutual coupling matrix k_ij and self-capacitances, ensuring identical physical laws
-    apply to all geometries without hardcoded advantages.
+    All geometries apply identical physical scaling without handcrafted multiplier advantages.
     """
 
     def __init__(self, geometry: GeometryConfig):
         self.geometry = geometry
 
     def extract_coupling_matrix(self) -> Tuple[List[float], List[List[float]]]:
-        """Derive normalized self-capacitances and 5x5 mutual coupling matrix.
+        """Derive normalized self-capacitances and 5x5 dimensionless mutual coupling matrix k_ij in [0, 1].
         
         Subsystem indices:
           0: R_outer
@@ -89,11 +87,9 @@ class GeometricParameterExtractor:
         r_out = (d_out / 2.0) / 1000.0
         r_mid = (d_mid / 2.0) / 1000.0
         r_inn = (d_inn / 2.0) / 1000.0
-
-        # Core radius (nested inside inner sphere)
         r_core = r_inn * 0.55
 
-        # 1. Self-capacitance of concentric conductors: C_i = 4 * pi * eps0 * r_i
+        # 1. Self-capacitances of concentric conductors: C_i = 4 * pi * eps0 * r_i
         c_out = 4.0 * math.pi * EPSILON_0 * r_out
         c_mid = 4.0 * math.pi * EPSILON_0 * r_mid
         c_inn = 4.0 * math.pi * EPSILON_0 * r_inn
@@ -101,53 +97,39 @@ class GeometricParameterExtractor:
         c_core_down = 4.0 * math.pi * EPSILON_0 * (r_core * 0.5)
         self_capacitances = [c_out, c_mid, c_inn, c_core_up, c_core_down]
 
-        # 2. Inter-shell mutual coupling derived from radial distance Delta_r = r_j - r_i
-        # Electrostatic coupling coefficient: k_ij = sqrt(r_i * r_j) / ( (r_j - r_i) + r_i )
         k_matrix = [[0.0] * 5 for _ in range(5)]
 
-        def calc_sphere_coupling(r_small: float, r_large: float) -> float:
+        # Electrostatic geometric coupling function based strictly on radial clearance
+        def calc_coupling(r_small: float, r_large: float) -> float:
             gap = max(1e-4, r_large - r_small)
-            # Dimensionless geometric coupling factor
             coupling = math.sqrt(r_small / r_large) * (r_small / (r_small + gap))
-            return min(0.35, round(coupling * 0.25, 4))
+            return min(0.30, round(coupling * 0.20, 4))
 
         # Outer <-> Middle
-        k_out_mid = calc_sphere_coupling(r_mid, r_out)
+        k_out_mid = calc_coupling(r_mid, r_out)
         k_matrix[0][1] = k_matrix[1][0] = k_out_mid
 
         # Middle <-> Inner
-        k_mid_inn = calc_sphere_coupling(r_inn, r_mid)
+        k_mid_inn = calc_coupling(r_inn, r_mid)
         k_matrix[1][2] = k_matrix[2][1] = k_mid_inn
 
         # Outer <-> Inner (cross-cavity fringing coupling)
-        k_out_inn = calc_sphere_coupling(r_inn, r_out) * 0.40
+        k_out_inn = calc_coupling(r_inn, r_out) * 0.35
         k_matrix[0][2] = k_matrix[2][0] = k_out_inn
 
-        # 3. Core Geometry Coupling to Inner Shell
+        # Core coupling derived purely from physical radial gap without arbitrary multiplier bonuses
         core_type = self.geometry.core_geometry
-        if core_type == "DUAL_TETRAHEDRON_MERKABA":
-            # Dual interpenetrating tetrahedra: 8 sharp vertices extend near inner boundary
-            # creating enhanced geometric field concentration at vertices
-            vertex_factor = 1.25
-            k_inn_core = calc_sphere_coupling(r_core, r_inn) * vertex_factor
-            # Up <-> Down tetrahedron mutual interpenetration coupling
-            k_core_inter = 0.18
-        elif core_type == "SPHERICAL_CORE":
-            k_inn_core = calc_sphere_coupling(r_core, r_inn) * 1.0
-            k_core_inter = 0.12
-        elif core_type == "CUBIC_CORE":
-            k_inn_core = calc_sphere_coupling(r_core, r_inn) * 1.10
-            k_core_inter = 0.14
-        elif core_type in ("NO_CORE", "SHAM_OFF"):
+        if core_type in ("NO_CORE", "SHAM_OFF"):
             k_inn_core = 0.0
             k_core_inter = 0.0
         else:
-            k_inn_core = calc_sphere_coupling(r_core, r_inn)
-            k_core_inter = 0.10
+            k_inn_core = calc_coupling(r_core, r_inn)
+            # Symmetric mutual coupling between upper and lower central elements
+            k_core_inter = calc_coupling(r_core * 0.5, r_core)
 
-        k_matrix[2][3] = k_matrix[3][2] = min(0.35, round(k_inn_core, 4))
-        k_matrix[2][4] = k_matrix[4][2] = min(0.35, round(k_inn_core, 4))
-        k_matrix[3][4] = k_matrix[4][3] = min(0.35, round(k_core_inter, 4))
+        k_matrix[2][3] = k_matrix[3][2] = min(0.30, round(k_inn_core, 4))
+        k_matrix[2][4] = k_matrix[4][2] = min(0.30, round(k_inn_core, 4))
+        k_matrix[3][4] = k_matrix[4][3] = min(0.30, round(k_core_inter, 4))
 
         return self_capacitances, k_matrix
 
@@ -193,17 +175,16 @@ class SimulationResult:
             "timing": self.timing,
             "provenance": self.provenance,
             "interpretation_level": self.interpretation_level,
-            "status_flags": ["SIMULATED_DATA", "CONSERVATION_VERIFIED"],
+            "calibration_metadata": CALIBRATION_STATUS,
+            "status_flags": ["SIMULATED_DATA", "CONSERVATION_VERIFIED", CALIBRATION_STATUS],
         }
 
 
 class CoupledOscillatorSolver:
-    """Numerical solver for coupled non-linear differential equations.
+    """Numerical solver for coupled non-linear differential equations with dimensional coupling scaling.
     
     Equations of motion:
-      d2x_i/dt2 + gamma_i * dx_i/dt + omega_i^2 * x_i + alpha * x_i^3 + sum_j k_ij * (x_i - x_j) = F_i(t)
-    
-    Emergent spectral transformations arise dynamically from Runge-Kutta numerical integration.
+      d2x_i/dt2 + gamma_i * dx_i/dt + omega_i^2 * x_i + alpha * x_i^3 + sum_j (k_ij * omega_i * omega_j) * (x_j - x_i) = F_i(t)
     """
 
     def __init__(
@@ -222,6 +203,7 @@ class CoupledOscillatorSolver:
         self.qs = q_factors
         self.k = coupling_matrix
         self.alpha = nonlinear_alpha
+        self.omegas = [2.0 * math.pi * f for f in frequencies_hz]
 
     def simulate_dynamics(
         self,
@@ -238,10 +220,10 @@ class CoupledOscillatorSolver:
         trajectories = [[0.0] * steps for _ in range(self.n)]
 
         gammas = [
-            (2.0 * math.pi * f / q) if (q > 0 and f > 0) else 0.1
-            for f, q in zip(self.freqs, self.qs)
+            (self.omegas[i] / self.qs[i]) if (self.qs[i] > 0 and self.omegas[i] > 0) else 0.1
+            for i in range(self.n)
         ]
-        omega_sq = [(2.0 * math.pi * f) ** 2 for f in self.freqs]
+        omega_sq = [w ** 2 for w in self.omegas]
 
         for step, t in enumerate(time_points):
             def get_derivatives(cur_x: List[float], cur_v: List[float], cur_t: float) -> Tuple[List[float], List[float]]:
@@ -250,11 +232,15 @@ class CoupledOscillatorSolver:
                 for i in range(self.n):
                     if self.freqs[i] <= 0 or self.amps[i] <= 0:
                         continue
+                    # Linear restoring + non-linear Duffing term + damping
                     accel = -omega_sq[i] * cur_x[i] - self.alpha * (cur_x[i] ** 3) - gammas[i] * cur_v[i]
+                    # Dimensionally consistent mutual coupling: kappa_ij = k_ij * omega_i * omega_j
                     for j in range(self.n):
-                        if i != j:
-                            accel += self.k[i][j] * (cur_x[j] - cur_x[i])
-                    accel += self.amps[i] * math.sin(2.0 * math.pi * self.freqs[i] * cur_t + self.phases[i])
+                        if i != j and self.k[i][j] > 0:
+                            kappa_ij = self.k[i][j] * self.omegas[i] * self.omegas[j]
+                            accel += kappa_ij * (cur_x[j] - cur_x[i])
+                    # Drive force
+                    accel += self.amps[i] * math.sin(self.omegas[i] * cur_t + self.phases[i])
                     dvdt[i] = accel
                 return dxdt, dvdt
 
@@ -316,8 +302,8 @@ class CoupledOscillatorSolver:
                 peaks.append(round(freq_bins[i], 1))
 
         f0 = fundamental_freq_hz
-        harmonics = [p for p in peaks if any(abs(p - k * f0) < 1.5 for k in [2, 3, 4])]
-        subharmonics = [p for p in peaks if any(abs(p - (f0 / k)) < 1.5 for k in [2, 3])]
+        harmonics = [p for p in peaks if any(abs(p - k * f0) < 2.0 for k in [2, 3, 4])]
+        subharmonics = [p for p in peaks if any(abs(p - (f0 / k)) < 2.0 for k in [2, 3])]
 
         intermods: List[float] = []
         active_freqs = [f for f in self.freqs if f > 0]
@@ -326,7 +312,7 @@ class CoupledOscillatorSolver:
                 f1, f2 = active_freqs[i], active_freqs[j]
                 candidate_im = [abs(f1 - f2), f1 + f2, abs(2 * f1 - f2)]
                 for c in candidate_im:
-                    if any(abs(p - c) < 1.5 for p in peaks):
+                    if any(abs(p - c) < 2.0 for p in peaks):
                         intermods.append(round(c, 1))
 
         mode_split = False
@@ -352,7 +338,7 @@ class CoupledOscillatorSolver:
 
 
 class ResonanceSimulator:
-    """Simulator driven by physical geometric parameter extraction and coupled cavity dynamics."""
+    """Simulator driven by physical geometric parameter extraction and dimensionally scaled cavity dynamics."""
 
     def __init__(self, geometry: Optional[GeometryConfig] = None):
         self.geometry = geometry or GeometryConfig()
@@ -402,11 +388,10 @@ class ResonanceSimulator:
         washout_duration_ms: float = 5000.0,
         ambient_temp_c: float = 22.5,
     ) -> SimulationResult:
-        """Run physics simulation with geometry-derived capacitances and mutual coupling."""
+        """Run physics simulation with geometry-derived capacitances and dimensionally scaled coupling."""
         outer_d, middle_d, inner_d = self.geometry.compute_diameters()
         freqs = self.build_frequency_ladder(base_freq_hz, mode=frequency_mode)
 
-        # Extract physical coupling matrix from geometric dimensions
         self_caps, k_matrix = self.extractor.extract_coupling_matrix()
 
         channels_out: Dict[str, Dict[str, Any]] = {}
@@ -437,13 +422,10 @@ class ResonanceSimulator:
                 q = 45.0 + (5.0 if "core" in ch_name else 0.0)
                 bw = round(target_f / q, 3) if q > 0 else 0.0
                 phase = 0.0 if not ch_name.endswith("down") else 180.0
-                # Net coupling from adjacent matrix row
                 k_eff = sum(k_matrix[idx])
-                # Small mutual pulling derived from physical matrix
                 meas_f = round(target_f * (1.0 + 0.001 * k_eff), 3)
-                # Standard P_in = V^2 / (2 * R_load) for 50-ohm RF system
+                # P_in = V^2 / (2 * R_load) for 50-ohm RF system
                 p_in = round((v ** 2) / 100.0, 4)
-                # Radiative and cavity coupled power derived from geometry coupling
                 p_out = round(p_in * (0.05 + 0.10 * min(0.30, k_eff)), 5)
 
             total_input_power_w += p_in
@@ -467,13 +449,13 @@ class ResonanceSimulator:
                 "bandwidth_hz": bw,
             }
 
-        # Conservation of energy: P_out <= P_in
+        # Energy conservation: P_out <= P_in
         total_input_power_w = round(total_input_power_w, 4)
         total_output_power_w = round(min(total_output_power_w, total_input_power_w * 0.99), 5)
         dissipated_w = round(max(0.0, total_input_power_w - total_output_power_w), 5)
         temp_rise_c = round(dissipated_w * 0.40, 2)
 
-        # Run numerical coupled oscillator solver with geometry-derived k_matrix
+        # Run numerical coupled oscillator solver with dimensionally scaled coupling
         if not is_sham and base_freq_hz > 0:
             solver = CoupledOscillatorSolver(
                 frequencies_hz=freq_list,

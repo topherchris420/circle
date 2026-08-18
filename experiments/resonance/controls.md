@@ -16,7 +16,21 @@ To scientifically test whether specific proportions (e.g. golden ratio $\phi \ap
 | **No-Core Control** | Golden Ratio ($D, D/\phi, D/\phi^2$) | None (Empty cavity) | Isolates contribution of core structure |
 | **Sham / Off** | $0.0\text{ mm}$ (Drive disabled) | Sham / Off | Measures baseline noise & environmental drift |
 
-## 2. Electronic Phantoms and Bench Artifact Controls
+## 2. Matched Orthogonal Factorial Execution
+
+To decouple geometry from core effects and evaluate potential synergistic interactions, the closed-loop scheduler generates matched factorial blocks evaluated at identical drive frequencies and voltage amplitudes:
+
+1. $(\phi \text{ Spacing} \times \text{Merkaba Core})$
+2. $(\phi \text{ Spacing} \times \text{Spherical Core})$
+3. $(\phi \text{ Spacing} \times \text{No Core})$
+4. $(\text{Equal Spacing} \times \text{Merkaba Core})$
+5. $(\text{Equal Spacing} \times \text{Spherical Core})$
+6. $(\text{Random Spacing} \times \text{Merkaba Core})$
+7. $(\text{Sham / Off} \times \text{Sham / Off})$
+
+The resulting multi-trial data is analyzed via the `FactorialInteractionAnalyzer` regression model to estimate $\beta_G$, $\beta_C$, and the interaction coefficient $\beta_{GC}$.
+
+## 3. Electronic Phantoms and Bench Artifact Controls
 
 Electromagnetic and acoustic fields can induce false signals in high-impedance biosignal amplifiers (such as ADS1220 24-bit ADC for EDA or MAX30102 PPG front-end) through:
 1. **Direct Capacitive/Inductive Coupling:** High $dV/dt$ or $dI/dt$ picked up on PCB traces.
@@ -24,6 +38,6 @@ Electromagnetic and acoustic fields can induce false signals in high-impedance b
 3. **Thermal Drift:** Resistive cavity dissipation warming nearby optical diodes and shifting forward voltages.
 
 ### Mandatory Bench Phantom Tests:
-* **Passive Resistor Phantom:** A precision $100\text{ k}\Omega$ metal-film resistor connected across bench testpoints in place of biological tissue. Any detected "response" during active resonance is classified as direct EM artifact.
+* **Passive Resistor Phantom:** A precision $100\text{ k}\Omega$ metal-film resistor connected across bench testpoints in place of biological tissue. Any dynamic delta $\Delta_\text{phantom} = \mu_\text{active} - \mu_\text{baseline}$ exceeding threshold is classified as direct EM artifact.
 * **Optical Solid-State Phantom:** A neutral density silicone optical block placed on the PPG sensor. Any AC modulation matching the drive frequency is logged as optical/electrical feedthrough.
 * **Unpowered Chamber Baseline:** Operating the drive electronics into a shielded $50\ \Omega$ termination with identical cable geometry.

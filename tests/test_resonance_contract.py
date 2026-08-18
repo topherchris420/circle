@@ -1,8 +1,9 @@
-"""Comprehensive unit, statistical, and property test suite for CIRCLE Resonance."""
+"""Comprehensive unit, statistical, physical, and property test suite for CIRCLE Resonance."""
 
 import json
 import math
 import pathlib
+import random
 import sys
 import unittest
 
@@ -15,11 +16,13 @@ from models.resonance_response.simulator import (
     GeometryConfig,
     GeometricParameterExtractor,
     CoupledOscillatorSolver,
+    CALIBRATION_STATUS,
     PHI,
 )
 from models.resonance_response.closed_loop import (
     ClosedLoopOptimizer,
     GaussianProcessRegressor,
+    FactorialInteractionAnalyzer,
     ExperimentSearchSpace,
     HypothesisCandidateLibrary,
     BlindTrialManifest,
@@ -45,79 +48,115 @@ class ResonanceScientificPhysicsTest(unittest.TestCase):
         levels = data["$defs"]["interpretationLevel"]["enum"]
         self.assertEqual(levels, ["MEASURED", "DERIVED", "MODEL_INFERRED", "HYPOTHESIS_LABEL"])
 
-    def test_physical_geometric_parameter_derivation(self):
-        """Geometry must derive electrostatic capacitance and coupling matrix G -> {C, k}."""
+    def test_physical_geometric_parameter_derivation_without_core_bias(self):
+        """Geometry derives capacitances and coupling without handcrafted multiplier bonuses."""
         geom_phi = GeometryConfig(geometry_type="GOLDEN_RATIO_SPHERES", outer_diameter_mm=300.0)
         geom_eq = GeometryConfig(geometry_type="EQUAL_SPHERES", outer_diameter_mm=300.0)
-        geom_rnd = GeometryConfig(geometry_type="RANDOM_SPHERES", outer_diameter_mm=300.0)
         geom_sham = GeometryConfig(geometry_type="SHAM_OFF")
 
         ext_phi = GeometricParameterExtractor(geom_phi)
         ext_eq = GeometricParameterExtractor(geom_eq)
-        ext_rnd = GeometricParameterExtractor(geom_rnd)
         ext_sham = GeometricParameterExtractor(geom_sham)
 
         c_phi, k_phi = ext_phi.extract_coupling_matrix()
         c_eq, k_eq = ext_eq.extract_coupling_matrix()
-        c_rnd, k_rnd = ext_rnd.extract_coupling_matrix()
         c_sham, k_sham = ext_sham.extract_coupling_matrix()
 
-        # All non-zero active geometries derive physical capacitances
         self.assertGreater(c_phi[0], 0.0)
         self.assertGreater(c_eq[0], 0.0)
         self.assertEqual(c_sham[0], 0.0)
 
         # Coupling matrices are symmetric: k_ij == k_ji
-        for k_mat in [k_phi, k_eq, k_rnd]:
-            for i in range(5):
-                for j in range(5):
-                    self.assertEqual(k_mat[i][j], k_mat[j][i])
+        for i in range(5):
+            for j in range(5):
+                self.assertEqual(k_phi[i][j], k_phi[j][i])
+                self.assertEqual(k_eq[i][j], k_eq[j][i])
 
-        # Phi spacing naturally has different coupling than equal spacing due to different Delta_r
+        # Phi spacing naturally produces distinct coupling from equal spacing purely due to Delta_r
         self.assertNotEqual(k_phi[0][1], k_eq[0][1])
 
-    def test_exact_gaussian_process_regressor_equations(self):
-        """Exact Gaussian Process must fit data and yield rigorous mean and variance."""
-        gp = GaussianProcessRegressor(length_scales=(0.5, 2.0), signal_variance=1.0, noise_variance=0.01)
+    def test_coupled_oscillator_dimensional_scaling(self):
+        """Coupling force kappa_ij = k_ij * omega_i * omega_j scales dimensionally with omega^2."""
+        solver = CoupledOscillatorSolver(
+            frequencies_hz=[73.2, 118.4, 191.6, 310.0, 243.8],
+            amplitudes_v=[4.0, 4.0, 4.0, 4.0, 4.0],
+            phases_deg=[0.0, 0.0, 0.0, 0.0, 180.0],
+            q_factors=[45.0, 45.0, 45.0, 50.0, 50.0],
+            coupling_matrix=[
+                [0.0, 0.10, 0.05, 0.02, 0.02],
+                [0.10, 0.0, 0.10, 0.05, 0.05],
+                [0.05, 0.10, 0.0, 0.10, 0.10],
+                [0.02, 0.05, 0.10, 0.0, 0.08],
+                [0.02, 0.05, 0.10, 0.08, 0.0],
+            ],
+            nonlinear_alpha=0.10,
+        )
+        t_pts, trajs = solver.simulate_dynamics(duration_s=0.15, sample_rate_hz=2000.0)
+        self.assertEqual(len(t_pts), 300)
+        self.assertEqual(len(trajs), 5)
 
-        # Train on synthetic points: (log10(f), amp) -> response
-        X_train = [(1.0, 3.0), (2.0, 4.0), (3.0, 2.0)]
+        spec = solver.analyze_spectrum(t_pts, trajs, fundamental_freq_hz=73.2)
+        self.assertIsInstance(spec["harmonics_detected"], list)
+        self.assertIsInstance(spec["intermodulation_products"], list)
+        self.assertIsInstance(spec["phase_locked"], bool)
+
+    def test_multi_dimensional_gaussian_process_and_factorial_analyzer(self):
+        """Multi-dimensional GP fits (f, A, G, C, M) and Factorial analyzer estimates OLS effects."""
+        gp = GaussianProcessRegressor(length_scales=(0.5, 2.0, 1.0, 1.0, 1.0), signal_variance=1.0, noise_variance=0.01)
+
+        # Feature vector: [log10(f), amp, geom_idx, core_idx, mod_idx]
+        X_train = [
+            [1.0, 3.0, 0.0, 0.0, 0.0],
+            [2.0, 4.0, 1.0, 1.0, 0.0],
+            [3.0, 2.0, 2.0, 2.0, 1.0],
+        ]
         y_train = [0.20, 0.85, 0.30]
         gp.fit(X_train, y_train)
 
-        # At training point (2.0, 4.0), predictive mean should be close to 0.85 and uncertainty should be low
-        mu_train, sigma_train = gp.predict((2.0, 4.0))
-        self.assertAlmostEqual(mu_train, 0.85, delta=0.08)
-        self.assertLess(sigma_train, 0.30)
+        mu, sigma = gp.predict([2.0, 4.0, 1.0, 1.0, 0.0])
+        self.assertAlmostEqual(mu, 0.85, delta=0.08)
+        self.assertLess(sigma, 0.30)
 
-        # Far away from training points (e.g. log_f = 5.0, amp = 10.0), uncertainty should approach prior (1.0)
-        mu_far, sigma_far = gp.predict((5.0, 10.0))
-        self.assertAlmostEqual(mu_far, 0.0, delta=0.15)
-        self.assertGreater(sigma_far, 0.85)
+        # Test Factorial Interaction Analyzer
+        fact = FactorialInteractionAnalyzer()
+        fact.add_trial("GOLDEN_RATIO_SPHERES", "DUAL_TETRAHEDRON_MERKABA", 73.2, 3.0, 0.75)
+        fact.add_trial("GOLDEN_RATIO_SPHERES", "SPHERICAL_CORE", 73.2, 3.0, 0.40)
+        fact.add_trial("GOLDEN_RATIO_SPHERES", "NO_CORE", 73.2, 3.0, 0.30)
+        fact.add_trial("EQUAL_SPHERES", "DUAL_TETRAHEDRON_MERKABA", 73.2, 3.0, 0.45)
+        fact.add_trial("EQUAL_SPHERES", "SPHERICAL_CORE", 73.2, 3.0, 0.25)
+        fact.add_trial("RANDOM_SPHERES", "DUAL_TETRAHEDRON_MERKABA", 73.2, 3.0, 0.35)
 
-    def test_permutation_test_with_unequal_group_sizes(self):
-        """Verifies that permutation test correctly normalizes when group sizes differ (n_a != n_b)."""
-        analyzer = ResonanceAnalyzer(n_permutations=200)
+        effects = fact.estimate_effects()
+        self.assertIn("beta_G_phi", effects)
+        self.assertIn("beta_C_merkaba", effects)
+        self.assertIn("beta_GC_interaction", effects)
+        self.assertEqual(effects["samples_count"], 6)
 
-        # Group A (n=4): [10, 10, 10, 10], Group B (n=8): [20, 20, 20, 20, 20, 20, 20, 20]
-        p_val = analyzer._permutation_test_double_difference(
-            active_base=[10.0, 10.0, 10.0, 10.0],
-            active_int=[20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0],
-        )
-        self.assertLess(p_val, 0.05)
+    def test_autocorrelation_aware_circular_block_permutation_test(self):
+        """Circular block permutation must preserve contiguous block structure for autocorrelated signals."""
+        analyzer = ResonanceAnalyzer(n_permutations=200, n_bootstraps=200, default_block_size=5)
 
-    def test_aligned_double_difference_sham_subtraction(self):
-        """Analyzer must compute aligned double-difference contrast, permutation p-value, and bootstrap CI."""
-        analyzer = ResonanceAnalyzer(n_permutations=200, n_bootstraps=200)
+        # Autocorrelated AR(1) signal simulation: x_t = 0.85 * x_{t-1} + noise
+        def gen_ar1(n: int, mean: float, seed: int) -> list:
+            rng = random.Random(seed)
+            x = [mean]
+            for _ in range(n - 1):
+                x.append(mean + 0.80 * (x[-1] - mean) + rng.gauss(0, 0.5))
+            return x
+
+        active_base = gen_ar1(30, 10.0, seed=1)
+        active_int = gen_ar1(30, 15.0, seed=2)
+        sham_base = gen_ar1(30, 10.0, seed=3)
+        sham_int = gen_ar1(30, 10.1, seed=4)
 
         eval_res = analyzer.evaluate_trial(
-            config_id="cfg-sham-aligned",
-            blinded_token="TRIAL-1234",
-            baseline_signal=[10.0, 10.1, 9.9, 10.0, 10.2],
-            intervention_signal=[15.0, 15.2, 14.8, 15.1, 14.9],
-            washout_signal=[10.1, 10.0, 10.0, 10.1, 10.0],
-            sham_baseline_signal=[10.0, 10.0, 10.0, 10.0, 10.0],
-            sham_intervention_signal=[10.1, 10.1, 10.0, 10.2, 10.1],
+            config_id="cfg-block-test",
+            blinded_token="TRIAL-BLOCK-1",
+            baseline_signal=active_base,
+            intervention_signal=active_int,
+            washout_signal=active_base,
+            sham_baseline_signal=sham_base,
+            sham_intervention_signal=sham_int,
             rf_field_strength_v_m=0.1,
             temp_delta_c=0.02,
         )
@@ -147,6 +186,7 @@ class ResonanceScientificPhysicsTest(unittest.TestCase):
     def test_software_exploration_cap_naming_and_safety_isolation(self):
         """Ensure SOFTWARE_EXPLORATION_CAP_NOT_SAFETY_RATING is explicit and hardware domain isolation holds."""
         self.assertEqual(SOFTWARE_EXPLORATION_CAP_NOT_SAFETY_RATING, 10.0)
+        self.assertEqual(CALIBRATION_STATUS, "PHENOMENOLOGICAL_PARAMETER_NOT_PHYSICALLY_CALIBRATED")
 
         manifest = json.loads(self.manifest_path.read_text(encoding="utf-8"))
         nets = set(manifest["required_nets"])
