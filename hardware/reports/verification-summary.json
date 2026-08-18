@@ -12,7 +12,7 @@
         "tests"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.48
+      "elapsed_seconds": 0.384
     },
     {
       "command": [
@@ -20,7 +20,7 @@
         "tools/check_design_manifest.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.121
+      "elapsed_seconds": 0.066
     },
     {
       "command": [
@@ -28,7 +28,7 @@
         "tools/check_record_schema.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.067
+      "elapsed_seconds": 0.069
     },
     {
       "command": [
@@ -36,7 +36,7 @@
         "tools/check_resonance_contract.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.167
+      "elapsed_seconds": 0.155
     },
     {
       "command": [
@@ -44,7 +44,7 @@
         "tools/render_diagrams.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.076
+      "elapsed_seconds": 0.082
     },
     {
       "command": [
@@ -52,7 +52,7 @@
         "tools/generate_schematics.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.108
+      "elapsed_seconds": 0.115
     },
     {
       "command": [
@@ -62,7 +62,7 @@
         "circle-ppg"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.1
+      "elapsed_seconds": 0.101
     },
     {
       "command": [
@@ -70,7 +70,7 @@
         "version"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.226
+      "elapsed_seconds": 0.229
     },
     {
       "command": [
@@ -85,7 +85,7 @@
         "hardware/circle-main/legacy/00_root.sch"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 4.998
+      "elapsed_seconds": 6.2
     },
     {
       "command": [
@@ -100,7 +100,7 @@
         "hardware/circle-ppg/legacy/00_ppg_root.sch"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 7.3
+      "elapsed_seconds": 7.246
     },
     {
       "command": [
@@ -108,7 +108,7 @@
         "tools/check_erc.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.129
+      "elapsed_seconds": 0.116
     }
   ],
   "artifacts": [
@@ -134,11 +134,11 @@
     },
     {
       "path": "hardware\\reports\\circle-main-erc.json",
-      "sha256": "370a68f68d83944657d46729fb0121ab1bc94cc23c0a10a421358d403654ccf2"
+      "sha256": "3efe2c40f03c1cd3edfde1ac19fafb7e8a88afd1d7ce50eaec8ec608c90e659e"
     },
     {
       "path": "hardware\\reports\\circle-ppg-erc.json",
-      "sha256": "f69e2e220a395221da2771737743624641e4ec64e5dc390e289b426ab12a30aa"
+      "sha256": "498ebc60331f6695b41f473af87d147e8cc53deb7ac1c578e0f50f1d054aaaae"
     },
     {
       "path": "hardware\\reports\\bom\\circle-main-revB-sourced.csv",
