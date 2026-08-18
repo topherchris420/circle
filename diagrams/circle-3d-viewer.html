@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CIRCLE Rev B — Interactive 3D Assembly Viewer</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #0e1117;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      color: #e6edf3;
+    }
+    #canvas-container {
+      width: 100vw;
+      height: 100vh;
+    }
+    #overlay {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 10;
+      pointer-events: none;
+    }
+    h1 {
+      margin: 0 0 4px 0;
+      font-size: 22px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+    p {
+      margin: 0;
+      font-size: 13px;
+      color: #8b949e;
+    }
+    .badge {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-warn {
+      background: rgba(218, 54, 51, 0.2);
+      border: 1px solid #da3633;
+      color: #f85149;
+    }
+    #legend {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      display: flex;
+      gap: 10px;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .legend-item {
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      backdrop-filter: blur(8px);
+    }
+    .human { background: rgba(35, 134, 54, 0.25); border: 1px solid #2ea043; color: #7ee787; }
+    .iso { background: rgba(31, 111, 235, 0.25); border: 1px solid #388bfd; color: #79c0ff; }
+    .slot { background: rgba(210, 153, 34, 0.25); border: 1px solid #d29922; color: #e3b341; }
+    #controls-hint {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      font-size: 12px;
+      color: #8b949e;
+      z-index: 10;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+  <div id="overlay">
+    <h1>CIRCLE Rev B Hardware Assembly</h1>
+    <p>Multimodal Biosignal Research Platform — Interactive 3D Model</p>
+    <span class="badge badge-warn">ENGINEERING REVIEW ONLY — NOT CERTIFIED FOR HUMAN CONNECTION</span>
+  </div>
+
+  <div id="legend">
+    <div class="legend-item human">● BAT_HUMAN Domain (Isolated)</div>
+    <div class="legend-item iso">● LAB_ISO Domain (5 kVrms)</div>
+    <div class="legend-item slot">⚡ 8.0mm Cutout Slot</div>
+  </div>
+
+  <div id="controls-hint">Left Drag: Rotate · Right Drag: Pan · Scroll: Zoom</div>
+  <div id="canvas-container"></div>
+
+  <script>
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0e1117);
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(60, 90, 110);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    container.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.target.set(42.5, 0, 27.5);
+
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
+    scene.add(ambientLight);
+
+    const dirLight1 = new THREE.DirectionalLight(0xfff5e6, 1.2);
+    dirLight1.position.set(80, 150, 100);
+    dirLight1.castShadow = true;
+    scene.add(dirLight1);
+
+    const dirLight2 = new THREE.DirectionalLight(0x88bbff, 0.6);
+    dirLight2.position.set(-60, -50, -80);
+    scene.add(dirLight2);
+
+    // Materials
+    const pcbMat = new THREE.MeshStandardMaterial({ color: 0x1a2621, roughness: 0.4, metalness: 0.2 });
+    const enigGoldMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.3, metalness: 0.85 });
+    const silverMat = new THREE.MeshStandardMaterial({ color: 0xd0d5db, roughness: 0.25, metalness: 0.9 });
+    const darkIcMat = new THREE.MeshStandardMaterial({ color: 0x18181c, roughness: 0.6, metalness: 0.1 });
+    const whitePlasticMat = new THREE.MeshStandardMaterial({ color: 0xf0f0ea, roughness: 0.5, metalness: 0.05 });
+    const redLensMat = new THREE.MeshPhysicalMaterial({ color: 0xee1133, roughness: 0.1, transmission: 0.7, opacity: 0.9, transparent: true });
+
+    const group = new THREE.Group();
+
+    // 1. PCB Human section (0..67.5, 0..55)
+    const pcbHumanGeo = new THREE.BoxGeometry(67.5, 1.6, 55);
+    const pcbHuman = new THREE.Mesh(pcbHumanGeo, pcbMat);
+    pcbHuman.position.set(67.5 / 2, -0.8, 55 / 2);
+    group.add(pcbHuman);
+
+    // 2. PCB Lab Iso section (74.5..85, 0..55)
+    const pcbIsoGeo = new THREE.BoxGeometry(10.5, 1.6, 55);
+    const pcbIso = new THREE.Mesh(pcbIsoGeo, pcbMat);
+    pcbIso.position.set(74.5 + 10.5 / 2, -0.8, 55 / 2);
+    group.add(pcbIso);
+
+    // 3. PCB Bridges across slot (at Z=2 and Z=53)
+    const bridgeGeo = new THREE.BoxGeometry(7.0, 1.6, 4.0);
+    const b1 = new THREE.Mesh(bridgeGeo, pcbMat);
+    b1.position.set(67.5 + 3.5, -0.8, 2.0);
+    group.add(b1);
+    const b2 = new THREE.Mesh(bridgeGeo, pcbMat);
+    b2.position.set(67.5 + 3.5, -0.8, 53.0);
+    group.add(b2);
+
+    // ESP32-S3 Module
+    const espShield = new THREE.Mesh(new THREE.BoxGeometry(18, 3.0, 20), silverMat);
+    espShield.position.set(46, 1.5, 21.25);
+    group.add(espShield);
+    const espAnt = new THREE.Mesh(new THREE.BoxGeometry(18, 1.0, 5.5), new THREE.MeshStandardMaterial({ color: 0x121c16 }));
+    espAnt.position.set(46, 0.5, 34);
+    group.add(espAnt);
+
+    // Dual BNCs
+    function addBNC(x, z) {
+      const base = new THREE.Mesh(new THREE.BoxGeometry(8, 11, 12), silverMat);
+      base.position.set(x - 4, 5.5, z);
+      group.add(base);
+      const cyl = new THREE.Mesh(new THREE.CylinderGeometry(4.8, 4.8, 14, 24), silverMat);
+      cyl.rotation.z = Math.PI / 2;
+      cyl.position.set(x + 5, 5.5, z);
+      group.add(cyl);
+    }
+    addBNC(80, 14);
+    addBNC(80, 41);
+
+    // TI ISOW7742 Isolator
+    const isow = new THREE.Mesh(new THREE.BoxGeometry(11, 2.4, 10), darkIcMat);
+    isow.position.set(71, 1.2, 27.5);
+    group.add(isow);
+
+    // USB-C
+    const usbc = new THREE.Mesh(new THREE.BoxGeometry(8.5, 3.2, 9), silverMat);
+    usbc.position.set(4.25, 1.6, 27.5);
+    group.add(usbc);
+
+    // JST-PH battery
+    const jst = new THREE.Mesh(new THREE.BoxGeometry(8, 6, 7.5), whitePlasticMat);
+    jst.position.set(12, 3, 7);
+    group.add(jst);
+
+    // SD Slot
+    const sd = new THREE.Mesh(new THREE.BoxGeometry(14, 1.8, 13), silverMat);
+    sd.position.set(8, 0.9, 42.5);
+    group.add(sd);
+
+    // ICs & sensors
+    function addIC(x, z, w, d, h, mat = darkIcMat) {
+      const ic = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+      ic.position.set(x, h / 2, z);
+      group.add(ic);
+    }
+    addIC(18, 18, 4, 4, 1.0); // BQ24074
+    addIC(18, 28, 4, 4, 1.0); // TPS63070
+    addIC(24, 28, 4.5, 4.5, 2.0, darkIcMat); // Inductor
+    addIC(29, 44, 5, 4.5, 1.2); // ADS1220
+    addIC(35, 44, 4.5, 4, 1.2); // OPA2192
+    addIC(41, 44, 4.5, 4, 1.2); // REF5020
+    addIC(25, 14, 3, 3, 0.9); // ICM-42688-P IMU
+    addIC(25, 20, 3, 3, 0.9); // DRV2605L
+
+    // circle-ppg daughterboard
+    const ppg = new THREE.Group();
+    ppg.position.set(37.5, 12, -10);
+    const ppgPcb = new THREE.Mesh(new THREE.BoxGeometry(25, 1.6, 18), pcbMat);
+    ppg.add(ppgPcb);
+    const max30102 = new THREE.Mesh(new THREE.BoxGeometry(6, 1.2, 4), darkIcMat);
+    max30102.position.set(0, 1.4, 0);
+    ppg.add(max30102);
+    const optWindow = new THREE.Mesh(new THREE.BoxGeometry(2, 0.2, 2), redLensMat);
+    optWindow.position.set(-1, 2.1, 0);
+    ppg.add(optWindow);
+    const jstGH = new THREE.Mesh(new THREE.BoxGeometry(10, 3.5, 4), whitePlasticMat);
+    jstGH.position.set(0, 2.5, 6);
+    ppg.add(jstGH);
+    group.add(ppg);
+
+    scene.add(group);
+
+    // Animation Loop
+    let clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      const elapsedTime = clock.getElapsedTime();
+      group.rotation.y = elapsedTime * 0.4;
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>

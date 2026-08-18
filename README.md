@@ -1,4 +1,4 @@
-# Circle
+# CIRCLE
 
 **Because a human state is rarely one signal.**
 
@@ -49,12 +49,22 @@ It is to create an instrument capable of studying **how signals change together*
 | **Status** | Repository verification passes; fabrication and human connection remain blocked |
 
 **Review artifacts:**  
+[3D animation](diagrams/circle-3d-animation.gif) ·
+[interactive 3D viewer](diagrams/circle-3d-viewer.html) ·
 [system architecture](diagrams/system-architecture.svg) ·
 [main-board schematic](hardware/reports/pdf/circle-main.pdf) ·
 [optical-board schematic](hardware/reports/pdf/circle-ppg.pdf) ·
 [safety analysis](docs/safety-analysis.md) ·
 [review gates](docs/review-gates.md) ·
 [verification summary](hardware/reports/verification-summary.json)
+
+---
+
+## 3D Hardware Assembly
+
+![CIRCLE Rev B 3D Hardware Assembly Animation](diagrams/circle-3d-animation.gif)
+
+*3D turntable visualization of the CIRCLE Rev B dual-board architecture: `circle-main` (85×55 mm) compute & biosignal acquisition board with 8.0 mm reinforced isolation barrier cutout slot, and `circle-ppg` (25×18 mm) optical contact board.*
 
 ---
 

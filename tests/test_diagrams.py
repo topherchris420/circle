@@ -22,5 +22,13 @@ class DiagramTests(unittest.TestCase):
             self.assertIn("ENGINEERING REVIEW ONLY", path.read_text(encoding="utf-8"))
             ET.parse(path)
 
+    def test_3d_animation_and_viewer_exist(self):
+        gif_path = ROOT / "diagrams" / "circle-3d-animation.gif"
+        html_path = ROOT / "diagrams" / "circle-3d-viewer.html"
+        self.assertTrue(gif_path.exists())
+        self.assertGreater(gif_path.stat().st_size, 10000)
+        self.assertTrue(html_path.exists())
+        self.assertIn("ENGINEERING REVIEW ONLY", html_path.read_text(encoding="utf-8"))
+
 if __name__ == "__main__":
     unittest.main()
