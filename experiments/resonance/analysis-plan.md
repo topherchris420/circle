@@ -8,25 +8,40 @@ All data processed in the resonance module is strictly stratified according to a
 
 1. **Measured:** Raw physical observations from calibrated sensors (voltage, current, input power, output power, frequency, raw optical photodiode counts, accelerometer axes, chamber temperature, hardware timestamps).
 2. **Derived:** Mathematical transformations of measured data with closed-form definitions (spectral power density, Q-factor, bandwidth, phase delay, coherence metrics, pulse rate variability, skin conductance response amplitudes).
-3. **Model-Inferred:** Latent state estimates and operational scores produced by algorithms (Resonance Response Index, signal-to-noise ratio, cluster classifications).
-4. **Hypothesis / Interpretive Label:** Conceptual models, philosophical metaphors, or speculative theories ("prana", "subtle energetic resonance", "geometric field coherence").
+3. **Model-Inferred:** Latent state estimates and operational scores produced by algorithms (Resonance Response Index, posterior surrogate distributions, signal-to-noise ratio, cluster classifications).
+4. **Hypothesis / Interpretive Label:** Conceptual models, philosophical metaphors, or speculative theories ("geometric coupling", "sacred geometry analogy").
 
 > [!CAUTION]
 > **Strict Separation**: A hypothesis label must **never** be stored or reported as a physical measurement. The system never outputs claims like `"Prana detected = True"`.
 
 ## 2. Statistical Decision Metrics
 
-### Resonance Response Index (RRI)
-The primary operational response score $RRI \in [0.0, 1.0]$ is defined as:
+### A. Double-Difference Sham Subtraction
+To eliminate ambient drifts, temperature fluctuations, and switching noise, all biological intervention contrasts compute the net double-difference:
+
+$$\Delta_\text{net} = (\mu_\text{active} - \mu_\text{active\_base}) - (\mu_\text{sham} - \mu_\text{sham\_base})$$
+
+$$\text{Cohen's } d = \frac{\Delta_\text{net}}{\sigma_\text{pooled}}$$
+
+### B. Non-Parametric Permutation Testing
+Hypothesis significance is evaluated via exact two-sided label permutation testing (1,000 permutations) shuffling trial baseline and active intervals, yielding an empirical $p_\text{perm}$.
+
+### C. Empirical Bootstrap Confidence Intervals for RRI
+The **Resonance Response Index ($RRI \in [0.0, 1.0]$)** is penalized by electromagnetic and thermal artifact risk:
 
 $$\text{RRI} = \left( \frac{|d|}{1.0 + |d|} \right) \cdot (1.0 - \text{Risk}_\text{EM})$$
 
-where:
-* $d = \frac{\mu_\text{active} - \mu_\text{baseline}}{\sigma_\text{pooled}}$ is Cohen's $d$ effect size between active intervention and baseline.
-* $\text{Risk}_\text{EM} \in [0.0, 1.0]$ is the artifact interference penalty computed from near-field RF probes, phantom responses, and thermal gradients.
+Uncertainty is quantified using 1,000 empirical bootstrap resamples to derive the true $95\%\text{ CI} = [RRI_{2.5}, RRI_{97.5}]$.
 
-### Evidence Status Categorization:
-* **`REPEATABLE_DIFFERENCE`:** Effect size $|d| > 0.8$, $95\%\text{ CI}$ excludes zero across $> 5$ blinded trials, and phantom artifact risk $< 0.20$.
-* **`EXPLORATORY`:** Measurable contrast detected ($0.2 \le |d| \le 0.8$), clean phantom control, awaiting trial replication.
-* **`INCONCLUSIVE`:** No statistically significant contrast from sham or baseline ($|d| < 0.2$).
-* **`ARTIFACT_LIKELY`:** Detected response strongly mirrors phantom control pickup or high near-field RF interference ($\text{Risk}_\text{EM} \ge 0.40$).
+### D. Phantom Baseline-Subtracted Delta Evaluation
+To prevent harmless DC offsets on dummy loads from generating false-positive interference alarms, phantom controls evaluate the dynamic change:
+
+$$\Delta_\text{phantom} = \mu_\text{phantom\_active} - \mu_\text{phantom\_baseline}$$
+
+If $|\Delta_\text{phantom}| > 0.40 \cdot |\Delta_\text{bio}|$ and $|\Delta_\text{phantom}| > 0.10$, the trial is flagged with `DIRECT_EM_INSTRUMENTATION_PICKUP` and penalized.
+
+### E. Evidence Status Categorization:
+* **`REPEATABLE_DIFFERENCE`:** Permutation $p_\text{perm} < 0.01$, bootstrap $CI_\text{low} > 0.20$, repeatability $> 0.75$, $|d| > 0.80$, and artifact risk $< 0.20$.
+* **`EXPLORATORY`:** Measurable contrast detected ($p_\text{perm} < 0.05$, $|d| \ge 0.20$), clean phantom control, awaiting trial replication.
+* **`INCONCLUSIVE`:** No statistically significant contrast from sham or baseline ($p_\text{perm} \ge 0.05$ or $|d| < 0.20$).
+* **`ARTIFACT_LIKELY`:** Detected response mirrors electronic phantom delta or high near-field RF interference ($\text{Risk}_\text{EM} \ge 0.35$).

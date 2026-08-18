@@ -1,8 +1,9 @@
-"""Parametric resonance and coupled-oscillator simulation engine for CIRCLE.
+"""Parametric resonance and coupled non-linear oscillator simulation engine for CIRCLE.
 
-Simulates multi-element geometric resonators (nested spheres + central dual tetrahedron),
-coupled modes, nonlinear frequency transformations (harmonics, intermodulation, mode splitting),
-and rigorous energy conservation accounting (P_out <= P_in).
+Implements symmetric prior physics across all geometries (no built-in advantage for Phi),
+numeric time-domain integration of coupled non-linear differential equations, emergent
+spectral transformations (harmonics, intermodulation, mode splitting), phase coherence
+metrics, and strict energy conservation accounting (P_out <= P_in).
 """
 
 from __future__ import annotations
@@ -31,7 +32,6 @@ class GeometryConfig:
             inner = d / (PHI ** 2)
             return (round(d, 3), round(middle, 3), round(inner, 3))
         elif self.geometry_type == "EQUAL_SPHERES":
-            # Linear equal decrement spacing
             step = d / 3.0
             return (round(d, 3), round(d - step, 3), round(d - 2 * step, 3))
         elif self.geometry_type == "RANDOM_SPHERES":
@@ -53,7 +53,7 @@ class ResonatorSubsystem:
     phase_deg: float = 0.0
     modulation_type: str = "NONE_CW"
     modulation_frequency_hz: float = 0.0
-    coupling_coefficient: float = 0.1
+    coupling_coefficient: float = 0.10
     q_factor: float = 50.0
 
     @property
@@ -90,8 +90,179 @@ class SimulationResult:
         }
 
 
+class CoupledOscillatorSolver:
+    """Numerical solver for coupled non-linear oscillators.
+    
+    Models 5 subsystems using coupled Duffing equations:
+      d2x_i/dt2 + gamma_i * dx_i/dt + omega_i^2 * x_i + alpha * x_i^3 + sum_j k_ij * (x_i - x_j) = F_i(t)
+    
+    Emergent phenomena (harmonics, intermodulation, mode splitting, phase locking)
+    arise naturally from the numerical time series integration without hardcoding.
+    """
+
+    def __init__(
+        self,
+        frequencies_hz: List[float],
+        amplitudes_v: List[float],
+        phases_deg: List[float],
+        q_factors: List[float],
+        coupling_matrix: List[List[float]],
+        nonlinear_alpha: float = 0.05,
+    ):
+        self.n = len(frequencies_hz)
+        self.freqs = frequencies_hz
+        self.amps = amplitudes_v
+        self.phases = [math.radians(p) for p in phases_deg]
+        self.qs = q_factors
+        self.k = coupling_matrix
+        self.alpha = nonlinear_alpha  # Non-linear cubic restoring coefficient
+
+    def simulate_dynamics(
+        self,
+        duration_s: float = 0.20,
+        sample_rate_hz: float = 4000.0,
+    ) -> Tuple[List[float], List[List[float]]]:
+        """Integrate oscillator state over time using 4th-order Runge-Kutta."""
+        dt = 1.0 / sample_rate_hz
+        steps = int(duration_s * sample_rate_hz)
+        time_points = [i * dt for i in range(steps)]
+
+        # State vectors: x[i], v[i]
+        x = [0.0] * self.n
+        v = [0.0] * self.n
+
+        trajectories = [[0.0] * steps for _ in range(self.n)]
+
+        # Damping coefficients: gamma = omega / Q
+        gammas = [
+            (2.0 * math.pi * f / q) if (q > 0 and f > 0) else 0.1
+            for f, q in zip(self.freqs, self.qs)
+        ]
+        omega_sq = [(2.0 * math.pi * f) ** 2 for f in self.freqs]
+
+        for step, t in enumerate(time_points):
+            # Evaluate derivatives: dxdt = v, dvdt = f(x, v, t)
+            def get_derivatives(cur_x: List[float], cur_v: List[float], cur_t: float) -> Tuple[List[float], List[float]]:
+                dxdt = list(cur_v)
+                dvdt = [0.0] * self.n
+                for i in range(self.n):
+                    if self.freqs[i] <= 0 or self.amps[i] <= 0:
+                        continue
+                    # Linear restoring + non-linear Duffing term + damping
+                    accel = -omega_sq[i] * cur_x[i] - self.alpha * (cur_x[i] ** 3) - gammas[i] * cur_v[i]
+                    # Coupling from adjacent oscillators
+                    for j in range(self.n):
+                        if i != j:
+                            accel += self.k[i][j] * (cur_x[j] - cur_x[i])
+                    # Drive force
+                    accel += self.amps[i] * math.sin(2.0 * math.pi * self.freqs[i] * cur_t + self.phases[i])
+                    dvdt[i] = accel
+                return dxdt, dvdt
+
+            # RK4 Integration step
+            dx1, dv1 = get_derivatives(x, v, t)
+            x2 = [x[i] + 0.5 * dt * dx1[i] for i in range(self.n)]
+            v2 = [v[i] + 0.5 * dt * dv1[i] for i in range(self.n)]
+
+            dx2, dv2 = get_derivatives(x2, v2, t + 0.5 * dt)
+            x3 = [x[i] + 0.5 * dt * dx2[i] for i in range(self.n)]
+            v3 = [v[i] + 0.5 * dt * dv2[i] for i in range(self.n)]
+
+            dx3, dv3 = get_derivatives(x3, v3, t + 0.5 * dt)
+            x4 = [x[i] + dt * dx3[i] for i in range(self.n)]
+            v4 = [v[i] + dt * dv3[i] for i in range(self.n)]
+
+            dx4, dv4 = get_derivatives(x4, v4, t + dt)
+
+            for i in range(self.n):
+                x[i] += (dt / 6.0) * (dx1[i] + 2.0 * dx2[i] + 2.0 * dx3[i] + dx4[i])
+                v[i] += (dt / 6.0) * (dv1[i] + 2.0 * dv2[i] + 2.0 * dv3[i] + dv4[i])
+                trajectories[i][step] = x[i]
+
+        return time_points, trajectories
+
+    def analyze_spectrum(
+        self,
+        time_points: List[float],
+        trajectories: List[List[float]],
+        fundamental_freq_hz: float,
+    ) -> Dict[str, Any]:
+        """Compute emergent spectral peaks, harmonics, intermods, and phase coherence."""
+        if not time_points or fundamental_freq_hz <= 0:
+            return {
+                "harmonics_detected": [],
+                "intermodulation_products": [],
+                "subharmonics": [],
+                "mode_splitting_detected": False,
+                "phase_locked": False,
+            }
+
+        n_samples = len(time_points)
+        dt = time_points[1] - time_points[0]
+        fs = 1.0 / dt
+
+        # Aggregate cavity signal (superposition of 5 coupled elements)
+        agg = [sum(trajectories[i][step] for i in range(self.n)) for step in range(n_samples)]
+
+        # Discrete Fourier Transform / Peak Detection
+        freq_bins = [k * (fs / n_samples) for k in range(n_samples // 2)]
+        magnitudes = []
+        for k in range(n_samples // 2):
+            re = sum(agg[t] * math.cos(2.0 * math.pi * k * t / n_samples) for t in range(n_samples))
+            im = sum(agg[t] * math.sin(2.0 * math.pi * k * t / n_samples) for t in range(n_samples))
+            magnitudes.append(math.sqrt(re * re + im * im) / n_samples)
+
+        # Detect peaks above noise threshold
+        max_mag = max(magnitudes) if magnitudes else 0.0
+        threshold = max_mag * 0.05
+
+        peaks: List[float] = []
+        for i in range(1, len(magnitudes) - 1):
+            if magnitudes[i] > threshold and magnitudes[i] > magnitudes[i - 1] and magnitudes[i] > magnitudes[i + 1]:
+                peaks.append(round(freq_bins[i], 1))
+
+        # Categorize emergent spectral phenomena
+        f0 = fundamental_freq_hz
+        harmonics = [p for p in peaks if any(abs(p - k * f0) < 1.5 for k in [2, 3, 4])]
+        subharmonics = [p for p in peaks if any(abs(p - (f0 / k)) < 1.5 for k in [2, 3])]
+
+        # Intermodulation products: abs(f_i +/- f_j)
+        intermods: List[float] = []
+        active_freqs = [f for f in self.freqs if f > 0]
+        for i in range(len(active_freqs)):
+            for j in range(i + 1, len(active_freqs)):
+                f1, f2 = active_freqs[i], active_freqs[j]
+                candidate_im = [abs(f1 - f2), f1 + f2, abs(2 * f1 - f2)]
+                for c in candidate_im:
+                    if any(abs(p - c) < 1.5 for p in peaks):
+                        intermods.append(round(c, 1))
+
+        # Mode splitting detection: peak doublet near any resonant frequency
+        mode_split = False
+        for f in active_freqs:
+            nearby = [p for p in peaks if abs(p - f) < 8.0 and abs(p - f) > 0.5]
+            if len(nearby) >= 1:
+                mode_split = True
+                break
+
+        # Kuramoto phase coherence order parameter r = |(1/N) sum(e^{i theta_j})|
+        phases_end = [math.atan2(trajectories[i][-1], (trajectories[i][-1] - trajectories[i][-2]) / dt) for i in range(self.n)]
+        cos_sum = sum(math.cos(th) for th in phases_end)
+        sin_sum = sum(math.sin(th) for th in phases_end)
+        kuramoto_r = math.sqrt(cos_sum ** 2 + sin_sum ** 2) / float(self.n)
+        phase_locked = kuramoto_r > 0.70
+
+        return {
+            "harmonics_detected": sorted(list(set(harmonics))),
+            "intermodulation_products": sorted(list(set(intermods))),
+            "subharmonics": sorted(list(set(subharmonics))),
+            "mode_splitting_detected": mode_split,
+            "phase_locked": phase_locked,
+        }
+
+
 class ResonanceSimulator:
-    """Simulator for the 5-element resonance chamber and coupled field responses."""
+    """Scientific simulator with symmetric prior physics across all geometries."""
 
     def __init__(self, geometry: Optional[GeometryConfig] = None):
         self.geometry = geometry or GeometryConfig()
@@ -112,10 +283,10 @@ class ResonanceSimulator:
             f_core_down = base_freq_hz * 5.0
         elif mode == "equal":
             f_outer = base_freq_hz
-            f_middle = base_freq_hz
-            f_inner = base_freq_hz
-            f_core_up = base_freq_hz
-            f_core_down = base_freq_hz
+            f_middle = base_freq_hz * 1.5
+            f_inner = base_freq_hz * 2.0
+            f_core_up = base_freq_hz * 2.5
+            f_core_down = base_freq_hz * 3.0
         elif mode == "sham":
             return {ch: 0.0 for ch in ["R_outer", "R_middle", "R_inner", "R_core_up", "R_core_down"]}
         else:
@@ -140,7 +311,7 @@ class ResonanceSimulator:
         washout_duration_ms: float = 5000.0,
         ambient_temp_c: float = 22.5,
     ) -> SimulationResult:
-        """Run a deterministic coupled-resonator simulation step."""
+        """Run coupled-resonator physics with symmetric prior coupling across all geometries."""
         outer_d, middle_d, inner_d = self.geometry.compute_diameters()
         freqs = self.build_frequency_ladder(base_freq_hz, mode=frequency_mode)
 
@@ -148,9 +319,19 @@ class ResonanceSimulator:
         total_input_power_w = 0.0
         total_output_power_w = 0.0
 
-        is_sham = (self.geometry.geometry_type == "SHAM_OFF" or frequency_mode == "sham" or input_voltage_v == 0.0)
+        is_sham = (self.geometry.geometry_type == "SHAM_OFF" or frequency_mode == "sham" or input_voltage_v <= 0.0)
 
-        for ch_name, target_f in freqs.items():
+        channel_names = ["R_outer", "R_middle", "R_inner", "R_core_up", "R_core_down"]
+        freq_list: List[float] = []
+        amp_list: List[float] = []
+        phase_list: List[float] = []
+        q_list: List[float] = []
+
+        # SYMMETRIC PRIOR PHYSICS: Baseline coupling efficiency is invariant to geometry label
+        BASE_COUPLING_EFFICIENCY = 0.08
+
+        for ch_name in channel_names:
+            target_f = freqs[ch_name]
             if is_sham:
                 v = 0.0
                 q = 10.0
@@ -158,50 +339,75 @@ class ResonanceSimulator:
                 meas_f = 0.0
                 p_in = 0.0
                 p_out = 0.0
+                phase = 0.0
             else:
                 v = input_voltage_v
-                q = 45.0 + 10.0 * (1.0 if "core" in ch_name else 0.5)
+                q = 45.0 + (5.0 if "core" in ch_name else 0.0)
                 bw = round(target_f / q, 3) if q > 0 else 0.0
-                # Small deterministic frequency pulling due to mutual coupling
-                coupling = 0.12 if "core" in ch_name else 0.08
-                meas_f = round(target_f * (1.0 + 0.001 * coupling), 3)
-                # Standard impedance load power: P = V^2 / (2 * R_load) with R=50 ohm
+                phase = 0.0 if not ch_name.endswith("down") else 180.0
+                # Symmetric mutual coupling pulling
+                coupling = 0.10
+                meas_f = round(target_f * (1.0 + 0.0005 * coupling), 3)
+                # Standard P_in = V^2 / (2 * R_load) for 50-ohm RF system
                 p_in = round((v ** 2) / 100.0, 4)
-                # Efficiency loss in cavity radiation and conductive damping (80-92% dissipated as heat)
-                coupling_eff = 0.08 + 0.04 * (1.0 if self.geometry.geometry_type == "GOLDEN_RATIO_SPHERES" else 0.02)
-                p_out = round(p_in * coupling_eff, 5)
+                # Equal physics for all active cavities: no preferential Phi scaling
+                p_out = round(p_in * BASE_COUPLING_EFFICIENCY, 5)
 
             total_input_power_w += p_in
             total_output_power_w += p_out
+
+            freq_list.append(target_f)
+            amp_list.append(v)
+            phase_list.append(phase)
+            q_list.append(q)
 
             channels_out[ch_name] = {
                 "channel_id": ch_name,
                 "target_frequency_hz": target_f,
                 "measured_frequency_hz": meas_f,
                 "amplitude_v": v,
-                "phase_deg": 0.0 if not ch_name.endswith("down") else 180.0,
+                "phase_deg": phase,
                 "modulation_type": "NONE_CW" if not is_sham else "SHAM_OFF",
                 "modulation_frequency_hz": 0.0,
-                "coupling_coefficient": 0.12 if "core" in ch_name else 0.08,
+                "coupling_coefficient": 0.10 if not is_sham else 0.0,
                 "q_factor": q,
                 "bandwidth_hz": bw,
             }
 
-        # Conservation of energy invariant: P_out <= P_in ALWAYS
+        # Strict conservation of energy: P_out <= P_in
         total_input_power_w = round(total_input_power_w, 4)
         total_output_power_w = round(min(total_output_power_w, total_input_power_w * 0.99), 5)
         dissipated_w = round(max(0.0, total_input_power_w - total_output_power_w), 5)
-        temp_rise_c = round(dissipated_w * 0.45, 2)  # Thermal rise model
+        temp_rise_c = round(dissipated_w * 0.40, 2)
 
-        # Calculate nonlinear spectral phenomena
-        harmonics: List[float] = []
-        intermods: List[float] = []
-        subharmonics: List[float] = []
+        # Run numerical coupled oscillator solver to observe emergent spectral phenomena
+        coupling_matrix = [
+            [0.0, 0.10, 0.05, 0.02, 0.02],
+            [0.10, 0.0, 0.10, 0.05, 0.05],
+            [0.05, 0.10, 0.0, 0.10, 0.10],
+            [0.02, 0.05, 0.10, 0.0, 0.08],
+            [0.02, 0.05, 0.10, 0.08, 0.0],
+        ]
+
         if not is_sham and base_freq_hz > 0:
-            harmonics = [round(base_freq_hz * 2.0, 2), round(base_freq_hz * 3.0, 2)]
-            subharmonics = [round(base_freq_hz / 2.0, 2)]
-            f1, f2 = freqs["R_outer"], freqs["R_middle"]
-            intermods = [round(abs(f2 - f1), 2), round(f1 + f2, 2), round(abs(2 * f1 - f2), 2)]
+            solver = CoupledOscillatorSolver(
+                frequencies_hz=freq_list,
+                amplitudes_v=amp_list,
+                phases_deg=phase_list,
+                q_factors=q_list,
+                coupling_matrix=coupling_matrix,
+                nonlinear_alpha=0.08 if input_voltage_v > 2.0 else 0.0,  # Non-linearity scales with drive
+            )
+            t_pts, trajs = solver.simulate_dynamics(duration_s=0.10, sample_rate_hz=2000.0)
+            spectral_data = solver.analyze_spectrum(t_pts, trajs, fundamental_freq_hz=base_freq_hz)
+        else:
+            spectral_data = {
+                "harmonics_detected": [],
+                "intermodulation_products": [],
+                "subharmonics": [],
+                "mode_splitting_detected": False,
+                "phase_locked": False,
+            }
 
         return SimulationResult(
             configuration_id=config_id,
@@ -212,7 +418,7 @@ class ResonanceSimulator:
                 "inner_diameter_mm": inner_d,
                 "core_geometry": self.geometry.core_geometry,
                 "scaling_factor": self.geometry.scaling_factor,
-                "geometry_notes": f"Parametric build ({self.geometry.geometry_type}) with {self.geometry.core_geometry}",
+                "geometry_notes": f"Parametric cavity ({self.geometry.geometry_type}) with {self.geometry.core_geometry}",
             },
             channels=channels_out,
             power_and_energy={
@@ -222,13 +428,7 @@ class ResonanceSimulator:
                 "conservation_verified": True,
                 "temperature_c": round(ambient_temp_c + temp_rise_c, 2),
             },
-            spectral_features={
-                "harmonics_detected": sorted(list(set(harmonics))),
-                "intermodulation_products": sorted(list(set(intermods))),
-                "subharmonics": sorted(list(set(subharmonics))),
-                "mode_splitting_detected": bool(len(intermods) > 0 and not is_sham),
-                "phase_locked": bool(not is_sham),
-            },
+            spectral_features=spectral_data,
             timing={
                 "device_time_start_us": 0,
                 "device_time_end_us": int((baseline_duration_ms + duration_ms + washout_duration_ms) * 1000),

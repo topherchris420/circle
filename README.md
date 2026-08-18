@@ -63,7 +63,7 @@ It is to create an instrument capable of studying **how signals change together*
 
 ---
 
-## Hardware of Circle
+## CIRCLE Hardware & Resonance Platform
 
 ![CIRCLE Rev B 3D Hardware & Resonance Assembly Animation](diagrams/circle-3d-animation.gif)
 
@@ -75,12 +75,22 @@ It is to create an instrument capable of studying **how signals change together*
 
 The **CIRCLE Resonance Module** provides a modular, evidence-before-inference experimental extension to investigate whether externally driven resonant fields, geometric proportions ($\phi \approx 1.6180339887$), and multi-frequency phase relationships produce reproducible changes in synchronized physiological and environmental sensor signals.
 
-### Key Experimental Capabilities:
-* **Nested Cavity Geometry:** 3 independently controllable nested spherical resonators ($D, D/\phi, D/\phi^2$) with a central double-interpenetrating tetrahedron (Merkaba) core.
-* **Balanced Control Matrix:** Systematic comparisons against equal-spaced cavities, randomized geometries, spherical/cubic cores, empty cavities, and unpowered sham controls.
-* **Strict Electrical Isolation:** Zero conductive connection to the human-connected `BAT_HUMAN` domain. All triggers and clocks interface exclusively across the 5.0 kVrms ISOW7742 `LAB_ISO` barrier.
-* **Conservation of Energy:** Enforces $P_\text{out} \le P_\text{in}$ with full input, output, and dissipated thermal power accounting.
-* **Epistemological Integrity:** Distinguishes measured physical variables from qualitative `HYPOTHESIS_LABEL` models. Analyzes response using the neutral `Resonance Response Index (RRI)` and automated electronic phantom artifact discrimination.
+Instead of presupposing outcomes, CIRCLE formalizes the empirical question as a balanced hypothesis test:
+
+$$H_0: R_\phi = R_\text{control} \quad \text{versus} \quad H_1: R_\phi \neq R_\text{control}$$
+
+while systematically testing:
+* **Geometry:** $\phi$-spaced ($D, D/\phi, D/\phi^2$) vs equal-spaced vs random spacing vs unpowered sham
+* **Core:** Dual-interpenetrating tetrahedron (Merkaba) vs spherical core vs cubic core vs empty cavity
+* **Drive:** Active multi-frequency drive vs matched $50\ \Omega$ sham dummy load
+* **Discrimination:** Verified biological response vs electronic phantom instrumentation pickup (EMI/thermal drift)
+
+### Key Architectural Invariants:
+* **Symmetric Prior Physics:** Simulator gives all geometries identical prior coupling constants; non-linear harmonics and mode splitting emerge dynamically from coupled differential equations.
+* **Unbiased Search & Adaptive Learning:** Default parameter search samples log-uniformly across the spectrum; closed-loop exploration updates Gaussian Process posteriors with Upper Confidence Bounds (GP-UCB).
+* **Decoupled Opaque Blinding:** Trials use cryptographically random opaque tokens (`TRIAL-XXXXXXXX`) and sealed trial manifests.
+* **Strict Electrical Isolation:** Zero conductive connection to `BAT_HUMAN`; synchronization interfaces exclusively across the 5.0 kVrms ISOW7742 `LAB_ISO` barrier.
+* **Conservation of Energy:** Enforces $P_\text{out} \le P_\text{in}$ with thermal dissipation accounting.
 
 ![CIRCLE Resonance Architecture](diagrams/resonance-architecture.svg)
 
