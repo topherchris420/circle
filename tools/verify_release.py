@@ -25,7 +25,7 @@ def main():
     ok=all(s["exit_code"]==0 for s in steps) and not disallowed
     summary={"verified":ok,"release_class":"ENGINEERING_REVIEW_ONLY","steps":steps,"artifacts":artifacts,"disallowed_placeholders":disallowed,"limitations":["KiCad 10 CLI parses, ERC-checks, and exports legacy sources but does not import legacy .sch into native .kicad_sch.","ERC validates parser-visible structure; architecture-level NET annotations do not constitute fabrication-ready electrical connectivity.","No fabrication, powered-electrode, human, EMC, or regulatory validation performed."]}
     out=ROOT/"hardware/reports/verification-summary.json"; out.write_text(json.dumps(summary,indent=2)+"\n",encoding="utf-8",newline="\n")
-    if ok: print("CIRCLE Rev A review package: VERIFIED")
-    else: print("CIRCLE Rev A review package: FAILED")
+    if ok: print("CIRCLE Rev B review package: VERIFIED")
+    else: print("CIRCLE Rev B review package: FAILED")
     return int(not ok)
 if __name__=="__main__": raise SystemExit(main())
