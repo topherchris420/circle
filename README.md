@@ -16,7 +16,7 @@ Human physiology is inherently multimodal.
 
 Attention, stress, emotion, arousal, movement, and awareness do not emerge from a single measurement. They arise from the changing relationships among many signals and conditions.
 
-CIRCLE is designed to capture several dimensions of physiological activity within a shared timing and provenance model, creating an experimental foundation for studying relationships between physiological state, movement, context, and feedback.
+CIRCLE is designed to capture multiple dimensions of physiological activity within a shared timing and provenance model, providing an experimental foundation for studying relationships among physiological state, movement, context, and feedback.
 
 The system combines:
 
@@ -63,7 +63,7 @@ It is to create an instrument capable of studying **how signals change together*
 
 ---
 
-## 3D Hardware & Resonance Assembly
+## Hardware of Circle
 
 ![CIRCLE Rev B 3D Hardware & Resonance Assembly Animation](diagrams/circle-3d-animation.gif)
 
