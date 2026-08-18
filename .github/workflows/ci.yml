@@ -1,0 +1,47 @@
+name: CIRCLE CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  verify:
+    name: Verify Contracts, Physics & Review Package
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run unit & property test suite
+        run: python -m unittest discover -s tests
+
+      - name: Validate hardware design manifest
+        run: python tools/check_design_manifest.py
+
+      - name: Validate session record schema
+        run: python tools/check_record_schema.py
+
+      - name: Validate resonance contracts & physics
+        run: python tools/check_resonance_contract.py
+
+      - name: Verify diagrams rendering
+        run: python tools/render_diagrams.py
+
+      - name: Generate schematic packages
+        run: |
+          python tools/generate_schematics.py
+          python tools/generate_schematics.py --board circle-ppg
+
+      - name: Verify ERC allowlist gate
+        run: python tools/check_erc.py
+
+      - name: Verify DRC allowlist gate
+        run: python tools/check_drc.py

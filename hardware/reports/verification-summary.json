@@ -12,7 +12,7 @@
         "tests"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.317
+      "elapsed_seconds": 1.649
     },
     {
       "command": [
@@ -20,7 +20,7 @@
         "tools/check_design_manifest.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.087
+      "elapsed_seconds": 0.295
     },
     {
       "command": [
@@ -28,7 +28,7 @@
         "tools/check_record_schema.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.085
+      "elapsed_seconds": 0.262
     },
     {
       "command": [
@@ -36,7 +36,7 @@
         "tools/check_resonance_contract.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.14
+      "elapsed_seconds": 0.528
     },
     {
       "command": [
@@ -44,7 +44,7 @@
         "tools/render_diagrams.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.102
+      "elapsed_seconds": 0.286
     },
     {
       "command": [
@@ -52,7 +52,7 @@
         "tools/generate_schematics.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.141
+      "elapsed_seconds": 0.484
     },
     {
       "command": [
@@ -62,7 +62,7 @@
         "circle-ppg"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.129
+      "elapsed_seconds": 0.358
     },
     {
       "command": [
@@ -70,7 +70,7 @@
         "version"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.26
+      "elapsed_seconds": 2.959
     },
     {
       "command": [
@@ -85,7 +85,7 @@
         "hardware/circle-main/legacy/00_root.sch"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 8.022
+      "elapsed_seconds": 22.268
     },
     {
       "command": [
@@ -100,7 +100,7 @@
         "hardware/circle-ppg/legacy/00_ppg_root.sch"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 7.112
+      "elapsed_seconds": 24.926
     },
     {
       "command": [
@@ -108,7 +108,7 @@
         "tools/check_erc.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.129
+      "elapsed_seconds": 0.295
     },
     {
       "command": [
@@ -123,7 +123,7 @@
         "hardware/circle-main/circle-main.kicad_pcb"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 27.382
+      "elapsed_seconds": 378.277
     },
     {
       "command": [
@@ -138,7 +138,7 @@
         "hardware/circle-ppg/circle-ppg.kicad_pcb"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 5.245
+      "elapsed_seconds": 268.615
     },
     {
       "command": [
@@ -146,7 +146,7 @@
         "tools/check_drc.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.118
+      "elapsed_seconds": 0.339
     }
   ],
   "artifacts": [
@@ -172,23 +172,23 @@
     },
     {
       "path": "hardware\\reports\\circle-main-erc.json",
-      "sha256": "5e62aa380e600260022a9974a2beeaf7c249c2a36c9d24f9f1226367e93f75cc"
+      "sha256": "c2060f02563ed01468c686b37c7b8a2573ddb77583f3ac8af76336022824bfb5"
     },
     {
       "path": "hardware\\reports\\circle-ppg-erc.json",
-      "sha256": "db4f289f5e19d742af24b4195669aa142731b518e8278061672f248eda687eaf"
+      "sha256": "1f72cf6f8d9b1668549a54208df2792cdd98538d5261cb62831cb41f88c66cdf"
     },
     {
       "path": "hardware\\reports\\circle-main-drc.json",
-      "sha256": "12fb6b4f09f86e75df6a5642a026bb332e8233766042c04cb063c45fe3942639"
+      "sha256": "e03e60be44bcd54bbe3ec8bcc1a937c3e32abff9d89d2f34adc3556a9451d7d3"
     },
     {
       "path": "hardware\\reports\\circle-ppg-drc.json",
-      "sha256": "377bd0bdf8e97686d78218cf8bcfb05f3638bd325135b526a85593bf198fd95e"
+      "sha256": "90ed4010063f08eb082203519e412162cb3c709bb53a9cc601a9539c06e6992e"
     },
     {
       "path": "hardware\\reports\\drc-allowlist.json",
-      "sha256": "780db231ee6fabc6f04f29ce768689c5dfbf4744194be703713fe01e7e29c158"
+      "sha256": "f55601231465a6c671cad1a274f4e29ce0a624dc354e5f78f2abfa68c37212f6"
     },
     {
       "path": "hardware\\reports\\erc-allowlist.json",
