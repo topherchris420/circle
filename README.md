@@ -1,4 +1,4 @@
-# CIRCLE
+# Circle
 
 **Because a human state is rarely one signal.**
 
