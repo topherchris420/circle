@@ -1,10 +1,10 @@
-"""Resonance response evaluation, circular-shift permutation, and artifact discrimination.
+"""Resonance response evaluation, overlapping moving-block bootstrap, and artifact discrimination.
 
 Implements:
-1. Adaptive autocorrelation time estimation (tau_decorr from rho(k) = Corr(x_t, x_{t+k})).
-2. Paired Trial Condition-Swap Permutation (Active <-> Sham) preserving intra-trial integrity.
-3. True Circular-Shift Permutation (x_{(t + tau) mod N}) preserving 100% of time-series autocorrelation.
-4. Moving Block Bootstrap for aligned empirical 95% confidence intervals on RRI.
+1. Adaptive autocorrelation time estimation (tau_decorr from sample autocorrelation rho(k)).
+2. Contiguous Block-Level Sham Permutation (swapping entire contiguous blocks L = max(5, 2*tau)).
+3. True Overlapping Moving Block Bootstrap (Künsch 1989 / Politis & Romano 1994).
+4. True Circular-Shift Permutation (x_{(t + tau) mod N}) preserving 100% of time-series autocorrelation.
 5. Baseline-subtracted phantom delta evaluation (Delta_phantom = active - base) to eliminate DC false alarms.
 """
 
@@ -85,7 +85,7 @@ class ResponseEvaluation:
 
 
 class ResonanceAnalyzer:
-    """Rigorous statistical evaluation engine using circular shift and paired condition-swap permutation."""
+    """Rigorous statistical evaluation engine using circular shift, contiguous block sham permutation, and moving block bootstrap."""
 
     def __init__(
         self,
@@ -97,7 +97,7 @@ class ResonanceAnalyzer:
         self.n_permutations = n_permutations
         self.n_bootstraps = n_bootstraps
 
-    def _permutation_test_paired_or_circular(
+    def _permutation_test_contiguous_blocks_or_circular(
         self,
         active_base: List[float],
         active_int: List[float],
@@ -105,44 +105,61 @@ class ResonanceAnalyzer:
         sham_int: Optional[List[float]] = None,
         seed: int = 42,
     ) -> Tuple[float, int]:
-        """Permutation testing preserving internal time-series autocorrelation."""
+        """Permutation testing swapping entire contiguous blocks L = max(5, 2*tau)."""
         n_ab = len(active_base)
         n_ai = len(active_int)
         delta_active = (sum(active_int) / n_ai) - (sum(active_base) / n_ab)
 
-        # Estimate autocorrelation decorrelation time
         tau = estimate_autocorrelation_time(active_base + active_int)
+        # Ensure block length captures tau while allowing at least 4-6 permutable blocks
+        max_b_len = max(2, n_ab // 4)
+        block_len = max(2, min(max_b_len, max(2, 2 * tau)))
 
         if sham_base and sham_int:
-            # 1. Paired Condition-Swap Permutation for Active vs Sham
+            # 1. Contiguous Block-Level Sham Permutation for Active vs Sham
             n_sb = len(sham_base)
             n_si = len(sham_int)
             delta_sham = (sum(sham_int) / n_si) - (sum(sham_base) / n_sb)
             obs_stat = abs(delta_active - delta_sham)
 
-            # Sub-segment deltas to allow paired sign-flipping across trial blocks
-            n_pairs = min(n_ab, n_ai, n_sb, n_si)
-            d_act_pairs = [active_int[i] - active_base[i] for i in range(n_pairs)]
-            d_sham_pairs = [sham_int[i] - sham_base[i] for i in range(n_pairs)]
+            # Partition into contiguous non-overlapping blocks of length L
+            def slice_blocks(series: List[float], b_len: int) -> List[List[float]]:
+                n = len(series)
+                return [series[i: min(i + b_len, n)] for i in range(0, n, b_len)]
 
+            blocks_ab = slice_blocks(active_base, block_len)
+            blocks_ai = slice_blocks(active_int, block_len)
+            blocks_sb = slice_blocks(sham_base, block_len)
+            blocks_si = slice_blocks(sham_int, block_len)
+
+            num_blocks = min(len(blocks_ab), len(blocks_ai), len(blocks_sb), len(blocks_si))
             rng = random.Random(seed)
             count_extreme = 0
 
             for _ in range(self.n_permutations):
-                perm_act = []
-                perm_sham = []
-                for i in range(n_pairs):
-                    # Randomly swap active and sham condition labels for each paired block
+                p_ab, p_ai = [], []
+                p_sb, p_si = [], []
+                for b_idx in range(num_blocks):
                     if rng.random() < 0.5:
-                        perm_act.append(d_act_pairs[i])
-                        perm_sham.append(d_sham_pairs[i])
+                        p_ab.extend(blocks_ab[b_idx])
+                        p_ai.extend(blocks_ai[b_idx])
+                        p_sb.extend(blocks_sb[b_idx])
+                        p_si.extend(blocks_si[b_idx])
                     else:
-                        perm_act.append(d_sham_pairs[i])
-                        perm_sham.append(d_act_pairs[i])
+                        p_ab.extend(blocks_sb[b_idx])
+                        p_ai.extend(blocks_si[b_idx])
+                        p_sb.extend(blocks_ab[b_idx])
+                        p_si.extend(blocks_ai[b_idx])
 
-                m_a = sum(perm_act) / n_pairs
-                m_s = sum(perm_sham) / n_pairs
-                perm_stat = abs(m_a - m_s)
+                m_ab = sum(p_ab) / len(p_ab)
+                m_ai = sum(p_ai) / len(p_ai)
+                m_sb = sum(p_sb) / len(p_sb)
+                m_si = sum(p_si) / len(p_si)
+
+                perm_delta_act = m_ai - m_ab
+                perm_delta_sham = m_si - m_sb
+                perm_stat = abs(perm_delta_act - perm_delta_sham)
+
                 if perm_stat >= obs_stat - 1e-12:
                     count_extreme += 1
 
@@ -159,7 +176,6 @@ class ResonanceAnalyzer:
 
             for _ in range(self.n_permutations):
                 shift = rng.randint(1, n_total - 1)
-                # Circular wraparound shift: x^*_t = x_{(t + shift) mod N}
                 shifted = [combined[(t + shift) % n_total] for t in range(n_total)]
                 shifted_base = shifted[:n_ab]
                 shifted_int = shifted[n_ab:]
@@ -173,7 +189,7 @@ class ResonanceAnalyzer:
             p_val = count_extreme / float(self.n_permutations)
             return p_val, tau
 
-    def _block_bootstrap_rri_ci(
+    def _overlapping_moving_block_bootstrap(
         self,
         active_base: List[float],
         active_int: List[float],
@@ -183,48 +199,52 @@ class ResonanceAnalyzer:
         tau: int,
         seed: int = 42,
     ) -> Tuple[float, float]:
-        """Moving block bootstrap with block size L = max(5, 2 * tau)."""
+        """True Overlapping Moving Block Bootstrap (Künsch 1989 / Politis & Romano 1994)."""
         block_len = max(5, min(len(active_base) // 2, 2 * tau))
         rng = random.Random(seed)
         rri_dist: List[float] = []
 
-        def make_blocks(series: List[float], b_len: int) -> List[List[float]]:
+        def extract_overlapping_blocks(series: List[float], L: int) -> List[List[float]]:
             n = len(series)
-            return [series[i: min(i + b_len, n)] for i in range(0, n, max(1, b_len))]
+            if n <= L:
+                return [series]
+            return [series[i: i + L] for i in range(n - L + 1)]
 
-        blocks_ab = make_blocks(active_base, block_len)
-        blocks_ai = make_blocks(active_int, block_len)
-        blocks_sb = make_blocks(sham_base, block_len) if sham_base else []
-        blocks_si = make_blocks(sham_int, block_len) if sham_int else []
+        blocks_ab = extract_overlapping_blocks(active_base, block_len)
+        blocks_ai = extract_overlapping_blocks(active_int, block_len)
+        blocks_sb = extract_overlapping_blocks(sham_base, block_len) if sham_base else []
+        blocks_si = extract_overlapping_blocks(sham_int, block_len) if sham_int else []
 
-        n_ab, n_ai = len(blocks_ab), len(blocks_ai)
-        n_sb, n_si = len(blocks_sb), len(blocks_si)
+        n_ab_pts, n_ai_pts = len(active_base), len(active_int)
+        n_sb_pts = len(sham_base) if sham_base else 0
+        n_si_pts = len(sham_int) if sham_int else 0
+
+        def sample_series(overlap_blocks: List[List[float]], target_n: int) -> List[float]:
+            out: List[float] = []
+            while len(out) < target_n:
+                b = overlap_blocks[rng.randint(0, len(overlap_blocks) - 1)]
+                out.extend(b)
+            return out[:target_n]
 
         for _ in range(self.n_bootstraps):
-            resamp_ab = [blocks_ab[rng.randint(0, n_ab - 1)] for _ in range(n_ab)]
-            resamp_ai = [blocks_ai[rng.randint(0, n_ai - 1)] for _ in range(n_ai)]
+            resamp_ab = sample_series(blocks_ab, n_ab_pts)
+            resamp_ai = sample_series(blocks_ai, n_ai_pts)
 
-            flat_ab = [pt for b in resamp_ab for pt in b]
-            flat_ai = [pt for b in resamp_ai for pt in b]
-
-            m_ab = sum(flat_ab) / len(flat_ab)
-            m_ai = sum(flat_ai) / len(flat_ai)
-            v_ab = sum((x - m_ab) ** 2 for x in flat_ab) / max(1, len(flat_ab) - 1)
-            v_ai = sum((x - m_ai) ** 2 for x in flat_ai) / max(1, len(flat_ai) - 1)
+            m_ab = sum(resamp_ab) / n_ab_pts
+            m_ai = sum(resamp_ai) / n_ai_pts
+            v_ab = sum((x - m_ab) ** 2 for x in resamp_ab) / max(1, n_ab_pts - 1)
+            v_ai = sum((x - m_ai) ** 2 for x in resamp_ai) / max(1, n_ai_pts - 1)
 
             delta_act = m_ai - m_ab
 
-            if sham_base and sham_int and n_sb > 0 and n_si > 0:
-                resamp_sb = [blocks_sb[rng.randint(0, n_sb - 1)] for _ in range(n_sb)]
-                resamp_si = [blocks_si[rng.randint(0, n_si - 1)] for _ in range(n_si)]
+            if sham_base and sham_int and n_sb_pts > 0 and n_si_pts > 0:
+                resamp_sb = sample_series(blocks_sb, n_sb_pts)
+                resamp_si = sample_series(blocks_si, n_si_pts)
 
-                flat_sb = [pt for b in resamp_sb for pt in b]
-                flat_si = [pt for b in resamp_si for pt in b]
-
-                m_sb = sum(flat_sb) / len(flat_sb)
-                m_si = sum(flat_si) / len(flat_si)
-                v_sb = sum((x - m_sb) ** 2 for x in flat_sb) / max(1, len(flat_sb) - 1)
-                v_si = sum((x - m_si) ** 2 for x in flat_si) / max(1, len(flat_si) - 1)
+                m_sb = sum(resamp_sb) / n_sb_pts
+                m_si = sum(resamp_si) / n_si_pts
+                v_sb = sum((x - m_sb) ** 2 for x in resamp_sb) / max(1, n_sb_pts - 1)
+                v_si = sum((x - m_si) ** 2 for x in resamp_si) / max(1, n_si_pts - 1)
 
                 delta_sham = m_si - m_sb
                 net_delta = delta_act - delta_sham
@@ -257,7 +277,7 @@ class ResonanceAnalyzer:
         temp_delta_c: float = 0.1,
         prior_trial_scores: Optional[List[float]] = None,
     ) -> ResponseEvaluation:
-        """Evaluate trial using paired condition-swap permutation and adaptive block bootstrap."""
+        """Evaluate trial using double-difference contiguous block permutation and moving block bootstrap."""
         if not baseline_signal or not intervention_signal or not washout_signal:
             raise ValueError("All trial phases must contain data.")
 
@@ -314,14 +334,14 @@ class ResonanceAnalyzer:
             flags=artifact_flags,
         )
 
-        # 3. Autocorrelation-Aware Circular Shift / Paired Condition-Swap Permutation
-        p_val, tau = self._permutation_test_paired_or_circular(
+        # 3. Autocorrelation-Aware Contiguous Block Permutation & Moving Block Bootstrap
+        p_val, tau = self._permutation_test_contiguous_blocks_or_circular(
             baseline_signal,
             intervention_signal,
             sham_baseline_signal,
             sham_intervention_signal,
         )
-        ci_low, ci_high = self._block_bootstrap_rri_ci(
+        ci_low, ci_high = self._overlapping_moving_block_bootstrap(
             baseline_signal,
             intervention_signal,
             sham_baseline_signal,
@@ -347,13 +367,13 @@ class ResonanceAnalyzer:
             notes = "Observed variation matches electronic phantom delta or thermal shift (instrumentation pickup)."
         elif p_val < 0.01 and ci_low > 0.20 and repeatability > 0.75 and abs(cohens_d) > 0.80:
             status = "REPEATABLE_DIFFERENCE"
-            notes = f"Repeatable contrast verified beyond sham (paired permutation p={p_val:.4f}, bootstrap CI=[{ci_low:.3f}, {ci_high:.3f}], tau={tau})."
+            notes = f"Repeatable contrast verified beyond sham (block permutation p={p_val:.4f}, moving-block bootstrap CI=[{ci_low:.3f}, {ci_high:.3f}], tau={tau})."
         elif p_val < 0.05 and abs(cohens_d) >= 0.20:
             status = "EXPLORATORY"
-            notes = f"Initial exploratory contrast (paired permutation p={p_val:.4f}); requires multi-trial replication."
+            notes = f"Initial exploratory contrast (block permutation p={p_val:.4f}); requires multi-trial replication."
         else:
             status = "INCONCLUSIVE"
-            notes = f"No statistically significant difference from sham or baseline (paired permutation p={p_val:.4f})."
+            notes = f"No statistically significant difference from sham or baseline (block permutation p={p_val:.4f})."
 
         return ResponseEvaluation(
             configuration_id=config_id,

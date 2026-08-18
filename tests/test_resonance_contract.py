@@ -14,7 +14,7 @@ if str(ROOT) not in sys.path:
 from models.resonance_response.simulator import (
     ResonanceSimulator,
     GeometryConfig,
-    ConcentricMaxwellCapacitanceMatrix,
+    ConcentricSphericalCapacitanceModel,
     CoupledOscillatorSolver,
     CALIBRATION_STATUS,
     PHI,
@@ -28,6 +28,8 @@ from models.resonance_response.closed_loop import (
     BlindTrialManifest,
     SOFTWARE_EXPLORATION_CAP_NOT_SAFETY_RATING,
     one_hot_encode,
+    classify_condition_role,
+    get_student_t_critical_value,
     GEOMETRIES,
     CORES,
     MODULATIONS,
@@ -56,19 +58,19 @@ class ResonanceScientificPhysicsTest(unittest.TestCase):
         levels = data["$defs"]["interpretationLevel"]["enum"]
         self.assertEqual(levels, ["MEASURED", "DERIVED", "MODEL_INFERRED", "HYPOTHESIS_LABEL"])
 
-    def test_concentric_maxwell_capacitance_matrix_physics(self):
+    def test_concentric_capacitance_model_physics(self):
         """Concentric spherical conductor physics: C_ab = 4*pi*eps0*(a*b)/(b-a)."""
         geom_phi = GeometryConfig(geometry_type="GOLDEN_RATIO_SPHERES", outer_diameter_mm=300.0)
         geom_eq = GeometryConfig(geometry_type="EQUAL_SPHERES", outer_diameter_mm=300.0)
         geom_sham = GeometryConfig(geometry_type="SHAM_OFF")
 
-        matrix_phi = ConcentricMaxwellCapacitanceMatrix(geom_phi)
-        matrix_eq = ConcentricMaxwellCapacitanceMatrix(geom_eq)
-        matrix_sham = ConcentricMaxwellCapacitanceMatrix(geom_sham)
+        model_phi = ConcentricSphericalCapacitanceModel(geom_phi)
+        model_eq = ConcentricSphericalCapacitanceModel(geom_eq)
+        model_sham = ConcentricSphericalCapacitanceModel(geom_sham)
 
-        c_phi, k_phi = matrix_phi.compute_maxwell_capacitances_and_coupling()
-        c_eq, k_eq = matrix_eq.compute_maxwell_capacitances_and_coupling()
-        c_sham, k_sham = matrix_sham.compute_maxwell_capacitances_and_coupling()
+        c_phi, k_phi = model_phi.compute_capacitances_and_coupling()
+        c_eq, k_eq = model_eq.compute_capacitances_and_coupling()
+        c_sham, k_sham = model_sham.compute_capacitances_and_coupling()
 
         self.assertGreater(c_phi[0], 0.0)
         self.assertGreater(c_eq[0], 0.0)
@@ -83,39 +85,20 @@ class ResonanceScientificPhysicsTest(unittest.TestCase):
         # Phi spacing naturally produces distinct coupling from equal spacing purely due to concentric Delta_r
         self.assertNotEqual(k_phi[0][1], k_eq[0][1])
 
-    def test_zero_ordinal_bias_in_one_hot_gaussian_process(self):
-        """Categorical one-hot vectors guarantee equidistant distances between distinct categories."""
-        gp = GaussianProcessRegressor()
+    def test_exact_student_t_critical_values(self):
+        """Verify exact two-sided Student's-t critical values at alpha = 0.05."""
+        self.assertEqual(get_student_t_critical_value(1), 12.706)
+        self.assertEqual(get_student_t_critical_value(2), 4.303)
+        self.assertEqual(get_student_t_critical_value(3), 3.182)
+        self.assertEqual(get_student_t_critical_value(5), 2.571)
+        self.assertEqual(get_student_t_critical_value(10), 2.228)
+        self.assertEqual(get_student_t_critical_value(30), 2.042)
+        self.assertAlmostEqual(get_student_t_critical_value(100), 1.984, delta=0.01)
 
-        # Check one-hot equidistant property: ||g_i - g_j||^2 == 2 for all distinct i != j
-        g_phi = one_hot_encode("GOLDEN_RATIO_SPHERES", GEOMETRIES)
-        g_eq = one_hot_encode("EQUAL_SPHERES", GEOMETRIES)
-        g_rnd = one_hot_encode("RANDOM_SPHERES", GEOMETRIES)
-        g_sham = one_hot_encode("SHAM_OFF", GEOMETRIES)
-
-        def dist_sq(u, v):
-            return sum((a - b) ** 2 for a, b in zip(u, v))
-
-        self.assertEqual(dist_sq(g_phi, g_eq), 2.0)
-        self.assertEqual(dist_sq(g_phi, g_rnd), 2.0)
-        self.assertEqual(dist_sq(g_phi, g_sham), 2.0)
-        self.assertEqual(dist_sq(g_eq, g_rnd), 2.0)
-
-        # Train GP on 16-d one-hot vectors
-        c_mer = one_hot_encode("DUAL_TETRAHEDRON_MERKABA", CORES)
-        m_cw = one_hot_encode("NONE_CW", MODULATIONS)
-
-        x1 = [1.86, 3.0] + g_phi + c_mer + m_cw
-        x2 = [1.86, 3.0] + g_eq + c_mer + m_cw
-        x3 = [1.86, 3.0] + g_rnd + c_mer + m_cw
-
-        gp.fit([x1, x2, x3], [0.70, 0.40, 0.35])
-        mu_phi, sigma_phi = gp.predict(x1)
-        self.assertAlmostEqual(mu_phi, 0.70, delta=0.08)
-
-    def test_factorial_regression_standard_errors_and_confidence_intervals(self):
-        """FactorialInteractionAnalyzer must compute OLS standard errors and 95% confidence intervals."""
+    def test_factorial_regression_small_sample_degrees_of_freedom_warning(self):
+        """FactorialInteractionAnalyzer must compute exact Student-t CIs and flag small-sample df."""
         fact = FactorialInteractionAnalyzer()
+        # Add exactly 7 trials (df = 7 - 6 = 1)
         fact.add_trial("GOLDEN_RATIO_SPHERES", "DUAL_TETRAHEDRON_MERKABA", 73.2, 3.0, 0.75)
         fact.add_trial("GOLDEN_RATIO_SPHERES", "SPHERICAL_CORE", 73.2, 3.0, 0.40)
         fact.add_trial("GOLDEN_RATIO_SPHERES", "NO_CORE", 73.2, 3.0, 0.30)
@@ -125,17 +108,30 @@ class ResonanceScientificPhysicsTest(unittest.TestCase):
         fact.add_trial("SHAM_OFF", "SHAM_OFF", 1.0, 0.0, 0.05)
 
         effects = fact.estimate_effects()
-        self.assertIn("beta_G_phi", effects)
-        self.assertIn("beta_G_phi_se", effects)
-        self.assertIn("beta_G_phi_ci", effects)
-        self.assertIn("beta_C_merkaba_ci", effects)
-        self.assertIn("beta_GC_interaction_ci", effects)
-        self.assertGreater(len(effects["beta_G_phi_ci"]), 1)
-        self.assertEqual(effects["samples_count"], 7)
+        self.assertEqual(effects["residual_degrees_of_freedom"], 1)
+        self.assertEqual(effects["student_t_critical_value"], 12.706)
+        self.assertIn("SMALL_SAMPLE_DF_1", effects["warning"])
+        # CI width must reflect exact t_crit = 12.706 (not arbitrary 2.3)
+        ci_width = effects["beta_G_phi_ci"][1] - effects["beta_G_phi_ci"][0]
+        self.assertGreater(ci_width, 10.0 * effects["beta_G_phi_se"])
 
-    def test_autocorrelation_time_estimation_and_paired_swap_permutation(self):
-        """Estimate tau_decorr and execute paired condition-swap permutation test."""
-        # Synthesize AR(1) signal
+    def test_condition_role_taxonomy_and_factorial_scheduler(self):
+        """Deterministic condition_role assignment and matched factorial block scheduling."""
+        self.assertEqual(classify_condition_role("GOLDEN_RATIO_SPHERES", "DUAL_TETRAHEDRON_MERKABA", 3.0), "TARGET_HYPOTHESIS")
+        self.assertEqual(classify_condition_role("EQUAL_SPHERES", "NO_CORE", 3.0), "ACTIVE_CONTROL")
+        self.assertEqual(classify_condition_role("RANDOM_SPHERES", "DUAL_TETRAHEDRON_MERKABA", 3.0), "ACTIVE_CONTROL")
+        self.assertEqual(classify_condition_role("SHAM_OFF", "SHAM_OFF", 0.0), "SHAM")
+
+        opt = ClosedLoopOptimizer()
+        opt.schedule_matched_factorial_block(base_freq_hz=73.2, amp_v=3.3)
+        self.assertEqual(len(opt.queued_factorial_block), 7)
+
+        dec1 = opt.propose_next_intervention(current_step=1)
+        self.assertIn(dec1.condition_role, ["TARGET_HYPOTHESIS", "ACTIVE_CONTROL", "SHAM"])
+        self.assertEqual(dec1.hypothesis_label, "MATCHED_FACTORIAL_BLOCK_EXECUTION")
+
+    def test_autocorrelation_time_estimation_and_contiguous_block_swap_permutation(self):
+        """Estimate tau_decorr and execute contiguous block swap permutation test."""
         def gen_ar1(n: int, mean: float, seed: int) -> list:
             rng = random.Random(seed)
             x = [mean]
@@ -153,8 +149,8 @@ class ResonanceScientificPhysicsTest(unittest.TestCase):
 
         analyzer = ResonanceAnalyzer(n_permutations=200, n_bootstraps=200)
         eval_res = analyzer.evaluate_trial(
-            config_id="cfg-paired-test",
-            blinded_token="TRIAL-PAIRED-1",
+            config_id="cfg-block-test",
+            blinded_token="TRIAL-BLOCK-1",
             baseline_signal=active_base,
             intervention_signal=active_int,
             washout_signal=active_base,

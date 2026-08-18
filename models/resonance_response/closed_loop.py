@@ -4,11 +4,12 @@ Features:
 1. One-Hot Categorical Gaussian Process Regressor:
      x = [log10(f), A, g_4d, c_5d, m_5d] in R^16
      Completely eliminates ordinal metric bias across discrete geometries and cores.
-2. Factorial Interaction Analyzer with OLS Standard Errors and 95% Confidence Intervals.
-3. Matched Factorial Trial Matrix (G x C) for orthogonal experimental contrasts.
-4. Isolated hypothesis candidate library (Schumann modes, acoustic intervals).
-5. Opaque, unguessable cryptographic trial tokens and decoupled BlindTrialManifest.
-6. Explicit software parameter exploration caps (SOFTWARE_EXPLORATION_CAP_NOT_SAFETY_RATING).
+2. Factorial Interaction Analyzer with Exact Student's-t Degrees-of-Freedom Confidence Intervals.
+3. Deterministic condition_role classification (TARGET_HYPOTHESIS, ACTIVE_CONTROL, SHAM, EXPLORATORY).
+4. Balanced Matched Factorial Block Scheduler (G x C at matched f and A).
+5. Isolated hypothesis candidate library (Schumann modes, acoustic intervals).
+6. Opaque, unguessable cryptographic trial tokens and decoupled BlindTrialManifest.
+7. Explicit software parameter exploration caps (SOFTWARE_EXPLORATION_CAP_NOT_SAFETY_RATING).
 """
 
 from __future__ import annotations
@@ -25,6 +26,52 @@ SOFTWARE_EXPLORATION_CAP_NOT_SAFETY_RATING: float = 10.0
 GEOMETRIES = ("GOLDEN_RATIO_SPHERES", "EQUAL_SPHERES", "RANDOM_SPHERES", "SHAM_OFF")
 CORES = ("DUAL_TETRAHEDRON_MERKABA", "SPHERICAL_CORE", "CUBIC_CORE", "NO_CORE", "SHAM_OFF")
 MODULATIONS = ("NONE_CW", "SINE_AM", "PULSED", "BURST", "SHAM_OFF")
+
+# Exact two-sided Student's-t critical values at alpha = 0.05
+STUDENT_T_CRITICAL_TABLE = {
+    1: 12.706,
+    2: 4.303,
+    3: 3.182,
+    4: 2.776,
+    5: 2.571,
+    6: 2.447,
+    7: 2.365,
+    8: 2.306,
+    9: 2.262,
+    10: 2.228,
+    12: 2.179,
+    15: 2.131,
+    20: 2.086,
+    25: 2.060,
+    30: 2.042,
+}
+
+
+def get_student_t_critical_value(df: int) -> float:
+    """Return exact two-sided critical value t_{0.025, df} for degrees of freedom df."""
+    if df <= 0:
+        return 12.706
+    if df in STUDENT_T_CRITICAL_TABLE:
+        return STUDENT_T_CRITICAL_TABLE[df]
+    if df < 10:
+        keys = sorted(k for k in STUDENT_T_CRITICAL_TABLE.keys() if k < 10)
+        return STUDENT_T_CRITICAL_TABLE[min(keys, key=lambda k: abs(k - df))]
+    if df <= 30:
+        keys = sorted(k for k in STUDENT_T_CRITICAL_TABLE.keys() if k >= 10)
+        return STUDENT_T_CRITICAL_TABLE[min(keys, key=lambda k: abs(k - df))]
+    # Asymptotic expansion for df > 30: t_crit ~ 1.95996 + 2.378 / df + 2.82 / df^2
+    return round(1.95996 + (2.378 / df) + (2.82 / (df ** 2)), 3)
+
+
+def classify_condition_role(geometry: str, core: str, amp_v: float) -> str:
+    """Classify condition role deterministically from configuration parameters."""
+    if geometry == "SHAM_OFF" or amp_v <= 0.0:
+        return "SHAM"
+    if geometry == "GOLDEN_RATIO_SPHERES" and core == "DUAL_TETRAHEDRON_MERKABA":
+        return "TARGET_HYPOTHESIS"
+    if geometry in ("EQUAL_SPHERES", "RANDOM_SPHERES") or core in ("SPHERICAL_CORE", "CUBIC_CORE", "NO_CORE"):
+        return "ACTIVE_CONTROL"
+    return "EXPLORATORY"
 
 
 def one_hot_encode(category: str, category_tuple: Tuple[str, ...]) -> List[float]:
@@ -47,7 +94,7 @@ class HypothesisCandidateLibrary:
 class ExperimentSearchSpace:
     """Bounded software parameter exploration space."""
     min_frequency_hz: float = 1.0
-    max_frequency_hz: float = 100000.0  # 100 kHz exploration ceiling
+    max_frequency_hz: float = 100000.0
     min_amplitude_v: float = 0.0
     max_amplitude_v: float = SOFTWARE_EXPLORATION_CAP_NOT_SAFETY_RATING
     min_duration_ms: float = 5000.0
@@ -64,9 +111,6 @@ class GaussianProcessRegressor:
     
     State vector:
       x = [log10(f), A, g_0..g_3, c_0..c_4, m_0..m_4] in R^16
-    
-    Zero ordinal bias:
-      For any two distinct categories u != v, ||u - v||^2 = 2.0.
     """
 
     def __init__(
@@ -91,11 +135,8 @@ class GaussianProcessRegressor:
         df = (x1[0] - x2[0]) / self.l_f
         da = (x1[1] - x2[1]) / self.l_a
 
-        # Geometry one-hot distance (indices 2..5)
         dg_sq = sum((x1[2 + i] - x2[2 + i]) ** 2 for i in range(4)) / (2.0 * (self.l_g ** 2))
-        # Core one-hot distance (indices 6..10)
         dc_sq = sum((x1[6 + i] - x2[6 + i]) ** 2 for i in range(5)) / (2.0 * (self.l_c ** 2))
-        # Modulation one-hot distance (indices 11..15)
         dm_sq = sum((x1[11 + i] - x2[11 + i]) ** 2 for i in range(5)) / (2.0 * (self.l_m ** 2))
 
         exponent = -0.5 * (df ** 2 + da ** 2) - dg_sq - dc_sq - dm_sq
@@ -159,7 +200,7 @@ class ExperimentalDecision:
     duration_ms: float
     baseline_duration_ms: float
     washout_duration_ms: float
-    is_control_condition: bool
+    condition_role: str  # TARGET_HYPOTHESIS, ACTIVE_CONTROL, SHAM, EXPLORATORY
     hypothesis_label: Optional[str]
     posterior_predicted_mean: float
     posterior_uncertainty_sigma: float
@@ -176,7 +217,7 @@ class ExperimentalDecision:
             "duration_ms": self.duration_ms,
             "baseline_duration_ms": self.baseline_duration_ms,
             "washout_duration_ms": self.washout_duration_ms,
-            "is_control_condition": self.is_control_condition,
+            "condition_role": self.condition_role,
             "hypothesis_label": self.hypothesis_label,
             "posterior_predicted_mean": round(self.posterior_predicted_mean, 4),
             "posterior_uncertainty_sigma": round(self.posterior_uncertainty_sigma, 4),
@@ -184,7 +225,7 @@ class ExperimentalDecision:
 
 
 class FactorialInteractionAnalyzer:
-    """Linear regression model with OLS standard errors and 95% confidence intervals.
+    """Linear regression model with exact Student's-t degrees-of-freedom confidence intervals.
     
     Model: R = beta_0 + beta_G * G + beta_C * C + beta_f * log10(f) + beta_A * A + beta_GC * (G x C) + eps
     """
@@ -199,7 +240,7 @@ class FactorialInteractionAnalyzer:
         self.trials.append((g_code, c_code, log_f, amp_v, response_score))
 
     def estimate_effects(self) -> Dict[str, Any]:
-        """Estimate OLS regression coefficients, standard errors, and 95% confidence intervals."""
+        """Estimate OLS regression coefficients, standard errors, exact Student-t CIs, and warnings."""
         p = 6
         n = len(self.trials)
         if n < p + 1:
@@ -214,7 +255,9 @@ class FactorialInteractionAnalyzer:
                 "beta_freq": 0.0,
                 "beta_amp": 0.0,
                 "residual_std_error": 0.0,
+                "residual_degrees_of_freedom": max(0, n - p),
                 "samples_count": n,
+                "warning": "INSUFFICIENT_SAMPLES_FOR_REGRESSION",
             }
 
         X = []
@@ -229,7 +272,6 @@ class FactorialInteractionAnalyzer:
         for j in range(p):
             XtX[j][j] += 1e-6
 
-        # Invert XtX to get (X^T X)^-1
         def invert_matrix(A: List[List[float]]) -> List[List[float]]:
             m = len(A)
             mat = [row[:] + [1.0 if i == r else 0.0 for i in range(m)] for r, row in enumerate(A)]
@@ -251,18 +293,18 @@ class FactorialInteractionAnalyzer:
         XtX_inv = invert_matrix(XtX)
         betas = [sum(XtX_inv[j][k] * Xty[k] for k in range(p)) for j in range(p)]
 
-        # Residual variance sigma^2 = sum(e_i^2) / (n - p)
         residuals = [y[i] - sum(X[i][j] * betas[j] for j in range(p)) for i in range(n)]
         sse = sum(r ** 2 for r in residuals)
         df = max(1, n - p)
         sigma2_hat = sse / df
         rse = math.sqrt(sigma2_hat)
 
-        # Standard errors: SE(beta_j) = sqrt(sigma2_hat * (X^T X)^-1_jj)
         se = [math.sqrt(max(1e-8, sigma2_hat * XtX_inv[j][j])) for j in range(p)]
+        t_crit = get_student_t_critical_value(df)
 
-        # 95% Confidence intervals (critical value approx 1.96 for large df or 2.1 for small)
-        t_crit = 2.0 if df > 10 else 2.3
+        warning_msg = None
+        if df <= 2:
+            warning_msg = f"SMALL_SAMPLE_DF_{df}_CRITICAL_VALUE_IS_{t_crit:.2f}"
 
         return {
             "beta_0_intercept": round(betas[0], 4),
@@ -278,7 +320,10 @@ class FactorialInteractionAnalyzer:
             "beta_freq": round(betas[4], 4),
             "beta_amp": round(betas[5], 4),
             "residual_std_error": round(rse, 4),
+            "residual_degrees_of_freedom": df,
+            "student_t_critical_value": t_crit,
             "samples_count": n,
+            "warning": warning_msg,
         }
 
 
@@ -323,6 +368,7 @@ class ClosedLoopOptimizer:
         self.observed_x: List[List[float]] = []
         self.observed_y: List[float] = []
         self.history: List[ExperimentalDecision] = []
+        self.queued_factorial_block: List[Tuple[str, str, float, float, str]] = []
 
     def _build_feature_vector(self, freq_hz: float, amp_v: float, geom: str, core: str, mod: str) -> List[float]:
         log_f = math.log10(max(1.0, freq_hz))
@@ -353,17 +399,19 @@ class ClosedLoopOptimizer:
             observed_score,
         )
 
-    def generate_matched_factorial_block(self, base_freq_hz: float, amp_v: float) -> List[Tuple[str, str]]:
-        """Generate a balanced factorial matrix of (Geometry x Core) conditions."""
-        return [
-            ("GOLDEN_RATIO_SPHERES", "DUAL_TETRAHEDRON_MERKABA"),
-            ("GOLDEN_RATIO_SPHERES", "SPHERICAL_CORE"),
-            ("GOLDEN_RATIO_SPHERES", "NO_CORE"),
-            ("EQUAL_SPHERES", "DUAL_TETRAHEDRON_MERKABA"),
-            ("EQUAL_SPHERES", "SPHERICAL_CORE"),
-            ("RANDOM_SPHERES", "DUAL_TETRAHEDRON_MERKABA"),
-            ("SHAM_OFF", "SHAM_OFF"),
+    def schedule_matched_factorial_block(self, base_freq_hz: float = 73.2, amp_v: float = 3.3) -> None:
+        """Queue a balanced, randomized factorial block of (G x C) conditions evaluated at matched f and A."""
+        block = [
+            ("GOLDEN_RATIO_SPHERES", "DUAL_TETRAHEDRON_MERKABA", base_freq_hz, amp_v, "NONE_CW"),
+            ("GOLDEN_RATIO_SPHERES", "SPHERICAL_CORE", base_freq_hz, amp_v, "NONE_CW"),
+            ("GOLDEN_RATIO_SPHERES", "NO_CORE", base_freq_hz, amp_v, "NONE_CW"),
+            ("EQUAL_SPHERES", "DUAL_TETRAHEDRON_MERKABA", base_freq_hz, amp_v, "NONE_CW"),
+            ("EQUAL_SPHERES", "SPHERICAL_CORE", base_freq_hz, amp_v, "NONE_CW"),
+            ("RANDOM_SPHERES", "DUAL_TETRAHEDRON_MERKABA", base_freq_hz, amp_v, "NONE_CW"),
+            ("SHAM_OFF", "SHAM_OFF", 0.0, 0.0, "SHAM_OFF"),
         ]
+        self.rng.shuffle(block)
+        self.queued_factorial_block.extend(block)
 
     def propose_next_intervention(
         self,
@@ -372,95 +420,104 @@ class ClosedLoopOptimizer:
         hypothesis_set_name: Optional[str] = None,
         force_control_ratio: float = 0.33,
     ) -> ExperimentalDecision:
-        """Propose next intervention using one-hot categorical GP-UCB acquisition."""
+        """Propose next intervention using queued factorial blocks or one-hot categorical GP-UCB."""
         if last_response_score is not None and self.history:
             self.update_posterior(self.history[-1], last_response_score)
 
         decision_id = f"dec-{current_step:04d}"
         trial_token = f"TRIAL-{secrets.token_hex(4).upper()}"
 
-        is_control = (self.rng.random() < force_control_ratio) or (current_step % 3 == 0)
-
-        if is_control:
-            control_type = self.rng.choice(["SHAM_OFF", "EQUAL_SPHERES", "RANDOM_SPHERES"])
-            if control_type == "SHAM_OFF":
-                geom = "SHAM_OFF"
-                core = "SHAM_OFF"
-                amp = 0.0
-                freq = 0.0
-                mod = "SHAM_OFF"
-            else:
-                geom = control_type
-                core = self.rng.choice(["NO_CORE", "SPHERICAL_CORE", "CUBIC_CORE"])
-                amp = round(self.rng.uniform(1.0, 5.0), 2)
-                log_f = self.rng.uniform(math.log10(self.space.min_frequency_hz), math.log10(1000.0))
-                freq = round(10.0 ** log_f, 2)
-                mod = "NONE_CW"
-            hyp_label = None
+        # 1. Execute queued factorial block if available
+        if self.queued_factorial_block:
+            geom, core, freq, amp, mod = self.queued_factorial_block.pop(0)
+            hyp_label = "MATCHED_FACTORIAL_BLOCK_EXECUTION"
             mu, sigma = 0.0, 1.0
         else:
-            if hypothesis_set_name == "schumann":
-                geom = "GOLDEN_RATIO_SPHERES"
-                core = "DUAL_TETRAHEDRON_MERKABA"
-                freq = self.rng.choice(HypothesisCandidateLibrary.SCHUMANN_IONOSPHERIC_MODES)
-                amp = round(self.rng.uniform(1.0, 5.0), 2)
-                hyp_label = "HYP_SCHUMANN_IONOSPHERIC"
-                mod = "NONE_CW"
-                mu, sigma = 0.0, 1.0
-            elif hypothesis_set_name == "acoustic_solfeggio":
-                geom = "GOLDEN_RATIO_SPHERES"
-                core = "DUAL_TETRAHEDRON_MERKABA"
-                freq = self.rng.choice(HypothesisCandidateLibrary.HISTORICAL_ACOUSTIC_INTERVALS)
-                amp = round(self.rng.uniform(1.0, 5.0), 2)
-                hyp_label = "HYP_HISTORICAL_ACOUSTIC"
-                mod = "NONE_CW"
+            is_control = (self.rng.random() < force_control_ratio) or (current_step % 3 == 0)
+
+            if is_control:
+                control_type = self.rng.choice(["SHAM_OFF", "EQUAL_SPHERES", "RANDOM_SPHERES"])
+                if control_type == "SHAM_OFF":
+                    geom = "SHAM_OFF"
+                    core = "SHAM_OFF"
+                    amp = 0.0
+                    freq = 0.0
+                    mod = "SHAM_OFF"
+                else:
+                    geom = control_type
+                    core = self.rng.choice(["NO_CORE", "SPHERICAL_CORE", "CUBIC_CORE"])
+                    amp = round(self.rng.uniform(1.0, 5.0), 2)
+                    log_f = self.rng.uniform(math.log10(self.space.min_frequency_hz), math.log10(1000.0))
+                    freq = round(10.0 ** log_f, 2)
+                    mod = "NONE_CW"
+                hyp_label = None
                 mu, sigma = 0.0, 1.0
             else:
-                # One-Hot Categorical GP-UCB Exploration across (f, A, G, C, M)
-                best_acq = -float("inf")
-                best_f = 73.2
-                best_a = 3.3
-                best_g = "GOLDEN_RATIO_SPHERES"
-                best_c = "DUAL_TETRAHEDRON_MERKABA"
-                best_m = "NONE_CW"
-                best_mu, best_sigma = 0.0, 1.0
+                if hypothesis_set_name == "schumann":
+                    geom = "GOLDEN_RATIO_SPHERES"
+                    core = "DUAL_TETRAHEDRON_MERKABA"
+                    freq = self.rng.choice(HypothesisCandidateLibrary.SCHUMANN_IONOSPHERIC_MODES)
+                    amp = round(self.rng.uniform(1.0, 5.0), 2)
+                    hyp_label = "HYP_SCHUMANN_IONOSPHERIC"
+                    mod = "NONE_CW"
+                    mu, sigma = 0.0, 1.0
+                elif hypothesis_set_name == "acoustic_solfeggio":
+                    geom = "GOLDEN_RATIO_SPHERES"
+                    core = "DUAL_TETRAHEDRON_MERKABA"
+                    freq = self.rng.choice(HypothesisCandidateLibrary.HISTORICAL_ACOUSTIC_INTERVALS)
+                    amp = round(self.rng.uniform(1.0, 5.0), 2)
+                    hyp_label = "HYP_HISTORICAL_ACOUSTIC"
+                    mod = "NONE_CW"
+                    mu, sigma = 0.0, 1.0
+                else:
+                    # One-Hot Categorical GP-UCB Exploration across (f, A, G, C, M)
+                    best_acq = -float("inf")
+                    best_f = 73.2
+                    best_a = 3.3
+                    best_g = "GOLDEN_RATIO_SPHERES"
+                    best_c = "DUAL_TETRAHEDRON_MERKABA"
+                    best_m = "NONE_CW"
+                    best_mu, best_sigma = 0.0, 1.0
 
-                candidate_geoms = ["GOLDEN_RATIO_SPHERES", "EQUAL_SPHERES", "RANDOM_SPHERES"]
-                candidate_cores = ["DUAL_TETRAHEDRON_MERKABA", "SPHERICAL_CORE", "CUBIC_CORE", "NO_CORE"]
-                candidate_mods = ["NONE_CW", "SINE_AM", "PULSED"]
+                    candidate_geoms = ["GOLDEN_RATIO_SPHERES", "EQUAL_SPHERES", "RANDOM_SPHERES"]
+                    candidate_cores = ["DUAL_TETRAHEDRON_MERKABA", "SPHERICAL_CORE", "CUBIC_CORE", "NO_CORE"]
+                    candidate_mods = ["NONE_CW", "SINE_AM", "PULSED"]
 
-                for _ in range(30):
-                    cand_log_f = self.rng.uniform(math.log10(self.space.min_frequency_hz), math.log10(1000.0))
-                    cand_f = 10.0 ** cand_log_f
-                    cand_a = self.rng.uniform(1.0, 5.0)
-                    cand_g = self.rng.choice(candidate_geoms)
-                    cand_c = self.rng.choice(candidate_cores)
-                    cand_m = self.rng.choice(candidate_mods)
+                    for _ in range(30):
+                        cand_log_f = self.rng.uniform(math.log10(self.space.min_frequency_hz), math.log10(1000.0))
+                        cand_f = 10.0 ** cand_log_f
+                        cand_a = self.rng.uniform(1.0, 5.0)
+                        cand_g = self.rng.choice(candidate_geoms)
+                        cand_c = self.rng.choice(candidate_cores)
+                        cand_m = self.rng.choice(candidate_mods)
 
-                    feat = self._build_feature_vector(cand_f, cand_a, cand_g, cand_c, cand_m)
-                    c_mu, c_sigma = self.gp.predict(feat)
-                    acq = c_mu + self.kappa * c_sigma
+                        feat = self._build_feature_vector(cand_f, cand_a, cand_g, cand_c, cand_m)
+                        c_mu, c_sigma = self.gp.predict(feat)
+                        acq = c_mu + self.kappa * c_sigma
 
-                    if acq > best_acq:
-                        best_acq = acq
-                        best_f = cand_f
-                        best_a = cand_a
-                        best_g = cand_g
-                        best_c = cand_c
-                        best_m = cand_m
-                        best_mu, best_sigma = c_mu, c_sigma
+                        if acq > best_acq:
+                            best_acq = acq
+                            best_f = cand_f
+                            best_a = cand_a
+                            best_g = cand_g
+                            best_c = cand_c
+                            best_m = cand_m
+                            best_mu, best_sigma = c_mu, c_sigma
 
-                freq = round(best_f, 2)
-                amp = round(best_a, 2)
-                geom = best_g
-                core = best_c
-                mod = best_m
-                mu, sigma = best_mu, best_sigma
-                hyp_label = "MULTI_FACTORIAL_ONE_HOT_BAYESIAN_EXPLORATION"
+                    freq = round(best_f, 2)
+                    amp = round(best_a, 2)
+                    geom = best_g
+                    core = best_c
+                    mod = best_m
+                    mu, sigma = best_mu, best_sigma
+                    hyp_label = "MULTI_FACTORIAL_ONE_HOT_BAYESIAN_EXPLORATION"
 
         duration = 15000.0
         baseline = max(self.space.min_baseline_ms, 5000.0)
         washout = max(self.space.min_washout_ms, 5000.0)
+
+        # Deterministic condition_role assignment
+        role = classify_condition_role(geom, core, amp)
 
         raw_config = {
             "geom": geom,
@@ -468,7 +525,7 @@ class ClosedLoopOptimizer:
             "freq": freq,
             "amp": amp,
             "mod": mod,
-            "is_control": is_control,
+            "condition_role": role,
         }
         self.manifest.register_trial(trial_token, raw_config)
 
@@ -483,7 +540,7 @@ class ClosedLoopOptimizer:
             duration_ms=duration,
             baseline_duration_ms=baseline,
             washout_duration_ms=washout,
-            is_control_condition=is_control,
+            condition_role=role,
             hypothesis_label=hyp_label,
             posterior_predicted_mean=mu,
             posterior_uncertainty_sigma=sigma,

@@ -81,27 +81,26 @@ def check_example_configurations() -> None:
     print(f"example configurations ({len(configs)} configs verified): OK")
 
 
-def check_concentric_maxwell_capacitance_derivation() -> None:
-    """Verify that concentric spherical Maxwell capacitance matrix derives from geometry."""
-    from models.resonance_response.simulator import ConcentricMaxwellCapacitanceMatrix, GeometryConfig
+def check_concentric_capacitance_derivation() -> None:
+    """Verify that concentric spherical capacitance model derives from geometry."""
+    from models.resonance_response.simulator import ConcentricSphericalCapacitanceModel, GeometryConfig
 
     geom_phi = GeometryConfig(geometry_type="GOLDEN_RATIO_SPHERES", outer_diameter_mm=300.0)
     geom_eq = GeometryConfig(geometry_type="EQUAL_SPHERES", outer_diameter_mm=300.0)
 
-    matrix_phi = ConcentricMaxwellCapacitanceMatrix(geom_phi)
-    matrix_eq = ConcentricMaxwellCapacitanceMatrix(geom_eq)
+    model_phi = ConcentricSphericalCapacitanceModel(geom_phi)
+    model_eq = ConcentricSphericalCapacitanceModel(geom_eq)
 
-    c_phi, k_phi = matrix_phi.compute_maxwell_capacitances_and_coupling()
-    c_eq, k_eq = matrix_eq.compute_maxwell_capacitances_and_coupling()
+    c_phi, k_phi = model_phi.compute_capacitances_and_coupling()
+    c_eq, k_eq = model_eq.compute_capacitances_and_coupling()
 
     if k_phi[0][1] == 0.0 or k_eq[0][1] == 0.0:
         raise ValueError("Coupling extraction failed: matrix entry is zero for active geometry")
 
-    # Coupling differs purely because Delta_r differs in the concentric spherical capacitance formula
     if k_phi[0][1] == k_eq[0][1]:
         raise ValueError("Geometry derivation failed: Phi and equal spacing produced identical coupling matrix!")
 
-    print("concentric spherical Maxwell capacitance matrix (G -> {C, k}): OK")
+    print("concentric spherical capacitance model (G -> {C, k}): OK")
 
 
 def check_electrical_domain_graph_isolation() -> None:
@@ -132,7 +131,7 @@ def check_electrical_domain_graph_isolation() -> None:
 def main() -> None:
     check_schema_structure()
     check_example_configurations()
-    check_concentric_maxwell_capacitance_derivation()
+    check_concentric_capacitance_derivation()
     check_electrical_domain_graph_isolation()
     print("all resonance physics, neutrality, and safety contracts: OK")
 

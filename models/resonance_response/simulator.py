@@ -1,16 +1,24 @@
-"""Parametric resonance and physical coupled cavity simulation engine for CIRCLE.
+"""Parametric resonance and physically motivated coupled cavity simulation engine for CIRCLE.
 
 Architecture Classification:
   Normalized phenomenological model of coupled geometric resonators.
-  Extracts physical Maxwell electrostatic capacitance matrices for concentric spherical shells:
+  Extracts physically motivated electrostatic capacitance matrices for concentric spherical shells:
     C_ij = 4 * pi * eps0 * (r_i * r_j) / (r_j - r_i)
     C_outer,inf = 4 * pi * eps0 * r_outer
     k_ij = C_ij / sqrt(C_ii * C_jj)
   and integrates dimensionally scaled coupled non-linear differential equations in the time domain.
 
+Model Limitations:
+  - Concentric shells use idealized smooth spherical capacitance formulas.
+  - Core structures (Merkaba dual-tetrahedron, sphere, cube) are parameterized using an
+    equivalent inner radial boundary approximation r_0 = 0.55 * r_inner. The simulator
+    provides a consistent experimental comparison harness, not a predictive FEM/FDTD
+    electromagnetic field solver.
+  - Coupling coefficients include empirical dimensionless normalization scaling.
+
 Dimensional Coupling Formulation:
-  d2x_i/dt2 + gamma_i * dx_i/dt + omega_i^2 * x_i + alpha * x_i^3 + sum_j (k_ij * omega_i * omega_j) * (x_i - x_j) = F_i(t)
-  where k_ij in [0, 1] is the dimensionless Maxwell coupling coefficient and
+  d2x_i/dt2 + gamma_i * dx_i/dt + omega_i^2 * x_i + alpha * x_i^3 + sum_j (k_ij * omega_i * omega_j) * (x_j - x_i) = F_i(t)
+  where k_ij in [0, 1] is the dimensionless mutual coupling coefficient and
   kappa_ij = k_ij * omega_i * omega_j (s^-2) matches the scale of omega_i^2 (s^-2).
 
 Calibration Metadata:
@@ -62,8 +70,8 @@ class GeometryConfig:
             raise ValueError(f"Unknown geometry_type: {self.geometry_type}")
 
 
-class ConcentricMaxwellCapacitanceMatrix:
-    """Derives exact Maxwell capacitance matrix and dimensionless coupling for concentric spherical conductors.
+class ConcentricSphericalCapacitanceModel:
+    """Physically motivated electrostatic capacitance model for concentric spherical conductors.
     
     For 3 concentric conductive spheres (radii r_1 < r_2 < r_3):
       C_12 = 4 * pi * eps0 * (r_1 * r_2) / (r_2 - r_1)
@@ -71,9 +79,8 @@ class ConcentricMaxwellCapacitanceMatrix:
       C_3_inf = 4 * pi * eps0 * r_3
       C_core_1 = 4 * pi * eps0 * (r_core * r_1) / (r_1 - r_core)
     
-    The Maxwell capacitance matrix C has entries:
+    Self-capacitance diagonal terms:
       C_ii = sum_{j != i} C_ij + C_i_inf
-      C_ij = -C_ij (mutual)
     
     Dimensionless mutual coupling coefficients:
       k_ij = C_ij / sqrt(C_ii * C_jj) in [0, 1]
@@ -82,7 +89,7 @@ class ConcentricMaxwellCapacitanceMatrix:
     def __init__(self, geometry: GeometryConfig):
         self.geometry = geometry
 
-    def compute_maxwell_capacitances_and_coupling(self) -> Tuple[List[float], List[List[float]]]:
+    def compute_capacitances_and_coupling(self) -> Tuple[List[float], List[List[float]]]:
         """Compute self-capacitance diagonal (Farads) and 5x5 dimensionless coupling matrix k_ij."""
         d_out, d_mid, d_inn = self.geometry.compute_diameters()
         if self.geometry.geometry_type == "SHAM_OFF" or d_out <= 0:
@@ -91,10 +98,8 @@ class ConcentricMaxwellCapacitanceMatrix:
         r_3 = (d_out / 2.0) / 1000.0   # Outer sphere radius (m)
         r_2 = (d_mid / 2.0) / 1000.0   # Middle sphere radius (m)
         r_1 = (d_inn / 2.0) / 1000.0   # Inner sphere radius (m)
-        r_0 = r_1 * 0.55               # Core radius (m)
+        r_0 = r_1 * 0.55               # Core equivalent radius (m)
 
-        # 1. Concentric spherical inter-shell capacitances
-        # C_ab = 4 * pi * eps0 * (a * b) / (b - a)
         def spherical_cap(a: float, b: float) -> float:
             gap = max(1e-4, b - a)
             return 4.0 * math.pi * EPSILON_0 * (a * b) / gap
@@ -111,7 +116,6 @@ class ConcentricMaxwellCapacitanceMatrix:
             c_01 = spherical_cap(r_0, r_1)   # Core <-> Inner
             c_core_inter = 4.0 * math.pi * EPSILON_0 * (r_0 * 0.5)
 
-        # Self-capacitance diagonal terms
         c_outer_self = c_23 + c_3_inf
         c_middle_self = c_12 + c_23
         c_inner_self = c_01 + c_12
@@ -126,7 +130,6 @@ class ConcentricMaxwellCapacitanceMatrix:
             c_core_down_self,
         ]
 
-        # 2. Derive 5x5 dimensionless coupling matrix: k_ij = C_ij / sqrt(C_ii * C_jj)
         k_matrix = [[0.0] * 5 for _ in range(5)]
 
         # Outer <-> Middle
@@ -354,11 +357,11 @@ class CoupledOscillatorSolver:
 
 
 class ResonanceSimulator:
-    """Simulator driven by concentric Maxwell capacitance matrices and dimensionally scaled cavity dynamics."""
+    """Simulator driven by concentric spherical capacitances and dimensionally scaled cavity dynamics."""
 
     def __init__(self, geometry: Optional[GeometryConfig] = None):
         self.geometry = geometry or GeometryConfig()
-        self.extractor = ConcentricMaxwellCapacitanceMatrix(self.geometry)
+        self.extractor = ConcentricSphericalCapacitanceModel(self.geometry)
 
     def build_frequency_ladder(self, base_freq_hz: float, mode: str = "phi") -> Dict[str, float]:
         """Construct target drive frequencies for the 5 subsystems."""
@@ -404,11 +407,11 @@ class ResonanceSimulator:
         washout_duration_ms: float = 5000.0,
         ambient_temp_c: float = 22.5,
     ) -> SimulationResult:
-        """Run physics simulation with concentric Maxwell capacitances and dimensionally scaled coupling."""
+        """Run physics simulation with concentric spherical capacitances and dimensionally scaled coupling."""
         outer_d, middle_d, inner_d = self.geometry.compute_diameters()
         freqs = self.build_frequency_ladder(base_freq_hz, mode=frequency_mode)
 
-        self_caps, k_matrix = self.extractor.compute_maxwell_capacitances_and_coupling()
+        self_caps, k_matrix = self.extractor.compute_capacitances_and_coupling()
 
         channels_out: Dict[str, Dict[str, Any]] = {}
         total_input_power_w = 0.0
@@ -470,7 +473,7 @@ class ResonanceSimulator:
         dissipated_w = round(max(0.0, total_input_power_w - total_output_power_w), 5)
         temp_rise_c = round(dissipated_w * 0.40, 2)
 
-        # Run numerical coupled oscillator solver with concentric Maxwell coupling
+        # Run numerical coupled oscillator solver with concentric coupling
         if not is_sham and base_freq_hz > 0:
             solver = CoupledOscillatorSolver(
                 frequencies_hz=freq_list,
