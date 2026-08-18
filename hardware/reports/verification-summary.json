@@ -12,7 +12,7 @@
         "tests"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.325
+      "elapsed_seconds": 0.315
     },
     {
       "command": [
@@ -20,7 +20,7 @@
         "tools/check_design_manifest.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.08
+      "elapsed_seconds": 0.085
     },
     {
       "command": [
@@ -36,7 +36,7 @@
         "tools/check_resonance_contract.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.147
+      "elapsed_seconds": 0.146
     },
     {
       "command": [
@@ -44,7 +44,7 @@
         "tools/render_diagrams.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.11
+      "elapsed_seconds": 0.139
     },
     {
       "command": [
@@ -52,7 +52,7 @@
         "tools/generate_schematics.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.14
+      "elapsed_seconds": 0.145
     },
     {
       "command": [
@@ -62,7 +62,7 @@
         "circle-ppg"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.131
+      "elapsed_seconds": 0.13
     },
     {
       "command": [
@@ -70,7 +70,7 @@
         "version"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.273
+      "elapsed_seconds": 0.254
     },
     {
       "command": [
@@ -85,7 +85,7 @@
         "hardware/circle-main/legacy/00_root.sch"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 7.914
+      "elapsed_seconds": 6.976
     },
     {
       "command": [
@@ -100,7 +100,7 @@
         "hardware/circle-ppg/legacy/00_ppg_root.sch"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 7.412
+      "elapsed_seconds": 6.88
     },
     {
       "command": [
@@ -108,7 +108,45 @@
         "tools/check_erc.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.169
+      "elapsed_seconds": 0.127
+    },
+    {
+      "command": [
+        "C:\\Users\\chris\\AppData\\Local\\Programs\\KiCad\\10.0\\bin\\kicad-cli.exe",
+        "pcb",
+        "drc",
+        "--format",
+        "json",
+        "--severity-all",
+        "--output",
+        "hardware/reports/circle-main-drc.json",
+        "hardware/circle-main/circle-main.kicad_pcb"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 28.534
+    },
+    {
+      "command": [
+        "C:\\Users\\chris\\AppData\\Local\\Programs\\KiCad\\10.0\\bin\\kicad-cli.exe",
+        "pcb",
+        "drc",
+        "--format",
+        "json",
+        "--severity-all",
+        "--output",
+        "hardware/reports/circle-ppg-drc.json",
+        "hardware/circle-ppg/circle-ppg.kicad_pcb"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.699
+    },
+    {
+      "command": [
+        "C:\\Users\\chris\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "tools/check_drc.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.1
     }
   ],
   "artifacts": [
@@ -134,11 +172,19 @@
     },
     {
       "path": "hardware\\reports\\circle-main-erc.json",
-      "sha256": "76b3c5afbbbbac2d50623d7dba1f86e89fce515d6744567849f315dbe931922c"
+      "sha256": "d4fa22ed0c947258d6c3a5a4b343514d8b581ead414a2a27e25ef5559643cce4"
     },
     {
       "path": "hardware\\reports\\circle-ppg-erc.json",
-      "sha256": "2b1c5f3e28c92e0352c997e64e8f3be0aa9c76f301a8de9392e8a1a8c1799894"
+      "sha256": "94055f9f43d5680c344875019a190c9a3987962344979582049a4c49558cc94f"
+    },
+    {
+      "path": "hardware\\reports\\circle-main-drc.json",
+      "sha256": "9ebd282db9c5028cc033ec172c1da55b90d23bdce1c04dc5e0daff334c7b7050"
+    },
+    {
+      "path": "hardware\\reports\\circle-ppg-drc.json",
+      "sha256": "a01b11e3481c9daeb035413a4e605884d363f3ab7ba9fe90b5187d8d4bf9f0fa"
     },
     {
       "path": "hardware\\reports\\bom\\circle-main-revB-sourced.csv",

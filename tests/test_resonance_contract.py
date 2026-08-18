@@ -23,7 +23,7 @@ from models.resonance_response.closed_loop import (
     ClosedLoopOptimizer,
     GaussianProcessRegressor,
     FactorialInteractionAnalyzer,
-    HierarchicalTrialEvaluator,
+    SessionCenteredVarianceComponentEvaluator,
     ExperimentSearchSpace,
     HypothesisCandidateLibrary,
     BlindTrialManifest,
@@ -31,6 +31,7 @@ from models.resonance_response.closed_loop import (
     one_hot_encode,
     classify_condition_role,
     get_student_t_critical_value,
+    compute_matrix_condition_number,
     GEOMETRIES,
     CORES,
     MODULATIONS,
@@ -54,6 +55,8 @@ class ResonanceScientificPhysicsTest(unittest.TestCase):
         self.assertIn("condition_role", data["properties"])
         self.assertIn("factorial_block_id", data["properties"])
         self.assertIn("blinded_trial_token", data["properties"])
+        self.assertIn("randomization_id", data["properties"])
+        self.assertIn("allOf", data)
 
     def test_epistemological_hierarchy_is_strictly_enforced(self):
         data = json.loads(self.schema_path.read_text(encoding="utf-8"))
@@ -78,19 +81,17 @@ class ResonanceScientificPhysicsTest(unittest.TestCase):
         self.assertGreater(c_eq[0], 0.0)
         self.assertEqual(c_sham[0], 0.0)
 
-        # Coupling matrices are symmetric: k_ij == k_ji
         for i in range(5):
             for j in range(5):
                 self.assertEqual(k_phi[i][j], k_phi[j][i])
                 self.assertEqual(k_eq[i][j], k_eq[j][i])
 
-        # Phi spacing naturally produces distinct coupling from equal spacing purely due to concentric Delta_r
         self.assertNotEqual(k_phi[0][1], k_eq[0][1])
 
-    def test_strict_rank_identifiability_gate_in_factorial_analyzer(self):
-        """Design matrix rank deficiency must return MODEL_NOT_IDENTIFIABLE without pseudo-ridge regularization."""
+    def test_strict_rank_and_condition_number_identifiability_gate(self):
+        """Design matrix rank deficiency or extreme condition number must reject model."""
         fact = FactorialInteractionAnalyzer()
-        # Add 4 trials with collinear conditions (all Phi x Merkaba)
+        # Add collinear conditions (all Phi x Merkaba)
         fact.add_trial("GOLDEN_RATIO_SPHERES", "DUAL_TETRAHEDRON_MERKABA", 73.2, 3.0, 0.70)
         fact.add_trial("GOLDEN_RATIO_SPHERES", "DUAL_TETRAHEDRON_MERKABA", 73.2, 3.0, 0.72)
         fact.add_trial("GOLDEN_RATIO_SPHERES", "DUAL_TETRAHEDRON_MERKABA", 73.2, 3.0, 0.68)
@@ -101,10 +102,9 @@ class ResonanceScientificPhysicsTest(unittest.TestCase):
         self.assertEqual(res["reason"], "DESIGN_MATRIX_RANK_DEFICIENT")
         self.assertLess(res["matrix_rank"], 4)
 
-    def test_clean_2x2_confirmatory_factorial_orthogonal_estimation(self):
-        """Orthogonal 2x2 factorial: {Phi, Equal} x {Merkaba, Sphere}."""
+    def test_clean_2x2_confirmatory_factorial_effect_coding_and_contrasts(self):
+        """Orthogonal 2x2 factorial outputs effect-coded betas and 2*beta human contrasts."""
         fact = FactorialInteractionAnalyzer()
-        # Add all 4 cells of balanced 2x2 confirmatory matrix twice (N=8)
         cells = [
             ("GOLDEN_RATIO_SPHERES", "DUAL_TETRAHEDRON_MERKABA", 0.80),
             ("GOLDEN_RATIO_SPHERES", "SPHERICAL_CORE", 0.50),
@@ -118,46 +118,56 @@ class ResonanceScientificPhysicsTest(unittest.TestCase):
         self.assertEqual(effects["identifiability_status"], "IDENTIFIED_OLS")
         self.assertEqual(effects["samples_count"], 8)
         self.assertEqual(effects["residual_degrees_of_freedom"], 4)
-        self.assertIn("beta_G_phi_vs_equal", effects)
-        self.assertIn("beta_C_merkaba_vs_sphere", effects)
-        self.assertIn("beta_GC_interaction", effects)
-        self.assertGreater(effects["beta_G_phi_vs_equal"], 0.0)
+        self.assertAlmostEqual(effects["condition_number"], 1.0, delta=0.01)
 
-    def test_hierarchical_mixed_effects_evaluator_across_sessions(self):
-        """Hierarchical mixed-effects evaluator fits between-session random intercepts."""
-        hier = HierarchicalTrialEvaluator()
-        # Session 1: Baseline shift +0.10
-        hier.add_trial("s1", "GOLDEN_RATIO_SPHERES", "DUAL_TETRAHEDRON_MERKABA", 0.90)
-        hier.add_trial("s1", "GOLDEN_RATIO_SPHERES", "SPHERICAL_CORE", 0.60)
-        hier.add_trial("s1", "EQUAL_SPHERES", "DUAL_TETRAHEDRON_MERKABA", 0.50)
-        hier.add_trial("s1", "EQUAL_SPHERES", "SPHERICAL_CORE", 0.30)
-        # Session 2: Baseline shift -0.10
-        hier.add_trial("s2", "GOLDEN_RATIO_SPHERES", "DUAL_TETRAHEDRON_MERKABA", 0.70)
-        hier.add_trial("s2", "GOLDEN_RATIO_SPHERES", "SPHERICAL_CORE", 0.40)
-        hier.add_trial("s2", "EQUAL_SPHERES", "DUAL_TETRAHEDRON_MERKABA", 0.30)
-        hier.add_trial("s2", "EQUAL_SPHERES", "SPHERICAL_CORE", 0.10)
+        # Effect-coded betas
+        self.assertIn("beta_G_effect_coded", effects)
+        self.assertIn("beta_C_effect_coded", effects)
+        self.assertIn("beta_GC_effect_coded", effects)
 
-        res = hier.fit_mixed_effects()
+        # Human-readable contrasts: phi_minus_equal = 2 * beta_G
+        contrasts = effects["contrasts"]
+        self.assertAlmostEqual(contrasts["phi_minus_equal"], 2.0 * effects["beta_G_effect_coded"], places=4)
+        self.assertAlmostEqual(contrasts["merkaba_minus_sphere"], 2.0 * effects["beta_C_effect_coded"], places=4)
+        self.assertAlmostEqual(contrasts["interaction_difference_of_differences"], 4.0 * effects["beta_GC_effect_coded"], places=4)
+
+    def test_session_centered_variance_component_evaluator(self):
+        """SessionCenteredVarianceComponentEvaluator fits repeated sessions and estimates sigma_u^2."""
+        evaluator = SessionCenteredVarianceComponentEvaluator()
+        # Session 1
+        evaluator.add_trial("s1", "GOLDEN_RATIO_SPHERES", "DUAL_TETRAHEDRON_MERKABA", 0.90)
+        evaluator.add_trial("s1", "GOLDEN_RATIO_SPHERES", "SPHERICAL_CORE", 0.60)
+        evaluator.add_trial("s1", "EQUAL_SPHERES", "DUAL_TETRAHEDRON_MERKABA", 0.50)
+        evaluator.add_trial("s1", "EQUAL_SPHERES", "SPHERICAL_CORE", 0.30)
+        # Session 2
+        evaluator.add_trial("s2", "GOLDEN_RATIO_SPHERES", "DUAL_TETRAHEDRON_MERKABA", 0.70)
+        evaluator.add_trial("s2", "GOLDEN_RATIO_SPHERES", "SPHERICAL_CORE", 0.40)
+        evaluator.add_trial("s2", "EQUAL_SPHERES", "DUAL_TETRAHEDRON_MERKABA", 0.30)
+        evaluator.add_trial("s2", "EQUAL_SPHERES", "SPHERICAL_CORE", 0.10)
+
+        res = evaluator.fit_variance_components()
         self.assertEqual(res["status"], "CONVERGED")
         self.assertEqual(res["sessions_count"], 2)
         self.assertEqual(res["total_trials"], 8)
         self.assertGreater(res["between_session_variance_sigma_u2"], 0.0)
+        self.assertIn("contrasts", res)
 
-    def test_condition_role_taxonomy_and_factorial_scheduler(self):
-        """Deterministic condition_role assignment and matched factorial block scheduling."""
+    def test_condition_role_taxonomy_and_randomization_metadata_propagation(self):
+        """Deterministic condition_role and propagation of randomization_id and block metadata."""
         self.assertEqual(classify_condition_role("GOLDEN_RATIO_SPHERES", "DUAL_TETRAHEDRON_MERKABA", 3.0), "TARGET_HYPOTHESIS")
         self.assertEqual(classify_condition_role("EQUAL_SPHERES", "NO_CORE", 3.0), "ACTIVE_CONTROL")
         self.assertEqual(classify_condition_role("RANDOM_SPHERES", "DUAL_TETRAHEDRON_MERKABA", 3.0), "ACTIVE_CONTROL")
         self.assertEqual(classify_condition_role("SHAM_OFF", "SHAM_OFF", 0.0), "SHAM")
 
         opt = ClosedLoopOptimizer()
-        b_id = opt.schedule_matched_factorial_block(base_freq_hz=73.2, amp_v=3.3)
+        b_id = opt.schedule_matched_factorial_block(base_freq_hz=73.2, amp_v=3.3, randomization_id="rand-test-1234")
         self.assertEqual(len(opt.queued_factorial_block), 7)
 
         dec1 = opt.propose_next_intervention(current_step=1)
         self.assertIn(dec1.condition_role, ["TARGET_HYPOTHESIS", "ACTIVE_CONTROL", "SHAM"])
         self.assertEqual(dec1.factorial_block_id, b_id)
         self.assertIsNotNone(dec1.factorial_block_index)
+        self.assertEqual(dec1.randomization_id, "rand-test-1234")
 
     def test_phase_stationary_autocorrelation_and_window_aligned_permutation(self):
         """Test phase-stationary tau estimation and identical-window block permutation test."""
@@ -173,7 +183,6 @@ class ResonanceScientificPhysicsTest(unittest.TestCase):
         sham_base = gen_ar1(60, 10.0, seed=3)
         sham_int = gen_ar1(68, 10.1, seed=4)
 
-        # Truncation and phase-stationary tau estimation
         tau_base = estimate_autocorrelation_time(active_base)
         tau_int = estimate_autocorrelation_time(active_int)
         self.assertGreaterEqual(tau_base, 1)

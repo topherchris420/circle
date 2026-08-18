@@ -2,12 +2,13 @@
 
 Features:
 1. One-Hot Categorical Gaussian Process Regressor (x in R^16, zero ordinal bias).
-2. Clean Confirmatory 2x2 Factorial Design ({Phi, Equal} x {Merkaba, Sphere}) with orthogonal coding.
-3. Strict Model Identifiability Gate: returns MODEL_NOT_IDENTIFIABLE if rank(X) < p (zero pseudo-ridge).
-4. Hierarchical Mixed-Effects Model for multi-session / repeated-trial evaluations.
-5. Deterministic condition_role taxonomy (TARGET_HYPOTHESIS, ACTIVE_CONTROL, SHAM, EXPLORATORY).
-6. Balanced Matched Factorial Block Scheduler (G x C at matched f and A).
-7. Isolated hypothesis candidate library and decoupled BlindTrialManifest.
+2. Clean Confirmatory 2x2 Factorial Design ({Phi, Equal} x {Merkaba, Sphere}) with orthogonal effect coding.
+3. Strict Identifiability & Condition Number Gate: returns MODEL_NOT_IDENTIFIABLE if rank(X) < p or ILL_CONDITIONED_DESIGN if kappa(XtX) > 1e4 (zero pseudo-ridge).
+4. Explicit Human-Readable Contrasts: phi_minus_equal (2*beta_G), merkaba_minus_sphere (2*beta_C), interaction_diff_in_diff (4*beta_GC).
+5. Session-Centered Variance Component / Generalized Least Squares (GLS) Evaluator for multi-session data.
+6. Deterministic condition_role taxonomy (TARGET_HYPOTHESIS, ACTIVE_CONTROL, SHAM, EXPLORATORY).
+7. Balanced Matched Factorial Block Scheduler with unique randomization_id and factorial_block_id.
+8. Isolated hypothesis candidate library and decoupled BlindTrialManifest.
 """
 
 from __future__ import annotations
@@ -79,6 +80,44 @@ def one_hot_encode(category: str, category_tuple: Tuple[str, ...]) -> List[float
     return vec
 
 
+def compute_matrix_condition_number(A: List[List[float]]) -> float:
+    """Compute 2-norm condition number kappa(A) via power iteration for symmetric positive semi-definite matrix."""
+    p = len(A)
+    if p == 0:
+        return 1.0
+
+    def norm(v: List[float]) -> float:
+        return math.sqrt(sum(x ** 2 for x in v))
+
+    def mat_vec(M: List[List[float]], v: List[float]) -> List[float]:
+        return [sum(M[i][j] * v[j] for j in range(p)) for i in range(p)]
+
+    # Largest eigenvalue lambda_max via power iteration
+    v = [1.0 / math.sqrt(p)] * p
+    for _ in range(30):
+        w = mat_vec(A, v)
+        nw = norm(w)
+        if nw < 1e-12:
+            return float("inf")
+        v = [x / nw for x in w]
+    lambda_max = sum(v[i] * sum(A[i][j] * v[j] for j in range(p)) for i in range(p))
+
+    # Shifted power iteration for smallest eigenvalue lambda_min
+    # B = lambda_max * I - A
+    B = [[(lambda_max if i == j else 0.0) - A[i][j] for j in range(p)] for i in range(p)]
+    u = [1.0 / math.sqrt(p)] * p
+    for _ in range(30):
+        w = mat_vec(B, u)
+        nw = norm(w)
+        if nw < 1e-12:
+            break
+        u = [x / nw for x in w]
+    mu = sum(u[i] * sum(B[i][j] * u[j] for j in range(p)) for i in range(p))
+    lambda_min = max(1e-12, lambda_max - mu)
+
+    return lambda_max / lambda_min
+
+
 @dataclass(frozen=True)
 class HypothesisCandidateLibrary:
     """Explicitly isolated catalog of hypothesis-motivated candidate frequencies."""
@@ -104,11 +143,7 @@ class ExperimentSearchSpace:
 
 
 class GaussianProcessRegressor:
-    """Multi-dimensional Gaussian Process with One-Hot Categorical and Continuous RBF Kernels.
-    
-    State vector:
-      x = [log10(f), A, g_0..g_3, c_0..c_4, m_0..m_4] in R^16
-    """
+    """Multi-dimensional Gaussian Process with One-Hot Categorical and Continuous RBF Kernels."""
 
     def __init__(
         self,
@@ -200,6 +235,7 @@ class ExperimentalDecision:
     condition_role: str
     factorial_block_id: Optional[str]
     factorial_block_index: Optional[int]
+    randomization_id: Optional[str]
     hypothesis_label: Optional[str]
     posterior_predicted_mean: float
     posterior_uncertainty_sigma: float
@@ -219,6 +255,7 @@ class ExperimentalDecision:
             "condition_role": self.condition_role,
             "factorial_block_id": self.factorial_block_id,
             "factorial_block_index": self.factorial_block_index,
+            "randomization_id": self.randomization_id,
             "hypothesis_label": self.hypothesis_label,
             "posterior_predicted_mean": round(self.posterior_predicted_mean, 4),
             "posterior_uncertainty_sigma": round(self.posterior_uncertainty_sigma, 4),
@@ -226,23 +263,20 @@ class ExperimentalDecision:
 
 
 class FactorialInteractionAnalyzer:
-    """Orthogonal 2x2 confirmatory factorial analyzer with strict rank/identifiability gating.
+    """Orthogonal 2x2 confirmatory factorial analyzer with rank and condition-number identifiability gating.
     
-    Confirmatory Model:
+    Model:
       R = beta_0 + beta_G * G + beta_C * C + beta_GC * (G x C) + eps
-    where:
-      G in {+1 (Phi), -1 (Equal)}
-      C in {+1 (Merkaba), -1 (Sphere)}
-      (G x C) in {+1, -1}
+    where G in {+1 (Phi), -1 (Equal)}, C in {+1 (Merkaba), -1 (Sphere)}.
     
-    Strict Identifiability:
-      Validates full column rank rank(X) == p without diagonal ridge regularization.
+    Human-Readable Contrasts:
+      phi_minus_equal = 2 * beta_G
+      merkaba_minus_sphere = 2 * beta_C
+      interaction_difference_of_differences = 4 * beta_GC
     """
 
     def __init__(self):
-        # Confirmatory trials: (G_code, C_code, response_score, trial_meta)
         self.confirmatory_trials: List[Tuple[float, float, float, Dict[str, Any]]] = []
-        # Separate control/robustness arms
         self.control_arms: List[Tuple[str, str, float, float]] = []
 
     def add_trial(
@@ -254,10 +288,7 @@ class FactorialInteractionAnalyzer:
         response_score: float,
         session_id: Optional[str] = None,
     ) -> None:
-        """Register trial into 2x2 confirmatory factor pool or separate control arm."""
         meta = {"session_id": session_id or "default_session", "freq": freq_hz, "amp": amp_v}
-
-        # Confirmatory 2x2 matrix: {Phi, Equal} x {Merkaba, Sphere}
         if geometry in ("GOLDEN_RATIO_SPHERES", "EQUAL_SPHERES") and core in ("DUAL_TETRAHEDRON_MERKABA", "SPHERICAL_CORE"):
             g_code = 1.0 if geometry == "GOLDEN_RATIO_SPHERES" else -1.0
             c_code = 1.0 if core == "DUAL_TETRAHEDRON_MERKABA" else -1.0
@@ -266,7 +297,6 @@ class FactorialInteractionAnalyzer:
             self.control_arms.append((geometry, core, amp_v, response_score))
 
     def _compute_matrix_rank_and_invert(self, XtX: List[List[float]]) -> Tuple[int, Optional[List[List[float]]]]:
-        """Compute exact rank and inverse of matrix XtX using Gauss-Jordan with partial pivoting."""
         p = len(XtX)
         mat = [row[:] + [1.0 if i == r else 0.0 for i in range(p)] for r, row in enumerate(XtX)]
         rank = 0
@@ -293,8 +323,8 @@ class FactorialInteractionAnalyzer:
         return rank, inv
 
     def estimate_confirmatory_effects(self) -> Dict[str, Any]:
-        """Estimate OLS 2x2 confirmatory parameters with strict identifiability check."""
-        p = 4  # [1, G, C, G*C]
+        """Estimate OLS 2x2 confirmatory parameters with rank and condition number validation."""
+        p = 4
         n = len(self.confirmatory_trials)
 
         if n < p:
@@ -312,17 +342,28 @@ class FactorialInteractionAnalyzer:
             X.append([1.0, g, c, g * c])
             y.append(r)
 
-        # XtX (p x p) and Xty (p x 1)
         XtX = [[sum(X[i][j] * X[i][k] for i in range(n)) for k in range(p)] for j in range(p)]
         Xty = [sum(X[i][j] * y[i] for i in range(n)) for j in range(p)]
 
-        # Strict identifiability check without pseudo-ridge regularization
         rank, XtX_inv = self._compute_matrix_rank_and_invert(XtX)
+        cond_num = compute_matrix_condition_number(XtX)
+
         if rank < p or XtX_inv is None:
             return {
                 "identifiability_status": "MODEL_NOT_IDENTIFIABLE",
                 "reason": "DESIGN_MATRIX_RANK_DEFICIENT",
                 "matrix_rank": rank,
+                "condition_number": round(cond_num, 2),
+                "parameters_count": p,
+                "samples_count": n,
+            }
+
+        if cond_num > 1e4:
+            return {
+                "identifiability_status": "ILL_CONDITIONED_DESIGN",
+                "reason": f"MATRIX_CONDITION_NUMBER_TOO_HIGH_{cond_num:.1f}",
+                "matrix_rank": rank,
+                "condition_number": round(cond_num, 2),
                 "parameters_count": p,
                 "samples_count": n,
             }
@@ -342,18 +383,35 @@ class FactorialInteractionAnalyzer:
         if df <= 2:
             warning_msg = f"SMALL_SAMPLE_DF_{df}_CRITICAL_VALUE_IS_{t_crit:.2f}"
 
+        # Explicit Human-Readable Contrasts:
+        phi_diff = 2.0 * betas[1]
+        phi_diff_ci = [round(2.0 * (betas[1] - t_crit * se[1]), 4), round(2.0 * (betas[1] + t_crit * se[1]), 4)]
+
+        merkaba_diff = 2.0 * betas[2]
+        merkaba_diff_ci = [round(2.0 * (betas[2] - t_crit * se[2]), 4), round(2.0 * (betas[2] + t_crit * se[2]), 4)]
+
+        inter_diff = 4.0 * betas[3]
+        inter_diff_ci = [round(4.0 * (betas[3] - t_crit * se[3]), 4), round(4.0 * (betas[3] + t_crit * se[3]), 4)]
+
         return {
             "identifiability_status": "IDENTIFIED_OLS",
+            "matrix_rank": rank,
+            "condition_number": round(cond_num, 3),
             "beta_0_intercept": round(betas[0], 4),
-            "beta_G_phi_vs_equal": round(betas[1], 4),
+            "beta_G_effect_coded": round(betas[1], 4),
             "beta_G_se": round(se[1], 4),
-            "beta_G_ci": [round(betas[1] - t_crit * se[1], 4), round(betas[1] + t_crit * se[1], 4)],
-            "beta_C_merkaba_vs_sphere": round(betas[2], 4),
+            "beta_C_effect_coded": round(betas[2], 4),
             "beta_C_se": round(se[2], 4),
-            "beta_C_ci": [round(betas[2] - t_crit * se[2], 4), round(betas[2] + t_crit * se[2], 4)],
-            "beta_GC_interaction": round(betas[3], 4),
+            "beta_GC_effect_coded": round(betas[3], 4),
             "beta_GC_se": round(se[3], 4),
-            "beta_GC_ci": [round(betas[3] - t_crit * se[3], 4), round(betas[3] + t_crit * se[3], 4)],
+            "contrasts": {
+                "phi_minus_equal": round(phi_diff, 4),
+                "phi_minus_equal_ci": phi_diff_ci,
+                "merkaba_minus_sphere": round(merkaba_diff, 4),
+                "merkaba_minus_sphere_ci": merkaba_diff_ci,
+                "interaction_difference_of_differences": round(inter_diff, 4),
+                "interaction_difference_of_differences_ci": inter_diff_ci,
+            },
             "residual_std_error": round(rse, 4),
             "residual_degrees_of_freedom": df,
             "student_t_critical_value": t_crit,
@@ -362,16 +420,16 @@ class FactorialInteractionAnalyzer:
         }
 
 
-class HierarchicalTrialEvaluator:
-    """Hierarchical mixed-effects evaluator across repeated experimental sessions/subjects.
+class SessionCenteredVarianceComponentEvaluator:
+    """Repeated-measures variance-component and generalized least-squares (GLS) trial evaluator.
     
     Model:
       R_{s, j} = beta_0 + beta_G * G_{s, j} + beta_C * C_{s, j} + beta_GC * (G_{s, j} x C_{s, j}) + u_s + eps_{s, j}
-      where u_s ~ N(0, sigma_u^2) is the session-specific random intercept.
+      u_s ~ N(0, sigma_u^2), eps_{s, j} ~ N(0, sigma_e^2)
     """
 
     def __init__(self):
-        self.session_trials: Dict[str, List[Tuple[float, float, float]]] = {}  # session_id -> [(G, C, R)]
+        self.session_trials: Dict[str, List[Tuple[float, float, float]]] = {}
 
     def add_trial(self, session_id: str, geometry: str, core: str, response_score: float) -> None:
         if geometry in ("GOLDEN_RATIO_SPHERES", "EQUAL_SPHERES") and core in ("DUAL_TETRAHEDRON_MERKABA", "SPHERICAL_CORE"):
@@ -381,27 +439,24 @@ class HierarchicalTrialEvaluator:
                 self.session_trials[session_id] = []
             self.session_trials[session_id].append((g_code, c_code, response_score))
 
-    def fit_mixed_effects(self) -> Dict[str, Any]:
-        """Estimate fixed effects and inter-session random intercept variance."""
+    def fit_variance_components(self) -> Dict[str, Any]:
+        """Estimate fixed-effect contrasts and session random intercept variance."""
         num_sessions = len(self.session_trials)
         all_trials = [t for s in self.session_trials.values() for t in s]
         total_n = len(all_trials)
 
         if num_sessions < 2 or total_n < 8:
             return {
-                "status": "INSUFFICIENT_SESSIONS_FOR_HIERARCHICAL_MODEL",
+                "status": "INSUFFICIENT_SESSIONS_FOR_VARIANCE_COMPONENT_MODEL",
                 "sessions_count": num_sessions,
                 "total_trials": total_n,
             }
 
-        # Session-specific means
         session_means = {s: sum(t[2] for t in trials) / len(trials) for s, trials in self.session_trials.items()}
         grand_mean = sum(session_means.values()) / num_sessions
 
-        # Between-session variance sigma_u^2
         sigma_u2 = sum((m - grand_mean) ** 2 for m in session_means.values()) / max(1, num_sessions - 1)
 
-        # Within-session centered OLS
         centered_X = []
         centered_y = []
         for s, trials in self.session_trials.items():
@@ -418,7 +473,7 @@ class HierarchicalTrialEvaluator:
         rank, XtX_inv = analyzer._compute_matrix_rank_and_invert(XtX)
         if rank < p or XtX_inv is None:
             return {
-                "status": "HIERARCHICAL_MODEL_RANK_DEFICIENT",
+                "status": "VARIANCE_COMPONENT_MODEL_RANK_DEFICIENT",
                 "matrix_rank": rank,
             }
 
@@ -426,7 +481,6 @@ class HierarchicalTrialEvaluator:
         resids = [centered_y[i] - sum(centered_X[i][j] * betas[j] for j in range(p)) for i in range(len(centered_y))]
         sigma_e2 = sum(r ** 2 for r in resids) / max(1, total_n - num_sessions - p)
 
-        # Clustered standard errors
         se = [math.sqrt(max(1e-8, (sigma_e2 + sigma_u2 / num_sessions) * XtX_inv[j][j])) for j in range(p)]
         df = max(1, num_sessions - 1)
         t_crit = get_student_t_critical_value(df)
@@ -437,14 +491,23 @@ class HierarchicalTrialEvaluator:
             "total_trials": total_n,
             "between_session_variance_sigma_u2": round(sigma_u2, 4),
             "within_session_variance_sigma_e2": round(sigma_e2, 4),
-            "beta_G_phi_vs_equal": round(betas[0], 4),
-            "beta_G_ci": [round(betas[0] - t_crit * se[0], 4), round(betas[0] + t_crit * se[0], 4)],
-            "beta_C_merkaba_vs_sphere": round(betas[1], 4),
-            "beta_C_ci": [round(betas[1] - t_crit * se[1], 4), round(betas[1] + t_crit * se[1], 4)],
-            "beta_GC_interaction": round(betas[2], 4),
-            "beta_GC_ci": [round(betas[2] - t_crit * se[2], 4), round(betas[2] + t_crit * se[2], 4)],
+            "beta_G_effect_coded": round(betas[0], 4),
+            "beta_C_effect_coded": round(betas[1], 4),
+            "beta_GC_effect_coded": round(betas[2], 4),
+            "contrasts": {
+                "phi_minus_equal": round(2.0 * betas[0], 4),
+                "phi_minus_equal_ci": [round(2.0 * (betas[0] - t_crit * se[0]), 4), round(2.0 * (betas[0] + t_crit * se[0]), 4)],
+                "merkaba_minus_sphere": round(2.0 * betas[1], 4),
+                "merkaba_minus_sphere_ci": [round(2.0 * (betas[1] - t_crit * se[1]), 4), round(2.0 * (betas[1] + t_crit * se[1]), 4)],
+                "interaction_difference_of_differences": round(4.0 * betas[2], 4),
+                "interaction_difference_of_differences_ci": [round(4.0 * (betas[2] - t_crit * se[2]), 4), round(4.0 * (betas[2] + t_crit * se[2]), 4)],
+            },
             "effective_degrees_of_freedom": df,
         }
+
+
+# Alias for backward compatibility
+HierarchicalTrialEvaluator = SessionCenteredVarianceComponentEvaluator
 
 
 class BlindTrialManifest:
@@ -484,7 +547,7 @@ class ClosedLoopOptimizer:
         self.manifest = BlindTrialManifest()
         self.gp = GaussianProcessRegressor(length_scales=(0.5, 2.0, 1.0, 1.0, 1.0))
         self.factorial_analyzer = FactorialInteractionAnalyzer()
-        self.hierarchical_evaluator = HierarchicalTrialEvaluator()
+        self.variance_evaluator = SessionCenteredVarianceComponentEvaluator()
 
         self.observed_x: List[List[float]] = []
         self.observed_y: List[float] = []
@@ -500,7 +563,6 @@ class ClosedLoopOptimizer:
         return [log_f, amp] + g_vec + c_vec + m_vec
 
     def update_posterior(self, last_decision: ExperimentalDecision, observed_score: float, session_id: Optional[str] = None) -> None:
-        """Update multi-dimensional Gaussian Process model, Factorial analyzer, and Hierarchical evaluator."""
         feat = self._build_feature_vector(
             last_decision.target_frequency_hz,
             last_decision.amplitude_v,
@@ -521,7 +583,7 @@ class ClosedLoopOptimizer:
             observed_score,
             session_id=s_id,
         )
-        self.hierarchical_evaluator.add_trial(
+        self.variance_evaluator.add_trial(
             s_id,
             last_decision.geometry_type,
             last_decision.core_geometry,
@@ -533,10 +595,12 @@ class ClosedLoopOptimizer:
         base_freq_hz: float = 73.2,
         amp_v: float = 3.3,
         block_id: Optional[str] = None,
+        randomization_id: Optional[str] = None,
     ) -> str:
-        """Queue a balanced, randomized factorial block of orthogonal 2x2 confirmatory conditions + controls."""
+        """Queue a balanced, randomized factorial block with unique block and randomization IDs."""
         b_id = block_id or f"blk-fact-{secrets.token_hex(3)}"
-        # 4 confirmatory cells + 3 control arms
+        r_id = randomization_id or f"rand-{secrets.token_hex(4)}"
+
         block_conditions = [
             # 2x2 Confirmatory Core
             {"geom": "GOLDEN_RATIO_SPHERES", "core": "DUAL_TETRAHEDRON_MERKABA", "freq": base_freq_hz, "amp": amp_v, "mod": "NONE_CW"},
@@ -552,6 +616,7 @@ class ClosedLoopOptimizer:
         for idx, cond in enumerate(block_conditions):
             cond["factorial_block_id"] = b_id
             cond["factorial_block_index"] = idx
+            cond["randomization_id"] = r_id
             self.queued_factorial_block.append(cond)
         return b_id
 
@@ -562,14 +627,13 @@ class ClosedLoopOptimizer:
         hypothesis_set_name: Optional[str] = None,
         force_control_ratio: float = 0.33,
     ) -> ExperimentalDecision:
-        """Propose next intervention using queued factorial blocks or one-hot categorical GP-UCB."""
+        """Propose next intervention propagating randomization_id and factorial block metadata."""
         if last_response_score is not None and self.history:
             self.update_posterior(self.history[-1], last_response_score)
 
         decision_id = f"dec-{current_step:04d}"
         trial_token = f"TRIAL-{secrets.token_hex(4).upper()}"
 
-        # 1. Execute queued factorial block if available
         if self.queued_factorial_block:
             entry = self.queued_factorial_block.pop(0)
             geom = entry["geom"]
@@ -579,11 +643,13 @@ class ClosedLoopOptimizer:
             mod = entry["mod"]
             b_id = entry.get("factorial_block_id")
             b_idx = entry.get("factorial_block_index")
+            r_id = entry.get("randomization_id")
             hyp_label = "MATCHED_FACTORIAL_BLOCK_EXECUTION"
             mu, sigma = 0.0, 1.0
         else:
             b_id = None
             b_idx = None
+            r_id = None
             is_control = (self.rng.random() < force_control_ratio) or (current_step % 3 == 0)
 
             if is_control:
@@ -677,6 +743,7 @@ class ClosedLoopOptimizer:
             "condition_role": role,
             "factorial_block_id": b_id,
             "factorial_block_index": b_idx,
+            "randomization_id": r_id,
         }
         self.manifest.register_trial(trial_token, raw_config)
 
@@ -694,6 +761,7 @@ class ClosedLoopOptimizer:
             condition_role=role,
             factorial_block_id=b_id,
             factorial_block_index=b_idx,
+            randomization_id=r_id,
             hypothesis_label=hyp_label,
             posterior_predicted_mean=mu,
             posterior_uncertainty_sigma=sigma,

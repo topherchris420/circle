@@ -101,6 +101,26 @@
       "uniqueItems": true
     }
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "provenance": { "const": "INTERVENTION" }
+        }
+      },
+      "then": {
+        "required": ["decision_id", "condition_role", "blinded_trial_token"]
+      }
+    },
+    {
+      "if": {
+        "required": ["factorial_block_id"]
+      },
+      "then": {
+        "required": ["factorial_block_id", "factorial_block_index", "randomization_id"]
+      }
+    }
+  ],
   "$defs": {
     "geometry": {
       "type": "object",

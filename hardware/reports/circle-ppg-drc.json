@@ -1,7 +1,7 @@
 {
     "$schema": "https://schemas.kicad.org/drc.v1.json",
     "coordinate_units": "mm",
-    "date": "2026-08-17T18:53:15",
+    "date": "2026-08-18T18:59:29",
     "ignored_checks": [
         {
             "description": "Footprint has no courtyard defined",
@@ -42,7 +42,7 @@
                         "x": 4.45,
                         "y": 8.95
                     },
-                    "uuid": "4f948593-36df-4a19-8b10-63288ddc59b9"
+                    "uuid": "69a414a2-7b13-40a8-8bc0-aadeb86f7a4d"
                 },
                 {
                     "description": "Pad 4 [PPG_LOGIC_GND] of U102 on F.Cu",
@@ -50,7 +50,7 @@
                         "x": 6.55,
                         "y": 8.0
                     },
-                    "uuid": "fcf1a661-4c58-4551-9534-5ee83ed2c4bd"
+                    "uuid": "f5a2d6d3-b377-4c4d-8fb9-e44187967006"
                 }
             ],
             "severity": "error",
@@ -65,7 +65,7 @@
                         "x": 4.75,
                         "y": 11.75
                     },
-                    "uuid": "a7b0e71c-8f4e-4d15-97fb-427c733024b4"
+                    "uuid": "f25ac9f6-d8cb-4de7-bbcc-dd9d63abcf64"
                 },
                 {
                     "description": "Pad 2 [PPG_LOGIC_GND] of U102 on F.Cu",
@@ -73,7 +73,7 @@
                         "x": 4.45,
                         "y": 8.95
                     },
-                    "uuid": "4f948593-36df-4a19-8b10-63288ddc59b9"
+                    "uuid": "69a414a2-7b13-40a8-8bc0-aadeb86f7a4d"
                 }
             ],
             "severity": "error",
@@ -88,7 +88,7 @@
                         "x": 4.75,
                         "y": 12.5
                     },
-                    "uuid": "e7ae20ab-e24d-49fb-b217-4d28ed55a040"
+                    "uuid": "d1406b40-1829-4b08-9305-db51a676ad3e"
                 },
                 {
                     "description": "Pad 6 [PPG_LOGIC_GND] of U105 on F.Cu",
@@ -96,7 +96,7 @@
                         "x": 5.25,
                         "y": 12.5
                     },
-                    "uuid": "d51e8930-cc0b-4ce0-85f3-3ad9e7599c8b"
+                    "uuid": "6b174a5d-f8a6-4cee-bcfb-4afc3b5ee865"
                 }
             ],
             "severity": "error",
@@ -111,7 +111,7 @@
                         "x": 4.75,
                         "y": 12.5
                     },
-                    "uuid": "e7ae20ab-e24d-49fb-b217-4d28ed55a040"
+                    "uuid": "d1406b40-1829-4b08-9305-db51a676ad3e"
                 },
                 {
                     "description": "Pad 1 [PPG_LOGIC_GND] of U105 on F.Cu",
@@ -119,7 +119,7 @@
                         "x": 4.75,
                         "y": 11.75
                     },
-                    "uuid": "a7b0e71c-8f4e-4d15-97fb-427c733024b4"
+                    "uuid": "f25ac9f6-d8cb-4de7-bbcc-dd9d63abcf64"
                 }
             ],
             "severity": "error",
@@ -134,7 +134,7 @@
                         "x": 5.25,
                         "y": 11.75
                     },
-                    "uuid": "9bcd334a-2fd0-4d4a-82cd-34e398c53dec"
+                    "uuid": "d5ca1aaf-56d7-4955-ba3d-7d75c452e173"
                 },
                 {
                     "description": "Pad 1 [PPG_LOGIC_GND] of U105 on F.Cu",
@@ -142,7 +142,7 @@
                         "x": 4.75,
                         "y": 11.75
                     },
-                    "uuid": "a7b0e71c-8f4e-4d15-97fb-427c733024b4"
+                    "uuid": "f25ac9f6-d8cb-4de7-bbcc-dd9d63abcf64"
                 }
             ],
             "severity": "error",
@@ -157,7 +157,7 @@
                         "x": 5.25,
                         "y": 11.75
                     },
-                    "uuid": "9bcd334a-2fd0-4d4a-82cd-34e398c53dec"
+                    "uuid": "d5ca1aaf-56d7-4955-ba3d-7d75c452e173"
                 },
                 {
                     "description": "Pad 3 [PPG_LOGIC_GND] of U105 on F.Cu",
@@ -165,7 +165,7 @@
                         "x": 5.75,
                         "y": 11.75
                     },
-                    "uuid": "3ebf638e-6b39-46b2-a657-ea489d852a3f"
+                    "uuid": "983778f0-d1c8-45b3-a87d-b028fbf9a2ff"
                 }
             ],
             "severity": "error",
@@ -180,7 +180,7 @@
                         "x": 5.25,
                         "y": 12.5
                     },
-                    "uuid": "d51e8930-cc0b-4ce0-85f3-3ad9e7599c8b"
+                    "uuid": "6b174a5d-f8a6-4cee-bcfb-4afc3b5ee865"
                 },
                 {
                     "description": "Pad 7 [PPG_LOGIC_GND] of U105 on F.Cu",
@@ -188,7 +188,7 @@
                         "x": 5.75,
                         "y": 12.5
                     },
-                    "uuid": "ea6e801f-b74b-46d9-92d6-0c81f9b2a672"
+                    "uuid": "ae22e7c7-120e-412f-a411-341fc371eb1f"
                 }
             ],
             "severity": "error",
@@ -203,7 +203,7 @@
                         "x": 5.25,
                         "y": 13.25
                     },
-                    "uuid": "e9ce7fdd-baf9-407a-810f-386f1f1b0f45"
+                    "uuid": "e4978219-db5d-4242-a6e8-1ef8015df884"
                 },
                 {
                     "description": "Pad 9 [PPG_LOGIC_GND] of U105 on F.Cu",
@@ -211,7 +211,7 @@
                         "x": 4.75,
                         "y": 13.25
                     },
-                    "uuid": "8b6d8c8b-7a4c-4770-b680-d93cdbcd37f5"
+                    "uuid": "86252f74-7ade-426f-94bd-91fb785da757"
                 }
             ],
             "severity": "error",
@@ -226,7 +226,7 @@
                         "x": 5.75,
                         "y": 11.75
                     },
-                    "uuid": "3ebf638e-6b39-46b2-a657-ea489d852a3f"
+                    "uuid": "983778f0-d1c8-45b3-a87d-b028fbf9a2ff"
                 },
                 {
                     "description": "Pad 4 [PPG_LOGIC_GND] of U105 on F.Cu",
@@ -234,7 +234,7 @@
                         "x": 6.25,
                         "y": 11.75
                     },
-                    "uuid": "830e2613-9570-439c-9ffe-dac1637db46f"
+                    "uuid": "b099fbb8-d3ad-4b47-bcf6-fd896071ceb4"
                 }
             ],
             "severity": "error",
@@ -249,7 +249,7 @@
                         "x": 5.75,
                         "y": 12.5
                     },
-                    "uuid": "ea6e801f-b74b-46d9-92d6-0c81f9b2a672"
+                    "uuid": "ae22e7c7-120e-412f-a411-341fc371eb1f"
                 },
                 {
                     "description": "Pad 8 [PPG_LOGIC_GND] of U105 on F.Cu",
@@ -257,7 +257,7 @@
                         "x": 6.25,
                         "y": 12.5
                     },
-                    "uuid": "a03227cb-e29a-4825-805e-6daa7e62750d"
+                    "uuid": "980f2d34-0322-4f99-ba1d-9dfb13c0e9a2"
                 }
             ],
             "severity": "error",
@@ -272,7 +272,7 @@
                         "x": 5.75,
                         "y": 13.25
                     },
-                    "uuid": "7ed4ae87-4907-47ab-82fe-69d0d00b4eaa"
+                    "uuid": "fb34b9b4-c5b9-417b-b320-15cb50e8891f"
                 },
                 {
                     "description": "Pad 10 [PPG_LOGIC_GND] of U105 on F.Cu",
@@ -280,7 +280,7 @@
                         "x": 5.25,
                         "y": 13.25
                     },
-                    "uuid": "e9ce7fdd-baf9-407a-810f-386f1f1b0f45"
+                    "uuid": "e4978219-db5d-4242-a6e8-1ef8015df884"
                 }
             ],
             "severity": "error",
@@ -295,7 +295,7 @@
                         "x": 5.75,
                         "y": 13.25
                     },
-                    "uuid": "7ed4ae87-4907-47ab-82fe-69d0d00b4eaa"
+                    "uuid": "fb34b9b4-c5b9-417b-b320-15cb50e8891f"
                 },
                 {
                     "description": "Pad 12 [PPG_LOGIC_GND] of U105 on F.Cu",
@@ -303,7 +303,7 @@
                         "x": 6.25,
                         "y": 13.25
                     },
-                    "uuid": "a8629a20-5061-4649-a8f4-fee65ebf0792"
+                    "uuid": "79673e17-238f-460c-9d9a-e8596bbdbfaa"
                 }
             ],
             "severity": "error",
@@ -318,7 +318,7 @@
                         "x": 6.05,
                         "y": 3.5
                     },
-                    "uuid": "4e75cbc0-95db-4714-adf6-4f86f38bf7fb"
+                    "uuid": "536edfa6-8c95-48fc-8fe0-39691be58171"
                 },
                 {
                     "description": "Pad 4 [PPG_LOGIC_GND] of U102 on F.Cu",
@@ -326,7 +326,7 @@
                         "x": 6.55,
                         "y": 8.0
                     },
-                    "uuid": "fcf1a661-4c58-4551-9534-5ee83ed2c4bd"
+                    "uuid": "f5a2d6d3-b377-4c4d-8fb9-e44187967006"
                 }
             ],
             "severity": "error",
@@ -341,7 +341,7 @@
                         "x": 6.25,
                         "y": 13.25
                     },
-                    "uuid": "a8629a20-5061-4649-a8f4-fee65ebf0792"
+                    "uuid": "79673e17-238f-460c-9d9a-e8596bbdbfaa"
                 },
                 {
                     "description": "Pad 8 [PPG_LOGIC_GND] of U105 on F.Cu",
@@ -349,7 +349,7 @@
                         "x": 6.25,
                         "y": 12.5
                     },
-                    "uuid": "a03227cb-e29a-4825-805e-6daa7e62750d"
+                    "uuid": "980f2d34-0322-4f99-ba1d-9dfb13c0e9a2"
                 }
             ],
             "severity": "error",
@@ -364,7 +364,7 @@
                         "x": 6.25,
                         "y": 13.25
                     },
-                    "uuid": "a8629a20-5061-4649-a8f4-fee65ebf0792"
+                    "uuid": "79673e17-238f-460c-9d9a-e8596bbdbfaa"
                 },
                 {
                     "description": "Pad 8 [PPG_LOGIC_GND] of J101 on F.Cu",
@@ -372,7 +372,7 @@
                         "x": 8.9,
                         "y": 14.5
                     },
-                    "uuid": "38396eac-ed76-4d85-9397-83fcfd5e1132"
+                    "uuid": "a62316f1-d617-4b2f-8a40-519e268d7dc2"
                 }
             ],
             "severity": "error",
@@ -387,7 +387,7 @@
                         "x": 9.55,
                         "y": 3.5
                     },
-                    "uuid": "84c11952-a386-4a1d-9423-e44756b34466"
+                    "uuid": "5fa042d7-446f-4121-a4f6-3f6777d8f265"
                 },
                 {
                     "description": "Pad 2 [PPG_LOGIC_GND] of D101 on F.Cu",
@@ -395,7 +395,7 @@
                         "x": 6.05,
                         "y": 3.5
                     },
-                    "uuid": "4e75cbc0-95db-4714-adf6-4f86f38bf7fb"
+                    "uuid": "536edfa6-8c95-48fc-8fe0-39691be58171"
                 }
             ],
             "severity": "error",
@@ -410,7 +410,7 @@
                         "x": 11.1,
                         "y": 5.6
                     },
-                    "uuid": "dfda7aa6-2717-4021-bb0c-71ef7e9b9a34"
+                    "uuid": "47892c4c-f86a-4c64-8f04-71036eb88d54"
                 },
                 {
                     "description": "Pad 2 [PPG_LOGIC_GND] of C101 on F.Cu",
@@ -418,7 +418,7 @@
                         "x": 9.55,
                         "y": 3.5
                     },
-                    "uuid": "84c11952-a386-4a1d-9423-e44756b34466"
+                    "uuid": "5fa042d7-446f-4121-a4f6-3f6777d8f265"
                 }
             ],
             "severity": "error",
@@ -433,7 +433,7 @@
                         "x": 11.1,
                         "y": 5.6
                     },
-                    "uuid": "dfda7aa6-2717-4021-bb0c-71ef7e9b9a34"
+                    "uuid": "47892c4c-f86a-4c64-8f04-71036eb88d54"
                 },
                 {
                     "description": "Pad 14 [PPG_LOGIC_GND] of U101 on F.Cu",
@@ -441,7 +441,7 @@
                         "x": 13.9,
                         "y": 5.6
                     },
-                    "uuid": "1501194b-5d10-4907-9395-9503f5e704fe"
+                    "uuid": "2009cf6f-a75c-4c00-b662-7a5af500cee9"
                 }
             ],
             "severity": "error",
@@ -456,7 +456,7 @@
                         "x": 11.1,
                         "y": 10.4
                     },
-                    "uuid": "52317771-7272-4506-9b10-2c73d120e3b4"
+                    "uuid": "47ce40aa-741a-4e73-8b26-4fcab89519a3"
                 },
                 {
                     "description": "Pad 8 [PPG_LOGIC_GND] of U101 on F.Cu",
@@ -464,7 +464,7 @@
                         "x": 13.9,
                         "y": 10.4
                     },
-                    "uuid": "5b9ceb95-da47-4a6a-bfe3-16a21654abbb"
+                    "uuid": "b5ef0775-b5ef-400b-aee2-d8fc4b011efb"
                 }
             ],
             "severity": "error",
@@ -479,7 +479,7 @@
                         "x": 13.9,
                         "y": 9.6
                     },
-                    "uuid": "c2e3d25a-6307-4472-a91c-b11e4af5079c"
+                    "uuid": "4b411645-39f3-4437-9bbd-67d6013529a7"
                 },
                 {
                     "description": "Pad 14 [PPG_LOGIC_GND] of U101 on F.Cu",
@@ -487,7 +487,7 @@
                         "x": 13.9,
                         "y": 5.6
                     },
-                    "uuid": "1501194b-5d10-4907-9395-9503f5e704fe"
+                    "uuid": "2009cf6f-a75c-4c00-b662-7a5af500cee9"
                 }
             ],
             "severity": "error",
@@ -502,7 +502,7 @@
                         "x": 13.9,
                         "y": 9.6
                     },
-                    "uuid": "c2e3d25a-6307-4472-a91c-b11e4af5079c"
+                    "uuid": "4b411645-39f3-4437-9bbd-67d6013529a7"
                 },
                 {
                     "description": "Pad 4 [PPG_LOGIC_GND] of U103 on F.Cu",
@@ -510,7 +510,7 @@
                         "x": 18.35,
                         "y": 8.75
                     },
-                    "uuid": "f989cc92-22e0-4284-b35a-5b40c3ede45e"
+                    "uuid": "2877f092-a596-4ebb-a6c2-5caa0d83e2b8"
                 }
             ],
             "severity": "error",
@@ -525,7 +525,7 @@
                         "x": 13.9,
                         "y": 10.4
                     },
-                    "uuid": "5b9ceb95-da47-4a6a-bfe3-16a21654abbb"
+                    "uuid": "b5ef0775-b5ef-400b-aee2-d8fc4b011efb"
                 },
                 {
                     "description": "Pad 9 [PPG_LOGIC_GND] of U101 on F.Cu",
@@ -533,7 +533,7 @@
                         "x": 13.9,
                         "y": 9.6
                     },
-                    "uuid": "c2e3d25a-6307-4472-a91c-b11e4af5079c"
+                    "uuid": "4b411645-39f3-4437-9bbd-67d6013529a7"
                 }
             ],
             "severity": "error",
@@ -548,7 +548,7 @@
                         "x": 18.45,
                         "y": 13.45
                     },
-                    "uuid": "f95e4aee-86f9-4ff4-82ca-f7473a1cf6f6"
+                    "uuid": "e6746714-ed30-438b-9ab4-e890ced49c54"
                 },
                 {
                     "description": "Pad 4 [PPG_LOGIC_GND] of U104 on F.Cu",
@@ -556,7 +556,7 @@
                         "x": 20.55,
                         "y": 12.5
                     },
-                    "uuid": "ed3ee6ef-4d29-4552-8039-e50ef71de4cc"
+                    "uuid": "885b1987-e73f-44ec-9789-6f46a1055c64"
                 }
             ],
             "severity": "error",
@@ -571,7 +571,7 @@
                         "x": 20.55,
                         "y": 12.5
                     },
-                    "uuid": "ed3ee6ef-4d29-4552-8039-e50ef71de4cc"
+                    "uuid": "885b1987-e73f-44ec-9789-6f46a1055c64"
                 },
                 {
                     "description": "Pad 4 [PPG_LOGIC_GND] of U103 on F.Cu",
@@ -579,7 +579,7 @@
                         "x": 18.35,
                         "y": 8.75
                     },
-                    "uuid": "f989cc92-22e0-4284-b35a-5b40c3ede45e"
+                    "uuid": "2877f092-a596-4ebb-a6c2-5caa0d83e2b8"
                 }
             ],
             "severity": "error",
@@ -594,7 +594,7 @@
                         "x": 7.7,
                         "y": 14.5
                     },
-                    "uuid": "d8b9f42e-9b27-4251-80f3-f104af845497"
+                    "uuid": "49fa1708-8acc-436c-b71e-01d1b87d548d"
                 },
                 {
                     "description": "Pad 11 [PPG_LED_GND] of U101 on F.Cu",
@@ -602,7 +602,7 @@
                         "x": 13.9,
                         "y": 8.0
                     },
-                    "uuid": "0b2fc1cf-d473-43e8-aa55-693b2b17162b"
+                    "uuid": "6ad0ab46-138e-49e6-b2bb-ee71a76efceb"
                 }
             ],
             "severity": "error",
@@ -617,7 +617,7 @@
                         "x": 13.9,
                         "y": 6.4
                     },
-                    "uuid": "9c58377f-1fc5-4727-a002-9c58ea93e5f6"
+                    "uuid": "0db857f6-98db-4219-aa65-43cc8a3ec5ff"
                 },
                 {
                     "description": "Pad 2 [PPG_LED_GND] of C102 on F.Cu",
@@ -625,7 +625,7 @@
                         "x": 12.55,
                         "y": 3.5
                     },
-                    "uuid": "e230bcd3-a61e-47eb-a8e8-cc1b713e152d"
+                    "uuid": "be62b367-c6f8-41bc-b130-133ac7b45a52"
                 }
             ],
             "severity": "error",
@@ -640,7 +640,7 @@
                         "x": 13.9,
                         "y": 7.2
                     },
-                    "uuid": "b3a37395-3b2f-4632-9cc8-72f83b0ad0ae"
+                    "uuid": "42a36116-f14c-4a97-b5b4-018d13caaa86"
                 },
                 {
                     "description": "Pad 13 [PPG_LED_GND] of U101 on F.Cu",
@@ -648,7 +648,7 @@
                         "x": 13.9,
                         "y": 6.4
                     },
-                    "uuid": "9c58377f-1fc5-4727-a002-9c58ea93e5f6"
+                    "uuid": "0db857f6-98db-4219-aa65-43cc8a3ec5ff"
                 }
             ],
             "severity": "error",
@@ -663,7 +663,7 @@
                         "x": 13.9,
                         "y": 8.0
                     },
-                    "uuid": "0b2fc1cf-d473-43e8-aa55-693b2b17162b"
+                    "uuid": "6ad0ab46-138e-49e6-b2bb-ee71a76efceb"
                 },
                 {
                     "description": "Pad 12 [PPG_LED_GND] of U101 on F.Cu",
@@ -671,7 +671,7 @@
                         "x": 13.9,
                         "y": 7.2
                     },
-                    "uuid": "b3a37395-3b2f-4632-9cc8-72f83b0ad0ae"
+                    "uuid": "42a36116-f14c-4a97-b5b4-018d13caaa86"
                 }
             ],
             "severity": "error",
@@ -686,7 +686,7 @@
                         "x": 4.45,
                         "y": 7.05
                     },
-                    "uuid": "161f8a81-7fed-4124-ba8e-642d99192f04"
+                    "uuid": "8c82d451-cd9b-40a5-895d-7c3eb929c8fd"
                 },
                 {
                     "description": "Pad 3 [PPG_3V3] of U102 on F.Cu",
@@ -694,7 +694,7 @@
                         "x": 6.55,
                         "y": 7.05
                     },
-                    "uuid": "f7f8cd47-92fb-4593-9937-6141eb5b394c"
+                    "uuid": "9ad59317-e9cb-45ba-b2ce-eb7b2aac91d4"
                 }
             ],
             "severity": "error",
@@ -709,7 +709,7 @@
                         "x": 4.95,
                         "y": 3.5
                     },
-                    "uuid": "1c816fff-d1ff-4a0d-8ee2-dd0e10448610"
+                    "uuid": "91e7120c-3ce6-4ba4-bc35-e47aae19544e"
                 },
                 {
                     "description": "Pad 1 [PPG_3V3] of U102 on F.Cu",
@@ -717,7 +717,7 @@
                         "x": 4.45,
                         "y": 7.05
                     },
-                    "uuid": "161f8a81-7fed-4124-ba8e-642d99192f04"
+                    "uuid": "8c82d451-cd9b-40a5-895d-7c3eb929c8fd"
                 }
             ],
             "severity": "error",
@@ -732,7 +732,7 @@
                         "x": 17.3,
                         "y": 14.5
                     },
-                    "uuid": "fea03a26-e250-4597-bdb1-5bc9062e1679"
+                    "uuid": "f2593b7a-0d99-4db8-a2c4-ddae52af7abd"
                 },
                 {
                     "description": "Pad 5 [PPG_3V3] of U104 on F.Cu",
@@ -740,7 +740,7 @@
                         "x": 20.55,
                         "y": 13.45
                     },
-                    "uuid": "3a5b24d9-8924-4547-8221-2d5b2bb48b25"
+                    "uuid": "7a6c050f-ec9b-45f3-ae71-d6138df2dc96"
                 }
             ],
             "severity": "error",
@@ -755,7 +755,7 @@
                         "x": 17.3,
                         "y": 14.5
                     },
-                    "uuid": "fea03a26-e250-4597-bdb1-5bc9062e1679"
+                    "uuid": "f2593b7a-0d99-4db8-a2c4-ddae52af7abd"
                 },
                 {
                     "description": "Pad 3 [PPG_3V3] of U102 on F.Cu",
@@ -763,7 +763,7 @@
                         "x": 6.55,
                         "y": 7.05
                     },
-                    "uuid": "f7f8cd47-92fb-4593-9937-6141eb5b394c"
+                    "uuid": "9ad59317-e9cb-45ba-b2ce-eb7b2aac91d4"
                 }
             ],
             "severity": "error",
@@ -778,7 +778,7 @@
                         "x": 20.55,
                         "y": 13.45
                     },
-                    "uuid": "3a5b24d9-8924-4547-8221-2d5b2bb48b25"
+                    "uuid": "7a6c050f-ec9b-45f3-ae71-d6138df2dc96"
                 },
                 {
                     "description": "Pad 5 [PPG_3V3] of U103 on F.Cu",
@@ -786,7 +786,7 @@
                         "x": 20.65,
                         "y": 8.75
                     },
-                    "uuid": "48ebbbcd-c69b-4a04-be1b-f92833eeb4c9"
+                    "uuid": "c6b29e96-b18e-490c-bee7-b02b148a0e1a"
                 }
             ],
             "severity": "error",
@@ -801,7 +801,7 @@
                         "x": 20.65,
                         "y": 8.75
                     },
-                    "uuid": "48ebbbcd-c69b-4a04-be1b-f92833eeb4c9"
+                    "uuid": "c6b29e96-b18e-490c-bee7-b02b148a0e1a"
                 },
                 {
                     "description": "Pad 8 [PPG_3V3] of U103 on F.Cu",
@@ -809,7 +809,7 @@
                         "x": 20.65,
                         "y": 7.25
                     },
-                    "uuid": "2105c086-6f20-4b43-bf5d-356f1ab8b0e7"
+                    "uuid": "2e7fa95e-a87d-4182-8514-2d69b8a86acf"
                 }
             ],
             "severity": "error",
@@ -824,7 +824,7 @@
                         "x": 6.55,
                         "y": 8.95
                     },
-                    "uuid": "982e4a6d-1fff-4055-a507-0e586bfe34c8"
+                    "uuid": "0f275e20-1873-41da-943a-f99ce47ea978"
                 },
                 {
                     "description": "Pad 3 [PPG_1V8] of U101 on F.Cu",
@@ -832,7 +832,7 @@
                         "x": 11.1,
                         "y": 7.2
                     },
-                    "uuid": "cb2d615d-db13-4b89-a18d-6c13c3df37ea"
+                    "uuid": "55721b57-1d08-43f7-a700-ddab64cf54df"
                 }
             ],
             "severity": "error",
@@ -847,7 +847,7 @@
                         "x": 11.1,
                         "y": 6.4
                     },
-                    "uuid": "dd764b25-dbdf-4d93-8c91-338ab6eb3b69"
+                    "uuid": "2cceeb7e-de50-4a4a-a5ab-be9575331568"
                 },
                 {
                     "description": "Pad 1 [PPG_1V8] of C101 on F.Cu",
@@ -855,7 +855,7 @@
                         "x": 8.45,
                         "y": 3.5
                     },
-                    "uuid": "58325055-8574-4ee5-ae4c-7c343ded871b"
+                    "uuid": "a2c86165-8b9e-4e70-b543-ad76b6691db1"
                 }
             ],
             "severity": "error",
@@ -870,7 +870,7 @@
                         "x": 11.1,
                         "y": 7.2
                     },
-                    "uuid": "cb2d615d-db13-4b89-a18d-6c13c3df37ea"
+                    "uuid": "55721b57-1d08-43f7-a700-ddab64cf54df"
                 },
                 {
                     "description": "Pad 2 [PPG_1V8] of U101 on F.Cu",
@@ -878,7 +878,7 @@
                         "x": 11.1,
                         "y": 6.4
                     },
-                    "uuid": "dd764b25-dbdf-4d93-8c91-338ab6eb3b69"
+                    "uuid": "2cceeb7e-de50-4a4a-a5ab-be9575331568"
                 }
             ],
             "severity": "error",
@@ -893,7 +893,7 @@
                         "x": 11.1,
                         "y": 7.2
                     },
-                    "uuid": "cb2d615d-db13-4b89-a18d-6c13c3df37ea"
+                    "uuid": "55721b57-1d08-43f7-a700-ddab64cf54df"
                 },
                 {
                     "description": "Pad 1 [PPG_1V8] of U103 on F.Cu",
@@ -901,7 +901,7 @@
                         "x": 18.35,
                         "y": 7.25
                     },
-                    "uuid": "078a324b-f7f8-455a-8bad-be9b4c64f3c2"
+                    "uuid": "f562d9fa-42a9-4b40-8e3c-c25e49479318"
                 }
             ],
             "severity": "error",
@@ -916,7 +916,7 @@
                         "x": 13.9,
                         "y": 8.8
                     },
-                    "uuid": "f3d7460a-ffaa-4518-84a0-e6354d3b43fb"
+                    "uuid": "b73bdab2-cf33-432f-961b-618b6eaa6392"
                 },
                 {
                     "description": "Pad 1 [PPG_LED_PWR] of C102 on F.Cu",
@@ -924,7 +924,7 @@
                         "x": 11.45,
                         "y": 3.5
                     },
-                    "uuid": "03f1cc29-f342-461f-9917-7d6cb94da51b"
+                    "uuid": "3e89fd77-327a-420a-8dc1-2f2aea1b4d68"
                 }
             ],
             "severity": "error",
@@ -939,7 +939,7 @@
                         "x": 16.1,
                         "y": 14.5
                     },
-                    "uuid": "89537e72-cdbe-48b9-a633-0428bb2dc9a6"
+                    "uuid": "c7a47640-76a7-40c0-ab1f-b2a4a78cedc1"
                 },
                 {
                     "description": "Pad 10 [PPG_LED_PWR] of U101 on F.Cu",
@@ -947,7 +947,7 @@
                         "x": 13.9,
                         "y": 8.8
                     },
-                    "uuid": "f3d7460a-ffaa-4518-84a0-e6354d3b43fb"
+                    "uuid": "b73bdab2-cf33-432f-961b-618b6eaa6392"
                 }
             ],
             "severity": "error",
@@ -962,7 +962,7 @@
                         "x": 14.9,
                         "y": 14.5
                     },
-                    "uuid": "efcdf944-8641-43ca-acc0-0b96e475e829"
+                    "uuid": "de2544ca-6436-4397-8477-4a914f89e771"
                 },
                 {
                     "description": "Pad 3 [PPG_SDA_3V3] of U104 on F.Cu",
@@ -970,7 +970,7 @@
                         "x": 20.55,
                         "y": 11.55
                     },
-                    "uuid": "24273fd8-8b9a-4c36-b6cb-a43f95be4eb5"
+                    "uuid": "6c93e01f-c841-4d66-97e3-fe83a0fd44b6"
                 }
             ],
             "severity": "error",
@@ -985,7 +985,7 @@
                         "x": 18.05,
                         "y": 3.5
                     },
-                    "uuid": "65f30b3b-6623-4fee-998e-11778c5f20cf"
+                    "uuid": "bfdd36ea-2158-4011-9d0f-6a78f7864335"
                 },
                 {
                     "description": "Pad 1 [PPG_SDA_3V3] of R101 on F.Cu",
@@ -993,7 +993,7 @@
                         "x": 16.95,
                         "y": 3.5
                     },
-                    "uuid": "5ca1160c-6462-40ec-b162-41488365f54e"
+                    "uuid": "3cbde911-3722-4d62-9aa9-40fb82445146"
                 }
             ],
             "severity": "error",
@@ -1008,7 +1008,7 @@
                         "x": 20.55,
                         "y": 11.55
                     },
-                    "uuid": "24273fd8-8b9a-4c36-b6cb-a43f95be4eb5"
+                    "uuid": "6c93e01f-c841-4d66-97e3-fe83a0fd44b6"
                 },
                 {
                     "description": "Pad 7 [PPG_SDA_3V3] of U103 on F.Cu",
@@ -1016,7 +1016,7 @@
                         "x": 20.65,
                         "y": 7.75
                     },
-                    "uuid": "665925ae-1f1c-4202-99e1-f12def3ab628"
+                    "uuid": "94d32a13-69c1-4280-a821-906416464fe4"
                 }
             ],
             "severity": "error",
@@ -1031,7 +1031,7 @@
                         "x": 20.65,
                         "y": 7.75
                     },
-                    "uuid": "665925ae-1f1c-4202-99e1-f12def3ab628"
+                    "uuid": "94d32a13-69c1-4280-a821-906416464fe4"
                 },
                 {
                     "description": "Pad 2 [PPG_SDA_3V3] of R101 on F.Cu",
@@ -1039,7 +1039,7 @@
                         "x": 18.05,
                         "y": 3.5
                     },
-                    "uuid": "65f30b3b-6623-4fee-998e-11778c5f20cf"
+                    "uuid": "bfdd36ea-2158-4011-9d0f-6a78f7864335"
                 }
             ],
             "severity": "error",
@@ -1054,7 +1054,7 @@
                         "x": 13.7,
                         "y": 14.5
                     },
-                    "uuid": "907646e7-e4fc-41e5-a6e0-de1725f93156"
+                    "uuid": "b28ebd3b-33f4-411e-91e6-afcbd2e47ab8"
                 },
                 {
                     "description": "Pad 1 [PPG_SCL_3V3] of U104 on F.Cu",
@@ -1062,7 +1062,7 @@
                         "x": 18.45,
                         "y": 11.55
                     },
-                    "uuid": "ff09d12b-5dbe-44f4-b76d-d0fd2342e540"
+                    "uuid": "9a64e607-9f67-4290-8d1b-34ef8de35f04"
                 }
             ],
             "severity": "error",
@@ -1077,7 +1077,7 @@
                         "x": 18.45,
                         "y": 11.55
                     },
-                    "uuid": "ff09d12b-5dbe-44f4-b76d-d0fd2342e540"
+                    "uuid": "9a64e607-9f67-4290-8d1b-34ef8de35f04"
                 },
                 {
                     "description": "Pad 6 [PPG_SCL_3V3] of U103 on F.Cu",
@@ -1085,7 +1085,7 @@
                         "x": 20.65,
                         "y": 8.25
                     },
-                    "uuid": "7601c7a1-d2d6-4cd1-9033-1b6b92d9dfa0"
+                    "uuid": "49ba13d6-95a0-4e77-8463-9f2ebd4f9cb2"
                 }
             ],
             "severity": "error",
@@ -1100,7 +1100,7 @@
                         "x": 20.65,
                         "y": 8.25
                     },
-                    "uuid": "7601c7a1-d2d6-4cd1-9033-1b6b92d9dfa0"
+                    "uuid": "49ba13d6-95a0-4e77-8463-9f2ebd4f9cb2"
                 },
                 {
                     "description": "Pad 2 [PPG_SCL_3V3] of R102 on F.Cu",
@@ -1108,7 +1108,7 @@
                         "x": 21.05,
                         "y": 3.5
                     },
-                    "uuid": "25d37af4-7c19-42eb-8e34-b3eef5029a30"
+                    "uuid": "aae39202-d453-4ec6-aaa2-1955e38027a0"
                 }
             ],
             "severity": "error",
@@ -1123,7 +1123,7 @@
                         "x": 21.05,
                         "y": 3.5
                     },
-                    "uuid": "25d37af4-7c19-42eb-8e34-b3eef5029a30"
+                    "uuid": "aae39202-d453-4ec6-aaa2-1955e38027a0"
                 },
                 {
                     "description": "Pad 1 [PPG_SCL_3V3] of R102 on F.Cu",
@@ -1131,7 +1131,7 @@
                         "x": 19.95,
                         "y": 3.5
                     },
-                    "uuid": "0ff5d10d-995b-4258-8f90-97e50d7f2489"
+                    "uuid": "cebfc734-9f68-4f53-9a54-e3154f4eebb7"
                 }
             ],
             "severity": "error",
@@ -1146,7 +1146,7 @@
                         "x": 11.1,
                         "y": 9.6
                     },
-                    "uuid": "7308fae0-7fa6-46f3-98e9-5575cf04522f"
+                    "uuid": "3d9a9874-3a42-4e5f-bf7a-38111a10debf"
                 },
                 {
                     "description": "Pad 5 [PPG_INT] of J101 on F.Cu",
@@ -1154,7 +1154,7 @@
                         "x": 12.5,
                         "y": 14.5
                     },
-                    "uuid": "2f9920e9-8001-45a4-acbf-497d433aeb31"
+                    "uuid": "599cf484-a604-420a-b86e-f010674c2d2b"
                 }
             ],
             "severity": "error",
@@ -1169,7 +1169,7 @@
                         "x": 11.1,
                         "y": 8.0
                     },
-                    "uuid": "d6243f6b-9c6f-4509-adf2-c484dd2052dd"
+                    "uuid": "fef4d8b8-5260-4363-8fad-051976abc477"
                 },
                 {
                     "description": "Pad 2 [PPG_SDA_1V8] of U103 on F.Cu",
@@ -1177,7 +1177,7 @@
                         "x": 18.35,
                         "y": 7.75
                     },
-                    "uuid": "1531f8fb-c629-4bb1-a811-29cad1970b05"
+                    "uuid": "0d0d1799-a9a3-4f43-b0c0-9557c91e57fd"
                 }
             ],
             "severity": "error",
@@ -1192,7 +1192,7 @@
                         "x": 11.1,
                         "y": 8.8
                     },
-                    "uuid": "1f8930d4-83d0-4172-8376-40650c14e20e"
+                    "uuid": "1b7038bf-5ccf-4268-83a6-6a4a3c2de8df"
                 },
                 {
                     "description": "Pad 3 [PPG_SCL_1V8] of U103 on F.Cu",
@@ -1200,7 +1200,7 @@
                         "x": 18.35,
                         "y": 8.25
                     },
-                    "uuid": "32d7479f-21e0-4e19-a28c-53f6b805ead3"
+                    "uuid": "48c20358-b78b-43e0-80fa-38f3c03f23f5"
                 }
             ],
             "severity": "error",
