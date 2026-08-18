@@ -11,7 +11,7 @@
 | ISOLATION_CREEPAGE_CLEARANCE | Reviewed value/part/footprint plus measured evidence | Manifest and named schematic sheets | Independent calculation, CAD review, and bench test | Fabrication remains blocked until closed |
 | PPG_CABLE_SIGNAL_INTEGRITY | Reviewed value/part/footprint plus measured evidence | Manifest and named schematic sheets | Independent calculation, CAD review, and bench test | Fabrication remains blocked until closed |
 | FOOTPRINT_VERIFICATION | Reviewed value/part/footprint plus measured evidence | Manifest and named schematic sheets | Independent calculation, CAD review, and bench test | Fabrication remains blocked until closed |
-| PHYSICAL_ROUTING | All DRC unconnected_items resolved in copper or individually reviewed as intentional; final DRC contains zero unexplained error-severity connectivity items | PCB Layout & CAD models | Automated KiCad PCB DRC and cryptographic allowlist audit | Fabrication remains blocked until closed |
+| PHYSICAL_ROUTING | All DRC unconnected_items resolved in copper or individually reviewed as intentional; final DRC contains zero unexplained error-severity connectivity items | PCB Layout & CAD models | Automated KiCad PCB DRC and SHA-256 content-fingerprinted allowlist audit | Fabrication remains blocked until closed |
 
 ## Resonance Research Module Gates
 

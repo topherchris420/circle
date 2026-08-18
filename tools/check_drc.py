@@ -1,4 +1,4 @@
-"""Gate KiCad PCB DRC reports with explicit cryptographic allowlist gating.
+"""Gate KiCad PCB DRC reports with explicit SHA-256 content-fingerprinted allowlist gating.
 
 Enforces:
 1. Zero unallowlisted design rule violations.

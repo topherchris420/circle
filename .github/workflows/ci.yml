@@ -7,8 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  verify:
-    name: Verify Contracts, Physics & Review Package
+  fast-ci:
+    name: Fast Software, Contracts & Deterministic Generation
     runs-on: ubuntu-latest
 
     steps:
@@ -45,3 +45,40 @@ jobs:
 
       - name: Verify DRC allowlist gate
         run: python tools/check_drc.py
+
+      - name: Assert deterministic artifact generation (zero drift)
+        run: git diff --exit-code diagrams/ hardware/circle-main/legacy/ hardware/circle-ppg/legacy/ hardware/reports/
+
+  hardware-ci:
+    name: Hardware Verification (Fresh KiCad ERC & PCB DRC)
+    runs-on: ubuntu-latest
+    container:
+      image: kicad/kicad:8.0
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        run: |
+          apt-get update && apt-get install -y python3 python3-pip git
+          python3 --version
+
+      - name: Generate fresh schematic ERC reports
+        run: |
+          kicad-cli sch erc --format json --severity-all --output hardware/reports/circle-main-erc.json hardware/circle-main/legacy/00_root.sch
+          kicad-cli sch erc --format json --severity-all --output hardware/reports/circle-ppg-erc.json hardware/circle-ppg/legacy/00_ppg_root.sch
+
+      - name: Gate fresh ERC reports against allowlist
+        run: python3 tools/check_erc.py
+
+      - name: Generate fresh PCB DRC reports
+        run: |
+          kicad-cli pcb drc --format json --severity-all --output hardware/reports/circle-main-drc.json hardware/circle-main/circle-main.kicad_pcb
+          kicad-cli pcb drc --format json --severity-all --output hardware/reports/circle-ppg-drc.json hardware/circle-ppg/circle-ppg.kicad_pcb
+
+      - name: Gate fresh DRC reports against allowlist
+        run: python3 tools/check_drc.py
+
+      - name: Assert zero report drift from committed baselines
+        run: git diff --exit-code hardware/reports/

@@ -196,7 +196,7 @@ It does **not** mean that the hardware has been validated for human use.
 | Repository contracts | Unit tests + manifest and schema validators | ✅ Checks pass |
 | Generated artifacts | Diagrams and schematic packages regenerate deterministically | ✅ Checks pass |
 | Schematic parsing / ERC | KiCad parses and ERC-checks both boards (0 violations) | ✅ Checks pass |
-| PCB DRC rules & physical routing | KiCad DRC (0 rule violations; unrouted copper nets cryptographically allowlisted under open PHYSICAL_ROUTING review gate) | ⚠️ Open |
+| PCB DRC rules & physical routing | KiCad DRC (0 rule violations; unrouted copper nets gated under open PHYSICAL_ROUTING SHA-256 fingerprinted allowlist) | ⚠️ Open |
 | Safety / power / isolation / SI / footprints | Evidence defined in review gates | ⚠️ Open |
 | Fabrication | Physical validation | ❌ Not validated |
 | Powered electrodes / human use | Human-connected validation | ❌ Not validated |
