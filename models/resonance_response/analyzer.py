@@ -1,11 +1,12 @@
 """Resonance response evaluation, overlapping moving-block bootstrap, and artifact discrimination.
 
 Implements:
-1. Adaptive autocorrelation time estimation (tau_decorr from sample autocorrelation rho(k)).
-2. Contiguous Block-Level Sham Permutation (swapping entire contiguous blocks L = max(5, 2*tau)).
-3. True Overlapping Moving Block Bootstrap (Künsch 1989 / Politis & Romano 1994).
-4. True Circular-Shift Permutation (x_{(t + tau) mod N}) preserving 100% of time-series autocorrelation.
-5. Baseline-subtracted phantom delta evaluation (Delta_phantom = active - base) to eliminate DC false alarms.
+1. Phase-stationary autocorrelation time estimation (tau = max(tau_base, tau_int) on separate stationary phases).
+2. Identical sample window alignment for observed T_obs and permuted T_perm statistics.
+3. Contiguous Block-Level Sham Permutation (swapping entire contiguous blocks L = max(2, 2*tau)).
+4. True Overlapping Moving Block Bootstrap (Künsch 1989 / Politis & Romano 1994).
+5. True Circular-Shift Permutation (x_{(t + tau) mod N}) preserving 100% of time-series autocorrelation.
+6. Baseline-subtracted phantom delta evaluation (Delta_phantom = active - base) to eliminate DC false alarms.
 """
 
 from __future__ import annotations
@@ -105,34 +106,37 @@ class ResonanceAnalyzer:
         sham_int: Optional[List[float]] = None,
         seed: int = 42,
     ) -> Tuple[float, int]:
-        """Permutation testing swapping entire contiguous blocks L = max(5, 2*tau)."""
-        n_ab = len(active_base)
-        n_ai = len(active_int)
-        delta_active = (sum(active_int) / n_ai) - (sum(active_base) / n_ab)
-
-        tau = estimate_autocorrelation_time(active_base + active_int)
-        # Ensure block length captures tau while allowing at least 4-6 permutable blocks
-        max_b_len = max(2, n_ab // 4)
-        block_len = max(2, min(max_b_len, max(2, 2 * tau)))
+        """Permutation testing swapping entire contiguous blocks over an identical sample window."""
+        # 1. Phase-stationary autocorrelation estimation (avoids step artifact between phases)
+        tau_base = estimate_autocorrelation_time(active_base)
+        tau_int = estimate_autocorrelation_time(active_int)
+        tau = max(tau_base, tau_int)
 
         if sham_base and sham_int:
-            # 1. Contiguous Block-Level Sham Permutation for Active vs Sham
-            n_sb = len(sham_base)
-            n_si = len(sham_int)
-            delta_sham = (sum(sham_int) / n_si) - (sum(sham_base) / n_sb)
-            obs_stat = abs(delta_active - delta_sham)
+            # Determine common sample length across all four streams
+            n_common = min(len(active_base), len(active_int), len(sham_base), len(sham_int))
+            max_b_len = max(2, n_common // 4)
+            block_len = max(2, min(max_b_len, max(2, 2 * tau)))
+            num_blocks = n_common // block_len
+            n_used = num_blocks * block_len
 
-            # Partition into contiguous non-overlapping blocks of length L
-            def slice_blocks(series: List[float], b_len: int) -> List[List[float]]:
-                n = len(series)
-                return [series[i: min(i + b_len, n)] for i in range(0, n, b_len)]
+            # Truncate all four series to exact identical sample window
+            ab_used = active_base[:n_used]
+            ai_used = active_int[:n_used]
+            sb_used = sham_base[:n_used]
+            si_used = sham_int[:n_used]
 
-            blocks_ab = slice_blocks(active_base, block_len)
-            blocks_ai = slice_blocks(active_int, block_len)
-            blocks_sb = slice_blocks(sham_base, block_len)
-            blocks_si = slice_blocks(sham_int, block_len)
+            # Compute observed test statistic on exact used window
+            delta_act = (sum(ai_used) / n_used) - (sum(ab_used) / n_used)
+            delta_sham = (sum(si_used) / n_used) - (sum(sb_used) / n_used)
+            obs_stat = abs(delta_act - delta_sham)
 
-            num_blocks = min(len(blocks_ab), len(blocks_ai), len(blocks_sb), len(blocks_si))
+            # Sliced contiguous blocks
+            blocks_ab = [ab_used[i * block_len: (i + 1) * block_len] for i in range(num_blocks)]
+            blocks_ai = [ai_used[i * block_len: (i + 1) * block_len] for i in range(num_blocks)]
+            blocks_sb = [sb_used[i * block_len: (i + 1) * block_len] for i in range(num_blocks)]
+            blocks_si = [si_used[i * block_len: (i + 1) * block_len] for i in range(num_blocks)]
+
             rng = random.Random(seed)
             count_extreme = 0
 
@@ -151,10 +155,10 @@ class ResonanceAnalyzer:
                         p_sb.extend(blocks_ab[b_idx])
                         p_si.extend(blocks_ai[b_idx])
 
-                m_ab = sum(p_ab) / len(p_ab)
-                m_ai = sum(p_ai) / len(p_ai)
-                m_sb = sum(p_sb) / len(p_sb)
-                m_si = sum(p_si) / len(p_si)
+                m_ab = sum(p_ab) / n_used
+                m_ai = sum(p_ai) / n_used
+                m_sb = sum(p_sb) / n_used
+                m_si = sum(p_si) / n_used
 
                 perm_delta_act = m_ai - m_ab
                 perm_delta_sham = m_si - m_sb
@@ -166,11 +170,13 @@ class ResonanceAnalyzer:
             p_val = count_extreme / float(self.n_permutations)
             return p_val, tau
         else:
-            # 2. True Circular-Shift Permutation on concatenated time series
-            combined = active_base + active_int
-            n_total = len(combined)
+            n_ab = len(active_base)
+            n_ai = len(active_int)
+            delta_active = (sum(active_int) / n_ai) - (sum(active_base) / n_ab)
             obs_stat = abs(delta_active)
 
+            combined = active_base + active_int
+            n_total = len(combined)
             rng = random.Random(seed)
             count_extreme = 0
 

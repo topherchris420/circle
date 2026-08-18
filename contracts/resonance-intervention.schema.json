@@ -67,6 +67,32 @@
     "artifact_indicators": {
       "$ref": "#/$defs/artifactIndicators"
     },
+    "condition_role": {
+      "type": "string",
+      "enum": ["TARGET_HYPOTHESIS", "ACTIVE_CONTROL", "SHAM", "EXPLORATORY"],
+      "description": "Deterministic experimental classification of the intervention condition."
+    },
+    "factorial_block_id": {
+      "type": "string",
+      "description": "Unique identifier for the balanced matched factorial block."
+    },
+    "factorial_block_index": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "0-based position within the matched factorial block sequence."
+    },
+    "randomization_id": {
+      "type": "string",
+      "description": "Seed or batch identifier for pseudorandom trial sequence generation."
+    },
+    "blinded_trial_token": {
+      "type": "string",
+      "description": "Opaque cryptographic token used for operator blinding."
+    },
+    "calibration_metadata": {
+      "type": "string",
+      "description": "Physical calibration status of the simulation model."
+    },
     "status_flags": {
       "type": "array",
       "items": {

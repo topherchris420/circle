@@ -86,7 +86,7 @@ while systematically testing:
 * **Discrimination:** Verified biological response vs electronic phantom instrumentation pickup (EMI/thermal drift)
 
 ### Key Architectural Invariants:
-* **Symmetric Prior Physics:** Simulator gives all geometries identical prior coupling constants; non-linear harmonics and mode splitting emerge dynamically from coupled differential equations.
+* **Neutral Physical Laws:** All geometries are evaluated using the same physical equations and calibration assumptions; geometric differences arise strictly from their physical cavity dimensions and clearances, not privileged $\phi$-specific constants. Non-linear harmonics and mode splitting emerge dynamically from coupled differential equations.
 * **Unbiased Search & Adaptive Learning:** Default parameter search samples log-uniformly across the spectrum; closed-loop exploration updates Gaussian Process posteriors with Upper Confidence Bounds (GP-UCB).
 * **Decoupled Opaque Blinding:** Trials use cryptographically random opaque tokens (`TRIAL-XXXXXXXX`) and sealed trial manifests.
 * **Strict Electrical Isolation:** Zero conductive connection to `BAT_HUMAN`; synchronization interfaces exclusively across the 5.0 kVrms ISOW7742 `LAB_ISO` barrier.
@@ -264,13 +264,13 @@ Run it from a clean worktree and inspect `git diff` afterward. Reproducible outp
 
 ## PCB regeneration
 
-Both board layouts are generated deterministically from [`tools/build_clean_pcb.py`](tools/build_clean_pcb.py).
+Both board layouts are generated deterministically from [`tools/build_clean_pcb.py`](tools/build_clean_pcb.py):
 
 ```bash
 python tools/build_clean_pcb.py
 ```
 
-This produces `hardware/circle-main/circle-main.kicad_pcb` and `hardware/circle-ppg/circle-ppg.kicad_pcb` with zero DRC violations under KiCad 10.0.5.
+This produces `hardware/circle-main/circle-main.kicad_pcb` and `hardware/circle-ppg/circle-ppg.kicad_pcb` with deterministic layout generation. The checked-in CI/CD release verification script (`tools/verify_release.py`) executes automated schematic Electrical Rules Checking (`kicad-cli sch erc`) with 0 violations across all 10 sheets.
 
 To re-export fabrication outputs (Gerbers, drill files, pick-and-place, STEP models):
 
