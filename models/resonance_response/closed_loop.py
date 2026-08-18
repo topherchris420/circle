@@ -1,9 +1,11 @@
 """Closed-loop adaptive experimental optimization engine for CIRCLE Resonance experiments.
 
 Features:
-1. Multi-dimensional Gaussian Process Regressor (f, A, G, C, M).
-2. Matched Factorial Trial Matrix (G x C) for orthogonal experimental contrasts.
-3. Factorial Interaction Analyzer: isolates beta_G (Phi), beta_C (Merkaba), and beta_GC (Interaction).
+1. One-Hot Categorical Gaussian Process Regressor:
+     x = [log10(f), A, g_4d, c_5d, m_5d] in R^16
+     Completely eliminates ordinal metric bias across discrete geometries and cores.
+2. Factorial Interaction Analyzer with OLS Standard Errors and 95% Confidence Intervals.
+3. Matched Factorial Trial Matrix (G x C) for orthogonal experimental contrasts.
 4. Isolated hypothesis candidate library (Schumann modes, acoustic intervals).
 5. Opaque, unguessable cryptographic trial tokens and decoupled BlindTrialManifest.
 6. Explicit software parameter exploration caps (SOFTWARE_EXPLORATION_CAP_NOT_SAFETY_RATING).
@@ -20,37 +22,22 @@ from typing import Any, Dict, List, Optional, Tuple
 
 SOFTWARE_EXPLORATION_CAP_NOT_SAFETY_RATING: float = 10.0
 
-GEOMETRY_INDEX_MAP = {
-    "GOLDEN_RATIO_SPHERES": 0,
-    "EQUAL_SPHERES": 1,
-    "RANDOM_SPHERES": 2,
-    "SHAM_OFF": 3,
-}
+GEOMETRIES = ("GOLDEN_RATIO_SPHERES", "EQUAL_SPHERES", "RANDOM_SPHERES", "SHAM_OFF")
+CORES = ("DUAL_TETRAHEDRON_MERKABA", "SPHERICAL_CORE", "CUBIC_CORE", "NO_CORE", "SHAM_OFF")
+MODULATIONS = ("NONE_CW", "SINE_AM", "PULSED", "BURST", "SHAM_OFF")
 
-CORE_INDEX_MAP = {
-    "DUAL_TETRAHEDRON_MERKABA": 0,
-    "SPHERICAL_CORE": 1,
-    "CUBIC_CORE": 2,
-    "NO_CORE": 3,
-    "SHAM_OFF": 4,
-}
 
-MODULATION_INDEX_MAP = {
-    "NONE_CW": 0,
-    "SINE_AM": 1,
-    "PULSED": 2,
-    "BURST": 3,
-    "SHAM_OFF": 4,
-}
+def one_hot_encode(category: str, category_tuple: Tuple[str, ...]) -> List[float]:
+    """Encode a discrete category as an orthogonal one-hot vector with equidistant metric distance."""
+    vec = [0.0] * len(category_tuple)
+    if category in category_tuple:
+        vec[category_tuple.index(category)] = 1.0
+    return vec
 
 
 @dataclass(frozen=True)
 class HypothesisCandidateLibrary:
-    """Explicitly isolated catalog of hypothesis-motivated candidate frequencies.
-    
-    Kept separate from primary search to prevent confirmation bias and maintain
-    evidence-before-inference principles.
-    """
+    """Explicitly isolated catalog of hypothesis-motivated candidate frequencies."""
     SCHUMANN_IONOSPHERIC_MODES: Tuple[float, ...] = (7.83, 14.3, 20.8, 27.3, 33.8)
     EEG_ENTRAINMENT_BANDS: Tuple[float, ...] = (2.5, 6.0, 10.0, 20.0, 40.0)
     HISTORICAL_ACOUSTIC_INTERVALS: Tuple[float, ...] = (432.0, 528.0)
@@ -67,44 +54,32 @@ class ExperimentSearchSpace:
     max_duration_ms: float = 60000.0
     min_baseline_ms: float = 5000.0
     min_washout_ms: float = 5000.0
-    allowed_geometries: Tuple[str, ...] = (
-        "GOLDEN_RATIO_SPHERES",
-        "EQUAL_SPHERES",
-        "RANDOM_SPHERES",
-        "SHAM_OFF",
-    )
-    allowed_cores: Tuple[str, ...] = (
-        "DUAL_TETRAHEDRON_MERKABA",
-        "SPHERICAL_CORE",
-        "CUBIC_CORE",
-        "NO_CORE",
-        "SHAM_OFF",
-    )
-    allowed_modulations: Tuple[str, ...] = (
-        "NONE_CW",
-        "SINE_AM",
-        "PULSED",
-        "BURST",
-        "SHAM_OFF",
-    )
+    allowed_geometries: Tuple[str, ...] = GEOMETRIES
+    allowed_cores: Tuple[str, ...] = CORES
+    allowed_modulations: Tuple[str, ...] = MODULATIONS
 
 
 class GaussianProcessRegressor:
-    """Multi-dimensional Gaussian Process regressor (x in R^d) with exact covariance matrix inversion.
+    """Multi-dimensional Gaussian Process with One-Hot Categorical and Continuous RBF Kernels.
     
-    Equations:
-      K = K_XX + sigma_n^2 * I
-      mu_*(x) = k_*^T * K^-1 * y
-      sigma_*^2(x) = k(x, x) - k_*^T * K^-1 * k_*
+    State vector:
+      x = [log10(f), A, g_0..g_3, c_0..c_4, m_0..m_4] in R^16
+    
+    Zero ordinal bias:
+      For any two distinct categories u != v, ||u - v||^2 = 2.0.
     """
 
     def __init__(
         self,
-        length_scales: Tuple[float, ...] = (0.5, 2.0, 1.0, 1.0, 1.0),
+        length_scales: Tuple[float, float, float, float, float] = (0.5, 2.0, 1.0, 1.0, 1.0),
         signal_variance: float = 1.0,
         noise_variance: float = 0.05,
     ):
-        self.length_scales = list(length_scales)
+        self.l_f = length_scales[0]
+        self.l_a = length_scales[1]
+        self.l_g = length_scales[2]
+        self.l_c = length_scales[3]
+        self.l_m = length_scales[4]
         self.sigma_f2 = signal_variance
         self.sigma_n2 = noise_variance
 
@@ -112,13 +87,19 @@ class GaussianProcessRegressor:
         self.y: List[float] = []
 
     def _kernel(self, x1: List[float], x2: List[float]) -> float:
-        """Anisotropic RBF Kernel across continuous and categorical factor dimensions."""
-        dist_sq = 0.0
-        for d in range(min(len(x1), len(x2), len(self.length_scales))):
-            l_d = self.length_scales[d]
-            diff = (x1[d] - x2[d]) / l_d
-            dist_sq += diff ** 2
-        return self.sigma_f2 * math.exp(-0.5 * dist_sq)
+        """Compound Continuous + Categorical RBF Kernel."""
+        df = (x1[0] - x2[0]) / self.l_f
+        da = (x1[1] - x2[1]) / self.l_a
+
+        # Geometry one-hot distance (indices 2..5)
+        dg_sq = sum((x1[2 + i] - x2[2 + i]) ** 2 for i in range(4)) / (2.0 * (self.l_g ** 2))
+        # Core one-hot distance (indices 6..10)
+        dc_sq = sum((x1[6 + i] - x2[6 + i]) ** 2 for i in range(5)) / (2.0 * (self.l_c ** 2))
+        # Modulation one-hot distance (indices 11..15)
+        dm_sq = sum((x1[11 + i] - x2[11 + i]) ** 2 for i in range(5)) / (2.0 * (self.l_m ** 2))
+
+        exponent = -0.5 * (df ** 2 + da ** 2) - dg_sq - dc_sq - dm_sq
+        return self.sigma_f2 * math.exp(exponent)
 
     def fit(self, X: List[List[float]], y: List[float]) -> None:
         self.X = [list(pt) for pt in X]
@@ -130,7 +111,6 @@ class GaussianProcessRegressor:
         if n == 0:
             return (0.0, math.sqrt(self.sigma_f2))
 
-        # Build K matrix (n x n)
         K = [[self._kernel(self.X[i], self.X[j]) for j in range(n)] for i in range(n)]
         for i in range(n):
             K[i][i] += self.sigma_n2
@@ -204,17 +184,13 @@ class ExperimentalDecision:
 
 
 class FactorialInteractionAnalyzer:
-    """Linear regression model estimating main effects (Phi, Merkaba) and interaction (Phi x Merkaba).
+    """Linear regression model with OLS standard errors and 95% confidence intervals.
     
     Model: R = beta_0 + beta_G * G + beta_C * C + beta_f * log10(f) + beta_A * A + beta_GC * (G x C) + eps
-    where:
-      G = 1.0 if GOLDEN_RATIO_SPHERES else 0.0
-      C = 1.0 if DUAL_TETRAHEDRON_MERKABA else 0.0
-      (G x C) = 1.0 only for the combined condition.
     """
 
     def __init__(self):
-        self.trials: List[Tuple[float, float, float, float, float]] = []  # (G, C, log_f, A, R)
+        self.trials: List[Tuple[float, float, float, float, float]] = []
 
     def add_trial(self, geometry: str, core: str, freq_hz: float, amp_v: float, response_score: float) -> None:
         g_code = 1.0 if geometry == "GOLDEN_RATIO_SPHERES" else 0.0
@@ -222,64 +198,86 @@ class FactorialInteractionAnalyzer:
         log_f = math.log10(max(1.0, freq_hz))
         self.trials.append((g_code, c_code, log_f, amp_v, response_score))
 
-    def estimate_effects(self) -> Dict[str, float]:
-        """Estimate ordinary least squares (OLS) regression coefficients."""
-        if len(self.trials) < 6:
+    def estimate_effects(self) -> Dict[str, Any]:
+        """Estimate OLS regression coefficients, standard errors, and 95% confidence intervals."""
+        p = 6
+        n = len(self.trials)
+        if n < p + 1:
             return {
                 "beta_0_intercept": 0.0,
                 "beta_G_phi": 0.0,
+                "beta_G_phi_ci": [0.0, 0.0],
                 "beta_C_merkaba": 0.0,
+                "beta_C_merkaba_ci": [0.0, 0.0],
                 "beta_GC_interaction": 0.0,
+                "beta_GC_interaction_ci": [0.0, 0.0],
                 "beta_freq": 0.0,
                 "beta_amp": 0.0,
-                "samples_count": len(self.trials),
+                "residual_std_error": 0.0,
+                "samples_count": n,
             }
 
-        # Build design matrix X (N x 6) with intercept
-        # Columns: [1, G, C, G*C, log_f, A]
         X = []
         y = []
         for g, c, log_f, a, r in self.trials:
             X.append([1.0, g, c, g * c, log_f, a])
             y.append(r)
 
-        n = len(y)
-        p = 6
-        # Compute X^T * X (p x p) and X^T * y (p x 1)
         XtX = [[sum(X[i][j] * X[i][k] for i in range(n)) for k in range(p)] for j in range(p)]
         Xty = [sum(X[i][j] * y[i] for i in range(n)) for j in range(p)]
 
-        # Regularize diagonal to guarantee non-singular inversion
         for j in range(p):
-            XtX[j][j] += 1e-4
+            XtX[j][j] += 1e-6
 
-        def solve_ols(A: List[List[float]], b: List[float]) -> List[float]:
-            m = len(b)
-            mat = [row[:] + [b[i]] for i, row in enumerate(A)]
+        # Invert XtX to get (X^T X)^-1
+        def invert_matrix(A: List[List[float]]) -> List[List[float]]:
+            m = len(A)
+            mat = [row[:] + [1.0 if i == r else 0.0 for i in range(m)] for r, row in enumerate(A)]
             for col in range(m):
                 max_row = max(range(col, m), key=lambda r: abs(mat[r][col]))
-                if abs(mat[max_row][col]) < 1e-12:
-                    return [0.0] * m
                 mat[col], mat[max_row] = mat[max_row], mat[col]
                 pivot = mat[col][col]
-                for j in range(col, m + 1):
+                if abs(pivot) < 1e-12:
+                    return [[0.0] * m for _ in range(m)]
+                for j in range(2 * m):
                     mat[col][j] /= pivot
                 for r in range(m):
                     if r != col:
                         factor = mat[r][col]
-                        for j in range(col, m + 1):
+                        for j in range(2 * m):
                             mat[r][j] -= factor * mat[col][j]
-            return [mat[r][m] for r in range(m)]
+            return [[mat[r][m + c] for c in range(m)] for r in range(m)]
 
-        betas = solve_ols(XtX, Xty)
+        XtX_inv = invert_matrix(XtX)
+        betas = [sum(XtX_inv[j][k] * Xty[k] for k in range(p)) for j in range(p)]
+
+        # Residual variance sigma^2 = sum(e_i^2) / (n - p)
+        residuals = [y[i] - sum(X[i][j] * betas[j] for j in range(p)) for i in range(n)]
+        sse = sum(r ** 2 for r in residuals)
+        df = max(1, n - p)
+        sigma2_hat = sse / df
+        rse = math.sqrt(sigma2_hat)
+
+        # Standard errors: SE(beta_j) = sqrt(sigma2_hat * (X^T X)^-1_jj)
+        se = [math.sqrt(max(1e-8, sigma2_hat * XtX_inv[j][j])) for j in range(p)]
+
+        # 95% Confidence intervals (critical value approx 1.96 for large df or 2.1 for small)
+        t_crit = 2.0 if df > 10 else 2.3
 
         return {
             "beta_0_intercept": round(betas[0], 4),
             "beta_G_phi": round(betas[1], 4),
+            "beta_G_phi_se": round(se[1], 4),
+            "beta_G_phi_ci": [round(betas[1] - t_crit * se[1], 4), round(betas[1] + t_crit * se[1], 4)],
             "beta_C_merkaba": round(betas[2], 4),
+            "beta_C_merkaba_se": round(se[2], 4),
+            "beta_C_merkaba_ci": [round(betas[2] - t_crit * se[2], 4), round(betas[2] + t_crit * se[2], 4)],
             "beta_GC_interaction": round(betas[3], 4),
+            "beta_GC_interaction_se": round(se[3], 4),
+            "beta_GC_interaction_ci": [round(betas[3] - t_crit * se[3], 4), round(betas[3] + t_crit * se[3], 4)],
             "beta_freq": round(betas[4], 4),
             "beta_amp": round(betas[5], 4),
+            "residual_std_error": round(rse, 4),
             "samples_count": n,
         }
 
@@ -307,7 +305,7 @@ class BlindTrialManifest:
 
 
 class ClosedLoopOptimizer:
-    """Adaptive search policy using multi-dimensional GP-UCB and matched factorial matrix exploration."""
+    """Adaptive search policy using one-hot categorical GP-UCB and matched factorial matrix exploration."""
 
     def __init__(
         self,
@@ -322,20 +320,27 @@ class ClosedLoopOptimizer:
         self.gp = GaussianProcessRegressor(length_scales=(0.5, 2.0, 1.0, 1.0, 1.0))
         self.factorial_analyzer = FactorialInteractionAnalyzer()
 
-        # Training history: points x = [log10(freq), amp, geom_idx, core_idx, mod_idx], targets y = score
         self.observed_x: List[List[float]] = []
         self.observed_y: List[float] = []
         self.history: List[ExperimentalDecision] = []
 
+    def _build_feature_vector(self, freq_hz: float, amp_v: float, geom: str, core: str, mod: str) -> List[float]:
+        log_f = math.log10(max(1.0, freq_hz))
+        amp = max(0.0, amp_v)
+        g_vec = one_hot_encode(geom, GEOMETRIES)
+        c_vec = one_hot_encode(core, CORES)
+        m_vec = one_hot_encode(mod, MODULATIONS)
+        return [log_f, amp] + g_vec + c_vec + m_vec
+
     def update_posterior(self, last_decision: ExperimentalDecision, observed_score: float) -> None:
         """Update multi-dimensional Gaussian Process model and Factorial interaction analyzer."""
-        log_f = math.log10(max(1.0, last_decision.target_frequency_hz))
-        amp = max(0.0, last_decision.amplitude_v)
-        g_idx = float(GEOMETRY_INDEX_MAP.get(last_decision.geometry_type, 0))
-        c_idx = float(CORE_INDEX_MAP.get(last_decision.core_geometry, 0))
-        m_idx = float(MODULATION_INDEX_MAP.get(last_decision.modulation_type, 0))
-
-        feat = [log_f, amp, g_idx, c_idx, m_idx]
+        feat = self._build_feature_vector(
+            last_decision.target_frequency_hz,
+            last_decision.amplitude_v,
+            last_decision.geometry_type,
+            last_decision.core_geometry,
+            last_decision.modulation_type,
+        )
         self.observed_x.append(feat)
         self.observed_y.append(observed_score)
         self.gp.fit(self.observed_x, self.observed_y)
@@ -367,7 +372,7 @@ class ClosedLoopOptimizer:
         hypothesis_set_name: Optional[str] = None,
         force_control_ratio: float = 0.33,
     ) -> ExperimentalDecision:
-        """Propose next intervention using multi-dimensional GP-UCB acquisition."""
+        """Propose next intervention using one-hot categorical GP-UCB acquisition."""
         if last_response_score is not None and self.history:
             self.update_posterior(self.history[-1], last_response_score)
 
@@ -411,7 +416,7 @@ class ClosedLoopOptimizer:
                 mod = "NONE_CW"
                 mu, sigma = 0.0, 1.0
             else:
-                # Multi-Factorial GP-UCB Exploration across (f, A, G, C, M)
+                # One-Hot Categorical GP-UCB Exploration across (f, A, G, C, M)
                 best_acq = -float("inf")
                 best_f = 73.2
                 best_a = 3.3
@@ -432,13 +437,7 @@ class ClosedLoopOptimizer:
                     cand_c = self.rng.choice(candidate_cores)
                     cand_m = self.rng.choice(candidate_mods)
 
-                    feat = [
-                        cand_log_f,
-                        cand_a,
-                        float(GEOMETRY_INDEX_MAP[cand_g]),
-                        float(CORE_INDEX_MAP[cand_c]),
-                        float(MODULATION_INDEX_MAP[cand_m]),
-                    ]
+                    feat = self._build_feature_vector(cand_f, cand_a, cand_g, cand_c, cand_m)
                     c_mu, c_sigma = self.gp.predict(feat)
                     acq = c_mu + self.kappa * c_sigma
 
@@ -457,7 +456,7 @@ class ClosedLoopOptimizer:
                 core = best_c
                 mod = best_m
                 mu, sigma = best_mu, best_sigma
-                hyp_label = "MULTI_FACTORIAL_BAYESIAN_EXPLORATION"
+                hyp_label = "MULTI_FACTORIAL_ONE_HOT_BAYESIAN_EXPLORATION"
 
         duration = 15000.0
         baseline = max(self.space.min_baseline_ms, 5000.0)

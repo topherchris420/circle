@@ -81,28 +81,27 @@ def check_example_configurations() -> None:
     print(f"example configurations ({len(configs)} configs verified): OK")
 
 
-def check_physical_geometric_derivation() -> None:
-    """Verify that physical electrostatic capacitances and mutual coupling derive from geometry."""
-    from models.resonance_response.simulator import GeometricParameterExtractor, GeometryConfig
+def check_concentric_maxwell_capacitance_derivation() -> None:
+    """Verify that concentric spherical Maxwell capacitance matrix derives from geometry."""
+    from models.resonance_response.simulator import ConcentricMaxwellCapacitanceMatrix, GeometryConfig
 
     geom_phi = GeometryConfig(geometry_type="GOLDEN_RATIO_SPHERES", outer_diameter_mm=300.0)
     geom_eq = GeometryConfig(geometry_type="EQUAL_SPHERES", outer_diameter_mm=300.0)
 
-    extractor_phi = GeometricParameterExtractor(geom_phi)
-    extractor_eq = GeometricParameterExtractor(geom_eq)
+    matrix_phi = ConcentricMaxwellCapacitanceMatrix(geom_phi)
+    matrix_eq = ConcentricMaxwellCapacitanceMatrix(geom_eq)
 
-    c_phi, k_phi = extractor_phi.extract_coupling_matrix()
-    c_eq, k_eq = extractor_eq.extract_coupling_matrix()
+    c_phi, k_phi = matrix_phi.compute_maxwell_capacitances_and_coupling()
+    c_eq, k_eq = matrix_eq.compute_maxwell_capacitances_and_coupling()
 
-    # Geometry directly alters physical mutual coupling based on inter-shell distance Delta_r
     if k_phi[0][1] == 0.0 or k_eq[0][1] == 0.0:
         raise ValueError("Coupling extraction failed: matrix entry is zero for active geometry")
 
-    # The coupling differs purely as a consequence of different physical spacing Delta_r
+    # Coupling differs purely because Delta_r differs in the concentric spherical capacitance formula
     if k_phi[0][1] == k_eq[0][1]:
         raise ValueError("Geometry derivation failed: Phi and equal spacing produced identical coupling matrix!")
 
-    print("physical geometric parameter extraction (G -> {C, k}): OK")
+    print("concentric spherical Maxwell capacitance matrix (G -> {C, k}): OK")
 
 
 def check_electrical_domain_graph_isolation() -> None:
@@ -133,7 +132,7 @@ def check_electrical_domain_graph_isolation() -> None:
 def main() -> None:
     check_schema_structure()
     check_example_configurations()
-    check_physical_geometric_derivation()
+    check_concentric_maxwell_capacitance_derivation()
     check_electrical_domain_graph_isolation()
     print("all resonance physics, neutrality, and safety contracts: OK")
 

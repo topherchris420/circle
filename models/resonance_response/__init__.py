@@ -4,9 +4,9 @@ Provides parametric resonator modeling, nonlinear spectral simulation,
 closed-loop experimental optimization, and artifact-aware response analysis.
 """
 
-from .simulator import ResonanceSimulator, GeometryConfig, ResonatorSubsystem, SimulationResult, CoupledOscillatorSolver, GeometricParameterExtractor
+from .simulator import ResonanceSimulator, GeometryConfig, ResonatorSubsystem, SimulationResult, CoupledOscillatorSolver, ConcentricMaxwellCapacitanceMatrix
 from .closed_loop import ClosedLoopOptimizer, ExperimentSearchSpace, ExperimentalDecision, HypothesisCandidateLibrary, BlindTrialManifest, GaussianProcessRegressor, FactorialInteractionAnalyzer
-from .analyzer import ResonanceAnalyzer, ResponseEvaluation, ArtifactReport
+from .analyzer import ResonanceAnalyzer, ResponseEvaluation, ArtifactReport, estimate_autocorrelation_time
 
 __all__ = [
     "ResonanceSimulator",
@@ -14,7 +14,7 @@ __all__ = [
     "ResonatorSubsystem",
     "SimulationResult",
     "CoupledOscillatorSolver",
-    "GeometricParameterExtractor",
+    "ConcentricMaxwellCapacitanceMatrix",
     "ClosedLoopOptimizer",
     "ExperimentSearchSpace",
     "ExperimentalDecision",
@@ -25,4 +25,5 @@ __all__ = [
     "ResonanceAnalyzer",
     "ResponseEvaluation",
     "ArtifactReport",
+    "estimate_autocorrelation_time",
 ]

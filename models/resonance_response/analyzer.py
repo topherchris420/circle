@@ -1,10 +1,11 @@
-"""Resonance response evaluation, autocorrelation-aware block statistics, and artifact discrimination.
+"""Resonance response evaluation, circular-shift permutation, and artifact discrimination.
 
 Implements:
-1. Circular Block Permutation testing (preserving physiological time-series autocorrelation x_t !perp x_{t+1}).
-2. Aligned 4-phase Block Bootstrap confidence intervals for the sham-adjusted RRI statistic.
-3. Multi-trial session-level aggregation across repeated experimental blocks.
-4. Baseline-subtracted phantom delta evaluation (Delta_phantom = active - base) to eliminate DC false alarms.
+1. Adaptive autocorrelation time estimation (tau_decorr from rho(k) = Corr(x_t, x_{t+k})).
+2. Paired Trial Condition-Swap Permutation (Active <-> Sham) preserving intra-trial integrity.
+3. True Circular-Shift Permutation (x_{(t + tau) mod N}) preserving 100% of time-series autocorrelation.
+4. Moving Block Bootstrap for aligned empirical 95% confidence intervals on RRI.
+5. Baseline-subtracted phantom delta evaluation (Delta_phantom = active - base) to eliminate DC false alarms.
 """
 
 from __future__ import annotations
@@ -13,6 +14,29 @@ import math
 import random
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
+
+
+def estimate_autocorrelation_time(series: List[float], max_lag: int = 20) -> int:
+    """Estimate empirical decorrelation time tau_decorr from the sample autocorrelation function."""
+    n = len(series)
+    if n < 4:
+        return 1
+
+    mean = sum(series) / n
+    var = sum((x - mean) ** 2 for x in series)
+    if var < 1e-12:
+        return 1
+
+    limit_lag = min(max_lag, n // 2)
+    threshold = 1.0 / math.e  # ~0.3678
+
+    for k in range(1, limit_lag + 1):
+        cov = sum((series[t] - mean) * (series[t + k] - mean) for t in range(n - k))
+        rho_k = cov / var
+        if rho_k <= threshold or rho_k <= 0:
+            return k
+
+    return max(1, limit_lag // 2)
 
 
 @dataclass
@@ -37,6 +61,7 @@ class ResponseEvaluation:
     effect_size_d: float
     permutation_p_value: float
     bootstrap_95ci: Tuple[float, float]
+    autocorrelation_tau: int
     artifact_report: ArtifactReport
     repeatability_score: float
     evidence_status: str  # EXPLORATORY, INCONCLUSIVE, ARTIFACT_LIKELY, REPEATABLE_DIFFERENCE
@@ -50,6 +75,7 @@ class ResponseEvaluation:
             "effect_size_cohens_d": round(self.effect_size_d, 3),
             "permutation_p_value": round(self.permutation_p_value, 4),
             "bootstrap_95ci": [round(self.bootstrap_95ci[0], 4), round(self.bootstrap_95ci[1], 4)],
+            "autocorrelation_tau": self.autocorrelation_tau,
             "artifact_risk_score": round(self.artifact_report.em_pickup_risk_score, 3),
             "phantom_delta": round(self.artifact_report.phantom_active_delta, 4),
             "repeatability_score": round(self.repeatability_score, 3),
@@ -59,116 +85,93 @@ class ResponseEvaluation:
 
 
 class ResonanceAnalyzer:
-    """Rigorous statistical evaluation engine using circular block permutation for autocorrelated signals."""
+    """Rigorous statistical evaluation engine using circular shift and paired condition-swap permutation."""
 
     def __init__(
         self,
         artifact_threshold: float = 0.35,
         n_permutations: int = 1000,
         n_bootstraps: int = 1000,
-        default_block_size: int = 5,
     ):
         self.artifact_threshold = artifact_threshold
         self.n_permutations = n_permutations
         self.n_bootstraps = n_bootstraps
-        self.block_size = default_block_size
 
-    def _make_blocks(self, series: List[float], block_len: int) -> List[List[float]]:
-        """Slice continuous time series into contiguous blocks to preserve autocorrelation structure."""
-        n = len(series)
-        b_len = max(1, min(block_len, n))
-        blocks: List[List[float]] = []
-        for i in range(0, n, b_len):
-            blocks.append(series[i: min(i + b_len, n)])
-        return blocks
-
-    def _block_permutation_test(
+    def _permutation_test_paired_or_circular(
         self,
         active_base: List[float],
         active_int: List[float],
         sham_base: Optional[List[float]] = None,
         sham_int: Optional[List[float]] = None,
         seed: int = 42,
-    ) -> float:
-        """Circular block permutation test accounting for temporal autocorrelation."""
+    ) -> Tuple[float, int]:
+        """Permutation testing preserving internal time-series autocorrelation."""
         n_ab = len(active_base)
         n_ai = len(active_int)
         delta_active = (sum(active_int) / n_ai) - (sum(active_base) / n_ab)
 
+        # Estimate autocorrelation decorrelation time
+        tau = estimate_autocorrelation_time(active_base + active_int)
+
         if sham_base and sham_int:
+            # 1. Paired Condition-Swap Permutation for Active vs Sham
             n_sb = len(sham_base)
             n_si = len(sham_int)
             delta_sham = (sum(sham_int) / n_si) - (sum(sham_base) / n_sb)
             obs_stat = abs(delta_active - delta_sham)
 
-            # Block partitioning
-            blocks_act_base = self._make_blocks(active_base, self.block_size)
-            blocks_act_int = self._make_blocks(active_int, self.block_size)
-            blocks_sham_base = self._make_blocks(sham_base, self.block_size)
-            blocks_sham_int = self._make_blocks(sham_int, self.block_size)
-
-            all_active_blocks = blocks_act_base + blocks_act_int
-            all_sham_blocks = blocks_sham_base + blocks_sham_int
-            combined_blocks = all_active_blocks + all_sham_blocks
-
-            n_a_blocks = len(all_active_blocks)
-            n_s_blocks = len(all_sham_blocks)
+            # Sub-segment deltas to allow paired sign-flipping across trial blocks
+            n_pairs = min(n_ab, n_ai, n_sb, n_si)
+            d_act_pairs = [active_int[i] - active_base[i] for i in range(n_pairs)]
+            d_sham_pairs = [sham_int[i] - sham_base[i] for i in range(n_pairs)]
 
             rng = random.Random(seed)
             count_extreme = 0
 
             for _ in range(self.n_permutations):
-                shuffled = list(combined_blocks)
-                rng.shuffle(shuffled)
-                perm_a_blocks = shuffled[:n_a_blocks]
-                perm_s_blocks = shuffled[n_a_blocks:]
+                perm_act = []
+                perm_sham = []
+                for i in range(n_pairs):
+                    # Randomly swap active and sham condition labels for each paired block
+                    if rng.random() < 0.5:
+                        perm_act.append(d_act_pairs[i])
+                        perm_sham.append(d_sham_pairs[i])
+                    else:
+                        perm_act.append(d_sham_pairs[i])
+                        perm_sham.append(d_act_pairs[i])
 
-                # Reconstruct time series from permuted contiguous blocks
-                flat_a = [pt for b in perm_a_blocks for pt in b]
-                flat_s = [pt for b in perm_s_blocks for pt in b]
-
-                if not flat_a or not flat_s:
-                    continue
-
-                split_a = len(flat_a) // 2
-                split_s = len(flat_s) // 2
-                perm_delta_a = (sum(flat_a[split_a:]) / max(1, len(flat_a) - split_a)) - (sum(flat_a[:split_a]) / max(1, split_a))
-                perm_delta_s = (sum(flat_s[split_s:]) / max(1, len(flat_s) - split_s)) - (sum(flat_s[:split_s]) / max(1, split_s))
-
-                perm_stat = abs(perm_delta_a - perm_delta_s)
+                m_a = sum(perm_act) / n_pairs
+                m_s = sum(perm_sham) / n_pairs
+                perm_stat = abs(m_a - m_s)
                 if perm_stat >= obs_stat - 1e-12:
                     count_extreme += 1
 
-            return count_extreme / float(self.n_permutations)
+            p_val = count_extreme / float(self.n_permutations)
+            return p_val, tau
         else:
+            # 2. True Circular-Shift Permutation on concatenated time series
+            combined = active_base + active_int
+            n_total = len(combined)
             obs_stat = abs(delta_active)
-            blocks_base = self._make_blocks(active_base, self.block_size)
-            blocks_int = self._make_blocks(active_int, self.block_size)
-            combined_blocks = blocks_base + blocks_int
-            n_base_blocks = len(blocks_base)
 
             rng = random.Random(seed)
             count_extreme = 0
 
             for _ in range(self.n_permutations):
-                shuffled = list(combined_blocks)
-                rng.shuffle(shuffled)
-                perm_base_blocks = shuffled[:n_base_blocks]
-                perm_int_blocks = shuffled[n_base_blocks:]
+                shift = rng.randint(1, n_total - 1)
+                # Circular wraparound shift: x^*_t = x_{(t + shift) mod N}
+                shifted = [combined[(t + shift) % n_total] for t in range(n_total)]
+                shifted_base = shifted[:n_ab]
+                shifted_int = shifted[n_ab:]
 
-                flat_b = [pt for b in perm_base_blocks for pt in b]
-                flat_i = [pt for b in perm_int_blocks for pt in b]
-
-                if not flat_b or not flat_i:
-                    continue
-
-                mean_b = sum(flat_b) / len(flat_b)
-                mean_i = sum(flat_i) / len(flat_i)
-                perm_stat = abs(mean_i - mean_b)
+                m_b = sum(shifted_base) / n_ab
+                m_i = sum(shifted_int) / n_ai
+                perm_stat = abs(m_i - m_b)
                 if perm_stat >= obs_stat - 1e-12:
                     count_extreme += 1
 
-            return count_extreme / float(self.n_permutations)
+            p_val = count_extreme / float(self.n_permutations)
+            return p_val, tau
 
     def _block_bootstrap_rri_ci(
         self,
@@ -177,26 +180,32 @@ class ResonanceAnalyzer:
         sham_base: Optional[List[float]],
         sham_int: Optional[List[float]],
         em_risk: float,
+        tau: int,
         seed: int = 42,
     ) -> Tuple[float, float]:
-        """Moving block bootstrap estimating empirical confidence intervals for sham-adjusted RRI."""
+        """Moving block bootstrap with block size L = max(5, 2 * tau)."""
+        block_len = max(5, min(len(active_base) // 2, 2 * tau))
         rng = random.Random(seed)
         rri_dist: List[float] = []
 
-        blocks_ab = self._make_blocks(active_base, self.block_size)
-        blocks_ai = self._make_blocks(active_int, self.block_size)
-        blocks_sb = self._make_blocks(sham_base, self.block_size) if sham_base else []
-        blocks_si = self._make_blocks(sham_int, self.block_size) if sham_int else []
+        def make_blocks(series: List[float], b_len: int) -> List[List[float]]:
+            n = len(series)
+            return [series[i: min(i + b_len, n)] for i in range(0, n, max(1, b_len))]
+
+        blocks_ab = make_blocks(active_base, block_len)
+        blocks_ai = make_blocks(active_int, block_len)
+        blocks_sb = make_blocks(sham_base, block_len) if sham_base else []
+        blocks_si = make_blocks(sham_int, block_len) if sham_int else []
 
         n_ab, n_ai = len(blocks_ab), len(blocks_ai)
         n_sb, n_si = len(blocks_sb), len(blocks_si)
 
         for _ in range(self.n_bootstraps):
-            resamp_ab_blocks = [blocks_ab[rng.randint(0, n_ab - 1)] for _ in range(n_ab)]
-            resamp_ai_blocks = [blocks_ai[rng.randint(0, n_ai - 1)] for _ in range(n_ai)]
+            resamp_ab = [blocks_ab[rng.randint(0, n_ab - 1)] for _ in range(n_ab)]
+            resamp_ai = [blocks_ai[rng.randint(0, n_ai - 1)] for _ in range(n_ai)]
 
-            flat_ab = [pt for b in resamp_ab_blocks for pt in b]
-            flat_ai = [pt for b in resamp_ai_blocks for pt in b]
+            flat_ab = [pt for b in resamp_ab for pt in b]
+            flat_ai = [pt for b in resamp_ai for pt in b]
 
             m_ab = sum(flat_ab) / len(flat_ab)
             m_ai = sum(flat_ai) / len(flat_ai)
@@ -206,11 +215,11 @@ class ResonanceAnalyzer:
             delta_act = m_ai - m_ab
 
             if sham_base and sham_int and n_sb > 0 and n_si > 0:
-                resamp_sb_blocks = [blocks_sb[rng.randint(0, n_sb - 1)] for _ in range(n_sb)]
-                resamp_si_blocks = [blocks_si[rng.randint(0, n_si - 1)] for _ in range(n_si)]
+                resamp_sb = [blocks_sb[rng.randint(0, n_sb - 1)] for _ in range(n_sb)]
+                resamp_si = [blocks_si[rng.randint(0, n_si - 1)] for _ in range(n_si)]
 
-                flat_sb = [pt for b in resamp_sb_blocks for pt in b]
-                flat_si = [pt for b in resamp_si_blocks for pt in b]
+                flat_sb = [pt for b in resamp_sb for pt in b]
+                flat_si = [pt for b in resamp_si for pt in b]
 
                 m_sb = sum(flat_sb) / len(flat_sb)
                 m_si = sum(flat_si) / len(flat_si)
@@ -248,7 +257,7 @@ class ResonanceAnalyzer:
         temp_delta_c: float = 0.1,
         prior_trial_scores: Optional[List[float]] = None,
     ) -> ResponseEvaluation:
-        """Evaluate trial using double-difference circular block permutation and block bootstrap."""
+        """Evaluate trial using paired condition-swap permutation and adaptive block bootstrap."""
         if not baseline_signal or not intervention_signal or not washout_signal:
             raise ValueError("All trial phases must contain data.")
 
@@ -305,8 +314,8 @@ class ResonanceAnalyzer:
             flags=artifact_flags,
         )
 
-        # 3. Autocorrelation-Aware Circular Block Permutation & Block Bootstrap CI
-        p_val = self._block_permutation_test(
+        # 3. Autocorrelation-Aware Circular Shift / Paired Condition-Swap Permutation
+        p_val, tau = self._permutation_test_paired_or_circular(
             baseline_signal,
             intervention_signal,
             sham_baseline_signal,
@@ -318,6 +327,7 @@ class ResonanceAnalyzer:
             sham_baseline_signal,
             sham_intervention_signal,
             em_risk,
+            tau=tau,
         )
 
         # 4. Resonance Response Index (RRI)
@@ -337,13 +347,13 @@ class ResonanceAnalyzer:
             notes = "Observed variation matches electronic phantom delta or thermal shift (instrumentation pickup)."
         elif p_val < 0.01 and ci_low > 0.20 and repeatability > 0.75 and abs(cohens_d) > 0.80:
             status = "REPEATABLE_DIFFERENCE"
-            notes = f"Repeatable contrast verified beyond sham (block permutation p={p_val:.4f}, bootstrap CI=[{ci_low:.3f}, {ci_high:.3f}])."
+            notes = f"Repeatable contrast verified beyond sham (paired permutation p={p_val:.4f}, bootstrap CI=[{ci_low:.3f}, {ci_high:.3f}], tau={tau})."
         elif p_val < 0.05 and abs(cohens_d) >= 0.20:
             status = "EXPLORATORY"
-            notes = f"Initial exploratory contrast (block permutation p={p_val:.4f}); requires multi-trial replication."
+            notes = f"Initial exploratory contrast (paired permutation p={p_val:.4f}); requires multi-trial replication."
         else:
             status = "INCONCLUSIVE"
-            notes = f"No statistically significant difference from sham or baseline (block permutation p={p_val:.4f})."
+            notes = f"No statistically significant difference from sham or baseline (paired permutation p={p_val:.4f})."
 
         return ResponseEvaluation(
             configuration_id=config_id,
@@ -352,6 +362,7 @@ class ResonanceAnalyzer:
             effect_size_d=cohens_d,
             permutation_p_value=p_val,
             bootstrap_95ci=(ci_low, ci_high),
+            autocorrelation_tau=tau,
             artifact_report=artifact_rep,
             repeatability_score=repeatability,
             evidence_status=status,

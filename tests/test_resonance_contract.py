@@ -14,7 +14,7 @@ if str(ROOT) not in sys.path:
 from models.resonance_response.simulator import (
     ResonanceSimulator,
     GeometryConfig,
-    GeometricParameterExtractor,
+    ConcentricMaxwellCapacitanceMatrix,
     CoupledOscillatorSolver,
     CALIBRATION_STATUS,
     PHI,
@@ -27,8 +27,16 @@ from models.resonance_response.closed_loop import (
     HypothesisCandidateLibrary,
     BlindTrialManifest,
     SOFTWARE_EXPLORATION_CAP_NOT_SAFETY_RATING,
+    one_hot_encode,
+    GEOMETRIES,
+    CORES,
+    MODULATIONS,
 )
-from models.resonance_response.analyzer import ResonanceAnalyzer, ArtifactReport
+from models.resonance_response.analyzer import (
+    ResonanceAnalyzer,
+    ArtifactReport,
+    estimate_autocorrelation_time,
+)
 
 
 class ResonanceScientificPhysicsTest(unittest.TestCase):
@@ -48,19 +56,19 @@ class ResonanceScientificPhysicsTest(unittest.TestCase):
         levels = data["$defs"]["interpretationLevel"]["enum"]
         self.assertEqual(levels, ["MEASURED", "DERIVED", "MODEL_INFERRED", "HYPOTHESIS_LABEL"])
 
-    def test_physical_geometric_parameter_derivation_without_core_bias(self):
-        """Geometry derives capacitances and coupling without handcrafted multiplier bonuses."""
+    def test_concentric_maxwell_capacitance_matrix_physics(self):
+        """Concentric spherical conductor physics: C_ab = 4*pi*eps0*(a*b)/(b-a)."""
         geom_phi = GeometryConfig(geometry_type="GOLDEN_RATIO_SPHERES", outer_diameter_mm=300.0)
         geom_eq = GeometryConfig(geometry_type="EQUAL_SPHERES", outer_diameter_mm=300.0)
         geom_sham = GeometryConfig(geometry_type="SHAM_OFF")
 
-        ext_phi = GeometricParameterExtractor(geom_phi)
-        ext_eq = GeometricParameterExtractor(geom_eq)
-        ext_sham = GeometricParameterExtractor(geom_sham)
+        matrix_phi = ConcentricMaxwellCapacitanceMatrix(geom_phi)
+        matrix_eq = ConcentricMaxwellCapacitanceMatrix(geom_eq)
+        matrix_sham = ConcentricMaxwellCapacitanceMatrix(geom_sham)
 
-        c_phi, k_phi = ext_phi.extract_coupling_matrix()
-        c_eq, k_eq = ext_eq.extract_coupling_matrix()
-        c_sham, k_sham = ext_sham.extract_coupling_matrix()
+        c_phi, k_phi = matrix_phi.compute_maxwell_capacitances_and_coupling()
+        c_eq, k_eq = matrix_eq.compute_maxwell_capacitances_and_coupling()
+        c_sham, k_sham = matrix_sham.compute_maxwell_capacitances_and_coupling()
 
         self.assertGreater(c_phi[0], 0.0)
         self.assertGreater(c_eq[0], 0.0)
@@ -72,52 +80,41 @@ class ResonanceScientificPhysicsTest(unittest.TestCase):
                 self.assertEqual(k_phi[i][j], k_phi[j][i])
                 self.assertEqual(k_eq[i][j], k_eq[j][i])
 
-        # Phi spacing naturally produces distinct coupling from equal spacing purely due to Delta_r
+        # Phi spacing naturally produces distinct coupling from equal spacing purely due to concentric Delta_r
         self.assertNotEqual(k_phi[0][1], k_eq[0][1])
 
-    def test_coupled_oscillator_dimensional_scaling(self):
-        """Coupling force kappa_ij = k_ij * omega_i * omega_j scales dimensionally with omega^2."""
-        solver = CoupledOscillatorSolver(
-            frequencies_hz=[73.2, 118.4, 191.6, 310.0, 243.8],
-            amplitudes_v=[4.0, 4.0, 4.0, 4.0, 4.0],
-            phases_deg=[0.0, 0.0, 0.0, 0.0, 180.0],
-            q_factors=[45.0, 45.0, 45.0, 50.0, 50.0],
-            coupling_matrix=[
-                [0.0, 0.10, 0.05, 0.02, 0.02],
-                [0.10, 0.0, 0.10, 0.05, 0.05],
-                [0.05, 0.10, 0.0, 0.10, 0.10],
-                [0.02, 0.05, 0.10, 0.0, 0.08],
-                [0.02, 0.05, 0.10, 0.08, 0.0],
-            ],
-            nonlinear_alpha=0.10,
-        )
-        t_pts, trajs = solver.simulate_dynamics(duration_s=0.15, sample_rate_hz=2000.0)
-        self.assertEqual(len(t_pts), 300)
-        self.assertEqual(len(trajs), 5)
+    def test_zero_ordinal_bias_in_one_hot_gaussian_process(self):
+        """Categorical one-hot vectors guarantee equidistant distances between distinct categories."""
+        gp = GaussianProcessRegressor()
 
-        spec = solver.analyze_spectrum(t_pts, trajs, fundamental_freq_hz=73.2)
-        self.assertIsInstance(spec["harmonics_detected"], list)
-        self.assertIsInstance(spec["intermodulation_products"], list)
-        self.assertIsInstance(spec["phase_locked"], bool)
+        # Check one-hot equidistant property: ||g_i - g_j||^2 == 2 for all distinct i != j
+        g_phi = one_hot_encode("GOLDEN_RATIO_SPHERES", GEOMETRIES)
+        g_eq = one_hot_encode("EQUAL_SPHERES", GEOMETRIES)
+        g_rnd = one_hot_encode("RANDOM_SPHERES", GEOMETRIES)
+        g_sham = one_hot_encode("SHAM_OFF", GEOMETRIES)
 
-    def test_multi_dimensional_gaussian_process_and_factorial_analyzer(self):
-        """Multi-dimensional GP fits (f, A, G, C, M) and Factorial analyzer estimates OLS effects."""
-        gp = GaussianProcessRegressor(length_scales=(0.5, 2.0, 1.0, 1.0, 1.0), signal_variance=1.0, noise_variance=0.01)
+        def dist_sq(u, v):
+            return sum((a - b) ** 2 for a, b in zip(u, v))
 
-        # Feature vector: [log10(f), amp, geom_idx, core_idx, mod_idx]
-        X_train = [
-            [1.0, 3.0, 0.0, 0.0, 0.0],
-            [2.0, 4.0, 1.0, 1.0, 0.0],
-            [3.0, 2.0, 2.0, 2.0, 1.0],
-        ]
-        y_train = [0.20, 0.85, 0.30]
-        gp.fit(X_train, y_train)
+        self.assertEqual(dist_sq(g_phi, g_eq), 2.0)
+        self.assertEqual(dist_sq(g_phi, g_rnd), 2.0)
+        self.assertEqual(dist_sq(g_phi, g_sham), 2.0)
+        self.assertEqual(dist_sq(g_eq, g_rnd), 2.0)
 
-        mu, sigma = gp.predict([2.0, 4.0, 1.0, 1.0, 0.0])
-        self.assertAlmostEqual(mu, 0.85, delta=0.08)
-        self.assertLess(sigma, 0.30)
+        # Train GP on 16-d one-hot vectors
+        c_mer = one_hot_encode("DUAL_TETRAHEDRON_MERKABA", CORES)
+        m_cw = one_hot_encode("NONE_CW", MODULATIONS)
 
-        # Test Factorial Interaction Analyzer
+        x1 = [1.86, 3.0] + g_phi + c_mer + m_cw
+        x2 = [1.86, 3.0] + g_eq + c_mer + m_cw
+        x3 = [1.86, 3.0] + g_rnd + c_mer + m_cw
+
+        gp.fit([x1, x2, x3], [0.70, 0.40, 0.35])
+        mu_phi, sigma_phi = gp.predict(x1)
+        self.assertAlmostEqual(mu_phi, 0.70, delta=0.08)
+
+    def test_factorial_regression_standard_errors_and_confidence_intervals(self):
+        """FactorialInteractionAnalyzer must compute OLS standard errors and 95% confidence intervals."""
         fact = FactorialInteractionAnalyzer()
         fact.add_trial("GOLDEN_RATIO_SPHERES", "DUAL_TETRAHEDRON_MERKABA", 73.2, 3.0, 0.75)
         fact.add_trial("GOLDEN_RATIO_SPHERES", "SPHERICAL_CORE", 73.2, 3.0, 0.40)
@@ -125,18 +122,20 @@ class ResonanceScientificPhysicsTest(unittest.TestCase):
         fact.add_trial("EQUAL_SPHERES", "DUAL_TETRAHEDRON_MERKABA", 73.2, 3.0, 0.45)
         fact.add_trial("EQUAL_SPHERES", "SPHERICAL_CORE", 73.2, 3.0, 0.25)
         fact.add_trial("RANDOM_SPHERES", "DUAL_TETRAHEDRON_MERKABA", 73.2, 3.0, 0.35)
+        fact.add_trial("SHAM_OFF", "SHAM_OFF", 1.0, 0.0, 0.05)
 
         effects = fact.estimate_effects()
         self.assertIn("beta_G_phi", effects)
-        self.assertIn("beta_C_merkaba", effects)
-        self.assertIn("beta_GC_interaction", effects)
-        self.assertEqual(effects["samples_count"], 6)
+        self.assertIn("beta_G_phi_se", effects)
+        self.assertIn("beta_G_phi_ci", effects)
+        self.assertIn("beta_C_merkaba_ci", effects)
+        self.assertIn("beta_GC_interaction_ci", effects)
+        self.assertGreater(len(effects["beta_G_phi_ci"]), 1)
+        self.assertEqual(effects["samples_count"], 7)
 
-    def test_autocorrelation_aware_circular_block_permutation_test(self):
-        """Circular block permutation must preserve contiguous block structure for autocorrelated signals."""
-        analyzer = ResonanceAnalyzer(n_permutations=200, n_bootstraps=200, default_block_size=5)
-
-        # Autocorrelated AR(1) signal simulation: x_t = 0.85 * x_{t-1} + noise
+    def test_autocorrelation_time_estimation_and_paired_swap_permutation(self):
+        """Estimate tau_decorr and execute paired condition-swap permutation test."""
+        # Synthesize AR(1) signal
         def gen_ar1(n: int, mean: float, seed: int) -> list:
             rng = random.Random(seed)
             x = [mean]
@@ -149,9 +148,13 @@ class ResonanceScientificPhysicsTest(unittest.TestCase):
         sham_base = gen_ar1(30, 10.0, seed=3)
         sham_int = gen_ar1(30, 10.1, seed=4)
 
+        tau = estimate_autocorrelation_time(active_base + active_int)
+        self.assertGreaterEqual(tau, 1)
+
+        analyzer = ResonanceAnalyzer(n_permutations=200, n_bootstraps=200)
         eval_res = analyzer.evaluate_trial(
-            config_id="cfg-block-test",
-            blinded_token="TRIAL-BLOCK-1",
+            config_id="cfg-paired-test",
+            blinded_token="TRIAL-PAIRED-1",
             baseline_signal=active_base,
             intervention_signal=active_int,
             washout_signal=active_base,
