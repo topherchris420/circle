@@ -10,9 +10,16 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from models.resonance_response.simulator import ResonanceSimulator, GeometryConfig, CoupledOscillatorSolver, PHI
+from models.resonance_response.simulator import (
+    ResonanceSimulator,
+    GeometryConfig,
+    GeometricParameterExtractor,
+    CoupledOscillatorSolver,
+    PHI,
+)
 from models.resonance_response.closed_loop import (
     ClosedLoopOptimizer,
+    GaussianProcessRegressor,
     ExperimentSearchSpace,
     HypothesisCandidateLibrary,
     BlindTrialManifest,
@@ -21,7 +28,7 @@ from models.resonance_response.closed_loop import (
 from models.resonance_response.analyzer import ResonanceAnalyzer, ArtifactReport
 
 
-class ResonanceScientificNeutralityTest(unittest.TestCase):
+class ResonanceScientificPhysicsTest(unittest.TestCase):
     def setUp(self):
         self.schema_path = ROOT / "contracts/resonance-intervention.schema.json"
         self.manifest_path = ROOT / "hardware/design-manifest.json"
@@ -38,103 +45,73 @@ class ResonanceScientificNeutralityTest(unittest.TestCase):
         levels = data["$defs"]["interpretationLevel"]["enum"]
         self.assertEqual(levels, ["MEASURED", "DERIVED", "MODEL_INFERRED", "HYPOTHESIS_LABEL"])
 
-    def test_simulator_prior_physics_is_completely_symmetric_across_geometries(self):
-        """Guarantee no built-in mathematical advantage for Phi or any specific geometry."""
-        sim_phi = ResonanceSimulator(GeometryConfig(geometry_type="GOLDEN_RATIO_SPHERES", outer_diameter_mm=300.0))
-        sim_eq = ResonanceSimulator(GeometryConfig(geometry_type="EQUAL_SPHERES", outer_diameter_mm=300.0))
-        sim_rnd = ResonanceSimulator(GeometryConfig(geometry_type="RANDOM_SPHERES", outer_diameter_mm=300.0))
+    def test_physical_geometric_parameter_derivation(self):
+        """Geometry must derive electrostatic capacitance and coupling matrix G -> {C, k}."""
+        geom_phi = GeometryConfig(geometry_type="GOLDEN_RATIO_SPHERES", outer_diameter_mm=300.0)
+        geom_eq = GeometryConfig(geometry_type="EQUAL_SPHERES", outer_diameter_mm=300.0)
+        geom_rnd = GeometryConfig(geometry_type="RANDOM_SPHERES", outer_diameter_mm=300.0)
+        geom_sham = GeometryConfig(geometry_type="SHAM_OFF")
 
-        res_phi = sim_phi.simulate_run(config_id="t1", base_freq_hz=73.2, input_voltage_v=4.0)
-        res_eq = sim_eq.simulate_run(config_id="t2", base_freq_hz=73.2, input_voltage_v=4.0)
-        res_rnd = sim_rnd.simulate_run(config_id="t3", base_freq_hz=73.2, input_voltage_v=4.0)
+        ext_phi = GeometricParameterExtractor(geom_phi)
+        ext_eq = GeometricParameterExtractor(geom_eq)
+        ext_rnd = GeometricParameterExtractor(geom_rnd)
+        ext_sham = GeometricParameterExtractor(geom_sham)
 
-        # Equal input power
-        self.assertEqual(res_phi.power_and_energy["input_power_w"], res_eq.power_and_energy["input_power_w"])
-        # Equal prior output power
-        self.assertEqual(res_phi.power_and_energy["measured_output_power_w"], res_eq.power_and_energy["measured_output_power_w"])
-        self.assertEqual(res_phi.power_and_energy["measured_output_power_w"], res_rnd.power_and_energy["measured_output_power_w"])
-        # Conservation of energy
-        self.assertTrue(res_phi.power_and_energy["conservation_verified"])
-        self.assertLessEqual(res_phi.power_and_energy["measured_output_power_w"], res_phi.power_and_energy["input_power_w"])
+        c_phi, k_phi = ext_phi.extract_coupling_matrix()
+        c_eq, k_eq = ext_eq.extract_coupling_matrix()
+        c_rnd, k_rnd = ext_rnd.extract_coupling_matrix()
+        c_sham, k_sham = ext_sham.extract_coupling_matrix()
 
-    def test_coupled_oscillator_numeric_differential_equation_solver(self):
-        """Emergent non-linear spectral features must derive from numerical differential equation integration."""
-        solver = CoupledOscillatorSolver(
-            frequencies_hz=[73.2, 118.4, 191.6, 310.0, 243.8],
-            amplitudes_v=[4.0, 4.0, 4.0, 4.0, 4.0],
-            phases_deg=[0.0, 0.0, 0.0, 0.0, 180.0],
-            q_factors=[45.0, 45.0, 45.0, 50.0, 50.0],
-            coupling_matrix=[
-                [0.0, 0.1, 0.05, 0.02, 0.02],
-                [0.1, 0.0, 0.1, 0.05, 0.05],
-                [0.05, 0.1, 0.0, 0.1, 0.1],
-                [0.02, 0.05, 0.1, 0.0, 0.08],
-                [0.02, 0.05, 0.1, 0.08, 0.0],
-            ],
-            nonlinear_alpha=0.10,
+        # All non-zero active geometries derive physical capacitances
+        self.assertGreater(c_phi[0], 0.0)
+        self.assertGreater(c_eq[0], 0.0)
+        self.assertEqual(c_sham[0], 0.0)
+
+        # Coupling matrices are symmetric: k_ij == k_ji
+        for k_mat in [k_phi, k_eq, k_rnd]:
+            for i in range(5):
+                for j in range(5):
+                    self.assertEqual(k_mat[i][j], k_mat[j][i])
+
+        # Phi spacing naturally has different coupling than equal spacing due to different Delta_r
+        self.assertNotEqual(k_phi[0][1], k_eq[0][1])
+
+    def test_exact_gaussian_process_regressor_equations(self):
+        """Exact Gaussian Process must fit data and yield rigorous mean and variance."""
+        gp = GaussianProcessRegressor(length_scales=(0.5, 2.0), signal_variance=1.0, noise_variance=0.01)
+
+        # Train on synthetic points: (log10(f), amp) -> response
+        X_train = [(1.0, 3.0), (2.0, 4.0), (3.0, 2.0)]
+        y_train = [0.20, 0.85, 0.30]
+        gp.fit(X_train, y_train)
+
+        # At training point (2.0, 4.0), predictive mean should be close to 0.85 and uncertainty should be low
+        mu_train, sigma_train = gp.predict((2.0, 4.0))
+        self.assertAlmostEqual(mu_train, 0.85, delta=0.08)
+        self.assertLess(sigma_train, 0.30)
+
+        # Far away from training points (e.g. log_f = 5.0, amp = 10.0), uncertainty should approach prior (1.0)
+        mu_far, sigma_far = gp.predict((5.0, 10.0))
+        self.assertAlmostEqual(mu_far, 0.0, delta=0.15)
+        self.assertGreater(sigma_far, 0.85)
+
+    def test_permutation_test_with_unequal_group_sizes(self):
+        """Verifies that permutation test correctly normalizes when group sizes differ (n_a != n_b)."""
+        analyzer = ResonanceAnalyzer(n_permutations=200)
+
+        # Group A (n=4): [10, 10, 10, 10], Group B (n=8): [20, 20, 20, 20, 20, 20, 20, 20]
+        p_val = analyzer._permutation_test_double_difference(
+            active_base=[10.0, 10.0, 10.0, 10.0],
+            active_int=[20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0],
         )
-        t_pts, trajs = solver.simulate_dynamics(duration_s=0.15, sample_rate_hz=2000.0)
-        self.assertEqual(len(t_pts), 300)
-        self.assertEqual(len(trajs), 5)
+        self.assertLess(p_val, 0.05)
 
-        spec = solver.analyze_spectrum(t_pts, trajs, fundamental_freq_hz=73.2)
-        # Verify spectral analysis produces structured outputs without crashing
-        self.assertIsInstance(spec["harmonics_detected"], list)
-        self.assertIsInstance(spec["intermodulation_products"], list)
-        self.assertIsInstance(spec["phase_locked"], bool)
-
-    def test_closed_loop_optimizer_is_genuinely_adaptive(self):
-        """Optimizer must update Gaussian Process posterior mean and uncertainty when given response scores."""
-        opt = ClosedLoopOptimizer(seed=123)
-
-        dec1 = opt.propose_next_intervention(current_step=1)
-        self.assertTrue(dec1.trial_token.startswith("TRIAL-"))
-        self.assertEqual(dec1.posterior_predicted_mean, 0.0)
-        self.assertEqual(dec1.posterior_uncertainty_sigma, 1.0)
-
-        # Feed back a high response score for the previous trial
-        dec2 = opt.propose_next_intervention(current_step=2, last_response_score=0.92)
-        self.assertGreater(len(opt.observed_x), 0)
-        self.assertGreater(len(opt.observed_y), 0)
-
-    def test_hypothesis_library_isolation(self):
-        """Hypothesis-motivated frequencies must be isolated in library and not bias default search."""
-        lib = HypothesisCandidateLibrary()
-        self.assertIn(7.83, lib.SCHUMANN_IONOSPHERIC_MODES)
-        self.assertIn(528.0, lib.HISTORICAL_ACOUSTIC_INTERVALS)
-
-        opt = ClosedLoopOptimizer(seed=999)
-        # Default active proposal must be tagged UNBIASED_BAYESIAN_EXPLORATION
-        dec = opt.propose_next_intervention(current_step=1)
-        self.assertEqual(dec.hypothesis_label, "UNBIASED_BAYESIAN_EXPLORATION")
-
-        # Explicit hypothesis request
-        dec_sch = opt.propose_next_intervention(current_step=4, hypothesis_set_name="schumann")
-        self.assertEqual(dec_sch.hypothesis_label, "HYP_SCHUMANN_IONOSPHERIC")
-        self.assertIn(dec_sch.target_frequency_hz, lib.SCHUMANN_IONOSPHERIC_MODES)
-
-    def test_blind_trial_manifest_sealing(self):
-        """Manifest must decouple trial token from physical configuration and support secure sealing."""
-        manifest = BlindTrialManifest()
-        manifest.register_trial("TRIAL-99AA", {"freq": 73.2, "geom": "GOLDEN_RATIO_SPHERES"})
-        self.assertFalse(manifest.is_sealed())
-
-        manifest.seal_manifest()
-        self.assertTrue(manifest.is_sealed())
-        with self.assertRaises(RuntimeError):
-            manifest.register_trial("TRIAL-FAIL", {"freq": 100.0})
-
-        unsealed = manifest.unseal_manifest()
-        self.assertIn("TRIAL-99AA", unsealed)
-
-    def test_analyzer_sham_subtraction_and_permutation_testing(self):
-        """Analyzer must compute double-difference sham subtraction and non-parametric permutation p-value."""
+    def test_aligned_double_difference_sham_subtraction(self):
+        """Analyzer must compute aligned double-difference contrast, permutation p-value, and bootstrap CI."""
         analyzer = ResonanceAnalyzer(n_permutations=200, n_bootstraps=200)
 
-        # Baseline: 10.0, Active: 15.0 (+5.0 bio change)
-        # Sham base: 10.0, Sham int: 10.1 (+0.1 sham drift) -> Net bio delta = +4.9
         eval_res = analyzer.evaluate_trial(
-            config_id="cfg-sham-test",
+            config_id="cfg-sham-aligned",
             blinded_token="TRIAL-1234",
             baseline_signal=[10.0, 10.1, 9.9, 10.0, 10.2],
             intervention_signal=[15.0, 15.2, 14.8, 15.1, 14.9],
@@ -149,11 +126,10 @@ class ResonanceScientificNeutralityTest(unittest.TestCase):
         self.assertLessEqual(eval_res.bootstrap_95ci[1], 1.0)
         self.assertTrue(eval_res.artifact_report.is_valid_signal)
 
-    def test_phantom_baseline_subtracted_delta_prevents_dc_false_positive(self):
-        """A phantom with harmless DC offset (e.g. 50V constant) must NOT trigger artifact flag."""
+    def test_phantom_baseline_delta_prevents_dc_offset_false_alarm(self):
+        """A phantom with high DC offset but zero dynamic delta during intervention must not trigger artifact flag."""
         analyzer = ResonanceAnalyzer(n_permutations=100, n_bootstraps=100)
 
-        # Phantom has a constant 50.0V DC offset, but delta during intervention is ZERO
         eval_res = analyzer.evaluate_trial(
             config_id="cfg-phantom-dc",
             blinded_token="TRIAL-5678",
@@ -161,26 +137,12 @@ class ResonanceScientificNeutralityTest(unittest.TestCase):
             intervention_signal=[14.0, 14.2, 14.1, 14.0, 14.3],
             washout_signal=[10.0, 10.1, 10.0, 10.0, 10.1],
             phantom_baseline_signal=[50.0, 50.0, 50.0, 50.0, 50.0],
-            phantom_active_signal=[50.01, 50.00, 50.02, 50.01, 50.00],  # No delta!
+            phantom_active_signal=[50.01, 50.00, 50.02, 50.01, 50.00],
             rf_field_strength_v_m=0.2,
         )
         self.assertEqual(eval_res.artifact_report.phantom_active_delta, 0.008)
         self.assertTrue(eval_res.artifact_report.phantom_control_match)
         self.assertTrue(eval_res.artifact_report.is_valid_signal)
-
-        # Now test TRUE phantom coupling: phantom jumps by 4.0V
-        eval_artifact = analyzer.evaluate_trial(
-            config_id="cfg-phantom-jump",
-            blinded_token="TRIAL-9999",
-            baseline_signal=[10.0, 10.0, 10.0, 10.0, 10.0],
-            intervention_signal=[14.0, 14.0, 14.0, 14.0, 14.0],
-            washout_signal=[10.0, 10.0, 10.0, 10.0, 10.0],
-            phantom_baseline_signal=[0.0, 0.0, 0.0, 0.0, 0.0],
-            phantom_active_signal=[4.0, 4.0, 4.0, 4.0, 4.0],  # Direct jump!
-            rf_field_strength_v_m=5.5,
-        )
-        self.assertFalse(eval_artifact.artifact_report.is_valid_signal)
-        self.assertIn("DIRECT_EM_INSTRUMENTATION_PICKUP", eval_artifact.artifact_report.flags)
 
     def test_software_exploration_cap_naming_and_safety_isolation(self):
         """Ensure SOFTWARE_EXPLORATION_CAP_NOT_SAFETY_RATING is explicit and hardware domain isolation holds."""

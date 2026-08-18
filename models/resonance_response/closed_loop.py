@@ -1,9 +1,9 @@
 """Closed-loop adaptive experimental optimization engine for CIRCLE Resonance experiments.
 
 Features:
-1. Unbiased log-uniform frequency exploration.
-2. Separate, explicitly labeled hypothesis candidate library (Schumann, acoustic intervals).
-3. Genuinely adaptive Gaussian Process / Kernel Bayesian surrogate model (GP-UCB).
+1. Full Gaussian Process Regressor (exact covariance inversion and predictive variance).
+2. Unbiased log-uniform frequency exploration.
+3. Isolated hypothesis candidate library (Schumann modes, acoustic intervals).
 4. Opaque, unguessable cryptographic trial tokens and decoupled BlindTrialManifest.
 5. Explicit software parameter exploration caps (SOFTWARE_EXPLORATION_CAP_NOT_SAFETY_RATING).
 """
@@ -17,9 +17,6 @@ import secrets
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
-# Software parameter search ceiling — NOT an electrical safety rating.
-# Hardware chamber impedance, thermal limits, and RF field safety must be
-# independently evaluated before hardware execution.
 SOFTWARE_EXPLORATION_CAP_NOT_SAFETY_RATING: float = 10.0
 
 
@@ -66,6 +63,93 @@ class ExperimentSearchSpace:
         "BURST",
         "SHAM_OFF",
     )
+
+
+class GaussianProcessRegressor:
+    """Exact Gaussian Process regressor with RBF kernel and rigorous covariance calculations.
+    
+    Equations:
+      K = K_XX + sigma_n^2 * I
+      mu_*(x) = k_*^T * K^-1 * y
+      sigma_*^2(x) = k(x, x) - k_*^T * K^-1 * k_*
+    """
+
+    def __init__(
+        self,
+        length_scales: Tuple[float, float] = (0.5, 2.0),
+        signal_variance: float = 1.0,
+        noise_variance: float = 0.05,
+    ):
+        self.l_f = length_scales[0]   # log10(freq) length scale
+        self.l_a = length_scales[1]   # amplitude length scale
+        self.sigma_f2 = signal_variance
+        self.sigma_n2 = noise_variance
+
+        self.X: List[Tuple[float, float]] = []
+        self.y: List[float] = []
+
+    def _kernel(self, x1: Tuple[float, float], x2: Tuple[float, float]) -> float:
+        """Radial Basis Function (RBF) anisotropic kernel."""
+        df = (x1[0] - x2[0]) / self.l_f
+        da = (x1[1] - x2[1]) / self.l_a
+        return self.sigma_f2 * math.exp(-0.5 * (df ** 2 + da ** 2))
+
+    def fit(self, X: List[Tuple[float, float]], y: List[float]) -> None:
+        self.X = list(X)
+        self.y = list(y)
+
+    def predict(self, x_star: Tuple[float, float]) -> Tuple[float, float]:
+        """Compute exact posterior mean and predictive standard deviation."""
+        n = len(self.X)
+        if n == 0:
+            return (0.0, math.sqrt(self.sigma_f2))
+
+        # Build K matrix (n x n)
+        K = [[self._kernel(self.X[i], self.X[j]) for j in range(n)] for i in range(n)]
+        for i in range(n):
+            K[i][i] += self.sigma_n2
+
+        # Build k_star (n x 1)
+        k_star = [self._kernel(x_star, self.X[i]) for i in range(n)]
+        k_self = self._kernel(x_star, x_star)
+
+        # Solve linear system K * alpha = y and K * v = k_star using Gaussian elimination
+        def solve_linear_system(A: List[List[float]], b: List[float]) -> List[float]:
+            # Gauss-Jordan elimination with partial pivoting
+            m = len(b)
+            mat = [row[:] + [b[i]] for i, row in enumerate(A)]
+
+            for col in range(m):
+                # Find pivot
+                max_row = max(range(col, m), key=lambda r: abs(mat[r][col]))
+                if abs(mat[max_row][col]) < 1e-12:
+                    return [0.0] * m
+                mat[col], mat[max_row] = mat[max_row], mat[col]
+
+                pivot = mat[col][col]
+                for j in range(col, m + 1):
+                    mat[col][j] /= pivot
+
+                for r in range(m):
+                    if r != col:
+                        factor = mat[r][col]
+                        for j in range(col, m + 1):
+                            mat[r][j] -= factor * mat[col][j]
+
+            return [mat[r][m] for r in range(m)]
+
+        alpha = solve_linear_system(K, self.y)
+        v = solve_linear_system(K, k_star)
+
+        # Posterior mean mu = k_*^T * alpha
+        mu = sum(k_star[i] * alpha[i] for i in range(n))
+
+        # Posterior variance sigma^2 = k_self - k_*^T * v
+        v_dot = sum(k_star[i] * v[i] for i in range(n))
+        sigma_sq = max(1e-4, k_self - v_dot)
+        sigma = math.sqrt(sigma_sq)
+
+        return (mu, sigma)
 
 
 @dataclass
@@ -129,7 +213,7 @@ class BlindTrialManifest:
 
 
 class ClosedLoopOptimizer:
-    """Adaptive search policy using Gaussian Process Upper Confidence Bound (GP-UCB).
+    """Adaptive search policy using exact Gaussian Process Upper Confidence Bound (GP-UCB).
     
     Dynamically integrates observed response scores (last_response_score) to update
     posterior mean mu(x) and uncertainty sigma(x), guiding intelligent exploration/exploitation.
@@ -145,48 +229,20 @@ class ClosedLoopOptimizer:
         self.rng = random.Random(seed)
         self.kappa = exploration_weight_kappa
         self.manifest = BlindTrialManifest()
+        self.gp = GaussianProcessRegressor()
 
-        # Gaussian Process training data: points x = (log10(freq), amp), targets y = response_score
+        # Training history: points x = (log10(freq), amp), targets y = response_score
         self.observed_x: List[Tuple[float, float]] = []
         self.observed_y: List[float] = []
         self.history: List[ExperimentalDecision] = []
 
     def update_posterior(self, last_decision: ExperimentalDecision, observed_score: float) -> None:
-        """Update surrogate model with measured response score from previous trial."""
+        """Update Gaussian Process model with measured response score from previous trial."""
         log_f = math.log10(max(1.0, last_decision.target_frequency_hz))
         amp = max(0.0, last_decision.amplitude_v)
         self.observed_x.append((log_f, amp))
         self.observed_y.append(observed_score)
-
-    def _gp_predict(self, log_f: float, amp: float) -> Tuple[float, float]:
-        """Evaluate Radial Basis Function (RBF) Gaussian Process posterior mean and variance."""
-        if not self.observed_x:
-            # Prior distribution: neutral mean 0.0, maximum uncertainty 1.0
-            return (0.0, 1.0)
-
-        # Length scales: 0.5 decades in frequency, 2.0 V in amplitude
-        l_f = 0.5
-        l_a = 2.0
-        noise_var = 0.05
-
-        def rbf(x1: Tuple[float, float], x2: Tuple[float, float]) -> float:
-            df = (x1[0] - x2[0]) / l_f
-            da = (x1[1] - x2[1]) / l_a
-            return math.exp(-0.5 * (df ** 2 + da ** 2))
-
-        candidate = (log_f, amp)
-        k_star = [rbf(candidate, xi) for xi in self.observed_x]
-
-        # Kernel regression estimate
-        sum_k = sum(k_star)
-        if sum_k < 1e-4:
-            mu = 0.0
-            sigma = 1.0
-        else:
-            mu = sum(k * y for k, y in zip(k_star, self.observed_y)) / sum_k
-            sigma = math.sqrt(max(0.05, 1.0 - (sum_k / (len(self.observed_x) + 1.0))))
-
-        return (mu, sigma)
+        self.gp.fit(self.observed_x, self.observed_y)
 
     def propose_next_intervention(
         self,
@@ -242,7 +298,6 @@ class ClosedLoopOptimizer:
                 mu, sigma = 0.0, 1.0
             else:
                 # Default: UNBIASED Bayesian Acquisition (GP-UCB)
-                # Generate candidate pool across log-uniform frequency and random amplitude
                 best_acq = -float("inf")
                 best_f = 73.2
                 best_a = 3.3
@@ -253,8 +308,8 @@ class ClosedLoopOptimizer:
                     cand_f = 10.0 ** cand_log_f
                     cand_a = self.rng.uniform(1.0, 5.0)
 
-                    c_mu, c_sigma = self._gp_predict(cand_log_f, cand_a)
-                    # UCB Acquisition: mu + kappa * sigma
+                    c_mu, c_sigma = self.gp.predict((cand_log_f, cand_a))
+                    # GP-UCB Acquisition Function: mu + kappa * sigma
                     acq = c_mu + self.kappa * c_sigma
 
                     if acq > best_acq:

@@ -1,10 +1,11 @@
 """Resonance response evaluation and artifact discrimination layer for CIRCLE.
 
 Implements:
-1. Double-difference contrast with explicit sham subtraction (Delta_active - Delta_sham).
-2. Non-parametric permutation hypothesis testing (empirical p-value).
-3. Empirical bootstrap confidence intervals for the normalized Resonance Response Index (RRI).
-4. Phantom baseline-subtracted delta evaluation (Delta_phantom = active - baseline) to prevent DC offset false positives.
+1. Exact double-difference sham subtraction:
+     Delta_net = (mu_active - mu_active_base) - (mu_sham - mu_sham_base)
+2. Condition-label permutation hypothesis testing testing H0: Delta_active = Delta_sham.
+3. Aligned 4-phase empirical bootstrap confidence intervals for the reported RRI statistic.
+4. Baseline-subtracted phantom delta evaluation (Delta_phantom = active - base) to eliminate DC false alarms.
 """
 
 from __future__ import annotations
@@ -66,51 +67,117 @@ class ResonanceAnalyzer:
         self.n_permutations = n_permutations
         self.n_bootstraps = n_bootstraps
 
-    def _permutation_test(self, group_a: List[float], group_b: List[float], seed: int = 42) -> float:
-        """Two-sided label permutation test computing empirical p-value."""
-        n_a, n_b = len(group_a), len(group_b)
-        obs_diff = abs((sum(group_b) / n_b) - (sum(group_a) / n_a))
-
-        combined = group_a + group_b
-        rng = random.Random(seed)
-        count_extreme = 0
-
-        for _ in range(self.n_permutations):
-            shuffled = list(combined)
-            rng.shuffle(shuffled)
-            perm_a = shuffled[:n_a]
-            perm_b = shuffled[n_a:]
-            perm_diff = abs((sum(perm_b) / n_a) - (sum(perm_a) / n_b))
-            if perm_diff >= obs_diff:
-                count_extreme += 1
-
-        return count_extreme / float(self.n_permutations)
-
-    def _bootstrap_rri_ci(
+    def _permutation_test_double_difference(
         self,
-        base_samples: List[float],
-        int_samples: List[float],
+        active_base: List[float],
+        active_int: List[float],
+        sham_base: Optional[List[float]] = None,
+        sham_int: Optional[List[float]] = None,
+        seed: int = 42,
+    ) -> float:
+        """Permutation test testing H0: Delta_active = Delta_sham with correct denominator normalization."""
+        n_ab = len(active_base)
+        n_ai = len(active_int)
+        delta_active = (sum(active_int) / n_ai) - (sum(active_base) / n_ab)
+
+        if sham_base and sham_int:
+            n_sb = len(sham_base)
+            n_si = len(sham_int)
+            delta_sham = (sum(sham_int) / n_si) - (sum(sham_base) / n_sb)
+            obs_stat = abs(delta_active - delta_sham)
+
+            # Pairwise delta pools for permutation
+            # We shuffle condition assignment between active delta and sham delta
+            active_deltas = [active_int[i % n_ai] - active_base[i % n_ab] for i in range(max(n_ab, n_ai))]
+            sham_deltas = [sham_int[i % n_si] - sham_base[i % n_sb] for i in range(max(n_sb, n_si))]
+
+            n_a = len(active_deltas)
+            n_b = len(sham_deltas)
+            combined = active_deltas + sham_deltas
+            rng = random.Random(seed)
+            count_extreme = 0
+
+            for _ in range(self.n_permutations):
+                shuffled = list(combined)
+                rng.shuffle(shuffled)
+                perm_a = shuffled[:n_a]
+                perm_b = shuffled[n_a:]
+                mean_a = sum(perm_a) / n_a
+                mean_b = sum(perm_b) / n_b
+                perm_stat = abs(mean_a - mean_b)
+                if perm_stat >= obs_stat - 1e-12:
+                    count_extreme += 1
+
+            return count_extreme / float(self.n_permutations)
+        else:
+            # Baseline vs Intervention permutation test with correct matched denominators
+            obs_stat = abs(delta_active)
+            combined = active_base + active_int
+            n_a = n_ab
+            n_b = n_ai
+            rng = random.Random(seed)
+            count_extreme = 0
+
+            for _ in range(self.n_permutations):
+                shuffled = list(combined)
+                rng.shuffle(shuffled)
+                perm_a = shuffled[:n_a]
+                perm_b = shuffled[n_a:]
+                mean_a = sum(perm_a) / n_a
+                mean_b = sum(perm_b) / n_b
+                perm_stat = abs(mean_b - mean_a)
+                if perm_stat >= obs_stat - 1e-12:
+                    count_extreme += 1
+
+            return count_extreme / float(self.n_permutations)
+
+    def _bootstrap_rri_ci_aligned(
+        self,
+        active_base: List[float],
+        active_int: List[float],
+        sham_base: Optional[List[float]],
+        sham_int: Optional[List[float]],
         em_risk: float,
         seed: int = 42,
     ) -> Tuple[float, float]:
-        """Compute empirical 95% bootstrap confidence interval for normalized RRI."""
+        """Compute empirical 95% bootstrap CI estimating the exact same sham-adjusted RRI statistic."""
         rng = random.Random(seed)
         rri_dist: List[float] = []
 
-        n_b = len(base_samples)
-        n_i = len(int_samples)
+        n_ab, n_ai = len(active_base), len(active_int)
+        n_sb = len(sham_base) if sham_base else 0
+        n_si = len(sham_int) if sham_int else 0
 
         for _ in range(self.n_bootstraps):
-            resamp_b = [base_samples[rng.randint(0, n_b - 1)] for _ in range(n_b)]
-            resamp_i = [int_samples[rng.randint(0, n_i - 1)] for _ in range(n_i)]
+            # Resample active phases
+            resamp_ab = [active_base[rng.randint(0, n_ab - 1)] for _ in range(n_ab)]
+            resamp_ai = [active_int[rng.randint(0, n_ai - 1)] for _ in range(n_ai)]
 
-            m_b = sum(resamp_b) / n_b
-            m_i = sum(resamp_i) / n_i
-            v_b = sum((x - m_b) ** 2 for x in resamp_b) / max(1, n_b - 1)
-            v_i = sum((x - m_i) ** 2 for x in resamp_i) / max(1, n_i - 1)
-            p_sd = math.sqrt(max(1e-6, (v_b + v_i) / 2.0))
+            m_ab = sum(resamp_ab) / n_ab
+            m_ai = sum(resamp_ai) / n_ai
+            v_ab = sum((x - m_ab) ** 2 for x in resamp_ab) / max(1, n_ab - 1)
+            v_ai = sum((x - m_ai) ** 2 for x in resamp_ai) / max(1, n_ai - 1)
 
-            b_d = (m_i - m_b) / p_sd
+            delta_act = m_ai - m_ab
+
+            # Resample sham phases if provided
+            if sham_base and sham_int and n_sb > 0 and n_si > 0:
+                resamp_sb = [sham_base[rng.randint(0, n_sb - 1)] for _ in range(n_sb)]
+                resamp_si = [sham_int[rng.randint(0, n_si - 1)] for _ in range(n_si)]
+
+                m_sb = sum(resamp_sb) / n_sb
+                m_si = sum(resamp_si) / n_si
+                v_sb = sum((x - m_sb) ** 2 for x in resamp_sb) / max(1, n_sb - 1)
+                v_si = sum((x - m_si) ** 2 for x in resamp_si) / max(1, n_si - 1)
+
+                delta_sham = m_si - m_sb
+                net_delta = delta_act - delta_sham
+                pooled_sd = math.sqrt(max(1e-6, (v_ab + v_ai + v_sb + v_si) / 4.0))
+            else:
+                net_delta = delta_act
+                pooled_sd = math.sqrt(max(1e-6, (v_ab + v_ai) / 2.0))
+
+            b_d = net_delta / pooled_sd
             b_rri = (abs(b_d) / (1.0 + abs(b_d))) * (1.0 - em_risk)
             rri_dist.append(b_rri)
 
@@ -134,7 +201,7 @@ class ResonanceAnalyzer:
         temp_delta_c: float = 0.1,
         prior_trial_scores: Optional[List[float]] = None,
     ) -> ResponseEvaluation:
-        """Evaluate trial with double-difference sham subtraction and phantom baseline correction."""
+        """Evaluate trial with aligned double-difference contrast, permutation p-value, and bootstrap CI."""
         if not baseline_signal or not intervention_signal or not washout_signal:
             raise ValueError("All trial phases must contain data.")
 
@@ -142,18 +209,22 @@ class ResonanceAnalyzer:
         mean_int = sum(intervention_signal) / len(intervention_signal)
         raw_bio_delta = mean_int - mean_base
 
+        var_base = sum((x - mean_base) ** 2 for x in baseline_signal) / max(1, len(baseline_signal) - 1)
+        var_int = sum((x - mean_int) ** 2 for x in intervention_signal) / max(1, len(intervention_signal) - 1)
+
         # 1. Sham Subtraction (Double Difference)
         if sham_baseline_signal and sham_intervention_signal:
             mean_sham_base = sum(sham_baseline_signal) / len(sham_baseline_signal)
             mean_sham_int = sum(sham_intervention_signal) / len(sham_intervention_signal)
             sham_delta = mean_sham_int - mean_sham_base
             net_delta = raw_bio_delta - sham_delta
+
+            var_sb = sum((x - mean_sham_base) ** 2 for x in sham_baseline_signal) / max(1, len(sham_baseline_signal) - 1)
+            var_si = sum((x - mean_sham_int) ** 2 for x in sham_intervention_signal) / max(1, len(sham_intervention_signal) - 1)
+            pooled_sd = math.sqrt(max(1e-6, (var_base + var_int + var_sb + var_si) / 4.0))
         else:
             net_delta = raw_bio_delta
-
-        var_base = sum((x - mean_base) ** 2 for x in baseline_signal) / max(1, len(baseline_signal) - 1)
-        var_int = sum((x - mean_int) ** 2 for x in intervention_signal) / max(1, len(intervention_signal) - 1)
-        pooled_sd = math.sqrt(max(1e-6, (var_base + var_int) / 2.0))
+            pooled_sd = math.sqrt(max(1e-6, (var_base + var_int) / 2.0))
 
         cohens_d = net_delta / pooled_sd
 
@@ -166,7 +237,6 @@ class ResonanceAnalyzer:
         if phantom_baseline_signal and phantom_active_signal:
             p_base = sum(phantom_baseline_signal) / len(phantom_baseline_signal)
             p_act = sum(phantom_active_signal) / len(phantom_active_signal)
-            # Delta from phantom baseline (not absolute mean)
             phantom_delta = p_act - p_base
             if abs(phantom_delta) > 0.40 * abs(raw_bio_delta) and abs(phantom_delta) > 0.10:
                 artifact_flags.append("DIRECT_EM_INSTRUMENTATION_PICKUP")
@@ -188,9 +258,20 @@ class ResonanceAnalyzer:
             flags=artifact_flags,
         )
 
-        # 3. Non-Parametric Permutation Test & Bootstrap Confidence Interval
-        p_val = self._permutation_test(baseline_signal, intervention_signal)
-        ci_low, ci_high = self._bootstrap_rri_ci(baseline_signal, intervention_signal, em_risk)
+        # 3. Aligned Double-Difference Permutation Test & Aligned Bootstrap CI
+        p_val = self._permutation_test_double_difference(
+            baseline_signal,
+            intervention_signal,
+            sham_baseline_signal,
+            sham_intervention_signal,
+        )
+        ci_low, ci_high = self._bootstrap_rri_ci_aligned(
+            baseline_signal,
+            intervention_signal,
+            sham_baseline_signal,
+            sham_intervention_signal,
+            em_risk,
+        )
 
         # 4. Resonance Response Index (RRI)
         raw_response = abs(cohens_d) / (1.0 + abs(cohens_d))
