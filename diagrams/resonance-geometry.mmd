@@ -1,0 +1,18 @@
+flowchart TD
+    subgraph NestedCavity["Nested Golden-Ratio Cavity (Phi = 1.6180339887)"]
+        OuterSphere["Outer Resonant Sphere (D = 300 mm) [R_outer]"]
+        MiddleSphere["Middle Resonant Sphere (D / phi = 185.4 mm) [R_middle]"]
+        InnerSphere["Inner Resonant Sphere (D / phi^2 = 114.6 mm) [R_inner]"]
+        
+        subgraph CentralCore["Central Polyhedral Core"]
+            TetraUp["Upward Tetrahedron [R_core_up]"]
+            TetraDown["Downward Tetrahedron [R_core_down]"]
+            Merkaba["Dual-Interpenetrating Tetrahedron (Merkaba)"]
+        end
+    end
+
+    OuterSphere --> MiddleSphere
+    MiddleSphere --> InnerSphere
+    InnerSphere --> CentralCore
+    TetraUp <--> Merkaba
+    TetraDown <--> Merkaba

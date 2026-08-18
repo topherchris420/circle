@@ -15,8 +15,23 @@ class DiagramTests(unittest.TestCase):
         for term in ("BAT_HUMAN", "LAB_ISO", "USB_PRESENT", "DEBUG_ATTACHED", "EXTERNAL_EXPANSION_ATTACHED"):
             self.assertIn(term, text)
 
+    def test_mermaid_resonance_contains_required_terms(self):
+        arch_text = (ROOT / "diagrams/resonance-architecture.mmd").read_text(encoding="utf-8")
+        for term in ("CIRCLE Rev B", "Resonance Experimental System", "ISOW7742", "PowerSensors"):
+            self.assertIn(term, arch_text)
+
+        safety_text = (ROOT / "diagrams/resonance-safety-boundary.mmd").read_text(encoding="utf-8")
+        for term in ("BAT_HUMAN", "ISOW7742", "LAB_ISO", "NO CONDUCTIVE PATH"):
+            self.assertIn(term, safety_text)
+
     def test_rendered_svgs_exist_and_warn(self):
-        for name in ("system-architecture.svg", "safety-boundaries.svg"):
+        for name in (
+            "system-architecture.svg",
+            "safety-boundaries.svg",
+            "resonance-architecture.svg",
+            "resonance-safety-boundary.svg",
+            "resonance-geometry.svg",
+        ):
             path = ROOT / "diagrams" / name
             self.assertTrue(path.exists())
             self.assertIn("ENGINEERING REVIEW ONLY", path.read_text(encoding="utf-8"))

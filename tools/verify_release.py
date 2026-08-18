@@ -10,7 +10,7 @@ def run(command):
 def digest(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 def main():
     py=sys.executable; k=str(KICAD); steps=[]
-    commands=[[py,"-m","unittest","discover","-s","tests"],[py,"tools/check_design_manifest.py"],[py,"tools/check_record_schema.py"],[py,"tools/render_diagrams.py"],[py,"tools/generate_schematics.py"],[py,"tools/generate_schematics.py","--board","circle-ppg"],[k,"version"],[k,"sch","erc","--format","json","--severity-all","--output","hardware/reports/circle-main-erc.json","hardware/circle-main/legacy/00_root.sch"],[k,"sch","erc","--format","json","--severity-all","--output","hardware/reports/circle-ppg-erc.json","hardware/circle-ppg/legacy/00_ppg_root.sch"],[py,"tools/check_erc.py"]]
+    commands=[[py,"-m","unittest","discover","-s","tests"],[py,"tools/check_design_manifest.py"],[py,"tools/check_record_schema.py"],[py,"tools/check_resonance_contract.py"],[py,"tools/render_diagrams.py"],[py,"tools/generate_schematics.py"],[py,"tools/generate_schematics.py","--board","circle-ppg"],[k,"version"],[k,"sch","erc","--format","json","--severity-all","--output","hardware/reports/circle-main-erc.json","hardware/circle-main/legacy/00_root.sch"],[k,"sch","erc","--format","json","--severity-all","--output","hardware/reports/circle-ppg-erc.json","hardware/circle-ppg/legacy/00_ppg_root.sch"],[py,"tools/check_erc.py"]]
     for command in commands:
         result=run(command); steps.append(result)
         if result["exit_code"]: break

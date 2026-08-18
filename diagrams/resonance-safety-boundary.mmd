@@ -1,0 +1,36 @@
+flowchart TD
+    subgraph BAT_HUMAN["BAT_HUMAN Domain (Sensing Only)"]
+        Subject["Subject / Phantom"]
+        EDA["EDA Electrodes"]
+        PPG["PPG Optical Head"]
+        IMU["IMU Motion"]
+        MainBoard["circle-main Board"]
+    end
+
+    subgraph ISOLATION_GAP["8.0 mm Physical Cutout Barrier"]
+        IsoSlot["NO CONDUCTIVE PATH (8.0 mm slot)"]
+        ISOW["TI ISOW7742 5.0 kVrms Isolator"]
+    end
+
+    subgraph LAB_RESONANCE["LAB_ISO & External Resonance Domain"]
+        BNC["Isolated BNC SYNC IN/OUT"]
+        Controller["Resonance Experiment Controller"]
+        PowerMains["Laboratory Mains Power (120/240V)"]
+        DriveAmp["5-Channel Resonator Amplifiers"]
+        Chamber["Resonator Cavity & Feed Antennas"]
+    end
+
+    Subject --- EDA
+    Subject --- PPG
+    EDA --- MainBoard
+    PPG --- MainBoard
+
+    MainBoard -.-x|NO ELECTRICAL CONNECTION| Chamber
+    MainBoard -.-x|NO ELECTRICAL CONNECTION| DriveAmp
+
+    MainBoard <===>|Hardware Clock Edges| ISOW
+    ISOW <===>|Isolated Digital Sync| BNC
+    BNC <===>|Coaxial Sync Cables| Controller
+    Controller ===> DriveAmp
+    PowerMains ===> DriveAmp
+    DriveAmp ===> Chamber

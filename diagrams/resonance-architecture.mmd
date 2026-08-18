@@ -1,0 +1,26 @@
+flowchart LR
+    subgraph CIRCLE["CIRCLE Rev B Platform"]
+        Human["Human / Subject"]
+        Sensing["CIRCLE Sensing (EDA, PPG, IMU)"]
+        Compute["ESP32-S3 Compute & Storage"]
+        IsoBarrier["ISOW7742 5kVrms Isolation Barrier"]
+        LabSync["LAB_ISO Isolated SYNC (BNC)"]
+    end
+
+    subgraph ResonanceSystem["Resonance Experimental System"]
+        Controller["Resonance Experiment Controller"]
+        DriveAmp["5-Channel RF/Acoustic Drive"]
+        Chamber["Nested Cavity & Merkaba Resonator"]
+        PowerSensors["Precision Power & Energy Monitor"]
+    end
+
+    Human -->|Physiological Signals| Sensing
+    Sensing -->|Buffered Samples| Compute
+    Compute -->|Hardware Timestamps| LabSync
+    LabSync <-->|Isolated Pulse Train| IsoBarrier
+    IsoBarrier <-->|Trigger & Clock Sync| Controller
+    Controller -->|Multi-Frequency Drive| DriveAmp
+    DriveAmp -->|R_outer, R_mid, R_inner, R_core| Chamber
+    Chamber -->|Radiated Field| Human
+    DriveAmp -->|P_in & P_out| PowerSensors
+    PowerSensors -->|Energy Accounting| Controller

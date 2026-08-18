@@ -1,4 +1,4 @@
-"""Render the two review diagrams deterministically with the Python standard library."""
+"""Render review diagrams deterministically with the Python standard library."""
 
 from pathlib import Path
 import xml.etree.ElementTree as ET
@@ -27,6 +27,7 @@ SYSTEM_EDGES = [
     (11, 12, "lower priority"), (13, 7, "timestamps"),
     (13, 5, "action time"), (13, 11, "metadata"), (11, 14, "preserve"),
 ]
+
 SAFETY_NODES = [
     ("USB_PRESENT", 70, 210, "unsafe"), ("DEBUG_ATTACHED", 70, 310, "unsafe"),
     ("EXTERNAL_EXPANSION_ATTACHED", 70, 410, "unsafe"),
@@ -43,6 +44,59 @@ SAFETY_EDGES = [
     (3, 4, "qualify"), (4, 5, "EDA_ACTIVE"), (10, 9, "isolated in"),
     (9, 6, "capture"), (6, 9, "drive"), (9, 11, "isolated out"),
 ]
+
+RESONANCE_ARCH_NODES = [
+    ("CIRCLE BAT_HUMAN Sensors", 40, 180, "sensor"),
+    ("ESP32-S3 Compute & Log", 250, 180, "device"),
+    ("ISOW7742 (5 kVrms)", 460, 180, "barrier"),
+    ("Isolated SYNC (BNC)", 660, 180, "lab"),
+    ("Resonance Controller", 870, 180, "model"),
+    ("5-Channel DDS Drive", 870, 330, "gate"),
+    ("Power & Energy Monitor", 660, 330, "evidence"),
+    ("Resonant Chamber (Phi)", 870, 480, "device"),
+    ("Subject / Phantom", 40, 480, "human"),
+    ("Closed-Loop Optimization", 460, 480, "software"),
+]
+RESONANCE_ARCH_EDGES = [
+    (0, 1, "samples"), (1, 2, "hardware timestamp"), (2, 3, "isolated pulse"),
+    (3, 4, "trigger sync"), (4, 5, "target freqs"), (5, 6, "P_in measurement"),
+    (5, 7, "multi-ch drive"), (7, 8, "radiated field"), (8, 0, "sense response"),
+    (1, 9, "provenance log"), (9, 4, "next adaptive cfg"),
+]
+
+RESONANCE_SAFETY_NODES = [
+    ("EDA Electrodes (Human)", 50, 180, "eda"),
+    ("PPG Optical Head (Human)", 50, 280, "sensor"),
+    ("circle-main BAT_HUMAN", 50, 400, "device"),
+    ("8.0mm NO-COPPER CUTOUT", 370, 290, "unsafe"),
+    ("ISOW7742 (5.0 kVrms)", 370, 400, "barrier"),
+    ("BNC Isolated SYNC", 650, 400, "lab"),
+    ("Resonance Controller", 880, 250, "model"),
+    ("5-Channel Amplifiers", 880, 380, "gate"),
+    ("External Resonator Cavity", 880, 510, "device"),
+]
+RESONANCE_SAFETY_EDGES = [
+    (0, 2, "direct connection"), (1, 2, "direct connection"),
+    (2, 3, "PHYSICALLY SEPARATED"), (2, 4, "ISOW7742 only"),
+    (4, 5, "isolated sync"), (5, 6, "coax sync"),
+    (6, 7, "drive signals"), (7, 8, "high power"),
+]
+
+RESONANCE_GEOM_NODES = [
+    ("Outer Sphere: D = 300 mm [R_outer]", 100, 180, "device"),
+    ("Middle Sphere: D/phi = 185.4 mm [R_middle]", 100, 300, "software"),
+    ("Inner Sphere: D/phi^2 = 114.6 mm [R_inner]", 100, 420, "sensor"),
+    ("Dual Tetrahedron (Merkaba) [R_core]", 600, 240, "model"),
+    ("Upward Pointing Tetrahedron [R_core_up]", 600, 380, "gate"),
+    ("Downward Pointing Tetrahedron [R_core_down]", 600, 500, "eda"),
+    ("Power Accounting: P_out <= P_in", 350, 600, "evidence"),
+]
+RESONANCE_GEOM_EDGES = [
+    (0, 1, "phi = 1.618034"), (1, 2, "phi = 1.618034"),
+    (2, 3, "central enclosure"), (3, 4, "upper element"),
+    (3, 5, "inverted element"), (0, 6, "conservation verified"),
+]
+
 COLORS = {
     "human": "#f3e8d1", "device": "#b9d8f2", "software": "#c9e6cf",
     "model": "#d7c6f2", "feedback": "#f2c2b8", "sensor": "#cfe8e8",
@@ -72,7 +126,7 @@ def render(path, title, nodes, edges, domains=(), footer=None):
         text.text = label
     centers = []
     for label, x, y, style in nodes:
-        width = 150 if len(label) < 24 else 245
+        width = 160 if len(label) < 26 else 280
         height = 62
         centers.append((x + width / 2, y + height / 2))
     for source, target, label in edges:
@@ -81,7 +135,7 @@ def render(path, title, nodes, edges, domains=(), footer=None):
         edge_text = ET.SubElement(root, svg_tag("text"), {"x": str((x1 + x2) / 2), "y": str((y1 + y2) / 2 - 6), "text-anchor": "middle", "font-family": "Arial, sans-serif", "font-size": "11", "fill": "#39424c"})
         edge_text.text = label
     for label, x, y, style in nodes:
-        width = 150 if len(label) < 24 else 245
+        width = 160 if len(label) < 26 else 280
         ET.SubElement(root, svg_tag("rect"), {"x": str(x), "y": str(y), "width": str(width), "height": "62", "rx": "10", "fill": COLORS[style], "stroke": "#30343b", "stroke-width": "2"})
         text = ET.SubElement(root, svg_tag("text"), {"x": str(x + width / 2), "y": str(y + 36), "text-anchor": "middle", "font-family": "Arial, sans-serif", "font-size": "13", "font-weight": "bold", "fill": "#161b22"})
         text.text = label
@@ -101,7 +155,25 @@ def main():
         domains=(("BAT_HUMAN", 35, 135, 720, 520, "#dcebdc"), ("LAB_ISO", 900, 135, 270, 520, "#dde5f5")),
         footer="Arbitrary grounded probes are a procedural hazard outside intended attachment detection.",
     )
-    print("rendered 2 diagrams")
+    render(
+        OUT / "resonance-architecture.svg", "CIRCLE Resonance Closed-Loop System Architecture",
+        RESONANCE_ARCH_NODES, RESONANCE_ARCH_EDGES,
+        domains=(("CIRCLE_MEASUREMENT", 25, 120, 600, 540, "#dcebdc"), ("RESONANCE_EXPERIMENT", 640, 120, 530, 540, "#dde5f5")),
+        footer="Resonance chamber driven strictly through isolated LAB_ISO sync interface.",
+    )
+    render(
+        OUT / "resonance-safety-boundary.svg", "CIRCLE Resonance Electrical Safety & Isolation Boundary",
+        RESONANCE_SAFETY_NODES, RESONANCE_SAFETY_EDGES,
+        domains=(("BAT_HUMAN (SENSING ONLY)", 25, 120, 310, 540, "#dcebdc"), ("ISOLATION GAP (8mm)", 345, 120, 270, 540, "#fbe4e2"), ("LAB_ISO & RESONANCE CHAMBER", 625, 120, 550, 540, "#dde5f5")),
+        footer="Zero conductive connection permitted between resonance drive and BAT_HUMAN domain.",
+    )
+    render(
+        OUT / "resonance-geometry.svg", "CIRCLE Resonance Parametric Nested Phi-Cavity Geometry",
+        RESONANCE_GEOM_NODES, RESONANCE_GEOM_EDGES,
+        domains=(("NESTED SPHERICAL CAVITIES", 40, 120, 480, 540, "#dcebdc"), ("POLYHEDRAL CENTRAL CORE", 540, 120, 620, 540, "#dde5f5")),
+        footer="Parametric nested golden-ratio spheres (Phi = 1.618034) with central dual-tetrahedral core.",
+    )
+    print("rendered 5 diagrams")
 
 
 if __name__ == "__main__":

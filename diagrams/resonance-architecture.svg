@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-label="CIRCLE Resonance Closed-Loop System Architecture">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#30343b" />
+    </marker>
+  </defs>
+  <rect width="1200" height="720" fill="#fbfaf6" />
+  <text x="600" y="34" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#a32622">ENGINEERING REVIEW ONLY — NOT FOR HUMAN CONNECTION</text>
+  <text x="600" y="70" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#161b22">CIRCLE Resonance Closed-Loop System Architecture</text>
+  <rect x="25" y="120" width="600" height="540" rx="18" fill="#dcebdc" fill-opacity="0.25" stroke="#59636e" stroke-width="2" />
+  <text x="43" y="148" font-family="Arial, sans-serif" font-size="17" font-weight="bold" fill="#252b31">CIRCLE_MEASUREMENT</text>
+  <rect x="640" y="120" width="530" height="540" rx="18" fill="#dde5f5" fill-opacity="0.25" stroke="#59636e" stroke-width="2" />
+  <text x="658" y="148" font-family="Arial, sans-serif" font-size="17" font-weight="bold" fill="#252b31">RESONANCE_EXPERIMENT</text>
+  <line x1="120.0" y1="211.0" x2="330.0" y2="211.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="225.0" y="205.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">samples</text>
+  <line x1="330.0" y1="211.0" x2="540.0" y2="211.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="435.0" y="205.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">hardware timestamp</text>
+  <line x1="540.0" y1="211.0" x2="740.0" y2="211.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="640.0" y="205.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">isolated pulse</text>
+  <line x1="740.0" y1="211.0" x2="950.0" y2="211.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="845.0" y="205.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">trigger sync</text>
+  <line x1="950.0" y1="211.0" x2="950.0" y2="361.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="950.0" y="280.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">target freqs</text>
+  <line x1="950.0" y1="361.0" x2="740.0" y2="361.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="845.0" y="355.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">P_in measurement</text>
+  <line x1="950.0" y1="361.0" x2="950.0" y2="511.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="950.0" y="430.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">multi-ch drive</text>
+  <line x1="950.0" y1="511.0" x2="120.0" y2="511.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="535.0" y="505.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">radiated field</text>
+  <line x1="120.0" y1="511.0" x2="120.0" y2="211.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="120.0" y="355.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">sense response</text>
+  <line x1="330.0" y1="211.0" x2="540.0" y2="511.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="435.0" y="355.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">provenance log</text>
+  <line x1="540.0" y1="511.0" x2="950.0" y2="211.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="745.0" y="355.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">next adaptive cfg</text>
+  <rect x="40" y="180" width="160" height="62" rx="10" fill="#cfe8e8" stroke="#30343b" stroke-width="2" />
+  <text x="120.0" y="216" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">CIRCLE BAT_HUMAN Sensors</text>
+  <rect x="250" y="180" width="160" height="62" rx="10" fill="#b9d8f2" stroke="#30343b" stroke-width="2" />
+  <text x="330.0" y="216" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">ESP32-S3 Compute &amp; Log</text>
+  <rect x="460" y="180" width="160" height="62" rx="10" fill="#f4b860" stroke="#30343b" stroke-width="2" />
+  <text x="540.0" y="216" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">ISOW7742 (5 kVrms)</text>
+  <rect x="660" y="180" width="160" height="62" rx="10" fill="#c9d7f0" stroke="#30343b" stroke-width="2" />
+  <text x="740.0" y="216" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Isolated SYNC (BNC)</text>
+  <rect x="870" y="180" width="160" height="62" rx="10" fill="#d7c6f2" stroke="#30343b" stroke-width="2" />
+  <text x="950.0" y="216" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Resonance Controller</text>
+  <rect x="870" y="330" width="160" height="62" rx="10" fill="#f4b860" stroke="#30343b" stroke-width="2" />
+  <text x="950.0" y="366" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">5-Channel DDS Drive</text>
+  <rect x="660" y="330" width="160" height="62" rx="10" fill="#fff1bf" stroke="#30343b" stroke-width="2" />
+  <text x="740.0" y="366" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Power &amp; Energy Monitor</text>
+  <rect x="870" y="480" width="160" height="62" rx="10" fill="#b9d8f2" stroke="#30343b" stroke-width="2" />
+  <text x="950.0" y="516" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Resonant Chamber (Phi)</text>
+  <rect x="40" y="480" width="160" height="62" rx="10" fill="#f3e8d1" stroke="#30343b" stroke-width="2" />
+  <text x="120.0" y="516" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Subject / Phantom</text>
+  <rect x="460" y="480" width="160" height="62" rx="10" fill="#c9e6cf" stroke="#30343b" stroke-width="2" />
+  <text x="540.0" y="516" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Closed-Loop Optimization</text>
+  <text x="600" y="695" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#7a231f">Resonance chamber driven strictly through isolated LAB_ISO sync interface.</text>
+</svg>

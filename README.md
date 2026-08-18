@@ -52,19 +52,37 @@ It is to create an instrument capable of studying **how signals change together*
 [3D animation](diagrams/circle-3d-animation.gif) ·
 [interactive 3D viewer](diagrams/circle-3d-viewer.html) ·
 [system architecture](diagrams/system-architecture.svg) ·
-[main-board schematic](hardware/reports/pdf/circle-main.pdf) ·
-[optical-board schematic](hardware/reports/pdf/circle-ppg.pdf) ·
 [safety analysis](docs/safety-analysis.md) ·
+[resonance architecture](diagrams/resonance-architecture.svg) ·
+[resonance safety](diagrams/resonance-safety-boundary.svg) ·
+[resonance geometry](diagrams/resonance-geometry.svg) ·
+[main schematic](hardware/reports/pdf/circle-main.pdf) ·
+[optical schematic](hardware/reports/pdf/circle-ppg.pdf) ·
 [review gates](docs/review-gates.md) ·
 [verification summary](hardware/reports/verification-summary.json)
 
 ---
 
-## 3D Hardware Assembly
+## 3D Hardware & Resonance Assembly
 
-![CIRCLE Rev B 3D Hardware Assembly Animation](diagrams/circle-3d-animation.gif)
+![CIRCLE Rev B 3D Hardware & Resonance Assembly Animation](diagrams/circle-3d-animation.gif)
 
-*3D turntable visualization of the CIRCLE Rev B dual-board architecture: `circle-main` (85×55 mm) compute & biosignal acquisition board with 8.0 mm reinforced isolation barrier cutout slot, and `circle-ppg` (25×18 mm) optical contact board.*
+*3D turntable visualization of the CIRCLE Rev B architecture: `circle-main` (85×55 mm compute & biosignal acquisition board) with 8.0 mm reinforced isolation slot, `circle-ppg` (25×18 mm optical contact head), and the external **3-Sphere $\phi$-Resonance Chamber** with central **Merkaba (Dual-Tetrahedral) Core**.*
+
+---
+
+## Resonance Research Module
+
+The **CIRCLE Resonance Module** provides a modular, evidence-before-inference experimental extension to investigate whether externally driven resonant fields, geometric proportions ($\phi \approx 1.6180339887$), and multi-frequency phase relationships produce reproducible changes in synchronized physiological and environmental sensor signals.
+
+### Key Experimental Capabilities:
+* **Nested Cavity Geometry:** 3 independently controllable nested spherical resonators ($D, D/\phi, D/\phi^2$) with a central double-interpenetrating tetrahedron (Merkaba) core.
+* **Balanced Control Matrix:** Systematic comparisons against equal-spaced cavities, randomized geometries, spherical/cubic cores, empty cavities, and unpowered sham controls.
+* **Strict Electrical Isolation:** Zero conductive connection to the human-connected `BAT_HUMAN` domain. All triggers and clocks interface exclusively across the 5.0 kVrms ISOW7742 `LAB_ISO` barrier.
+* **Conservation of Energy:** Enforces $P_\text{out} \le P_\text{in}$ with full input, output, and dissipated thermal power accounting.
+* **Epistemological Integrity:** Distinguishes measured physical variables from qualitative `HYPOTHESIS_LABEL` models. Analyzes response using the neutral `Resonance Response Index (RRI)` and automated electronic phantom artifact discrimination.
+
+![CIRCLE Resonance Architecture](diagrams/resonance-architecture.svg)
 
 ---
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CIRCLE Rev B — Interactive 3D Assembly Viewer</title>
+  <title>CIRCLE Rev B + Resonance Research Module — Interactive 3D Viewer</title>
   <style>
     body {
       margin: 0;
@@ -53,6 +53,7 @@
       bottom: 20px;
       left: 20px;
       display: flex;
+      flex-wrap: wrap;
       gap: 10px;
       z-index: 10;
       pointer-events: none;
@@ -67,6 +68,8 @@
     .human { background: rgba(35, 134, 54, 0.25); border: 1px solid #2ea043; color: #7ee787; }
     .iso { background: rgba(31, 111, 235, 0.25); border: 1px solid #388bfd; color: #79c0ff; }
     .slot { background: rgba(210, 153, 34, 0.25); border: 1px solid #d29922; color: #e3b341; }
+    .chamber { background: rgba(163, 113, 247, 0.25); border: 1px solid #bc8cff; color: #d2a8ff; }
+    .core { background: rgba(240, 136, 62, 0.25); border: 1px solid #f0883e; color: #ffa657; }
     #controls-hint {
       position: absolute;
       bottom: 20px;
@@ -81,8 +84,8 @@
 </head>
 <body>
   <div id="overlay">
-    <h1>CIRCLE Rev B Hardware Assembly</h1>
-    <p>Multimodal Biosignal Research Platform — Interactive 3D Model</p>
+    <h1>CIRCLE Rev B + Resonance Research Module</h1>
+    <p>Multimodal Biosignal Sensing · Isolated Lab Sync · Nested Phi-Cavity & Merkaba Core</p>
     <span class="badge badge-warn">ENGINEERING REVIEW ONLY — NOT CERTIFIED FOR HUMAN CONNECTION</span>
   </div>
 
@@ -90,6 +93,8 @@
     <div class="legend-item human">● BAT_HUMAN Domain (Isolated)</div>
     <div class="legend-item iso">● LAB_ISO Domain (5 kVrms)</div>
     <div class="legend-item slot">⚡ 8.0mm Cutout Slot</div>
+    <div class="legend-item chamber">● 3-Sphere Phi Resonator (300/185/115 mm)</div>
+    <div class="legend-item core">● Merkaba Dual-Tetrahedral Core</div>
   </div>
 
   <div id="controls-hint">Left Drag: Rotate · Right Drag: Pan · Scroll: Zoom</div>
@@ -101,7 +106,7 @@
     scene.background = new THREE.Color(0x0e1117);
 
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(60, 90, 110);
+    camera.position.set(70, 110, 160);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -112,15 +117,14 @@
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.target.set(42.5, 0, 27.5);
+    controls.target.set(65, 0, 27.5);
 
     // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
 
     const dirLight1 = new THREE.DirectionalLight(0xfff5e6, 1.2);
-    dirLight1.position.set(80, 150, 100);
-    dirLight1.castShadow = true;
+    dirLight1.position.set(90, 160, 110);
     scene.add(dirLight1);
 
     const dirLight2 = new THREE.DirectionalLight(0x88bbff, 0.6);
@@ -135,21 +139,26 @@
     const whitePlasticMat = new THREE.MeshStandardMaterial({ color: 0xf0f0ea, roughness: 0.5, metalness: 0.05 });
     const redLensMat = new THREE.MeshPhysicalMaterial({ color: 0xee1133, roughness: 0.1, transmission: 0.7, opacity: 0.9, transparent: true });
 
+    // Resonance Materials
+    const outerSphereMat = new THREE.MeshStandardMaterial({ color: 0xbf733c, roughness: 0.3, metalness: 0.7, wireframe: true });
+    const midSphereMat = new THREE.MeshStandardMaterial({ color: 0xd7af2d, roughness: 0.3, metalness: 0.8, wireframe: true });
+    const innerSphereMat = new THREE.MeshStandardMaterial({ color: 0xb0b9c8, roughness: 0.2, metalness: 0.85, wireframe: true });
+    const tetraUpMat = new THREE.MeshStandardMaterial({ color: 0xf5c341, roughness: 0.2, metalness: 0.6, transparent: true, opacity: 0.85 });
+    const tetraDownMat = new THREE.MeshStandardMaterial({ color: 0x3cc8f0, roughness: 0.2, metalness: 0.6, transparent: true, opacity: 0.85 });
+
     const group = new THREE.Group();
 
-    // 1. PCB Human section (0..67.5, 0..55)
-    const pcbHumanGeo = new THREE.BoxGeometry(67.5, 1.6, 55);
-    const pcbHuman = new THREE.Mesh(pcbHumanGeo, pcbMat);
+    // 1. PCB Human section
+    const pcbHuman = new THREE.Mesh(new THREE.BoxGeometry(67.5, 1.6, 55), pcbMat);
     pcbHuman.position.set(67.5 / 2, -0.8, 55 / 2);
     group.add(pcbHuman);
 
-    // 2. PCB Lab Iso section (74.5..85, 0..55)
-    const pcbIsoGeo = new THREE.BoxGeometry(10.5, 1.6, 55);
-    const pcbIso = new THREE.Mesh(pcbIsoGeo, pcbMat);
+    // 2. PCB Lab Iso section
+    const pcbIso = new THREE.Mesh(new THREE.BoxGeometry(10.5, 1.6, 55), pcbMat);
     pcbIso.position.set(74.5 + 10.5 / 2, -0.8, 55 / 2);
     group.add(pcbIso);
 
-    // 3. PCB Bridges across slot (at Z=2 and Z=53)
+    // 3. PCB Bridges
     const bridgeGeo = new THREE.BoxGeometry(7.0, 1.6, 4.0);
     const b1 = new THREE.Mesh(bridgeGeo, pcbMat);
     b1.position.set(67.5 + 3.5, -0.8, 2.0);
@@ -158,15 +167,11 @@
     b2.position.set(67.5 + 3.5, -0.8, 53.0);
     group.add(b2);
 
-    // ESP32-S3 Module
+    // Components on PCB
     const espShield = new THREE.Mesh(new THREE.BoxGeometry(18, 3.0, 20), silverMat);
     espShield.position.set(46, 1.5, 21.25);
     group.add(espShield);
-    const espAnt = new THREE.Mesh(new THREE.BoxGeometry(18, 1.0, 5.5), new THREE.MeshStandardMaterial({ color: 0x121c16 }));
-    espAnt.position.set(46, 0.5, 34);
-    group.add(espAnt);
 
-    // Dual BNCs
     function addBNC(x, z) {
       const base = new THREE.Mesh(new THREE.BoxGeometry(8, 11, 12), silverMat);
       base.position.set(x - 4, 5.5, z);
@@ -179,57 +184,58 @@
     addBNC(80, 14);
     addBNC(80, 41);
 
-    // TI ISOW7742 Isolator
     const isow = new THREE.Mesh(new THREE.BoxGeometry(11, 2.4, 10), darkIcMat);
     isow.position.set(71, 1.2, 27.5);
     group.add(isow);
 
-    // USB-C
     const usbc = new THREE.Mesh(new THREE.BoxGeometry(8.5, 3.2, 9), silverMat);
     usbc.position.set(4.25, 1.6, 27.5);
     group.add(usbc);
 
-    // JST-PH battery
-    const jst = new THREE.Mesh(new THREE.BoxGeometry(8, 6, 7.5), whitePlasticMat);
-    jst.position.set(12, 3, 7);
-    group.add(jst);
-
-    // SD Slot
-    const sd = new THREE.Mesh(new THREE.BoxGeometry(14, 1.8, 13), silverMat);
-    sd.position.set(8, 0.9, 42.5);
-    group.add(sd);
-
-    // ICs & sensors
-    function addIC(x, z, w, d, h, mat = darkIcMat) {
-      const ic = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
-      ic.position.set(x, h / 2, z);
-      group.add(ic);
-    }
-    addIC(18, 18, 4, 4, 1.0); // BQ24074
-    addIC(18, 28, 4, 4, 1.0); // TPS63070
-    addIC(24, 28, 4.5, 4.5, 2.0, darkIcMat); // Inductor
-    addIC(29, 44, 5, 4.5, 1.2); // ADS1220
-    addIC(35, 44, 4.5, 4, 1.2); // OPA2192
-    addIC(41, 44, 4.5, 4, 1.2); // REF5020
-    addIC(25, 14, 3, 3, 0.9); // ICM-42688-P IMU
-    addIC(25, 20, 3, 3, 0.9); // DRV2605L
-
-    // circle-ppg daughterboard
+    // Daughterboard circle-ppg
     const ppg = new THREE.Group();
-    ppg.position.set(37.5, 12, -10);
-    const ppgPcb = new THREE.Mesh(new THREE.BoxGeometry(25, 1.6, 18), pcbMat);
-    ppg.add(ppgPcb);
+    ppg.position.set(37.5, 8, -10);
+    ppg.add(new THREE.Mesh(new THREE.BoxGeometry(25, 1.6, 18), pcbMat));
     const max30102 = new THREE.Mesh(new THREE.BoxGeometry(6, 1.2, 4), darkIcMat);
     max30102.position.set(0, 1.4, 0);
     ppg.add(max30102);
-    const optWindow = new THREE.Mesh(new THREE.BoxGeometry(2, 0.2, 2), redLensMat);
-    optWindow.position.set(-1, 2.1, 0);
-    ppg.add(optWindow);
-    const jstGH = new THREE.Mesh(new THREE.BoxGeometry(10, 3.5, 4), whitePlasticMat);
-    jstGH.position.set(0, 2.5, 6);
-    ppg.add(jstGH);
     group.add(ppg);
 
+    // 4. EXTERNAL RESONANCE CHAMBER
+    const PHI = 1.6180339887;
+    const chGroup = new THREE.Group();
+    chGroup.position.set(145, 14, 27.5);
+
+    const r_outer = 32.0;
+    const r_mid = r_outer / PHI;
+    const r_inner = r_mid / PHI;
+
+    // 3 Nested Spheres
+    const sOuter = new THREE.Mesh(new THREE.SphereGeometry(r_outer, 24, 16), outerSphereMat);
+    chGroup.add(sOuter);
+    const sMid = new THREE.Mesh(new THREE.SphereGeometry(r_mid, 20, 14), midSphereMat);
+    chGroup.add(sMid);
+    const sInner = new THREE.Mesh(new THREE.SphereGeometry(r_inner, 18, 12), innerSphereMat);
+    chGroup.add(sInner);
+
+    // Central Merkaba (Dual Tetrahedron)
+    const s = 7.5;
+    const tetraUpGeo = new THREE.TetrahedronGeometry(s);
+    const tetraUp = new THREE.Mesh(tetraUpGeo, tetraUpMat);
+    chGroup.add(tetraUp);
+
+    const tetraDownGeo = new THREE.TetrahedronGeometry(s);
+    const tetraDown = new THREE.Mesh(tetraDownGeo, tetraDownMat);
+    tetraDown.rotation.x = Math.PI;
+    tetraDown.rotation.y = Math.PI / 4;
+    chGroup.add(tetraDown);
+
+    // Pedestal
+    const pedestal = new THREE.Mesh(new THREE.CylinderGeometry(22, 24, 3, 32), new THREE.MeshStandardMaterial({ color: 0x2c333f }));
+    pedestal.position.set(0, -15.5, 0);
+    chGroup.add(pedestal);
+
+    group.add(chGroup);
     scene.add(group);
 
     // Animation Loop
@@ -237,7 +243,9 @@
     function animate() {
       requestAnimationFrame(animate);
       const elapsedTime = clock.getElapsedTime();
-      group.rotation.y = elapsedTime * 0.4;
+      group.rotation.y = elapsedTime * 0.35;
+      tetraUp.rotation.y = elapsedTime * 0.8;
+      tetraDown.rotation.y = -elapsedTime * 0.8;
       controls.update();
       renderer.render(scene, camera);
     }

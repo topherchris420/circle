@@ -1,6 +1,6 @@
 import json,pathlib,unittest
 ROOT=pathlib.Path(__file__).resolve().parents[1]
-DOCS=["architecture.md","timing-and-data-model.md","pin-allocation.md","preliminary-power-budget.md","validation-plan.md","review-gates.md"]
+DOCS=["architecture.md","timing-and-data-model.md","pin-allocation.md","preliminary-power-budget.md","validation-plan.md","review-gates.md","resonance-architecture.md","resonance-safety-boundary.md","resonance-hypotheses.md"]
 class DocsContractTest(unittest.TestCase):
  def test_all_docs_warn(self):
   for name in DOCS:self.assertIn("ENGINEERING REVIEW ONLY",(ROOT/"docs"/name).read_text(encoding="utf-8"))
