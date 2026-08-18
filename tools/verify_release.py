@@ -34,7 +34,7 @@ def main():
     for path in list((ROOT/"hardware").rglob("*.json"))+list((ROOT/"docs").rglob("*.md")):
         if pattern.search(path.read_text(encoding="utf-8",errors="ignore")): disallowed.append(str(path.relative_to(ROOT)))
     artifacts=[]
-    patterns=["docs/superpowers/specs/*.md","hardware/*.json","hardware/circle-main/legacy/00_root.sch","hardware/circle-ppg/legacy/00_ppg_root.sch","hardware/reports/*-erc.json","hardware/reports/*-drc.json","hardware/reports/bom/*.csv","hardware/reports/pdf/*.pdf"]
+    patterns=["docs/superpowers/specs/*.md","hardware/*.json","hardware/circle-main/legacy/00_root.sch","hardware/circle-ppg/legacy/00_ppg_root.sch","hardware/reports/*-erc.json","hardware/reports/*-drc.json","hardware/reports/*-allowlist.json","hardware/reports/bom/*.csv","hardware/reports/pdf/*.pdf"]
     for pattern_glob in patterns:
         for path in sorted(ROOT.glob(pattern_glob)): artifacts.append({"path":str(path.relative_to(ROOT)),"sha256":digest(path)})
     ok=all(s["exit_code"]==0 for s in steps) and not disallowed

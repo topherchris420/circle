@@ -196,7 +196,7 @@ It does **not** mean that the hardware has been validated for human use.
 | Repository contracts | Unit tests + manifest and schema validators | ✅ Checks pass |
 | Generated artifacts | Diagrams and schematic packages regenerate deterministically | ✅ Checks pass |
 | Schematic parsing / ERC | KiCad parses and ERC-checks both boards (0 violations) | ✅ Checks pass |
-| PCB design rules | KiCad DRC (0 violations on both boards) | ✅ Checks pass |
+| PCB design rules | KiCad DRC (0 violations; unrouted copper nets gated via Review Gate 7 allowlist) | ✅ Checks pass |
 | Safety / power / isolation / SI / footprints | Evidence defined in review gates | ⚠️ Open |
 | Fabrication | Physical validation | ❌ Not validated |
 | Powered electrodes / human use | Human-connected validation | ❌ Not validated |
@@ -226,7 +226,7 @@ These checks are platform-independent and do not require KiCad.
 
 ## Complete release verification
 
-[`tools/verify_release.py`](tools/verify_release.py) runs the tests and validators, regenerates diagrams and schematics, invokes KiCad ERC for both boards, checks the ERC allowlist, and rewrites [`hardware/reports/verification-summary.json`](hardware/reports/verification-summary.json).
+[`tools/verify_release.py`](tools/verify_release.py) runs the tests and validators, regenerates diagrams and schematics, invokes KiCad ERC and DRC for both boards, checks the ERC and DRC allowlists, and rewrites [`hardware/reports/verification-summary.json`](hardware/reports/verification-summary.json).
 
 ### Windows
 

@@ -5,7 +5,7 @@ Features:
 2. Clean Confirmatory 2x2 Factorial Design ({Phi, Equal} x {Merkaba, Sphere}) with orthogonal effect coding.
 3. Strict Identifiability & Condition Number Gate: returns MODEL_NOT_IDENTIFIABLE if rank(X) < p or ILL_CONDITIONED_DESIGN if kappa(XtX) > 1e4 (zero pseudo-ridge).
 4. Explicit Human-Readable Contrasts: phi_minus_equal (2*beta_G), merkaba_minus_sphere (2*beta_C), interaction_diff_in_diff (4*beta_GC).
-5. Session-Centered Variance Component / Generalized Least Squares (GLS) Evaluator for multi-session data.
+5. Session-Centered Variance Component Evaluator for repeated-measures multi-session data.
 6. Deterministic condition_role taxonomy (TARGET_HYPOTHESIS, ACTIVE_CONTROL, SHAM, EXPLORATORY).
 7. Balanced Matched Factorial Block Scheduler with unique randomization_id and factorial_block_id.
 8. Isolated hypothesis candidate library and decoupled BlindTrialManifest.
@@ -421,7 +421,7 @@ class FactorialInteractionAnalyzer:
 
 
 class SessionCenteredVarianceComponentEvaluator:
-    """Repeated-measures variance-component and generalized least-squares (GLS) trial evaluator.
+    """Repeated-measures session-centered variance-component trial evaluator.
     
     Model:
       R_{s, j} = beta_0 + beta_G * G_{s, j} + beta_C * C_{s, j} + beta_GC * (G_{s, j} x C_{s, j}) + u_s + eps_{s, j}
