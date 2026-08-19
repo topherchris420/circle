@@ -2,68 +2,62 @@
   "allowlist": [
     {
       "board": "circle-main",
-      "fingerprint": "027676d7a371e5bab5c7a5772e6063c95899fcd7b5e5ee7d830f1b024a194583",
-      "description": "Missing connection between items",
+      "fingerprint": "1ee8a6b3508d0a56291bae90a55bfc3c7a89fabf8f557a0a813cc4c7351a4de7",
       "endpoints": [
         "J1.B1",
-        "PTH pad SH2 [BAT_HUMAN_GND] of J1"
+        "J1.SH2"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J1.B1 <-> PTH pad SH2 [BAT_HUMAN_GND] of J1)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J1.B1 <-> J1.SH2)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "b40a2f439f649227260bdd3b27129d54856b618c94d09a3980ad978302466149",
-      "description": "Missing connection between items",
+      "fingerprint": "39fc228ed1e1025ecbfd314ec8bdc66945ad0657644f2bba0c5dc5f0eebb58c8",
       "endpoints": [
         "D1.2",
-        "PTH pad SH2 [BAT_HUMAN_GND] of J1"
+        "J1.SH2"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: D1.2 <-> PTH pad SH2 [BAT_HUMAN_GND] of J1)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: D1.2 <-> J1.SH2)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "2734794e90dc81da0777bf77cca348b8af131402902bb5a9e534b4a8e95ed245",
-      "description": "Missing connection between items",
+      "fingerprint": "9e136abd2924ede9b65c4d9d3c1cdfbd9d009d9f97088074f12a9ec813cdd6bf",
       "endpoints": [
         "J1.A1",
-        "PTH pad SH1 [BAT_HUMAN_GND] of J1"
+        "J1.SH1"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J1.A1 <-> PTH pad SH1 [BAT_HUMAN_GND] of J1)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J1.A1 <-> J1.SH1)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "2bc0bf6d19dde4250eb964be3f069e52e7a2b5229d242438883912b11512953f",
-      "description": "Missing connection between items",
+      "fingerprint": "aa50eb2d63897aadc3bf7a143b06401e10a1bf58a2b50eef12c7b630ac1c9702",
       "endpoints": [
         "J1.B1",
-        "PTH pad SH1 [BAT_HUMAN_GND] of J1"
+        "J1.SH1"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J1.B1 <-> PTH pad SH1 [BAT_HUMAN_GND] of J1)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J1.B1 <-> J1.SH1)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "efa5c958bd7a96bc0c5403c84acc573f00c048cbd904138249ff6a11d219b0a2",
-      "description": "Missing connection between items",
+      "fingerprint": "78f7f50797f5e1869ed25056384c0cb02829fc2ffbb67fcafff374afd929d4fa",
       "endpoints": [
-        "PTH pad 2 [BAT_HUMAN_GND] of J2",
+        "J2.2",
         "TP1.1"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 2 [BAT_HUMAN_GND] of J2 <-> TP1.1)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J2.2 <-> TP1.1)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "59037eec14542fca3ffa76f556ca8e787f8e76cf406ec680e55f33f1edc548aa",
-      "description": "Missing connection between items",
+      "fingerprint": "c3253eeb1fb45bf84cc7cfc840c50c43d7177f115244149413e7d0b94e08205d",
       "endpoints": [
         "D1.2",
         "D1.5"
@@ -74,32 +68,29 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "533875edd74eb373c5f8f404392b636c0f0c8d17c53ddab7e870848abd2016be",
-      "description": "Missing connection between items",
+      "fingerprint": "32ce25569b39a14934c49755817300a20e2bf1a36d1f0cf9fafd7ebc0fb5e85f",
       "endpoints": [
-        "PTH pad 2 [BAT_HUMAN_GND] of J2",
-        "PTH pad 3 [BAT_HUMAN_GND] of J2"
+        "J2.2",
+        "J2.3"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 2 [BAT_HUMAN_GND] of J2 <-> PTH pad 3 [BAT_HUMAN_GND] of J2)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J2.2 <-> J2.3)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "c4e46059a221d6efe39af7cf2e9148de4b01eb7af43d970897c15a396c895d2d",
-      "description": "Missing connection between items",
+      "fingerprint": "47f4b166de90aca583f0b1646f469c48f8c18b2b9a14da89a9303bfb785ce05f",
       "endpoints": [
-        "PTH pad 3 [BAT_HUMAN_GND] of J2",
+        "J2.3",
         "TP3.1"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 3 [BAT_HUMAN_GND] of J2 <-> TP3.1)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J2.3 <-> TP3.1)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "74dc9700698279d069fc5df4c3dcc52db6314d65e6c8853592cb610852837e73",
-      "description": "Missing connection between items",
+      "fingerprint": "4420936a3002e8102c5e810800aa1f51f7cd5bf469f08ad6c5aabcfe32e49f5d",
       "endpoints": [
         "U2.2",
         "U2.3"
@@ -110,8 +101,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "25aef341930bec28ef82281f27e47b343428f2959d365b534b7eb3015aaf697d",
-      "description": "Missing connection between items",
+      "fingerprint": "c20b4184c8a39a7f9c53564bcf4fdc8ac62556fee43597af851344f098b89a2d",
       "endpoints": [
         "U2.16",
         "U2.2"
@@ -122,8 +112,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "feae4c3bb773136d0f97d2881481aff73cbc945ee1f5b3e4adfbfd4a4f2e1b0f",
-      "description": "Missing connection between items",
+      "fingerprint": "1cb25b82457568f7ebfd09f3de8967aab1a0358b67b28770d0ffdddbfd901d7c",
       "endpoints": [
         "D1.5",
         "U2.2"
@@ -134,8 +123,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "5413c5a062cf95869766f4b72e6ad52c9e959347255b654bef947576994ae707",
-      "description": "Missing connection between items",
+      "fingerprint": "98da175ec2fb6a458d9863b59175a9db209b85aef7a895f7d355c858c30dd629",
       "endpoints": [
         "U2.3",
         "U2.4"
@@ -146,8 +134,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "0dae35e660bcdd9119509b1b43955153c32e6e56821739660c42de4a7888c6ac",
-      "description": "Missing connection between items",
+      "fingerprint": "d1e6b6e1cfa6cb41e08910ea3454522c6b31e806ed31034f5589ccf6f18196b6",
       "endpoints": [
         "U2.4",
         "U2.5"
@@ -158,8 +145,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "a9b803981bda06ec17906f314768c3980cbfef1f0b8325eb5defc51d0743e94b",
-      "description": "Missing connection between items",
+      "fingerprint": "9aa57edb2c362cd24f439d79821017243bff12e89b3486fc2354880d2a287fc2",
       "endpoints": [
         "U3.16",
         "U3.3"
@@ -170,8 +156,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "58aa06f13a9aceab6092305fb0ec67d98ba560f967b92e5e40dd4b0f1d6de829",
-      "description": "Missing connection between items",
+      "fingerprint": "e44d3ed699294e660a4df5a988096a6369a19559140c6d03ac1eb046779d0104",
       "endpoints": [
         "U3.3",
         "U3.4"
@@ -182,8 +167,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "20c92f14b74cf9ba4f9c0f07131663f079d18b70ee75e2daee0ef42de9fa9eca",
-      "description": "Missing connection between items",
+      "fingerprint": "6113f12527cf11d647263add062e434b8057a201cb1926660c631cbcca40e239",
       "endpoints": [
         "U2.15",
         "U2.16"
@@ -194,8 +178,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "6bc4474a4a8619ccb10613cc44ad86d3370390308c0aa739a5e46698e5079836",
-      "description": "Missing connection between items",
+      "fingerprint": "827fa4f5ec6d2b572c12b050115aa8ed50faf3f54b8b9200466c6dac79135fc0",
       "endpoints": [
         "U2.5",
         "U3.15"
@@ -206,8 +189,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "c5c55264856552d765e4e251987921d69700e00b2a65e1eebd0346cfe2795047",
-      "description": "Missing connection between items",
+      "fingerprint": "cef16c7dc06e4c65e4fea706b394fc0644215f6b09ef413a11a05de204eb56a0",
       "endpoints": [
         "U3.13",
         "U3.15"
@@ -218,8 +200,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "30af6300966a6f4ba5b62c9624fc6223ea5a48e710a8da7b118215f71930a1e0",
-      "description": "Missing connection between items",
+      "fingerprint": "b4e1a3818b98454017d7bc817571cc0dedaeffadcf8388eb17d56325c2301ca4",
       "endpoints": [
         "U2.14",
         "U2.15"
@@ -230,8 +211,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "7d4d657196f2bef1fd9e6afb850205aff5359899ef6ba54d913bf78caeb0074e",
-      "description": "Missing connection between items",
+      "fingerprint": "c3f346350c4ca0139678c72e85e5d95f27d1edad8a08ec94f1af1050b5ae024e",
       "endpoints": [
         "U2.10",
         "U2.17"
@@ -242,8 +222,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "97ffee624b29716d0da15e97cbcd444e0ee1733ce4c05378e22ffe69e681c893",
-      "description": "Missing connection between items",
+      "fingerprint": "ad16d268174291bf40b73553088e3d2f1d6ad74f4256877df9e2bdb012656abc",
       "endpoints": [
         "U3.10",
         "U3.16"
@@ -254,8 +233,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "8dd3dca58038ac5639a39d8d94e07b2cf6794655070fccc568324000df5a813a",
-      "description": "Missing connection between items",
+      "fingerprint": "fe754d9b707d86e835f9e02e8c9a177b122b88f0faef8a069521a38c614143c2",
       "endpoints": [
         "U3.13",
         "U3.16"
@@ -266,8 +244,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "1713ca8e989b511fe29a147f137e59b3dcff0f64a40b4a743c4652fd0d8d6a9f",
-      "description": "Missing connection between items",
+      "fingerprint": "79696757680c105f405369a5db8e5e11e22e110c85ed5a47a58d2e76592b4a1b",
       "endpoints": [
         "Q4.2",
         "U2.14"
@@ -278,20 +255,18 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "eac40d5467efc98cae4585d047f0d29252fc3f5cad60a035a8b77bb078ae17d5",
-      "description": "Missing connection between items",
+      "fingerprint": "98b1ded48172ea7ed80ac2cc8d678af05db96bed218ae9c313e7473cc37b4c7f",
       "endpoints": [
-        "PTH pad 3 [BAT_HUMAN_GND] of J2",
+        "J2.3",
         "Q1.2"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 3 [BAT_HUMAN_GND] of J2 <-> Q1.2)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J2.3 <-> Q1.2)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "c216374222f6aae395c827d29539e4489cd5fba53722b0283ceee57aa996ffa5",
-      "description": "Missing connection between items",
+      "fingerprint": "33468b4fb2fad23943996555f1804bd880e756ed211f44e7efd736de62c06d45",
       "endpoints": [
         "Q4.2",
         "Q4.4"
@@ -302,8 +277,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "e84429e37b2637672b182eb5aafc6af05ae9801bf1ccc1f5579a6376e574d9ba",
-      "description": "Missing connection between items",
+      "fingerprint": "4dc2601a2810479cf804988c6142c967dea6d89e805087151ddde64c6ef59c8d",
       "endpoints": [
         "U2.12",
         "U2.14"
@@ -314,8 +288,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "e8fa75ee1825ba147580b36b2f903ecb4c215455018dec919167dca2f3b71d85",
-      "description": "Missing connection between items",
+      "fingerprint": "024514b7df827680c0b787fcc6db98900fa1c6b2111c01ef8def1fa37be6dd8b",
       "endpoints": [
         "U2.11",
         "U2.12"
@@ -326,8 +299,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "69742969fd869c7e20adea7ce3d76601c38e0dbb8b1d506f71f31740f9d7ef25",
-      "description": "Missing connection between items",
+      "fingerprint": "b26d97a7181a2e7bd77b17cb0814fba3bfedc7686fdaf409dcdaeca7b5db2657",
       "endpoints": [
         "U2.10",
         "U2.11"
@@ -338,8 +310,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "9bd32950e491b270af3419b9c834326ebc08afd8580be9d22f54722237fe061c",
-      "description": "Missing connection between items",
+      "fingerprint": "f98afc9f1bdb38dcd22da9e0fc8877d07a72d7e8074b3a6a187a3176754d707d",
       "endpoints": [
         "U2.10",
         "U2.9"
@@ -350,8 +321,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "992b0a12ba099a21d1cf6732837acf067102cf9103ceefb31064915a0c14db7f",
-      "description": "Missing connection between items",
+      "fingerprint": "22218ecd13ebbc9f794b00b27054ed7c34fe3a271a6a83699341ea8ca8a09d71",
       "endpoints": [
         "K1.2",
         "K2.2"
@@ -362,8 +332,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "86ed59f41eda372bcb5e14d9c88f363174a0ca8b67002701789a44c6faa4acd3",
-      "description": "Missing connection between items",
+      "fingerprint": "e6f1a9a417555591d47b7065820ea68440661986344a0a468ff897acab0d44a6",
       "endpoints": [
         "Q1.4",
         "Q1.6"
@@ -374,8 +343,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "468391f9bf4fe04e0b7f352774041bf0900c033a4b2ded983293088ad57daad0",
-      "description": "Missing connection between items",
+      "fingerprint": "7cb111ba8e83c24bcb3726472782502f91474fe0347453bf5dd6e4625f529bd0",
       "endpoints": [
         "Q1.2",
         "Q1.4"
@@ -386,8 +354,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "9f3cf1928bb3134fe43311a6c14943effcab3b1aacb60ddfe2fade1ef3623a9f",
-      "description": "Missing connection between items",
+      "fingerprint": "10b87dd1460c131dbfd36dfa341ff0e4516d9f3747915d2f4e71c0646116eb34",
       "endpoints": [
         "Q1.6",
         "Q4.4"
@@ -398,8 +365,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "baa43d4d7fb58bf2fe01a1335cedd87d132d95d4fa18dbac5a4c59717bb796d9",
-      "description": "Missing connection between items",
+      "fingerprint": "44168dfe55cdfc41ab77295563779298c474c36d59610adba4bee1881520029c",
       "endpoints": [
         "Q4.4",
         "Q4.6"
@@ -410,8 +376,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "71008b12cad7d78abcce6a90dceea6be3a022769861e0d83fb9cae933aabea9e",
-      "description": "Missing connection between items",
+      "fingerprint": "7c8bf2759b44a636afef341c0c645ff3d5ecf4d7e32456f92b00e29afced959a",
       "endpoints": [
         "Q4.6",
         "U4.2"
@@ -422,8 +387,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "46cafca83eca11c65ebbe6e36b2caa61f8a2e67dd0bec49d1060357c2be0496a",
-      "description": "Missing connection between items",
+      "fingerprint": "f27d4179722ec637f7ac5e0e4eff1daac7098d6d16f9fc57465572430f5c27bc",
       "endpoints": [
         "Q1.4",
         "TP5.1"
@@ -434,8 +398,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "fa3a0ec46544982318adae37dc0302be8f3081b068982f860484533ab95e2c7c",
-      "description": "Missing connection between items",
+      "fingerprint": "4de1eaf50fe8e858477ebb1e1345b2fb1d52c4249a20ea043124f5f35502f85f",
       "endpoints": [
         "Q2.2",
         "Q2.4"
@@ -446,8 +409,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "fc88d17885af893cdedddd15b27b0a5a8cb1d0bc0812f773e853e8f24c82e2f3",
-      "description": "Missing connection between items",
+      "fingerprint": "8fbf9650db6e0828210837dfc7a080f60ac21c70b7b7d52220e417345d74bd10",
       "endpoints": [
         "Q1.4",
         "Q2.2"
@@ -458,8 +420,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "e5422ace102e9a38eff9b0ceb94ada8e5c9ab14d4f1b20a686bc5217cf76375d",
-      "description": "Missing connection between items",
+      "fingerprint": "c8b0628b320b126a939c1a02ab95f194a57279833770763038bc95ad10e5a2d6",
       "endpoints": [
         "U5.2",
         "U5.5"
@@ -470,8 +431,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "4be6c64bb6286b2b5c5281e9227a1f547a029a23f6d27d227f705b8287a9296a",
-      "description": "Missing connection between items",
+      "fingerprint": "9cc4944915024564a4b4aa7942bce5ab40d5f73fb3305db605e197d92fdfe61a",
       "endpoints": [
         "Q2.4",
         "Q2.6"
@@ -482,8 +442,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "22fa3b21eab78d724098c3119954bb67c3f4658f310117a4a8c79b19461c599f",
-      "description": "Missing connection between items",
+      "fingerprint": "d5392ef43821f4fe01bf60dabf9ed6fccd98f5cb8145f9b73baced9f5cd34639",
       "endpoints": [
         "Q2.6",
         "Q3.2"
@@ -494,8 +453,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "343b5f3348db03c6b99770d91dadee9b6c972321abc705aba35a12437b45b894",
-      "description": "Missing connection between items",
+      "fingerprint": "c5867875adf77560505fb501496327377e845a29ea0f79f0abdc07cee1a8a258",
       "endpoints": [
         "U4.4",
         "U4.5"
@@ -506,8 +464,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "45d0a84d90e2670a3dffaad97617a2f49f6a170e7060c361a03fe360cb537aac",
-      "description": "Missing connection between items",
+      "fingerprint": "bff3b597d7704515ac2b5cf5fd22cd25ffc7d72f840aad6e599d0d224231f625",
       "endpoints": [
         "U4.2",
         "U4.5"
@@ -518,8 +475,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "c2474a7e54e694821ca30c3ea0573504aadba801a17b59ca20f058b2026a35f3",
-      "description": "Missing connection between items",
+      "fingerprint": "35c7c7f86a30bd75ebc50e56435f89719322d0c17b39dbfa395ce04e81f5a422",
       "endpoints": [
         "U5.4",
         "U5.5"
@@ -530,8 +486,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "d3dd47eb3970b0d0b72cbbe0140414d1acfa203ad84dc65e70d1e08da379d3e3",
-      "description": "Missing connection between items",
+      "fingerprint": "47020d0f93e3108c5833b739baf0a2bb4aaae5ab9ab2935d1f66638d52fcb65c",
       "endpoints": [
         "K2.2",
         "U10.7"
@@ -542,8 +497,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "9710101a3cb75b3683c00199aeded6c51697362af24576257014c3c9c4f89b41",
-      "description": "Missing connection between items",
+      "fingerprint": "1c2027de73b62c6bf0924e4109284f241b0011cc1bcaf6a20875a39d7f20f315",
       "endpoints": [
         "U10.7",
         "U10.8"
@@ -554,8 +508,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "5b15f01e1d8eea0b179d5a3fb7fc6581413fe6d550f3fc1a2e13951973e43bf3",
-      "description": "Missing connection between items",
+      "fingerprint": "d1895f231578af868af8e9a4a87f64fd0f5e7d619562f6eb7123421e8d839a47",
       "endpoints": [
         "U10.8",
         "U13.2"
@@ -566,8 +519,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "580874b3c3f6bc10b19251b025f297302fb0b10ce8a3fdc626bc70a886644f30",
-      "description": "Missing connection between items",
+      "fingerprint": "ab569f4ca6e882d5c7a77a8c2a229937e482e0ad5af0f1643809fc2602c83d2a",
       "endpoints": [
         "Q3.2",
         "Q3.4"
@@ -578,8 +530,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "e0bb7215ae6bcde658a678aaffc99b238a00e2590bcff65aed47b33387ed87f7",
-      "description": "Missing connection between items",
+      "fingerprint": "36dbbc273b7bfb005d0563c7bdd3f8c69d09e21dbff20081d1e087c723ef8d9c",
       "endpoints": [
         "Q5.2",
         "U4.4"
@@ -590,8 +541,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "c3c187b3b27e784511760e1ab1d001dbdd9792baae5464c31f51634c4712f0e2",
-      "description": "Missing connection between items",
+      "fingerprint": "33dcf30471c950c9b1dd6537b75708101687bc4482acc785181a86a6db792b96",
       "endpoints": [
         "Q7.2",
         "Q7.4"
@@ -602,8 +552,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "17edbe3af7911006de975d92df92a7035dc862b0fa649038e5d07c7edc2bf73f",
-      "description": "Missing connection between items",
+      "fingerprint": "daed87a01573d9ae22d6f0254f82a5adf3973351a9c6dda408b84eb202eca812",
       "endpoints": [
         "Q7.2",
         "U5.4"
@@ -614,8 +563,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "dc9be11817e64f168816138eb891caa8e82ed9b83c494c10fa546149d9bf0cd7",
-      "description": "Missing connection between items",
+      "fingerprint": "cd25553acab7b8d2dfce6657fd1bd75281dca66498bdeab0918e1157852d29be",
       "endpoints": [
         "Q3.4",
         "TP7.1"
@@ -626,8 +574,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "0794f63767f118f0bab9560a3f0b3d86efba932b6addc7251a1fdcd9dfe3cca5",
-      "description": "Missing connection between items",
+      "fingerprint": "ec31812af1488b854f13ff396a9c8db7bb17d280918b61bd06f8e80cabec87f5",
       "endpoints": [
         "U11.4",
         "U13.4"
@@ -638,8 +585,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "f5949ad92c5a7b812d326b17459d94868c73cfa4683f85666329f4633704ac75",
-      "description": "Missing connection between items",
+      "fingerprint": "9a31ac7135fe44e9b8113fd2650b6bcdc926fb9991c1fc82e9717315ced6b4aa",
       "endpoints": [
         "U13.4",
         "U13.5"
@@ -650,8 +596,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "35545b206ba51f2327726b24c457c178517ab87ea5894a3cbae336120fb88ad0",
-      "description": "Missing connection between items",
+      "fingerprint": "0e8ffb4d897dff4352e104c68dcde46a53b85cc078a5c84b173b0801161395e4",
       "endpoints": [
         "U13.2",
         "U13.5"
@@ -662,8 +607,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "c6340c860343dfd8b03a256af7d674862872a998a501d8698d6e7a54b66f0ab2",
-      "description": "Missing connection between items",
+      "fingerprint": "ab1e74384fee6d2a680a4abbe1109291e9f265959fe46a10ca4b32f28e5c5ca2",
       "endpoints": [
         "U13.5",
         "U14.3"
@@ -674,8 +618,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "7997f485930cf659f18c8383957d1e4807611cd54ecd814acdf64112821c72d0",
-      "description": "Missing connection between items",
+      "fingerprint": "c64698d5ae8db2a851b26425936d938a4e594c471c8630c18df409d204471be2",
       "endpoints": [
         "Q3.4",
         "Q3.6"
@@ -686,8 +629,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "af606ab03a0130dbd42e710564146729206b803ff805f0f8edc5a0492f40f96e",
-      "description": "Missing connection between items",
+      "fingerprint": "d18f47c7f22ca6f56569e4b3baea3ac27586e5d67282dcfc04708535ea69832d",
       "endpoints": [
         "Q5.4",
         "Q5.6"
@@ -698,8 +640,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "03250e9c6b839c5d33fd29641b96551af90129907f39ce5bec4c1a0cc4120589",
-      "description": "Missing connection between items",
+      "fingerprint": "b6fe8453e9c09c56c07d719ed54a4a5a75c53d1ff0730787057475f0d08db5e0",
       "endpoints": [
         "Q5.2",
         "Q5.6"
@@ -710,8 +651,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "46bb702b401a925c6a9122626abaa689fe5b6bff9075dcce76049701c5878fc3",
-      "description": "Missing connection between items",
+      "fingerprint": "b5ed5f9a642c33cf5f0c92f0a1acf3cfb9b3bf0bbec975e0dd44dd91819a2b32",
       "endpoints": [
         "Q5.6",
         "S1.1"
@@ -722,8 +662,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "20197420f342929e21d9fda9858a9ad215d8a1328ac9ebafd9a1e35dd922f5a5",
-      "description": "Missing connection between items",
+      "fingerprint": "8fb745b1338ce699c2b5fec76109b04dd43a04933107924bb5167b3fdef0c6ee",
       "endpoints": [
         "Q5.6",
         "Q7.4"
@@ -734,8 +673,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "e1d767e755b8a277b2a350b6184af71c244892533b808c7258c10b63e15ca999",
-      "description": "Missing connection between items",
+      "fingerprint": "9e4a59cf987a13817c1f8149793ce3967d00610ac65db750d403490958eff033",
       "endpoints": [
         "Q7.4",
         "S2.1"
@@ -746,8 +684,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "c3da4fee60abed495393cd39414228af27d4c2b258715cc1fcfacca2ecd28c5e",
-      "description": "Missing connection between items",
+      "fingerprint": "d30d83f2c8682fce25b6e2d3f385a06263bb9f9f7e3e7fa46e4ab4d7c34bff52",
       "endpoints": [
         "Q7.4",
         "Q7.6"
@@ -758,8 +695,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "07a612784343acad725b0a290b221443cb29d89f2dd2e8d55c8e47186cf8f470",
-      "description": "Missing connection between items",
+      "fingerprint": "4daf622fe97b902e565aa73834bcd9328e9f84d0b6598cf64914cd46d3b991a4",
       "endpoints": [
         "Q7.6",
         "U6.1"
@@ -770,8 +706,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "28c7c79b4b763bd63399b50f9da481d505380cab57f4a2c8e6ba9621027fbe20",
-      "description": "Missing connection between items",
+      "fingerprint": "d4ff491e5f4b9c4f94409313b1107149d144bc0c4c82197f3d0fce1b7f579e25",
       "endpoints": [
         "U10.14",
         "U10.15"
@@ -782,8 +717,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "6a580271f478eea2a591ab0347e62e841efa3f058886a1d9646b9f1c3eacde51",
-      "description": "Missing connection between items",
+      "fingerprint": "c5044a8bd0f8c92c93acc6aefc330355eef08c65a42ecec155f6b5e2cb88e538",
       "endpoints": [
         "U10.13",
         "U10.14"
@@ -794,8 +728,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "8ddf1e5005b6275f3ea06fa279ffd4a7aad47a971d21ade056f2fbfde721ed18",
-      "description": "Missing connection between items",
+      "fingerprint": "f0da270f3ff96bcd29a22fb08ede9bf9f6c3f3c55d6e86c31e0d1df2a0f1a8bb",
       "endpoints": [
         "U10.12",
         "U10.13"
@@ -806,8 +739,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "4dbb92499609b3de9f9cd388a5c02405c0923d96e0a6c47d082e261ccfef0f92",
-      "description": "Missing connection between items",
+      "fingerprint": "edf4c72f769c8475f063bae21e5fe3d316bd8b6930ad3c9a9499740993ac1226",
       "endpoints": [
         "U10.11",
         "U10.12"
@@ -818,8 +750,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "480965f6cd5ea2723a6aace2d552538a04073addba520632b8a768599dab438f",
-      "description": "Missing connection between items",
+      "fingerprint": "da274f796bf00cbf7d88565879ed59fb491e441c669fd2728da9add207782a3b",
       "endpoints": [
         "U10.11",
         "U11.4"
@@ -830,8 +761,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "23bbbbd39785bf3d2be2099b977c448d9ae83801c77693166cc11c06d2ba8b9e",
-      "description": "Missing connection between items",
+      "fingerprint": "34f1069507018cf53cadc3a44a6203f1d279ade91b5e24c2dacfa25c3c1f3af7",
       "endpoints": [
         "U6.1",
         "U6.2"
@@ -842,8 +772,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "f310930f8fcd113a9c730682e1304ce41320c90f7748e797d65e236b7bca7afa",
-      "description": "Missing connection between items",
+      "fingerprint": "bb9cce3652db98f0ef3677ed68d186c6cea772014ace4695fa1ba218024162e5",
       "endpoints": [
         "U6.2",
         "U6.3"
@@ -854,8 +783,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "350c24c87054a4d7521d88f44063480fd5ba9e73d08db7e4d86dd6ac98ac4451",
-      "description": "Missing connection between items",
+      "fingerprint": "20050b3e1a7b7b359fb2d39120d4347289dc98c36e7050c9a54eddc00ce2e10b",
       "endpoints": [
         "U6.3",
         "U6.4"
@@ -866,8 +794,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "d6020c58d6e212729d5a9da5170db329b871c59dd18af96091689f73e4d2b6b4",
-      "description": "Missing connection between items",
+      "fingerprint": "724e525705fee642a34a441415428b4173da4478b7f0efd5c1b126420dfca059",
       "endpoints": [
         "U6.4",
         "U6.5"
@@ -878,8 +805,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "37ca2da49fd6e49813d3f0acae4e7f918516185939f2cf868d1603242172f7f6",
-      "description": "Missing connection between items",
+      "fingerprint": "84d55c3fbbda5710b8d3cab74ca0dd0d6980bb547541e0fd048de1ad37580363",
       "endpoints": [
         "U6.5",
         "U6.6"
@@ -890,8 +816,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "eaf12476340fe8d6f3dbfd3c95dd73332a6798e651a2039a5ac5a5e22d01560f",
-      "description": "Missing connection between items",
+      "fingerprint": "435caa7502b4d4754e03df654d05522a8d2c9f0884409dc408c11f58b918186f",
       "endpoints": [
         "U6.6",
         "U6.7"
@@ -902,8 +827,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "724f6e6fe06e8b8fbf729319a93ec4de6c530f66f41fa3364b20486682b85933",
-      "description": "Missing connection between items",
+      "fingerprint": "22cab38543c05ed989e99f60580082a9642f7b66cd16cdb9d22c3eb7341d4629",
       "endpoints": [
         "U6.7",
         "U6.8"
@@ -914,8 +838,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "4101e6e037bc27a802c60aabd426a27944bb466c334ab8e07c535b1d9ee0660a",
-      "description": "Missing connection between items",
+      "fingerprint": "1c6e5158b62638deb38a64e8662ebf4e3c5371f3be804de8ac38ccc690fd99fe",
       "endpoints": [
         "U6.8",
         "U6.9"
@@ -926,8 +849,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "93e20f5652bb346a5da0615047ddf57f0ee6e49be7c6aa528da95780261ed125",
-      "description": "Missing connection between items",
+      "fingerprint": "2e2ecff54ded09b9c379edca8d2351b54329709ed2548f4d92b27c0784d3c224",
       "endpoints": [
         "U6.10",
         "U6.9"
@@ -938,8 +860,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "10d74981cf8d80f04f980d7e3fabcb0b148bb2bb84c7fd98f81922f6815e7e2d",
-      "description": "Missing connection between items",
+      "fingerprint": "70696719d6f35dd0141101c541cb60a2308aa75f2d20f0477fa9fa39c8151023",
       "endpoints": [
         "U6.10",
         "U6.11"
@@ -950,8 +871,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "2c7b12248b2af157024014fc557e23896655d6fca686588bb442abb9af925b48",
-      "description": "Missing connection between items",
+      "fingerprint": "e7e67df911f968a18b1c79cdf1da98193d87c057c03ab7bac13e2eecfe74bcca",
       "endpoints": [
         "U6.11",
         "U6.12"
@@ -962,8 +882,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "e05a1f2e362aaadede06f2a876a4f97a71ee7a86393f581517dd201d35c2b427",
-      "description": "Missing connection between items",
+      "fingerprint": "fa15072a3750c8c118f27d2ab335a7e24692ce17715e21eb70e79c48b3cde1a7",
       "endpoints": [
         "U6.12",
         "U6.13"
@@ -974,8 +893,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "4fe4d02ce182b45aa8079da0702fc5c31555cd516ad5cf84391476c204e4af2b",
-      "description": "Missing connection between items",
+      "fingerprint": "f649f1eb42655b48ea273b628458eeb7a8fc9dca09a0276da22a3fb83f53c807",
       "endpoints": [
         "U6.13",
         "U6.14"
@@ -986,8 +904,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "bbaf341d85d1d3e65713d976e55a16e79fd15707ce37f0a463f5a3726d88fe7a",
-      "description": "Missing connection between items",
+      "fingerprint": "9cada8526af3b605f5567bd6586c5e6cb722303ceaae9620f1159655a290610c",
       "endpoints": [
         "U10.15",
         "U6.14"
@@ -998,8 +915,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "73e833de3eb4225e952a78728f12f87f6ac2554ff1d457c78f51533b4fd68d70",
-      "description": "Missing connection between items",
+      "fingerprint": "2962056df8f4e9bd5959beec78250dfbd5f6329c3d0815a7f12b8b43c8e687fd",
       "endpoints": [
         "U14.3",
         "U15.3"
@@ -1010,8 +926,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "39401339dda9b9f88380b92f2503388645bb06dd2628011c70b417ef05108efd",
-      "description": "Missing connection between items",
+      "fingerprint": "eb1047755c4b50ec35cc0d52e5e7f8039db284542ecff1e4a4afc1709d883102",
       "endpoints": [
         "S1.1",
         "U1.3"
@@ -1022,8 +937,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "a48ac7e8fc1ae2acd05a8060daccbd5d4b1facceeaf75d3e71bd3b859ea4314f",
-      "description": "Missing connection between items",
+      "fingerprint": "3da5a2969c8fc4f45c9d623db1ee3c7f1494dd4108d24f226eda3a7c832e2cf8",
       "endpoints": [
         "U1.1",
         "U1.3"
@@ -1034,32 +948,29 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "8fe93ba59cd0fb73c130b7832754816c2c3a9d823e315a4bff61bb869cdcb3ab",
-      "description": "Missing connection between items",
+      "fingerprint": "78e4b5cfb604848da3b12056f7cd9df94da475c01fbce47fa118b5c4225ba139",
       "endpoints": [
-        "PTH pad 3 [BAT_HUMAN_GND] of J40",
+        "J40.3",
         "U1.1"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 3 [BAT_HUMAN_GND] of J40 <-> U1.1)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J40.3 <-> U1.1)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "8321f3a70eaa1196e01d0eabb9ffb0b334bfad6eb13417ec8eb95d6974f57986",
-      "description": "Missing connection between items",
+      "fingerprint": "a14cfa655df1758adbafed6925eb6f2ab74599f216ea523cd27d6a9815e5db30",
       "endpoints": [
-        "PTH pad 3 [BAT_HUMAN_GND] of J40",
-        "PTH pad 3 [BAT_HUMAN_GND] of J41"
+        "J40.3",
+        "J41.3"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 3 [BAT_HUMAN_GND] of J40 <-> PTH pad 3 [BAT_HUMAN_GND] of J41)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J40.3 <-> J41.3)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "d476d930ab7fb40ea81224441887f96e6af51818d97b61d1b11317537d15dc84",
-      "description": "Missing connection between items",
+      "fingerprint": "3e44d8300ae23503ca7f4d28f06adcffc0ff96ba4951c82e595b457ba5be0043",
       "endpoints": [
         "U6.27",
         "U6.28"
@@ -1070,8 +981,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "ed24fab813f06410418406c42c0eb96abe66e84e6288b871e3843c0f0489702b",
-      "description": "Missing connection between items",
+      "fingerprint": "8a5581af6e47173e8a39260976c05022ac7a04b55d73857489ae66ea12ecf45f",
       "endpoints": [
         "U1.41",
         "U6.28"
@@ -1082,8 +992,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "24500aacb95a06f41ef3cede28a2cd2df1a7b8646cf4585bc08f6a2423bb0788",
-      "description": "Missing connection between items",
+      "fingerprint": "edbc12a2d1ef81e9352b38fd22b61060423cf209f07fc23e0375f4e16e8c25fa",
       "endpoints": [
         "U6.26",
         "U6.27"
@@ -1094,8 +1003,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "8cf8926c2cab57f6bc94216567cfd1cb6a566d4e9b8b9a4b20e9c8f75e029fe6",
-      "description": "Missing connection between items",
+      "fingerprint": "0fd5937d94a89b232abceb9e47fb997068b32eb6ca53bd933bb823296868142f",
       "endpoints": [
         "U6.24",
         "U6.25"
@@ -1106,8 +1014,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "403bc193314384578ab117210de2e963f307afa3df7c4bb5a63463fab30c0a63",
-      "description": "Missing connection between items",
+      "fingerprint": "e3223000c164ab6ec644e983cd035fd7f5488fd38a83a9fd45075ac620c93be2",
       "endpoints": [
         "U6.25",
         "U6.26"
@@ -1118,8 +1025,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "66bd3221514c1da7f1dcf56ecf0d630e3a84e0aa3857a2c025a630dc74b159da",
-      "description": "Missing connection between items",
+      "fingerprint": "1260b3780d045fe392cfc14b507474a60094471e5e1c11a392bf528144b49dd6",
       "endpoints": [
         "U6.23",
         "U6.24"
@@ -1130,8 +1036,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "0879f5efc38111f828deddcda870ba1a963d80672dea07281eeb715875af5cec",
-      "description": "Missing connection between items",
+      "fingerprint": "12c675f903bc19d24495dceef98fa1f835ebb77a3310783ecf505e2d2d815388",
       "endpoints": [
         "U6.22",
         "U6.23"
@@ -1142,8 +1047,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "81854d6312156c42f2e651b1c5f43301091732fcd961b14a10e2b0d2a3264fa7",
-      "description": "Missing connection between items",
+      "fingerprint": "e16e45d0e01dbc15bbe91781c25765f6e8bddadb88e4cf9beb898816e6bb0ba6",
       "endpoints": [
         "U6.21",
         "U6.22"
@@ -1154,8 +1058,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "8c3d87b805a482f4ed1683d63731de3dba065f3741d59e7fd768c7877c11400a",
-      "description": "Missing connection between items",
+      "fingerprint": "fbb363e755905411cf21c9985618a7dcecb05474b1c4c889d50a6155e978af21",
       "endpoints": [
         "U6.20",
         "U6.21"
@@ -1166,8 +1069,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "7100e33abbbd21e0bb47deb23a1f420f3c6792e21f5235f992330741e08c7416",
-      "description": "Missing connection between items",
+      "fingerprint": "757e7dbe8b27cda2a68c0870e5835609a1dac413e8d0da58dcb539a7a118b7b7",
       "endpoints": [
         "U6.19",
         "U6.20"
@@ -1178,8 +1080,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "e4dd51cb6b2cd4228871541ccbee5b0d0ca7dd731f20a515a89e31d082b3acbc",
-      "description": "Missing connection between items",
+      "fingerprint": "4fbd4b7d0152a19a25f843f66f0f4fb55261bed47dc36757429a6c551e038c3d",
       "endpoints": [
         "U6.18",
         "U6.19"
@@ -1190,8 +1091,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "3583db1de9c5a6f454a1624a50d198f4243dc630815422140d13a706b514b990",
-      "description": "Missing connection between items",
+      "fingerprint": "fb6ba3502afd1ce3733fe8ae54b9e684fe1118c30abb28bd981bd546a5d2e1f1",
       "endpoints": [
         "U6.17",
         "U6.18"
@@ -1202,8 +1102,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "c73a3f1f2499ab075ad93bb9950567b70d00722047651e8ef4aad1a1b12abf38",
-      "description": "Missing connection between items",
+      "fingerprint": "85eff6dc2759a699c109aba52c43762e87525762c16420b45ce4353e7e0a1c24",
       "endpoints": [
         "U6.16",
         "U6.17"
@@ -1214,8 +1113,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "6e0879be7541931466b6249240681b2d0b174a8686aafb317bdccffb52153311",
-      "description": "Missing connection between items",
+      "fingerprint": "d50b998e106f3b7dbc6b797d4aec3ecc236769f2519259f6243d7726480d8c8b",
       "endpoints": [
         "U6.15",
         "U6.16"
@@ -1226,8 +1124,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "71ad3f7ec6db353d9f9ee3745f386afd79827de20ce1783153f803942f8c932b",
-      "description": "Missing connection between items",
+      "fingerprint": "973ee90431c79afc86ed8062a0f72c64cdbc9c51a1ec41ebdba6eac4bd4d5e37",
       "endpoints": [
         "U12.3",
         "U6.15"
@@ -1238,8 +1135,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "a83e9e683a7b26d0c47cd4fa68ce0b4d9769ebd2a6b64eaff8b1f5327f1ef4d2",
-      "description": "Missing connection between items",
+      "fingerprint": "b3f11405fb6156d858357d89631e4c0c339d8e555f9e0a8afc5e44e040a7b8ee",
       "endpoints": [
         "U12.3",
         "U12.4"
@@ -1250,8 +1146,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "dc16dd2ac576de59acc78a146d9923a87e9d3d9741ac5cfba3abd3d8081e61c7",
-      "description": "Missing connection between items",
+      "fingerprint": "51ae1d4c01036878a153dab1e9086adb6d7327170243f8c1f1cfab14bdfbad67",
       "endpoints": [
         "U12.4",
         "U15.3"
@@ -1262,8 +1157,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "8ed1a49e7465fe711736cd396c168738aee7360e57133af60ef554788df9700f",
-      "description": "Missing connection between items",
+      "fingerprint": "ab8df102f98f117fcca5b9c7e6e996e872c9cce34cf17a3c4a96860350bfb2dc",
       "endpoints": [
         "U12.5",
         "U12.6"
@@ -1274,8 +1168,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "99b78380add55f22bd723a1390d13820f9545b25e2096b86c833f6c3d52146a6",
-      "description": "Missing connection between items",
+      "fingerprint": "0e57d7181675f93159f38050603a0dce085d02b8c75da9c6774bba5ff8045735",
       "endpoints": [
         "U12.6",
         "U12.8"
@@ -1286,8 +1179,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "cf4ad539fd2bde07ba6cf8c90188e7edbff9ac02c03ed635da50af4c8984057e",
-      "description": "Missing connection between items",
+      "fingerprint": "642a406ed2d436fa5f21ab1e8c096bc9be33a629ec3e13915c2020f096f73953",
       "endpoints": [
         "U12.4",
         "U12.5"
@@ -1298,8 +1190,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "b1754fcae6898248a8827ce48992eea048cba43ab1e59f18136902f113dbc859",
-      "description": "Missing connection between items",
+      "fingerprint": "8634ca7d66278594902c21aab938f18ccefdc65c0fb448cd510868f03a6162bb",
       "endpoints": [
         "TP11.1",
         "TP9.1"
@@ -1310,8 +1201,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "07c506f29217f363cd0b3c0daa328adc4aca247a0478e1b5012bf44249776284",
-      "description": "Missing connection between items",
+      "fingerprint": "71ad23a3a93b8ad9edb5ab1875d0f2e25449264590d5610b4a6add43a6040e0e",
       "endpoints": [
         "D20.1",
         "D20.2"
@@ -1322,8 +1212,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "e3f4a9484128317638abfbdc730561e9334627831961fd52a12fec56bacfd2ba",
-      "description": "Missing connection between items",
+      "fingerprint": "a1f9f7043b59410d3706e7025867cbe2d694014758823f412c23cee57a7f3d5a",
       "endpoints": [
         "D20.2",
         "U12.8"
@@ -1334,8 +1223,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "90ebde664408e3a681c3f9db80f7b11e229624d1a427955e844466f08353aca9",
-      "description": "Missing connection between items",
+      "fingerprint": "6f3b71d6893f5bed47d74168aa491d5d717c7c5f4ed901fe6a6455e3df3c35e5",
       "endpoints": [
         "D20.2",
         "D20.3"
@@ -1346,8 +1234,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "545a4e6d96128058a1d26fb48552077275b647d01a7341e237936c7fec5d2427",
-      "description": "Missing connection between items",
+      "fingerprint": "73df647f7c8abe8112bc4d210359f1038b0f5710d654a9e0188c276cd114be0f",
       "endpoints": [
         "D20.3",
         "D20.6"
@@ -1358,8 +1245,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "2a1d6512e8059a25e3f9597f1184e105431da6311be03736162a5efd90c8c147",
-      "description": "Missing connection between items",
+      "fingerprint": "85ac24c74f0c7fbd5159ee6f9732d354cc1b85ed39bd317ebb907773a47fa3d1",
       "endpoints": [
         "D20.4",
         "D20.5"
@@ -1370,8 +1256,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "546b303f0cfd3218843de75aa34b42bb2bae61e86623f4af05fb412265e5430a",
-      "description": "Missing connection between items",
+      "fingerprint": "43e55a70c45d1fafa405a6114d2cc3502fd3639cdcfe3bd6c2c18123f0933d4e",
       "endpoints": [
         "D20.5",
         "D20.6"
@@ -1382,44 +1267,40 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "c86b4f72fedf2d3ef289939d970328029f7bed5346444136fcbcf700a3397179",
-      "description": "Missing connection between items",
+      "fingerprint": "f7978b5f951e54bc9e32a6953cb11a7ebd3062c299eef0bac2db8a3632f76118",
       "endpoints": [
-        "PTH pad 8 [BAT_HUMAN_GND] of J20",
-        "PTH pad 9 [BAT_HUMAN_GND] of J20"
+        "J20.8",
+        "J20.9"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 8 [BAT_HUMAN_GND] of J20 <-> PTH pad 9 [BAT_HUMAN_GND] of J20)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J20.8 <-> J20.9)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "cf8f71165b224f1c580c2734b9dad7ff83b83e9863169166211c300117dba02c",
-      "description": "Missing connection between items",
+      "fingerprint": "f4bbf66c8c57afa7d62c77449153341c149cae9d733a88182f77c98990e9bbe5",
       "endpoints": [
         "D20.6",
-        "PTH pad 8 [BAT_HUMAN_GND] of J20"
+        "J20.8"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: D20.6 <-> PTH pad 8 [BAT_HUMAN_GND] of J20)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: D20.6 <-> J20.8)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "3c05605dac79e51106e84b6f065813ef52fffc1b9c66cb359bb4b9dca08b875d",
-      "description": "Missing connection between items",
+      "fingerprint": "81be4fa7cf67f48407f3f8085a3c2ed5a90e84d7718217396634d466c35c09f4",
       "endpoints": [
-        "PTH pad 8 [BAT_HUMAN_GND] of J20",
+        "J20.8",
         "TP11.1"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 8 [BAT_HUMAN_GND] of J20 <-> TP11.1)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J20.8 <-> TP11.1)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "1db9b04fc31f758e88bf458f0e2f3debdbd27e428a0abfa1c64ab9a8d5495307",
-      "description": "Missing connection between items",
+      "fingerprint": "733338380889bf9f69d6832ef54b129ebd95fee8611e2af80aec9c0072791e36",
       "endpoints": [
         "TP11.1",
         "TP13.1"
@@ -1430,8 +1311,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "57dc004e52cd4d8a44a847b304bcc5d7be8e6102fc7e72984fd20adb207723b3",
-      "description": "Missing connection between items",
+      "fingerprint": "49e8b0c9da1508ff73f7a70fcd0e40dc827d12481a5a2b1576ea16741485db80",
       "endpoints": [
         "TP13.1",
         "TP15.1"
@@ -1442,8 +1322,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "8853accb717d9afa8e9fb99787620e03f67751b12f313622b472cccda9ca1c0f",
-      "description": "Missing connection between items",
+      "fingerprint": "9bb9140e0db392083712460e3d8c7520bea3d5120b2e7ead8cf0a58b50ba8058",
       "endpoints": [
         "U1.40",
         "U20.1"
@@ -1454,8 +1333,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "be859101c8b7d35222103537d56e87410602f05fb7e6d4928a526cd824936f21",
-      "description": "Missing connection between items",
+      "fingerprint": "881bd9c20180966ad630d4a8deccff0caf6ef80ec14a00006145b7644729b499",
       "endpoints": [
         "U1.39",
         "U1.40"
@@ -1466,8 +1344,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "9254b49f9ee79d542af6c9acfbf0d5a076984404008462857d4d2e6e0c27b1b1",
-      "description": "Missing connection between items",
+      "fingerprint": "04fd3b039cc1961bf23826b7992f4439585242226b899430461b8aa722262f4e",
       "endpoints": [
         "U1.26",
         "U1.27"
@@ -1478,8 +1355,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "374c2d8a44bc5b47f59feefb17a255366ddeb30aa7b89bd15f0b49137ab4d7ba",
-      "description": "Missing connection between items",
+      "fingerprint": "accb7045d0f0db2370d23c5ddce29290d88c9ab92c7b1114a7b82f649b76f3ec",
       "endpoints": [
         "U1.25",
         "U1.26"
@@ -1490,8 +1366,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "95e8159408c80fb223246146ac00de96c5ee97ec95622ae4f957703a1076652e",
-      "description": "Missing connection between items",
+      "fingerprint": "953ebde53b1fec57f64fbe8000955d7be7b271028d18fb572198bbe6fea76501",
       "endpoints": [
         "U1.22",
         "U1.25"
@@ -1502,8 +1377,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "cbc967844b6025f6b735472e2d3d5b9d60e8d48ecadd5926d891af7f1e6febb5",
-      "description": "Missing connection between items",
+      "fingerprint": "1ec2e44e94815c625e76aafb0da47e29949520e567895d49d84c6694b6135342",
       "endpoints": [
         "U20.1",
         "U20.2"
@@ -1514,8 +1388,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "63ff6c75e96881ed386ff9ddc41cd1c105508f7b870cc063121cedfa2e54fb73",
-      "description": "Missing connection between items",
+      "fingerprint": "9f62567ffdd6c4a588f5b02ecd8da2e9516f7603d1052d81545f64427e3a52bb",
       "endpoints": [
         "U20.2",
         "U20.3"
@@ -1526,8 +1399,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "bea48abbba94363dddc4766f5441283ab01d21c3750c29462096acbd5c895133",
-      "description": "Missing connection between items",
+      "fingerprint": "7385a3e52927aa46cb0409052aeac37ab8b75ffaa5e1885d34a0057572c421ee",
       "endpoints": [
         "U20.3",
         "U20.4"
@@ -1538,8 +1410,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "64409c6aa19c37b1b13ee25752064b256bc99dcc173e396ba142cf331abd2cad",
-      "description": "Missing connection between items",
+      "fingerprint": "dd4225d41d4b38c40300c9e235727b47a9d89cb4bf5175011f00eb4e6641ebcb",
       "endpoints": [
         "U20.4",
         "U20.5"
@@ -1550,8 +1421,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "ffb7e5b6d0d4bf208b312d300cc38b999b9e9cf4f8ee85e6a9dfb10f38c50e70",
-      "description": "Missing connection between items",
+      "fingerprint": "701a12e3eebdc6357ff412cea37539ef4094c86fc424b58b87ce873c782ddc1d",
       "endpoints": [
         "U20.5",
         "U20.6"
@@ -1562,8 +1432,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "29afbed82722bea810bb1164e4f5a5f41f2e77705dd89efaa2e442c2c4782157",
-      "description": "Missing connection between items",
+      "fingerprint": "e61cb65be3e320ee89d913cbe17e04b7ea966c76db48d6c7ab1c7cf8ddb4a33f",
       "endpoints": [
         "U20.6",
         "U20.7"
@@ -1574,8 +1443,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "e24dd0bf6c362f13c8e7fac0fd565535e44d94ecba75dc5b258fa4c137c5f625",
-      "description": "Missing connection between items",
+      "fingerprint": "91ffb68bbf49d796217536c3fa9c47c9cb0ed7992c9673f828ef315ab8e80078",
       "endpoints": [
         "U20.8",
         "U20.9"
@@ -1586,8 +1454,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "79dad1fe844718a6436f5c5736eb62e92cf6e209f6b128763f1b4707ade80faa",
-      "description": "Missing connection between items",
+      "fingerprint": "1219d48c8a5d9ac2eaf1d03d20df14266c1bd1efdee269aa43a540246da262cf",
       "endpoints": [
         "U20.7",
         "U20.8"
@@ -1598,8 +1465,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "426926607629082b57104c34ef10e3a327a164e008e81eee5a3f8a4d4ed90402",
-      "description": "Missing connection between items",
+      "fingerprint": "57565dacd944b12fe8f3b136b0a070ed3d9ff8a6f54230374ca2d2f0ada149fb",
       "endpoints": [
         "U20.10",
         "U20.9"
@@ -1610,8 +1476,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "92d43d417447a3f587493c01d50e150577ffc010c0581960feaed6169fb3635a",
-      "description": "Missing connection between items",
+      "fingerprint": "bb09bde6e78f3e1784204d853cbbe2c8dca58a585d854d4ca1a8561502831107",
       "endpoints": [
         "U20.10",
         "U20.11"
@@ -1622,8 +1487,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "46bf3341c57e09cc2534b8e728d473be6d6dbf3e82ff20f82a366a203494a100",
-      "description": "Missing connection between items",
+      "fingerprint": "b04e9deb6bfeaf7a55eb3991c37d230f174547a3255802f485736dfa723768dc",
       "endpoints": [
         "U20.11",
         "U20.12"
@@ -1634,8 +1498,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "a554b8eccde28136b4352087db7fbdc204875731bc66e2631391bbe77f352d22",
-      "description": "Missing connection between items",
+      "fingerprint": "53998cfea9648b14f8782b41395900e9da86b727e3fb1fc3059ea76f63425388",
       "endpoints": [
         "U20.11",
         "U20.14"
@@ -1646,8 +1509,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "8d52c72af509b8c8c30fccb27701436c354a655ffa198b6b2668482616214e63",
-      "description": "Missing connection between items",
+      "fingerprint": "db52011b420b63cfbeb69e89aa4cb41bd6c83e9f5fe6e8ca3c03c3cb2146b122",
       "endpoints": [
         "U40.1",
         "U40.2"
@@ -1658,8 +1520,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "ad02451c82dc1cc4e9d6aaa3de51c451a35dffc8e2c4ca2160aaa2a8005193e5",
-      "description": "Missing connection between items",
+      "fingerprint": "9700fa2960494062480feaff6e84dbe6e7d5b5bc0ec5b3044fbfa96c9de18215",
       "endpoints": [
         "U20.12",
         "U40.1"
@@ -1670,8 +1531,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "0a44be990b508cf9095d25efba54867bb624d42cb7948a809d0e9062865b9e88",
-      "description": "Missing connection between items",
+      "fingerprint": "a1f6723ce8a07fd76e97a8703b95375036e52a630a336fd56a5807af179997da",
       "endpoints": [
         "U40.2",
         "U40.3"
@@ -1682,8 +1542,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "ea03fdf1cf717f4436255b514613d1bb717ed9d07ceb31e317a295aef853b6a0",
-      "description": "Missing connection between items",
+      "fingerprint": "977b6a2153d42ad3d2efebb44881df2bf0d8629f4c4a21f37836d78e8d929ebd",
       "endpoints": [
         "U40.3",
         "U40.4"
@@ -1694,8 +1553,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "59b03e8c91f8c82e13036d50dcedd82a6019c42cdbf574fa9ba614a226f0b36d",
-      "description": "Missing connection between items",
+      "fingerprint": "265e57b47be1d089e91e72ff073c76ee113bedf1823bf428eff44b50d3e8fb45",
       "endpoints": [
         "U40.4",
         "U40.5"
@@ -1706,8 +1564,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "82c20cc80094b2b49130a29497f4f2e7a9236ac75be77129d55676d413c6062a",
-      "description": "Missing connection between items",
+      "fingerprint": "1f66fc2fd42f23f836116258905bea9fb06912d0eb42e05dce87e6e1bb77bf49",
       "endpoints": [
         "U40.5",
         "U41.2"
@@ -1718,20 +1575,18 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "5dee0dc79fbcd6d106c81d5501c97df9a3a17d5c084630216c7b155a41aace11",
-      "description": "Missing connection between items",
+      "fingerprint": "acec44b81892e73a2c5383507a953b8173fbcb2e66037e579f642f0309bad115",
       "endpoints": [
-        "PTH pad 5 [BAT_HUMAN_GND] of J42",
+        "J42.5",
         "U20.1"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 5 [BAT_HUMAN_GND] of J42 <-> U20.1)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J42.5 <-> U20.1)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "2bb49ddf2829e5a1c92122b67267585795cfaa6561581c584c221db6d77fdd45",
-      "description": "Missing connection between items",
+      "fingerprint": "e5338a6d1d4468aeb8a9d04f974f584c64a664680d444d6fc85a1ed05c535b82",
       "endpoints": [
         "U1.27",
         "U41.2"
@@ -1742,8 +1597,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "8cb6cb59ac079d63b581d48c2f22f62eb64f0ef96f76f0ea42164a30e19ee806",
-      "description": "Missing connection between items",
+      "fingerprint": "477b6bac67381c8dd4f21e49435a41c9764c2f2f03bf89b2e5f86953adacf150",
       "endpoints": [
         "S20.1",
         "U1.22"
@@ -1754,8 +1608,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "95e8404c5be8e403a8f27d257fb2cea0380de9f02c74cdf562237fd74d22caa4",
-      "description": "Missing connection between items",
+      "fingerprint": "52f99ae38204b09c80e2b9175f662ae51c73f579cb1efb0d66648639b04273b8",
       "endpoints": [
         "D21.1",
         "S20.1"
@@ -1766,8 +1619,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "d924ca4416bd62a292456be484ce0aae2d538b13321086bdf2751a9fd2f948e2",
-      "description": "Missing connection between items",
+      "fingerprint": "587fed75be96562aa2a65bfeef3ccdff1c5b5b4fd5361acef745f3e9377712d8",
       "endpoints": [
         "D21.1",
         "D21.2"
@@ -1778,8 +1630,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "9da87b19505b7f34696879f16e06ac8d828cc025f07c55a6183685cbee78ddb0",
-      "description": "Missing connection between items",
+      "fingerprint": "78d131ae8c36ec976eb262740b766867984a54ef5c54d1e06524be70146ee459",
       "endpoints": [
         "D21.2",
         "D21.3"
@@ -1790,8 +1641,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "5e0fc18cd37eb666e350366bbbd539b0adf0f523083278279b9406344e6023e9",
-      "description": "Missing connection between items",
+      "fingerprint": "cccf579823cca5a8c343b9dcb2db19c79160241d2d690c86d5e2a25e208c4c8b",
       "endpoints": [
         "U20.22",
         "U20.23"
@@ -1802,8 +1652,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "70fe88ffd1b2a966449bac07b7da13d699c6a4bb943516d5f48fb1b88fab3a1e",
-      "description": "Missing connection between items",
+      "fingerprint": "b35bc7b3fd702814ff65fc67e51eba4a0a760583840655f0c6c06d1b8a79777b",
       "endpoints": [
         "U20.23",
         "U20.24"
@@ -1814,8 +1663,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "6db9c777d99c156b9644311d1648ed73a9ac8ec35a328e39851cec26aa258b6b",
-      "description": "Missing connection between items",
+      "fingerprint": "18c3825c0d98938fa613f71e3c294961217304fba3bf5a079f5712c99d6a2d95",
       "endpoints": [
         "U20.21",
         "U20.22"
@@ -1826,8 +1674,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "04ef5b55f0931611a7c2c161a574096ad236e007a6601809453b735668cd5601",
-      "description": "Missing connection between items",
+      "fingerprint": "2d769e643c0951a427533c0dc1355950381fb16e7bd3ac3d40c6dd558a82a8f9",
       "endpoints": [
         "U20.20",
         "U20.21"
@@ -1838,8 +1685,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "05470c145dbdf86ffa11232a297fb906eb6afb1de7bce0cef7145a554c6443ea",
-      "description": "Missing connection between items",
+      "fingerprint": "3e9686f49f7e4d4800cc2484e76f7640ba0d6584fc1a0658b58bb5641689a890",
       "endpoints": [
         "U20.19",
         "U20.20"
@@ -1850,8 +1696,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "a1c24d45da794fe3657cadbb9b0d711fc524332ff650de4af2a0ccb45ab2a131",
-      "description": "Missing connection between items",
+      "fingerprint": "f2a1165069ddf0979e14fb6f322ba06b500caeb526b8e37ecdc070a6efe5a02b",
       "endpoints": [
         "U20.18",
         "U20.19"
@@ -1862,8 +1707,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "06aa8b71c7766a0ad09e50f03fb0a8954c2d0faa92e6874afe10d4a041e3fefe",
-      "description": "Missing connection between items",
+      "fingerprint": "19d02cdf0e3b0d0c9bc7f39baa98f5bc34bec7d111fc0692bc6dea275d0bf9a4",
       "endpoints": [
         "U20.17",
         "U20.18"
@@ -1874,8 +1718,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "335208645e9fc3c72506c7d078e774036be0f77cc4bee57f9b1560ac4e93823d",
-      "description": "Missing connection between items",
+      "fingerprint": "e541bf6b080d096e74f38d9465b25e5cfca57ea28bce3f08ecfadeb79b518ada",
       "endpoints": [
         "U20.16",
         "U20.17"
@@ -1886,8 +1729,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "e372dbb77b2201eae0454b9e957ff88c13580ce59e3fcc46acd4abb1459dac40",
-      "description": "Missing connection between items",
+      "fingerprint": "e9e7746f0af7f5ce1586a3cbe528d22449644908a19958454d992c958803327b",
       "endpoints": [
         "U20.15",
         "U20.16"
@@ -1898,8 +1740,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "36932ea6b14e48ff303cd24b0f56d5861f46dd74a741993ac24a53393901a33d",
-      "description": "Missing connection between items",
+      "fingerprint": "472199eae9a9a7e8757f1cc3666b8fbd1f348ba12472302317b915c5e070e0e0",
       "endpoints": [
         "U20.14",
         "U20.15"
@@ -1910,8 +1751,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "ca602ec09d5c025fb0d229d8d9724d5cec1b3a593cf2202c5013c72b4956e975",
-      "description": "Missing connection between items",
+      "fingerprint": "f9317772eabe6dd8bbcf5cdabe93d3ade165a1de3a9f6caa4e7dedd80594a589",
       "endpoints": [
         "U20.13",
         "U20.14"
@@ -1922,8 +1762,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "c53b3870623146b1ba384f7ef15969bbd1e3d16f18a176d16565fe47e94a0f8b",
-      "description": "Missing connection between items",
+      "fingerprint": "0e9e1469f6f9092a771780ed188f60060ef66ea9f0d4b1510756cfaf54c23784",
       "endpoints": [
         "U40.10",
         "U40.9"
@@ -1934,8 +1773,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "e10cef5df099b568a4970d752c5518ef31b8134c2b9db286419ab6ac097d1609",
-      "description": "Missing connection between items",
+      "fingerprint": "d917bf929d8a535afef2b1e98630aec5122bf2ac3149484f3695876b4352ca49",
       "endpoints": [
         "U40.8",
         "U40.9"
@@ -1946,8 +1784,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "a3b71645799e5355c8b794d09ef56b2a17e0abd1def8b32f22fdf14a86cdcd87",
-      "description": "Missing connection between items",
+      "fingerprint": "552c638c95ef0212e854391796cadb85e0fe0ee32c760a1d5312f00fdafb5fc3",
       "endpoints": [
         "U40.7",
         "U40.8"
@@ -1958,8 +1795,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "127889e193f0bf34f40d79495e05dabdd9472f488dd42cb7c36af2690f0be778",
-      "description": "Missing connection between items",
+      "fingerprint": "9e0e091ae898d5eca7c5540700ab14990ae7daaeb2e98f544288cdd146e0e485",
       "endpoints": [
         "U40.6",
         "U40.7"
@@ -1970,8 +1806,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "455f80bcaa046fd85a365567042d200d58f19d7216fe363e82bfce701d56c982",
-      "description": "Missing connection between items",
+      "fingerprint": "bc8921c44799dd29360135a2bc4af389d7e027699cdb980e3da315e1b28476ab",
       "endpoints": [
         "U40.4",
         "U40.7"
@@ -1982,8 +1817,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "5d6c96101f78bba3561b855097d32e8605e387f9c2a1ca64d9365ccf014c13ea",
-      "description": "Missing connection between items",
+      "fingerprint": "f18760c36de74c09fcda2d133153d5aea3693112841b91d7678632ccda2bdb54",
       "endpoints": [
         "U30.2",
         "U40.6"
@@ -1994,20 +1828,18 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "9fb13011f47938b3b9c2b0d43b71f5a5fea4eb2ebd9d01eb0ec945f5fe126cd0",
-      "description": "Missing connection between items",
+      "fingerprint": "1eeea980d89588122dc4bdcb3135e4008bd4e10ab6452cea3aa85ec23180548c",
       "endpoints": [
-        "PTH pad 7 [BAT_HUMAN_GND] of J21",
+        "J21.7",
         "TP15.1"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 7 [BAT_HUMAN_GND] of J21 <-> TP15.1)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J21.7 <-> TP15.1)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "79fab23ed969745ab1cd3447d5b79f3752577cbad6ec72715ec1a5f73e5d5854",
-      "description": "Missing connection between items",
+      "fingerprint": "17fc3f24ff9491df7685d59b08f93ad986bf9d5d940dddab602da5b0df668144",
       "endpoints": [
         "D21.4",
         "D21.5"
@@ -2018,8 +1850,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "6bf542508a5537bc83669c6277baef6ab92811d9e91d26dd70fba1fdb7779f81",
-      "description": "Missing connection between items",
+      "fingerprint": "fedaabd54cc49d036797f0ab6bc3a1bdc3e88d94071703e17f2d144255fac9f7",
       "endpoints": [
         "D21.1",
         "D21.4"
@@ -2030,8 +1861,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "aee3dc02a7de740f8721807ca990632b69ad77315fbc1314c1402a1aa0126b2f",
-      "description": "Missing connection between items",
+      "fingerprint": "578813ad476cae3ac92cb0ae6d1a186172847608c3dd4a666b9737626b707989",
       "endpoints": [
         "D21.5",
         "D21.6"
@@ -2042,20 +1872,18 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "53c0a56bfc87036995bb16abb25a81d1719c84c294ad9334862541eaf56f6bf8",
-      "description": "Missing connection between items",
+      "fingerprint": "7e684d527c577f37e56edfacf5acd45943b6b436c694ed3d8ed16ce5b5717f5c",
       "endpoints": [
         "D21.6",
-        "PTH pad 7 [BAT_HUMAN_GND] of J21"
+        "J21.7"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: D21.6 <-> PTH pad 7 [BAT_HUMAN_GND] of J21)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: D21.6 <-> J21.7)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "6ac981db3ae6a976382ea1b6f66d2d798e084a4d14a9d5bc594626322d34941a",
-      "description": "Missing connection between items",
+      "fingerprint": "d1bed4554e5c9b89f048051ace42cf344b6ae7331a8ce2e7d9ffea2a7e9e2e76",
       "endpoints": [
         "U30.2",
         "U30.6"
@@ -2066,8 +1894,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "44d4adf851cae560427430447c9e8a133c1ff7a48ef0ca8a7e550809333c5b22",
-      "description": "Missing connection between items",
+      "fingerprint": "9b06025cba5b3cc5447906aafebc0c6663508db5b38640969f88cd4dedf8920c",
       "endpoints": [
         "U30.6",
         "U30.8"
@@ -2078,8 +1905,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "935e963382ec69eaa5b89814a47585bec108ac1b8c88f5311350ceec59e54139",
-      "description": "Missing connection between items",
+      "fingerprint": "4714a0297afd7a057811d1f371bbf2df01d72c00e4674ae4333960d89426ee73",
       "endpoints": [
         "U30.14",
         "U30.15"
@@ -2090,8 +1916,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "9156dcf72c792be0204e3346854d730e9ffd6edbff3ce4b7129df4720df0203e",
-      "description": "Missing connection between items",
+      "fingerprint": "d69db030a1b9877259ed24ceb8a9a7d95db951d6405cebcd719584b4275bb00a",
       "endpoints": [
         "U30.14",
         "U30.9"
@@ -2102,8 +1927,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "2414f4fc9d60b5c236b70cd67bbc0b95bbdc30a8f05b61d6dacf968b08661988",
-      "description": "Missing connection between items",
+      "fingerprint": "eb4b8867619ad3e8d5f7e4219d171a0cc1837d7f1ce80be8b4df052e5cfb7e96",
       "endpoints": [
         "Q30.2",
         "U30.9"
@@ -2114,8 +1938,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "7c3584e8f8cbfd013989e8e42c3a1755658faa5bf10a663695c46654221ddb27",
-      "description": "Missing connection between items",
+      "fingerprint": "ce06016d056cc79508e28289c16168af4ef2339dc7051ff317d19ccf33bf5e20",
       "endpoints": [
         "U30.15",
         "U31.2"
@@ -2126,20 +1949,18 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "601764fa4d8fc1f33f9b0e25d00c18ad476dfc7abe9c21fe86ecdd1f12e5b2a7",
-      "description": "Missing connection between items",
+      "fingerprint": "b96cb38071f1da99452cdc205cd018f7b3640d9f34fbbb91ed5e696dd750d93d",
       "endpoints": [
-        "PTH pad 3 [LAB_ISO_GND] of J30",
+        "J30.3",
         "U31.2"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 3 [LAB_ISO_GND] of J30 <-> U31.2)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J30.3 <-> U31.2)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "9513074c91645a6f0d92a6eb47588dd24f1be16ebefa793856af5e5b843d7851",
-      "description": "Missing connection between items",
+      "fingerprint": "96c4c0fe6e59628f5999b936abd065147f7f2b77ba4239674da6ad065de03c8a",
       "endpoints": [
         "D30.2",
         "D30.3"
@@ -2150,56 +1971,51 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "931d636af008de10d16d8c57fbb27d3186ff92c4158f1046deec42dd94814950",
-      "description": "Missing connection between items",
+      "fingerprint": "53343445a4d3967ceb53cf6a0e759a07bbafa5239d613d628f2f389f8c7e1ec3",
       "endpoints": [
-        "PTH pad 3 [LAB_ISO_GND] of J31",
+        "J31.3",
         "Q30.2"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 3 [LAB_ISO_GND] of J31 <-> Q30.2)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J31.3 <-> Q30.2)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "e0865bb83c9ba246da40f97ec579501510bae772339264e90fe91399b9456378",
-      "description": "Missing connection between items",
+      "fingerprint": "7cdaca267d5f3005c2a989b5496b4bea6ee0864d6314bf8cad376cd2a62241b1",
       "endpoints": [
         "D30.3",
-        "PTH pad 3 [LAB_ISO_GND] of J31"
+        "J31.3"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: D30.3 <-> PTH pad 3 [LAB_ISO_GND] of J31)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: D30.3 <-> J31.3)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "6091c34bda591daea119da124812a9284f49a9bf574587373c4a143dde591546",
-      "description": "Missing connection between items",
+      "fingerprint": "dd5d6987529eab9c8c02bdc615d380cda5cb1c70223dff521c023c0184cfa2cc",
       "endpoints": [
-        "PTH pad 2 [LAB_ISO_GND] of J30",
-        "PTH pad 3 [LAB_ISO_GND] of J30"
+        "J30.2",
+        "J30.3"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 2 [LAB_ISO_GND] of J30 <-> PTH pad 3 [LAB_ISO_GND] of J30)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J30.2 <-> J30.3)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "fd0537e28f8dc3133d019fa90fad49baa15563b5e957a52c3ec6f80d39f60210",
-      "description": "Missing connection between items",
+      "fingerprint": "15b932b8667ffcca2acc320b75fd383cf6e13b5fe48dff31043f6bdac6184b6b",
       "endpoints": [
-        "PTH pad 2 [LAB_ISO_GND] of J31",
-        "PTH pad 3 [LAB_ISO_GND] of J31"
+        "J31.2",
+        "J31.3"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 2 [LAB_ISO_GND] of J31 <-> PTH pad 3 [LAB_ISO_GND] of J31)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J31.2 <-> J31.3)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "cf622c46b41f0bb11972d9a468ded5c3a995091f9dd8cf32d8c761572333195d",
-      "description": "Missing connection between items",
+      "fingerprint": "7e3d162e38e88f46c9990bc6366d5949f5e0c1d14909900d13d7f3c1490465ee",
       "endpoints": [
         "J1.A4",
         "J1.B4"
@@ -2210,8 +2026,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "70f0ce2201f6711cdc0bc0beb112780fa316051d4391c46683dad20e34209d62",
-      "description": "Missing connection between items",
+      "fingerprint": "edb601343da7dd9fb6de0e491240e29e35af3a8058056584a5e83b707703370c",
       "endpoints": [
         "D1.4",
         "D1.6"
@@ -2222,8 +2037,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "23547d4a6de6a5122161da71efe2e570502fbe311cb60cf12ef30728115fdf28",
-      "description": "Missing connection between items",
+      "fingerprint": "8bd7419b655c00f33a094a36d1f9b5388559f12f262f452809d402e1b6d154a5",
       "endpoints": [
         "D1.6",
         "F1.1"
@@ -2234,8 +2048,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "1c2466ca121a55da131d2a7dfa15e028cc133d04a550b3e1f956598ef067b173",
-      "description": "Missing connection between items",
+      "fingerprint": "6d390618206f480e199985966c72fa64ae067f1e3ae8eb5e0a18a6c9ccda3c25",
       "endpoints": [
         "F1.1",
         "F1.2"
@@ -2246,8 +2059,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "000ba7e762e3fe28cbdab4e81c3f91424529500b650b132cf391ea1d55a514de",
-      "description": "Missing connection between items",
+      "fingerprint": "5aa6e0d610cae55a47769f4c93187b5d6954ff1cc4138e959483e6e3588c5d99",
       "endpoints": [
         "F1.1",
         "J1.B4"
@@ -2258,8 +2070,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "0d0709742cf66be67b85d47e29b5289db940d3b210bea5e8fec34b0cdb617c8d",
-      "description": "Missing connection between items",
+      "fingerprint": "bc5f3819a2196e3cf2cf428f7838712aacd4a43d5cd39dd1fedb0d3b802209b2",
       "endpoints": [
         "F1.2",
         "U2.1"
@@ -2270,20 +2081,18 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "5baa162c6501b81f8a0789b86ae58b8fe98233676ef538c9e718ecd2c2e707cb",
-      "description": "Missing connection between items",
+      "fingerprint": "d2f43d24c7c08681a8190b72e51c7bd9347765a7fa7cb7db04326a0dba208558",
       "endpoints": [
-        "PTH pad 1 [VBAT] of J2",
+        "J2.1",
         "U2.13"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 1 [VBAT] of J2 <-> U2.13)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J2.1 <-> U2.13)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "f4597068215802c5adc97d9d6bdd442a28c3b6d8af633a9ede787a7873045f9f",
-      "description": "Missing connection between items",
+      "fingerprint": "a91c518f061c097ea17890645346a04f3952642d33d96177127044e46a185557",
       "endpoints": [
         "U2.13",
         "U4.1"
@@ -2294,8 +2103,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "d616c5d56e990f962d431125d6986d7133b5c37824b11970df481703e33fc558",
-      "description": "Missing connection between items",
+      "fingerprint": "b0b3e6fd696ef3d5d9cf4a700581eda7af84121ce73a5adbf8b693c2c83edbb2",
       "endpoints": [
         "RSH1.1",
         "RSH2.1"
@@ -2306,8 +2114,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "937e6cd4f17f3498afaf19ed31489a02cefe255d3565343913334f837498d8ad",
-      "description": "Missing connection between items",
+      "fingerprint": "f4af80de9401e715a679104fecf2d4ca393b2212fc8f8f9372d4ce71ca792df4",
       "endpoints": [
         "JP1.1",
         "JP2.1"
@@ -2318,8 +2125,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "8384908198f55e4e97b2afb4fad05418523fa505a9773444f6f2de42a5eb57ff",
-      "description": "Missing connection between items",
+      "fingerprint": "15fe96c252fab701c393838ae1111ccb5e4f10068f769239290a3a8bba1e4290",
       "endpoints": [
         "RSH2.1",
         "RSH3.1"
@@ -2330,8 +2136,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "3a0f386e6f97a1ebc938ae9e1c433f0075279537578a15b9f33dc5935b38991d",
-      "description": "Missing connection between items",
+      "fingerprint": "93fb95f049dce9c9571c7762fe2184b6c24d5721c30d8dcc14f65fe79b412b56",
       "endpoints": [
         "JP2.1",
         "JP3.1"
@@ -2342,8 +2147,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "c8991c3bb6bd8546cbf14c745f31be276da8430ccd90b8bbec636b659e70fd9b",
-      "description": "Missing connection between items",
+      "fingerprint": "8fb929b77e160fc9f87f913bd1120d1147889e007b7ca21dd4a419b2cc5714c8",
       "endpoints": [
         "U3.1",
         "U3.2"
@@ -2354,8 +2158,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "4e834e6a24b9660d0b8ef7f1aec50cfb191f5aa614e043d5672d8146d7111009",
-      "description": "Missing connection between items",
+      "fingerprint": "6ef8931248de4cac0a63250a422e103dfbe446ae8a2212fad10f80416c3e805b",
       "endpoints": [
         "RSH3.1",
         "RSH4.1"
@@ -2366,8 +2169,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "5aa3377f067e36f7c36dc471e095bcfa3f659189a7976362e03e4c27edffbdcf",
-      "description": "Missing connection between items",
+      "fingerprint": "a35e6e696783b239a307645cd480aecbd07746af1cbc38b01b8ca51af8407cfa",
       "endpoints": [
         "JP3.1",
         "JP4.1"
@@ -2378,8 +2180,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "3cce451996052e5cd375cd33e71e72c3a84203774fccdd093559b5296cd2b343",
-      "description": "Missing connection between items",
+      "fingerprint": "1103fddc4fee20283b5248c2d71f7931ccd700b648d8b22a1d049a88c063f87c",
       "endpoints": [
         "U2.6",
         "U3.14"
@@ -2390,8 +2191,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "6353b49443c21df564b4756ed5f5d19cc47490373d6dd20731d209d3eeb3a58e",
-      "description": "Missing connection between items",
+      "fingerprint": "ffeaa43eabef296834ab7fd9b556ddd94167cce5c4a9b6aae35b9c1387c16b96",
       "endpoints": [
         "U3.1",
         "U3.14"
@@ -2402,8 +2202,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "53f8c6025cda2ad9bb4631c3b93d24f41ce63947a7392073a23568845d015c80",
-      "description": "Missing connection between items",
+      "fingerprint": "d58120532d1717b21fee0a7bbc77d57d963a73e0844346ed71ddb64aa2f00142",
       "endpoints": [
         "U2.6",
         "U2.7"
@@ -2414,8 +2213,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "1859eee2641e0f306f02f9de253f91143418955c0dd02d0b37de4f9887cfdf8c",
-      "description": "Missing connection between items",
+      "fingerprint": "50c669219b4daad22e004b5def80556843516075de87246ca8ad97227eb077e8",
       "endpoints": [
         "Q1.3",
         "Q4.3"
@@ -2426,8 +2224,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "767f86fbc251028513587cd536260ecebb3b0b4adc0022999b736a1f5db8b50f",
-      "description": "Missing connection between items",
+      "fingerprint": "f649c1c15ae6f696678ac948aad4376c77db4aeafdcfb9c5a1cf1753edeb77d4",
       "endpoints": [
         "Q4.3",
         "U2.7"
@@ -2438,8 +2235,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "00a05501733f30fb19322d56ad245b423937b52c793a96600020a4cad3e1c08e",
-      "description": "Missing connection between items",
+      "fingerprint": "00e6358e5dbde4add3648f281a104fbfc1b114b482ba75c3e7bd386ca54ca1eb",
       "endpoints": [
         "U3.12",
         "U3.14"
@@ -2450,8 +2246,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "d49e5e3a63bfaf8b89f1f4fe3bacdf01eb5558acc83d0bc5f7adec17d784ae61",
-      "description": "Missing connection between items",
+      "fingerprint": "d65d8d6def6f59ad2e37fc63a6a33536986b1ba441da29e78e93ff80f2aae673",
       "endpoints": [
         "JP4.1",
         "JP5.1"
@@ -2462,8 +2257,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "cfac8f625911c129a0f0f40757ac459c6da8641b545cbff63d5caf9ffd09997c",
-      "description": "Missing connection between items",
+      "fingerprint": "314e3a42f9a258c99d8a5a043e107c2059f35d4f992589702d006d4b07603225",
       "endpoints": [
         "JP4.1",
         "RSH4.1"
@@ -2474,8 +2268,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "6a8d1f0b33d20237311b85a3c380efbbf322907ed7e7ed9e85c7e36b2b748747",
-      "description": "Missing connection between items",
+      "fingerprint": "4de5dd49b264a4598efcbc004a593c3e2ac433892abf2ca6157c0acb3f2aadd8",
       "endpoints": [
         "L1.1",
         "U3.12"
@@ -2486,8 +2279,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "2e4d527376ebb83ace065865d2440a2ca908f32c94417bf3894220419b2888ea",
-      "description": "Missing connection between items",
+      "fingerprint": "4655ec91d529556532fe39c22fed72d77384b496ab99c38e083ccbb64761d5ed",
       "endpoints": [
         "L1.1",
         "RSH5.1"
@@ -2498,8 +2290,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "a306c449dea5441e81e38cf4ef2216988e1e4d1edf48721687e8d7822e0c9404",
-      "description": "Missing connection between items",
+      "fingerprint": "a25f16b5ec3917d5b757407b7e8a17e8f71f1933f992a965ec7c33128b620ddd",
       "endpoints": [
         "RSH4.1",
         "RSH5.1"
@@ -2510,8 +2301,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "5b6abb637946410cf514db0677b86e6fc8d4a4d86a4b5e72f730885dfb3d1096",
-      "description": "Missing connection between items",
+      "fingerprint": "6f9f05abdb8407f8653815ca17c6c9365d91ff5ebc0ea45190ecebc05bcd146f",
       "endpoints": [
         "JP5.1",
         "JP6.1"
@@ -2522,8 +2312,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "b3dcccdbadffe2229ed590150e3c5fab80b1d4d76b45d72974d10904f3ad7a06",
-      "description": "Missing connection between items",
+      "fingerprint": "c8ed4137f60a55d29145df378c9503c1962a231d5741452ef179896bae5d44f5",
       "endpoints": [
         "Q1.3",
         "Q2.3"
@@ -2534,8 +2323,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "03b879555e2b9414473a6c6dd0fc8fdc5af812a9b5e59cfd0a96f5e6c396841e",
-      "description": "Missing connection between items",
+      "fingerprint": "718231bb4827a9820ecfb6b80011a52429bd83708155288248c5d97c7b32664d",
       "endpoints": [
         "RSH5.1",
         "RSH6.1"
@@ -2546,8 +2334,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "76603f834017a1ced386d2f88824ee0009385ff6835b22a56656974212a5e38c",
-      "description": "Missing connection between items",
+      "fingerprint": "cfe1a880d44c832aac6109812b980ade6e52f0a0d2cb59548c919f9fc0d9bd3f",
       "endpoints": [
         "Q2.3",
         "Q3.3"
@@ -2558,8 +2345,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "c7c80da0e38025480ad181a2397bbb88586e90ad7ca83e82ba96677c395ba7e5",
-      "description": "Missing connection between items",
+      "fingerprint": "7b364c502bdd0df215e727e8dfda8fc28634b67d4bde3cd151d8d9c309fe525b",
       "endpoints": [
         "Q3.3",
         "Q5.3"
@@ -2570,8 +2356,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "d57274f3b25cf2903d5d173055f06a32ec2be43880bc9398616cae5ed1afb03a",
-      "description": "Missing connection between items",
+      "fingerprint": "6a49abff4ea5f703dd5869d49c10933f3cab6fda5d0e755710ec3316758f5516",
       "endpoints": [
         "Q5.3",
         "Q7.3"
@@ -2582,8 +2367,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "0dd4b48709be557e2cb86b1a85d91040801773258f732356af7adbc96d3538f1",
-      "description": "Missing connection between items",
+      "fingerprint": "46fd755b59f392c720b8749ba2b88b788c60f5d78d18aa3d79d9851378b533b8",
       "endpoints": [
         "Q7.3",
         "U5.1"
@@ -2594,8 +2378,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "8008bbfa8729120b0648dcc8d72e60e0cf11bcde92f621948e2a0255e85e61b2",
-      "description": "Missing connection between items",
+      "fingerprint": "2270d7fbc5c9c8e8d409fdbd9c8e557b89b1991adc66686f0276e38ef9e88320",
       "endpoints": [
         "RSH1.2",
         "RSH2.2"
@@ -2606,8 +2389,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "79d24cd8d073ea26deea01ff9298100201687864c36d522b02a1ff068ebff232",
-      "description": "Missing connection between items",
+      "fingerprint": "829571064e2454022b5e7df1db69285dffa880fd7445dd854b780de15f6daaf7",
       "endpoints": [
         "JP1.2",
         "RSH1.2"
@@ -2618,8 +2400,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "bd251f71b70e4e8b2f162393e4fa6e45c4861c0bc7036194535632f43bb6eeaa",
-      "description": "Missing connection between items",
+      "fingerprint": "6d408f1974e91591a50cca740cb8dd3bae742e58638e044d465d39c9786e7150",
       "endpoints": [
         "JP1.2",
         "JP2.2"
@@ -2630,8 +2411,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "79bb275d3a147913ec39abc9e4dd3774e7c327315c38f04ae45bb0a2a9ba677d",
-      "description": "Missing connection between items",
+      "fingerprint": "27fef03b4ffc9bc9b24d83e06ae1d71fd539f11b92a43dc85d04ec27df988e91",
       "endpoints": [
         "JP2.2",
         "JP3.2"
@@ -2642,8 +2422,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "eba076a6beabd025b62fb8b6950da21429e038fed1f92faa2a2485d73efe14c4",
-      "description": "Missing connection between items",
+      "fingerprint": "cc62111d0093d7b596ea1e29232a89a12136249991fa4465b0778d35637d270a",
       "endpoints": [
         "U3.5",
         "U3.6"
@@ -2654,8 +2433,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "3400f707fa8c28b32f5032deb0159b1d94d70839b2c33cdde5260bea3ad0d386",
-      "description": "Missing connection between items",
+      "fingerprint": "5e1d8e5ffee0c918478dde696f97865602a05fe04bcc9fbda3e152651dbaa876",
       "endpoints": [
         "U3.6",
         "U3.7"
@@ -2666,8 +2444,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "840ed38d6c6d5d7abc81919350beb16a7fc50abe8e55ec44cb9413b13784e120",
-      "description": "Missing connection between items",
+      "fingerprint": "ad37a3fa3ce65ad3742bc2dfa145e1bae3d746aa66efd42cc4a2e47999a7a54b",
       "endpoints": [
         "U3.7",
         "U3.8"
@@ -2678,8 +2455,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "9bf62bead4d267b800dd4ecd5174c81476d4f2c6142c09be3125e56c05e21afa",
-      "description": "Missing connection between items",
+      "fingerprint": "0ffcc9024f9448591c7f18e61388b58890920ab5b91d0f119221db7a71e0f01f",
       "endpoints": [
         "RSH3.2",
         "U3.7"
@@ -2690,8 +2466,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "2db8e41c78e9be29b440eb8ce5bc82abc85e12ffdc6be973cf7b8b8073d86dc8",
-      "description": "Missing connection between items",
+      "fingerprint": "f51ab5d425f415e2aca9693fb269826076b1bd421f723df7c5b8337b67e80735",
       "endpoints": [
         "RSH2.2",
         "RSH3.2"
@@ -2702,8 +2477,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "275d616de6c017066a62d7740954c0a9eb291b5e188cd92dd3dc2765eddf977f",
-      "description": "Missing connection between items",
+      "fingerprint": "738c39a953876581bccc1774b0655a329851037ec71a86147ef3829d73e6049b",
       "endpoints": [
         "JP3.2",
         "JP4.2"
@@ -2714,8 +2488,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "bad01cb7ff2df37c0558564783b56c223db94523235906ebd08538407c3f1976",
-      "description": "Missing connection between items",
+      "fingerprint": "0f04fd6197a603f0ebd5d6d5ae23ad58572ac8e5c67313e30cbae698d80f8efe",
       "endpoints": [
         "TP2.1",
         "TP4.1"
@@ -2726,8 +2499,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "4bc3ac5878fc5e211fd52e325f934effaa4759eed6878b3493ec0380c52162c7",
-      "description": "Missing connection between items",
+      "fingerprint": "0bf54f63a77b62f9e272063552a34d3ccf164448ab3153ed9309b50622f2cc19",
       "endpoints": [
         "U3.8",
         "U3.9"
@@ -2738,8 +2510,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "7ec308d6978088f9110fb427885a1215e8072ac0af28b5b6e6c4519b919841dc",
-      "description": "Missing connection between items",
+      "fingerprint": "611d8e4d9cde96875ec363cb43870de52e6d5ea2b1b977f4878389ba3bb20be4",
       "endpoints": [
         "Q1.5",
         "Q4.5"
@@ -2750,8 +2521,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "23ec690ccbc0a3f5d05b6c8f933853bc0d14c47c13916b1930790ff4aab5ca0d",
-      "description": "Missing connection between items",
+      "fingerprint": "00f9626ceeec46f8dc2831816126d620940eb1f09ff0ceeff8710d89bd56be54",
       "endpoints": [
         "Q1.5",
         "TP4.1"
@@ -2762,8 +2532,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "a638b2c714ba75e82055227e906ebc1b86870414e0b23ce6c5479c5d987bc6bf",
-      "description": "Missing connection between items",
+      "fingerprint": "03093f9451e26e1a73986ccad419e9a9a3c5661220f60652e376bf889e1820fb",
       "endpoints": [
         "RSH4.2",
         "RSH5.2"
@@ -2774,8 +2543,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "66f8916705200486dc97cee7b103d5759008954db9ebc2a8780f2178ee33887a",
-      "description": "Missing connection between items",
+      "fingerprint": "6e5f0115743d704cf79069130133ca683ecc0f311031406b30689093f48567f8",
       "endpoints": [
         "RSH3.2",
         "RSH4.2"
@@ -2786,8 +2554,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "d16dde1332cbcf81a84517c7c29487c4e83226dec29c3d0245463e4f9440c17c",
-      "description": "Missing connection between items",
+      "fingerprint": "7ba78f3a7b30dd87ff08f47ec05a247995c77872416696bc135e1a4555feb256",
       "endpoints": [
         "JP4.2",
         "JP5.2"
@@ -2798,8 +2565,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "d77364efb93192463c0a3e357293be73ce46874335243e305554ff55fb189d42",
-      "description": "Missing connection between items",
+      "fingerprint": "68d5b4079c70a7a42d2a86287cdc52576c3cdbee112265366365185aca39cc1c",
       "endpoints": [
         "L1.2",
         "RSH5.2"
@@ -2810,8 +2576,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "006919d2ce4091a6bbfd1d18e333378d25278b3718d150d6c5bbcf7913c8bf42",
-      "description": "Missing connection between items",
+      "fingerprint": "b1e8356cebd2dd38283f75d5262f2e8c72ef78d71baad7796cdd71903a1f46cb",
       "endpoints": [
         "JP5.2",
         "JP6.2"
@@ -2822,8 +2587,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "70dded2768c9d281f0d9c8e95a41cfc00b54baec835ddc1f6294020a828dca63",
-      "description": "Missing connection between items",
+      "fingerprint": "b1684b6a023d78823e8ef1eb5e28f16b7192510bd14ffd54cbf2ad291b66f610",
       "endpoints": [
         "Q2.5",
         "TP6.1"
@@ -2834,8 +2598,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "0a56a1b928a142cbcc837474f1cc9d1da68eee8af44ae256bb54553cd448c6bc",
-      "description": "Missing connection between items",
+      "fingerprint": "1e906d5c132e3c4fa4ae10cb7acd2f49c46879a3f6197765dba7b626d484a474",
       "endpoints": [
         "Q1.5",
         "Q2.5"
@@ -2846,8 +2609,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "8c6001036c89f59b4bc02013211c341efe4c8a39a8d5a973de93f5d7ebc2cd24",
-      "description": "Missing connection between items",
+      "fingerprint": "14ed174549eb0eca139fb0fcb26bb6a51c6c831990d9104149cd046b18ea6508",
       "endpoints": [
         "Q5.5",
         "U4.6"
@@ -2858,8 +2620,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "d8e4b8a248c161a5f35424118da38b9c86ba31451ce4098bf499239a7272c34c",
-      "description": "Missing connection between items",
+      "fingerprint": "ac44f4c00fd76569760508a8f1c4fb04719cf08fb5280d48cbed310e4a071548",
       "endpoints": [
         "U4.6",
         "U5.6"
@@ -2870,8 +2631,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "fbd5770037fec692e8f8a55af3b0a2c563b9db792ae5e185cc508566f1ab3b21",
-      "description": "Missing connection between items",
+      "fingerprint": "a41f9788eda2be014afd9c6373eefbca1e347bfb655ebe946613389cb04d001c",
       "endpoints": [
         "L1.2",
         "U5.6"
@@ -2882,8 +2642,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "f4fc107b4a4e183b93c2ff8aa62f34bddc044c52b8fa4777db6b485beb4ec021",
-      "description": "Missing connection between items",
+      "fingerprint": "f77ba45269ae884693e8298f6ca4914b81f46c79b55392b4fdc9d0450cef3949",
       "endpoints": [
         "RSH5.2",
         "RSH6.2"
@@ -2894,8 +2653,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "9662d6bf86a97a918b9602e0739ee23efce1d921efe428e2161045b6166cc488",
-      "description": "Missing connection between items",
+      "fingerprint": "6eb2bd5331318f924e1f4d0309551f5bff21310e3cbd10e4daa526026014f649",
       "endpoints": [
         "JP6.2",
         "U13.6"
@@ -2906,8 +2664,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "1d0c1e0c5f757504479c2e038406b5e035ec26548c62c894d3f82a989293114c",
-      "description": "Missing connection between items",
+      "fingerprint": "a065ac7ecbae9c45224a13d59bfc0768153177632e306fa3e54d5b630246538a",
       "endpoints": [
         "Q3.5",
         "TP8.1"
@@ -2918,8 +2675,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "53c0c5461a021b1d83953e65e371b16250c5273cf3b4f12c69a712272738d561",
-      "description": "Missing connection between items",
+      "fingerprint": "e74d2f9f6fd040da47dca34ebf7e03f177c6ef3a05cce52538aa586566ec86f7",
       "endpoints": [
         "Q2.5",
         "Q3.5"
@@ -2930,8 +2686,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "c3ba1e5323d5f00e10f57805984e9445f178d69f7b5bbc83ae9c0aa5637e2c73",
-      "description": "Missing connection between items",
+      "fingerprint": "6bae21d3b012d3ae3436a773926d251c4ddd02b529b232b5f310ec1110944559",
       "endpoints": [
         "Q5.5",
         "S1.2"
@@ -2942,8 +2697,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "a0c7bb854a90210931285e47e06929c10f1be9d632fc17a265ba8983a63867c6",
-      "description": "Missing connection between items",
+      "fingerprint": "b3f58847cce4e03954e8e2d985649ed0c56ccba71224bf1f5d7954b8399eeee1",
       "endpoints": [
         "Q3.5",
         "Q5.5"
@@ -2954,8 +2708,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "9bce0fd6d3ac1e72149ade5248219ffc5cec1f1501a825be96066dbdfc6a648d",
-      "description": "Missing connection between items",
+      "fingerprint": "cac601fe4888405f9652ba8096018b86585fa6a71cb08c48454ef206afed76f8",
       "endpoints": [
         "U13.6",
         "U14.5"
@@ -2966,8 +2719,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "dfa407ade0edd95aa5b52e495aeaea6ca20ac64b8b4c5006ed6f5d559151e34f",
-      "description": "Missing connection between items",
+      "fingerprint": "2661da5f10069ce17cc03c19e264de7b9943e2b48e8ab98e762841c4b51fba63",
       "endpoints": [
         "S1.2",
         "S2.2"
@@ -2978,8 +2730,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "43dfb5d386aa2a838ff14b65749fcb03c205986f31393b8f9a594c6b785504e3",
-      "description": "Missing connection between items",
+      "fingerprint": "993e2b19208b72a0da58038c53835ed86295f9c6a77cd2d115b4da6abc5b60e7",
       "endpoints": [
         "S1.2",
         "U1.2"
@@ -2990,20 +2741,18 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "61f2060410637700c499d89bb15fd795eac7a28270c560f03eaa2fde617f3cfd",
-      "description": "Missing connection between items",
+      "fingerprint": "2f761160aed702394910ac2594a2b54db57d9a39b8f6d1df0fb4717cfcc7937f",
       "endpoints": [
-        "PTH pad 4 [+3V3_DIG] of J41",
+        "J41.4",
         "U1.2"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 4 [+3V3_DIG] of J41 <-> U1.2)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J41.4 <-> U1.2)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "cf024e836dbe0142cf4656b152c58137441b4c7788fc3a70b28ba7af8d98b37e",
-      "description": "Missing connection between items",
+      "fingerprint": "6bab93ee06e6a901996a8c24f1a8503151b096e2b728986168336e2d58d41442",
       "endpoints": [
         "U14.5",
         "U15.5"
@@ -3014,8 +2763,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "4dd01710d79c88645350cac9de0cc01859a9df674e80720842455f95cb472487",
-      "description": "Missing connection between items",
+      "fingerprint": "a3c739f0bd84bafe56ef9c57a35c752eff95ac229c5f3e0d3fb7a1501869254e",
       "endpoints": [
         "TP10.1",
         "TP12.1"
@@ -3026,8 +2774,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "1aef8efe93e70709a023af0488110dca1a70a5923dbb8615a58b1027a0ebf3dd",
-      "description": "Missing connection between items",
+      "fingerprint": "23a8766b70b80d7cc73eeaf13d9a3d590b566f381ca24f40b5eead5743bbb348",
       "endpoints": [
         "TP10.1",
         "U15.5"
@@ -3038,8 +2785,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "9ec3e8d7a05a19ed1471a74d3a69e10bbccc376441edabfcee762f4bfa2200ec",
-      "description": "Missing connection between items",
+      "fingerprint": "b4d6e15a3178f83ea8a0cf068bc24098d68fa16119b6cf44c3e5d2f0c438a35d",
       "endpoints": [
         "TP12.1",
         "TP14.1"
@@ -3050,8 +2796,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "7fb3caa5877ef5716c7ec259070b37d73072ffc15aa706414816dec887d2cf08",
-      "description": "Missing connection between items",
+      "fingerprint": "0033d94dfb43dc79115ce8ac704049c69d88e79b9e507291b991b0b95e12fd1f",
       "endpoints": [
         "U41.3",
         "U41.5"
@@ -3062,8 +2807,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "0a91aa97188e09bc9bfd128d75030b316d2005426aed8bb1c23fdaeaeb0aded2",
-      "description": "Missing connection between items",
+      "fingerprint": "fd8b5a2d9b844fd2343479f8f1d8e880f232ea4c88f8d19e6f692bf64b661ec8",
       "endpoints": [
         "TP14.1",
         "TP16.1"
@@ -3074,8 +2818,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "b44c264cef8eb7983d3c106dc608fb974e9405cecb835d5018b4caa5750747a6",
-      "description": "Missing connection between items",
+      "fingerprint": "3a21394a5114bab2c3f7d63c56edf8ea28316dcd68f10ebf5c88d598c07713da",
       "endpoints": [
         "S20.2",
         "U41.3"
@@ -3086,32 +2829,29 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "52ef3684c01605f5d7402111d5591cd2341a9b8fff9d5204cf0372432b1a2ddc",
-      "description": "Missing connection between items",
+      "fingerprint": "44b13803d83d008cd254bffd45394ded6a76b9011d2f35ebcff41bdcac612650",
       "endpoints": [
-        "PTH pad 8 [+3V3_DIG] of J21",
+        "J21.8",
         "S20.2"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 8 [+3V3_DIG] of J21 <-> S20.2)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J21.8 <-> S20.2)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "0f73474846098f4de739b35c5ccddb437d60e6a745f1a05482cf37bf1616a25f",
-      "description": "Missing connection between items",
+      "fingerprint": "4a11de1db525b68b1f3c796d62b917273e383587ecc54077ff25ee8f72d04140",
       "endpoints": [
-        "PTH pad 8 [+3V3_DIG] of J21",
+        "J21.8",
         "TP16.1"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 8 [+3V3_DIG] of J21 <-> TP16.1)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J21.8 <-> TP16.1)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "7b77433cf276c39b1b81cf32a3a30b71e4bb300a2bcecec10c6cadf141f4d614",
-      "description": "Missing connection between items",
+      "fingerprint": "cf8d5bb232dceca0d76ab570c286acd7eac71cfb3341ac96d0305cb1353b771b",
       "endpoints": [
         "U30.1",
         "U30.7"
@@ -3122,8 +2862,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "aefeca8a9e9c100aef9cf60baa4d78f93b4af033f1c91ca2aef49a2ce437f4aa",
-      "description": "Missing connection between items",
+      "fingerprint": "03a0954cb3a16429676449bbaf56a60010a5bce4cd297cb8e3a1518dda550a37",
       "endpoints": [
         "U30.7",
         "U41.5"
@@ -3134,8 +2873,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "33ddf85db3392471ee059ab010513ec2e5ac72ca479096197ab56f89809da29e",
-      "description": "Missing connection between items",
+      "fingerprint": "c488be639e1f6b86e8dbdf5281543b08b5b05f76de27e45168ba99675cbe3186",
       "endpoints": [
         "U10.1",
         "U10.16"
@@ -3146,8 +2884,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "914bd133f1cd41cd0cfc91d28307555b714a5ef5f9206a3f45d83ede84d8a914",
-      "description": "Missing connection between items",
+      "fingerprint": "73abb69677e5f7647968851c47cf198048c46a344222453df929dd2afbdcb3b9",
       "endpoints": [
         "U10.1",
         "U13.1"
@@ -3158,8 +2895,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "b5f5f3f3069b11eb56e962e3fdba5ce00289a066ee5fa3f44e9adb5afbf58d1d",
-      "description": "Missing connection between items",
+      "fingerprint": "71731ecba4993c3c9f19160ba217dca640ea1a67994c82c11eb022f726bed79a",
       "endpoints": [
         "Q7.5",
         "U10.16"
@@ -3170,8 +2906,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "41de5a06bded30d99cfc272feb37a66ec32e73f65aef12528039a2349ba141b3",
-      "description": "Missing connection between items",
+      "fingerprint": "57b6785454b7d0b94f23a4c72c7b623d18d1e0d09af8bca8fffee88860942809",
       "endpoints": [
         "U10.16",
         "U11.8"
@@ -3182,8 +2917,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "dcf20e51b2ac6c5710c297e42d75f67cabccdb5f7ccc69b958b509330609b5ec",
-      "description": "Missing connection between items",
+      "fingerprint": "7f9191e195f2aa54845f3b09462d4a08b1da30c08c14fffc7f3854b0ba7b6f64",
       "endpoints": [
         "U11.8",
         "U12.1"
@@ -3194,8 +2928,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "9a66cc18e0469e311aae66224586a6705a5ef80b68e3a978fdb294dbdd7f48f1",
-      "description": "Missing connection between items",
+      "fingerprint": "2a73d74e4cb0d028ec035c6c9d79e8cf610078cc3f9758d98a079dd20cb6c2e5",
       "endpoints": [
         "U12.1",
         "U12.2"
@@ -3206,8 +2939,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "75041630e1b8839a7b9e594c1eb5bba6c4d694078c78b7859b39a454f1223178",
-      "description": "Missing connection between items",
+      "fingerprint": "a19467fb4af423a158e3736e0327f85fb38cf9678a2214503439615c8da66a45",
       "endpoints": [
         "U12.2",
         "U12.7"
@@ -3218,8 +2950,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "0a81e903b7174e459f4cd954ac4e20368ea1c96dd21778d4c0b21877fb3f836c",
-      "description": "Missing connection between items",
+      "fingerprint": "2f4e1c98ebd751c91123cdc21ded04fc422461fe07cbae0e2a29841813d6348d",
       "endpoints": [
         "U14.4",
         "U15.1"
@@ -3230,8 +2961,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "5b6ce51143c7335bb052ea0a2da9c3d6c2a880f731bf266c9ae8b3473b844550",
-      "description": "Missing connection between items",
+      "fingerprint": "a09fb650162bbe3722cf1bad85b64f6102a8631f0206c554f4c85c52c24cb735",
       "endpoints": [
         "K1.1",
         "K2.1"
@@ -3242,8 +2972,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "73385925ac2fd2180bbdd5376e5115191450b4c25d6c104b5f99a2e677c6b0cc",
-      "description": "Missing connection between items",
+      "fingerprint": "d5e08817337b6d603e92f9af66988e482ee354ecc06d8073422259154baf448c",
       "endpoints": [
         "K2.1",
         "U15.4"
@@ -3254,8 +2983,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "cc009480ed0bab91a1d30431143187c17e7d2fc185618ab343859248da8f7eec",
-      "description": "Missing connection between items",
+      "fingerprint": "61eab331ce5acacc11f2f518ac478dec4d002e4463f0ab000a5e525e10bdc73a",
       "endpoints": [
         "Q1.1",
         "Q4.1"
@@ -3266,8 +2994,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "4db99487e391d43e9221a012f34fb147f7ef18d648704314cdb6a0f807acc077",
-      "description": "Missing connection between items",
+      "fingerprint": "2f495950fafedc1a27d61d61f8dc7d65bad849250924eb40587dfd86cd42b6d4",
       "endpoints": [
         "U3.11",
         "U5.3"
@@ -3278,8 +3005,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "68c64eb8f432b0e50bdc7181927184cf9166833a32dd4e24f0ec60bcdb8821fb",
-      "description": "Missing connection between items",
+      "fingerprint": "422c2459c2e273cf35c0ed8d1cc9c33a53aa028fbecef28c3920dde7be894f6a",
       "endpoints": [
         "U15.2",
         "U3.11"
@@ -3290,8 +3016,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "442200e1e291ef7e0dde40edc507bf5efdc5feb33cb94eabc5cf17c2afe10e94",
-      "description": "Missing connection between items",
+      "fingerprint": "187f61626eb2a1aea228f23b847ac13e7a6d3d28e8bfd73616eb87546b940c89",
       "endpoints": [
         "Q1.1",
         "Q2.1"
@@ -3302,8 +3027,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "d4e99e4195710d5e4b1dfee580db186aa828a8cdfcddf2a3590809bfb01a9bb3",
-      "description": "Missing connection between items",
+      "fingerprint": "b189c744f0a995c59f028d386572b0fab08dd4fd64cc8656cfe6541ed58801b3",
       "endpoints": [
         "Q7.1",
         "U5.3"
@@ -3314,8 +3038,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "9940619e8af67af0d289f0c0f2acfa9e10e23420af573572d54ce9fd4f252417",
-      "description": "Missing connection between items",
+      "fingerprint": "b5165ca5c3750b656d4bfe459e191ff15645bd0c30b69e4908d2e26790cdfa21",
       "endpoints": [
         "Q2.1",
         "Q3.1"
@@ -3326,8 +3049,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "51136680b214a9a28ac1c7afad43dc7681dd1fd510d3671506b12ecedc49c1ba",
-      "description": "Missing connection between items",
+      "fingerprint": "72f2b240d2ae54bd387702b38355c09e07d4bebb80d49c37d353e101783f4a42",
       "endpoints": [
         "Q3.1",
         "Q5.1"
@@ -3338,8 +3060,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "6a4fec41b38da008e7f19085569f6bc98f0fe9d8b7527ff602a262aa737d54c7",
-      "description": "Missing connection between items",
+      "fingerprint": "c46f1d9c20d3278891642981efa92b296f209cec0ed6a851182d7b5709df4019",
       "endpoints": [
         "Q5.1",
         "Q7.1"
@@ -3350,8 +3071,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "6c12961ef771979e335d640094abc276a22042417a4ddd5ec7d6e2301e7c9900",
-      "description": "Missing connection between items",
+      "fingerprint": "f3382090fd71fa7141acf23cc09cdf84febad7eb1aabcce21cc4dae0fb874716",
       "endpoints": [
         "U13.3",
         "U14.2"
@@ -3362,20 +3082,18 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "e255668a9475bd1ac8ea060a3db24050b55b966a90f156916e70f6b4cca54aa8",
-      "description": "Missing connection between items",
+      "fingerprint": "e2c64e2a7c44f79928f1fdc00c8e273c9d4642aaa270046d1ccf41a844561328",
       "endpoints": [
-        "PTH pad 1 [EDA_DRIVE_P] of J10",
-        "PTH pad 1 [EDA_DRIVE_P] of J11"
+        "J10.1",
+        "J11.1"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 1 [EDA_DRIVE_P] of J10 <-> PTH pad 1 [EDA_DRIVE_P] of J11)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J10.1 <-> J11.1)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "d3a88a2563db680a5b6b6c3f78ed7756cd37e1be112f0d78b12753f8d730df8d",
-      "description": "Missing connection between items",
+      "fingerprint": "b9c44035e01a16f33865f58f9a7007e72f30f49a10775f3649770162c42bed37",
       "endpoints": [
         "R_EDA_A1.1",
         "R_EDA_A1.2"
@@ -3386,8 +3104,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "e040cb183043f5080089a6ace57914bffeb181cead0e8d0d688c91c9e3ffc19f",
-      "description": "Missing connection between items",
+      "fingerprint": "e97dc775545f10111a929d97f66fc7edb2494c64f06539078d8f4536355cb41b",
       "endpoints": [
         "R_EDA_A1.2",
         "R_EDA_A2.1"
@@ -3398,8 +3115,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "e23995d2da04b84224f1a8cd8c2aa054e74bb5eb1aa2eb55bda46ed1c0b70b5d",
-      "description": "Missing connection between items",
+      "fingerprint": "f3e9a62864ff0b4a963e3f98f9b5496c319d805b233aad7ccf58741b5b50dfb0",
       "endpoints": [
         "R_EDA_A2.1",
         "R_EDA_A2.2"
@@ -3410,20 +3126,18 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "d58f2c6016289c55e105c947a14fbd71aad2f75f3def0e0443c5d07aa12a1d47",
-      "description": "Missing connection between items",
+      "fingerprint": "8ca217e8f5f2c644e0f746f1c756583d35df8a4bbac7999495eeea2cd75fdb51",
       "endpoints": [
-        "K1.4",
-        "PTH pad 1 [EDA_DRIVE_P] of J11"
+        "J11.1",
+        "K1.4"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: K1.4 <-> PTH pad 1 [EDA_DRIVE_P] of J11)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J11.1 <-> K1.4)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "9809326d103bcc21cb68f6b7c09b68041d2bead24745d529a0c284a62597ef97",
-      "description": "Missing connection between items",
+      "fingerprint": "36b35a5efd57635e9f639c3b7c47c9b7b733b00893efa7960ffa50d2451f883f",
       "endpoints": [
         "K1.3",
         "K1.4"
@@ -3434,8 +3148,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "07fcb9b2872bca977d8551d41815716582288e08086e0fc71d2be4cfd5cca4b9",
-      "description": "Missing connection between items",
+      "fingerprint": "03cf8b104668addc16013bad898897f18638e2e733952d7e901b8dbb9b6c722a",
       "endpoints": [
         "K1.3",
         "U11.3"
@@ -3446,8 +3159,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "13076c05aba57f4938f4af0861b3cdb7ba84229686607f3b37a1d84cea8d79d9",
-      "description": "Missing connection between items",
+      "fingerprint": "b4ab0525bbbe92fb364357b049f47ab8ccbf927a56001a1d68452fefe329de8c",
       "endpoints": [
         "K1.3",
         "R_EDA_A2.2"
@@ -3458,20 +3170,18 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "27648b110cd9433134a75ae36c6ffe7f8409f195a7658d17ffdcdbdddcfc6c22",
-      "description": "Missing connection between items",
+      "fingerprint": "0e49fa3263306147a0badb3e6b64919158a5b0a3a0bc05b88c5c9df772cbdb83",
       "endpoints": [
-        "PTH pad 2 [EDA_DRIVE_N] of J10",
-        "PTH pad 2 [EDA_DRIVE_N] of J11"
+        "J10.2",
+        "J11.2"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 2 [EDA_DRIVE_N] of J10 <-> PTH pad 2 [EDA_DRIVE_N] of J11)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J10.2 <-> J11.2)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "971a19e053a40db138e87265361b5035e12572ec69ac95452cee84e944e0270f",
-      "description": "Missing connection between items",
+      "fingerprint": "dcdd34ddb29b561c4feea002ef8ff40db3875d66b0ecf3bfd9e3099fbe4ff479",
       "endpoints": [
         "R_EDA_B1.1",
         "R_EDA_B1.2"
@@ -3482,8 +3192,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "c0c137c91d968998ffec36a38990d2a44878b0ac932251c3a17adfefab5a968a",
-      "description": "Missing connection between items",
+      "fingerprint": "0220683276621d4405afa81dddfb02d3628eb78388258418aa317386dc297e1f",
       "endpoints": [
         "R_EDA_B1.2",
         "R_EDA_B2.1"
@@ -3494,20 +3203,18 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "f65fb116228530e8a05594490a4f048c40209bcd5749a26f32287fb6679756e3",
-      "description": "Missing connection between items",
+      "fingerprint": "0e3484b416497bb8cfd5c6fcd4adb92ba3acafdd75b29f15c34e3d30a763800a",
       "endpoints": [
-        "K2.4",
-        "PTH pad 2 [EDA_DRIVE_N] of J11"
+        "J11.2",
+        "K2.4"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: K2.4 <-> PTH pad 2 [EDA_DRIVE_N] of J11)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J11.2 <-> K2.4)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "ec0f714c3ba710501500958adec9614a43e022063f1df8b7361bfb82a9121d29",
-      "description": "Missing connection between items",
+      "fingerprint": "6543581972866e7ecc0d83705aad81dd1008423be2dcff30b8c5fc8b27955aa7",
       "endpoints": [
         "K2.3",
         "K2.4"
@@ -3518,8 +3225,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "036a89458766ab7ea393d331851a762514bc5cfc49505ea268dcd41ae9a19720",
-      "description": "Missing connection between items",
+      "fingerprint": "1f4c12b0188b5afa9a8756f4e776acc2bc46f3390e8ae1e3534d5fdf357411e8",
       "endpoints": [
         "R_EDA_B2.1",
         "R_EDA_B2.2"
@@ -3530,8 +3236,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "c5d6054d6a7cbd292634d26fb3df3e96a95cde3d7a3945e43515491e1b20fac1",
-      "description": "Missing connection between items",
+      "fingerprint": "49448834d6b93fa7873d794db5d9c96df27911e26c430b62320cb01a5c0d53f8",
       "endpoints": [
         "K2.3",
         "R_EDA_B2.1"
@@ -3542,8 +3247,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "64e60b0a2b48314941fc0f979a300af87a09aedea372a2a4aee035a81fa8dbff",
-      "description": "Missing connection between items",
+      "fingerprint": "9187138d91cfde9e38acff91ef6fc694139bf3c42b7350bdd4f430cbda32ea1c",
       "endpoints": [
         "R_EDA_B2.2",
         "U11.5"
@@ -3554,20 +3258,18 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "77565091544f70dd23b14af06b77d07e211b546eb79a4036a4958bed3b4e50d6",
-      "description": "Missing connection between items",
+      "fingerprint": "67778cd940e251f64635699415938cb1bc9369637527851c24b79b3de128abff",
       "endpoints": [
-        "PTH pad 3 [EDA_SENSE_P] of J10",
+        "J10.3",
         "U10.9"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 3 [EDA_SENSE_P] of J10 <-> U10.9)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J10.3 <-> U10.9)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "9dd328bade3c753a8dacb4cd5d26e65d4458099d4477de86354fcdf053d2f467",
-      "description": "Missing connection between items",
+      "fingerprint": "3526a502b9e95913fc5aec87874be88a053f7fe63f0bc136d15f95ed6eb9d990",
       "endpoints": [
         "U10.9",
         "U11.2"
@@ -3578,8 +3280,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "18daee3b9167d511ee592dcf291493e2015a1b593a842ddc21bc84a6689e4989",
-      "description": "Missing connection between items",
+      "fingerprint": "e6aa1b6c6f513b70146959b9fd342975fba70c45a18dc3a79912154b1d06bfdd",
       "endpoints": [
         "U11.1",
         "U11.2"
@@ -3590,20 +3291,18 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "ad948c66b74a3c263e9f06ca4ac36e23d666af10ce7323e20bef8946fafde726",
-      "description": "Missing connection between items",
+      "fingerprint": "c918f9cee585a976661f94c6737ef57c5b01bab13be7a8e7d981d0b0999fe87e",
       "endpoints": [
-        "PTH pad 4 [EDA_SENSE_N] of J10",
+        "J10.4",
         "U10.10"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 4 [EDA_SENSE_N] of J10 <-> U10.10)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J10.4 <-> U10.10)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "48615b76b47a4b116e579bc469874751ca6cf2b8672a374824f967a6cff090d2",
-      "description": "Missing connection between items",
+      "fingerprint": "af8a9bf273dbaff4dc05fbd00da158945ac7937772221a141b304e100a437e6b",
       "endpoints": [
         "U10.10",
         "U11.6"
@@ -3614,8 +3313,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "2f1ced57c5a0b69c807ad17ea47777e9bcbf044679714384d7d58472ae71e941",
-      "description": "Missing connection between items",
+      "fingerprint": "1a9001ed00137cb031b3cb6505b03b4c5d18c1ca2ea4d1ea4d783c8363b3fe10",
       "endpoints": [
         "U11.6",
         "U11.7"
@@ -3626,8 +3324,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "17cad179b2f0fcd729e9ace3b75999bc6f42dd346924bb739fa3e610fbae78bc",
-      "description": "Missing connection between items",
+      "fingerprint": "cf3a7fae4cf9232df252973c47b46c4e0ca7c4a46fde153112129979deaf51c3",
       "endpoints": [
         "U31.1",
         "U31.4"
@@ -3638,8 +3335,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "e03156972f7787cef8e83492ff8657ae0150c9facdfa608264491f7c0e630f83",
-      "description": "Missing connection between items",
+      "fingerprint": "0e35163607e3c64fa7b184020327b049c7ba97abd289cf128bad60b0d5521fb9",
       "endpoints": [
         "U30.12",
         "U31.1"
@@ -3650,20 +3346,18 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "8008b83146358f315793484ef946b45678db3776d69e08c03c36b1efb49dec3b",
-      "description": "Missing connection between items",
+      "fingerprint": "e0c84e91c97d48dcf3d21e0af5f9c4f2a7d1ffaabd58e78df3d432125b506b5b",
       "endpoints": [
-        "PTH pad 1 [SYNC_IN_LAB] of J30",
+        "J30.1",
         "U31.4"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 1 [SYNC_IN_LAB] of J30 <-> U31.4)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J30.1 <-> U31.4)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "37dde1350b88a01c74d80810e845b129964073ebdb1b3532edb0f78ba686ff9f",
-      "description": "Missing connection between items",
+      "fingerprint": "387fd344b2dc2f144e44d754feb9cd0640b651f8d31c6346462b0c883a2cf28c",
       "endpoints": [
         "Q30.1",
         "U30.11"
@@ -3674,20 +3368,18 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "ad4deaf86c9015e29e12e8e559a18e8fea4c68c41afb5afd11d053d52f1d6b2e",
-      "description": "Missing connection between items",
+      "fingerprint": "e009b6cb80511c22e5484c70aa9e995560f996756f8b6c86669c384616f1130a",
       "endpoints": [
         "D30.1",
-        "PTH pad 1 [SYNC_OUT_LAB] of J31"
+        "J31.1"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: D30.1 <-> PTH pad 1 [SYNC_OUT_LAB] of J31)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: D30.1 <-> J31.1)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "18a88897addfc6d37ce8bc97b989fd710381eac2a2adb70d1fb8304f7a9fc93f",
-      "description": "Missing connection between items",
+      "fingerprint": "f6050df028b5c0ec9d6bc0b38cd0fee88170372612287da528dde2b5d9be2846",
       "endpoints": [
         "Q30.1",
         "Q30.3"
@@ -3698,20 +3390,18 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "86fa330727c3e3d74170ccb9dfb6a5ee6a35cbef03178d9d4814c4ebc3631eb9",
-      "description": "Missing connection between items",
+      "fingerprint": "62cdcc39c74607f78608cc48fcfd00ded8ba1761d031cedb0e035379bf5adfcf",
       "endpoints": [
-        "PTH pad 1 [SYNC_OUT_LAB] of J31",
+        "J31.1",
         "Q30.3"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 1 [SYNC_OUT_LAB] of J31 <-> Q30.3)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J31.1 <-> Q30.3)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "5e3a34bb892c47a33b71bde615a034d8bcf624ce960c83fff204c2e472345c83",
-      "description": "Missing connection between items",
+      "fingerprint": "4a1b4878e917fe9a4a0fcc00134d2d2ede95954bffe018a4f117049d1f9065ff",
       "endpoints": [
         "U1.24",
         "U30.3"
@@ -3722,8 +3412,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "8c49da08318c61f5549e0ecd52867aec0a4f9ae492fc4ca3f73ed1f7e6a44ec0",
-      "description": "Missing connection between items",
+      "fingerprint": "baa85991a3b2e8963500a9e1995332b4e115b88a086bf7f384e960844e8d34f0",
       "endpoints": [
         "U1.23",
         "U30.4"
@@ -3734,8 +3423,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "60162b0568c2dcad0f1afc161c2949a4395a2f65a3a4c4a5846f4ca25051299f",
-      "description": "Missing connection between items",
+      "fingerprint": "93ef98a42d6ccf89a234a1ddc36f30e4d2c8b5ed6ab0b4ee19c29a716c25515c",
       "endpoints": [
         "U30.10",
         "U30.16"
@@ -3746,8 +3434,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "b949d99700eca25311494a53a4a4498e66d9ed6c0c834d18f8ddc6a5333983d0",
-      "description": "Missing connection between items",
+      "fingerprint": "2b561f2af8103bb20a46c4128a31ef74947f40153639fed28b2e5437a9d48e59",
       "endpoints": [
         "U30.16",
         "U31.3"
@@ -3758,8 +3445,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "82e83dac8d8bc3384884558ccfa38dc93d38f5415cfdf6faf3c4d0a02c4bd978",
-      "description": "Missing connection between items",
+      "fingerprint": "bac5f1a1205ff245362e4dac34d571fb3cc6bb5307156e3ac8ca016829faa314",
       "endpoints": [
         "U31.3",
         "U31.5"
@@ -3770,44 +3456,40 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "231f40b8e3bc9a448c05a9268de0d6db5c4bbd3c4950dc60bf1caaf91d1bba9c",
-      "description": "Missing connection between items",
+      "fingerprint": "0db1cf94ef6905d513d3eb342091cf5aa713ecb3d6051039ceb575ec371016df",
       "endpoints": [
-        "PTH pad 3 [PPG_SDA_3V3] of J20",
+        "J20.3",
         "U1.17"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 3 [PPG_SDA_3V3] of J20 <-> U1.17)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J20.3 <-> U1.17)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "1b990b6b0965e13095a020f0e5f61a211e7e5e662a8990c139f38af4dcf5ba17",
-      "description": "Missing connection between items",
+      "fingerprint": "303f21d2947fd8ed161dfca92f4dedd2c51c98f256fd2ea23d587df428b5a810",
       "endpoints": [
-        "PTH pad 4 [PPG_SCL_3V3] of J20",
+        "J20.4",
         "U1.18"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 4 [PPG_SCL_3V3] of J20 <-> U1.18)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J20.4 <-> U1.18)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "592dadf1a8127d6e99cd672d87adc61a2e4741ec970c96edce90e32025dc8e27",
-      "description": "Missing connection between items",
+      "fingerprint": "b4d33cab00dd71aa76bdf83fd4bd322e7f1881c82d148bdc1261f164bcc46f68",
       "endpoints": [
-        "PTH pad 5 [PPG_INT] of J20",
+        "J20.5",
         "U1.21"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 5 [PPG_INT] of J20 <-> U1.21)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J20.5 <-> U1.21)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "48acaf55ec96b45a390729ffd3d7c01765af523b6036532f98401cdf57fd9a14",
-      "description": "Missing connection between items",
+      "fingerprint": "d5ea6459a2b2540ab1e1df7e245907ddf73f4f4669038ce78dddf5c609d80065",
       "endpoints": [
         "U1.37",
         "U10.2"
@@ -3818,68 +3500,62 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "7c5b28cbf98bd0122bfde16a59168801693cdbe60662ead6738b13ea1078ee7b",
-      "description": "Missing connection between items",
+      "fingerprint": "8eb12165c0cb5bfd80c71ac367dbd4a75ef80704d6ea266c67c60d96003ed67e",
       "endpoints": [
-        "PTH pad 1 [SD_D0] of J21",
+        "J21.1",
         "U1.6"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 1 [SD_D0] of J21 <-> U1.6)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J21.1 <-> U1.6)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "991662758d5890606fad821f886f08e0be89946ae25c8118b0714af0cea19801",
-      "description": "Missing connection between items",
+      "fingerprint": "9f190efe0edf0633490ff752fda31cd3ec36b50f88fe728b9b5f1b0308f57aba",
       "endpoints": [
-        "PTH pad 2 [SD_D1] of J21",
+        "J21.2",
         "U1.7"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 2 [SD_D1] of J21 <-> U1.7)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J21.2 <-> U1.7)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "d1f67ca5700d701cdbec7ad9a8ed746364959bfa4ee3579d3b306da879b783c7",
-      "description": "Missing connection between items",
+      "fingerprint": "570c5ba373f038aaffa318a9bc661d267111c3fd4cd46176589a115938583207",
       "endpoints": [
-        "PTH pad 3 [SD_D2] of J21",
+        "J21.3",
         "U1.15"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 3 [SD_D2] of J21 <-> U1.15)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J21.3 <-> U1.15)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "0eeecde6b26a20233bff64767095b2060dc53184efc5b1cb694a21c2cdd70846",
-      "description": "Missing connection between items",
+      "fingerprint": "9c1526c9be91aea278e6ee7adef65939e1c41b1d063d0ad64adfc61de4159141",
       "endpoints": [
-        "PTH pad 4 [SD_D3] of J21",
+        "J21.4",
         "U1.16"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 4 [SD_D3] of J21 <-> U1.16)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J21.4 <-> U1.16)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "aff6c3fd05ce268d5e01247260ca98d493a532491face28b21e8ffbb346f530c",
-      "description": "Missing connection between items",
+      "fingerprint": "548b85b1a7bb2fdbc62f2c7b399c209b0599e0b723d313ef62642c31aa003b68",
       "endpoints": [
-        "PTH pad 5 [SD_CLK] of J21",
+        "J21.5",
         "RSD6.1"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 5 [SD_CLK] of J21 <-> RSD6.1)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J21.5 <-> RSD6.1)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "b2c3c20f3792ddf34c21601cf73002f773792354d0ab49e9a8a2385ee5fa2e4e",
-      "description": "Missing connection between items",
+      "fingerprint": "c27be845b7c515ba16f69b59e38af8b5789231f711affd249fcb2ae06181c00e",
       "endpoints": [
         "RSD1.1",
         "RSD2.1"
@@ -3890,8 +3566,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "2c894db32f75f43e9886319f125357bbd4b7334725f147c12fee6bba1a799c82",
-      "description": "Missing connection between items",
+      "fingerprint": "214c7e9909708263e6e7a2e32b409a99f6939fb6f2cbd9ddb180b1a0f22f6b06",
       "endpoints": [
         "RSD2.1",
         "RSD3.1"
@@ -3902,8 +3577,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "3e7e10544140e978c8aa694e4276660bf5317fa152f1761690518214f9c99ed0",
-      "description": "Missing connection between items",
+      "fingerprint": "2efcf9503a34cd630f7e4acf9c880f5418125958a1370aad2355e1141b966ac4",
       "endpoints": [
         "RSD3.1",
         "RSD4.1"
@@ -3914,8 +3588,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "a489fde13632cc9cca6321fe6065eb2160fa0564c9aa05b9a852ae073532ec62",
-      "description": "Missing connection between items",
+      "fingerprint": "e747e64c182f65fc5b14dc34cbccb85e5527160e8f7310dff6a93e201168c1e0",
       "endpoints": [
         "RSD4.1",
         "U1.4"
@@ -3926,8 +3599,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "8f1814870eaace14352dcd77cd77a27dea4fe17a354969350567c63aceced9a7",
-      "description": "Missing connection between items",
+      "fingerprint": "c97765880ebff27ce04a86786fa0c280c7cfa694e78e3422323df2f73ecea296",
       "endpoints": [
         "RSD4.1",
         "RSD5.1"
@@ -3938,8 +3610,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "6d63abaa50ad4ff57dfa0678da5fb8bc7861ba1cdf06e0d884237f30017e5161",
-      "description": "Missing connection between items",
+      "fingerprint": "e9c3a527d89666d6aaa42e6f7a8a5c9f2f63033c54a082871b0ab130d9134656",
       "endpoints": [
         "RSD5.1",
         "RSD6.1"
@@ -3950,20 +3621,18 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "badd3530a0fe84434bfa883916993522df9841c8827acb262738897a8c790b89",
-      "description": "Missing connection between items",
+      "fingerprint": "84d4545380bbcf5d86cc7a5c53582ea5cc277be7361112ae65d3707872241751",
       "endpoints": [
-        "PTH pad 6 [SD_CMD] of J21",
+        "J21.6",
         "RSD6.2"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 6 [SD_CMD] of J21 <-> RSD6.2)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J21.6 <-> RSD6.2)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "91103bc3f9240eb607fae4ea260d05175264308bc4d29a5922463ff157530579",
-      "description": "Missing connection between items",
+      "fingerprint": "5bdd8708dc89f6197e1a716fdafef9519205a2d5f3cb574a2ff5fc47a0fc98a7",
       "endpoints": [
         "RSD1.2",
         "RSD2.2"
@@ -3974,8 +3643,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "472aa0105a2f38756c99fad2f736956629de7c78ff6416b6f3bffb8ba883fb12",
-      "description": "Missing connection between items",
+      "fingerprint": "03c8d679c5cb1f34ece15ec864e72bf4e25aa51e51e9d1717b6299489402957a",
       "endpoints": [
         "RSD2.2",
         "RSD3.2"
@@ -3986,8 +3654,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "c5292320abee78615245c9df8cd13b6a790c142948b52bf3e3e780208228cf2e",
-      "description": "Missing connection between items",
+      "fingerprint": "39c18c8eb2a7f482f19773e6c0cb0012485037bb9911b786edf89cda1d9753a7",
       "endpoints": [
         "RSD3.2",
         "RSD4.2"
@@ -3998,8 +3665,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "2595abc5246ec2293d4e007311b65bf09419f8693a0598332478821b1e15d837",
-      "description": "Missing connection between items",
+      "fingerprint": "563743ea2f8f136bce0ad690cb98d3190a414fbee2ac50b8f1d6abcbcf60f77b",
       "endpoints": [
         "RSD4.2",
         "U1.5"
@@ -4010,8 +3676,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "0a15b5c1a08fa98cc5436941e084a6389bcd70e9f1d03b92783a8ed0e7f56f0f",
-      "description": "Missing connection between items",
+      "fingerprint": "810fa18f8487956182813d1ece45f924d6a21b84853c21a7a563e124482e6351",
       "endpoints": [
         "RSD4.2",
         "RSD5.2"
@@ -4022,8 +3687,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "24553fd36106ab8826ef983f5442160ee66bdc747016c6ea356d6412418e36ec",
-      "description": "Missing connection between items",
+      "fingerprint": "6c5dfff0f95508c201f71c8f130fb8603dadf086f6ab989cd3c2d6bc85ff27f8",
       "endpoints": [
         "RSD5.2",
         "RSD6.2"
@@ -4034,8 +3698,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "f1b0c4bbec86dd4e1923719d034bf99555d2ad60fbbb167ee9c7f84a28ed0eb2",
-      "description": "Missing connection between items",
+      "fingerprint": "28363dfbc4f3fd7614719906e81bdb2b9ea669592df8a9e2f326f84b83f25e26",
       "endpoints": [
         "U1.28",
         "U30.13"
@@ -4046,20 +3709,18 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "c18862d128ca3faa5e59bbb99035fdf3f81af817f954a4f30d7edbba42d80207",
-      "description": "Missing connection between items",
+      "fingerprint": "03ee0c823cb0415aff9442cb697336c159804fc72641d2128d80d234be3aeffc",
       "endpoints": [
-        "PTH pad 2 [HAPTIC_CURRENT_EDGE] of J40",
+        "J40.2",
         "U1.36"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 2 [HAPTIC_CURRENT_EDGE] of J40 <-> U1.36)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J40.2 <-> U1.36)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "eedd91b523181f7eebb1ea750633b1e02960ffef8d77704a4999a957e704a391",
-      "description": "Missing connection between items",
+      "fingerprint": "d965248cc5da9fd0b8f129bc0a546f4bd1d9694f13d7f99979fc75330dddd7e3",
       "endpoints": [
         "U1.36",
         "U41.4"
@@ -4070,8 +3731,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "7a1060944a76db488aabcd73d495e778ef4ecb22cce10e828916c772290169e3",
-      "description": "Missing connection between items",
+      "fingerprint": "9a1631eb6bc04ab7224b030b967838bed316f3118bf4058fe6c7284f7e86231b",
       "endpoints": [
         "J1.B7",
         "R2.2"
@@ -4082,8 +3742,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "f15878a6756845df29639f61cc67a77572cc7d63b845183ef3d38e9dfe5b612a",
-      "description": "Missing connection between items",
+      "fingerprint": "821d1b3b2d2e77b0cae0661bdff39dfec96f0dee8b2d6055165d1a6a106edcd0",
       "endpoints": [
         "J1.A7",
         "J1.B7"
@@ -4094,8 +3753,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "557ca70c6790e07e80bc1c04763276417581817bab4faf9809d9cb13243cc1da",
-      "description": "Missing connection between items",
+      "fingerprint": "a057719bb35e131503d9fd6c25b25f2f680b3537dcccd76f773a2636c8f6c612",
       "endpoints": [
         "D1.3",
         "R1.2"
@@ -4106,8 +3764,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "3b59b3452f5232f5144a5d2073841a9e6c7b1f7849f087fa65bd2ee307034e37",
-      "description": "Missing connection between items",
+      "fingerprint": "ddfeb305add65ceff5e7de4b65baf5a43c3a4fe02bd0ff8da0b91ba2289ba146",
       "endpoints": [
         "R1.2",
         "R2.2"
@@ -4118,8 +3775,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "983c62ab6d0625e46bb54219cd09ede33e0ca16afe39738ada917abd83666ce7",
-      "description": "Missing connection between items",
+      "fingerprint": "82a0fcc146c202f452ae66fcd8cbf76c82f86c7e52c74413686606255aef4111",
       "endpoints": [
         "R3.2",
         "R4.2"
@@ -4130,8 +3786,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "c7db9a484094a52293e32dc3be60e4547503a2fb1399dd615fe4b42020c8a4d7",
-      "description": "Missing connection between items",
+      "fingerprint": "48ca44e5e53ab77b05965ddc883c9b5fdac4f14da25497c1f5c0f80a5d1afe5d",
       "endpoints": [
         "R2.2",
         "R3.2"
@@ -4142,8 +3797,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "0512a6fd1bdc345cf15bd12077dd0d391cb551c2dcb9175ef756c3895ec682b3",
-      "description": "Missing connection between items",
+      "fingerprint": "6a7a400e27b0629a6c988b0ebe0cb8139f5c1c1bb15a8359c1b069c671a4348f",
       "endpoints": [
         "R4.2",
         "U1.19"
@@ -4154,8 +3808,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "cadcbe53fcbf224c135e74a530ac4e8b049302b4216119f6aced0df1e07a5155",
-      "description": "Missing connection between items",
+      "fingerprint": "5df258f76f7049265bac68d0693fe727326bf4eada04c105fd5e50499d358a73",
       "endpoints": [
         "J1.A6",
         "J1.B6"
@@ -4166,8 +3819,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "741f87655a917fa300749b893eb737b6aea7c09d6457637f31fdbcde3373fc23",
-      "description": "Missing connection between items",
+      "fingerprint": "a2c32fea11fd836e395e7e377bab9283f71152609f60401d08273e085a483d55",
       "endpoints": [
         "J1.B6",
         "R2.1"
@@ -4178,8 +3830,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "6f84a1b41dce8e9c7d7583d34ed06456764e1a79ad34b32fc558fde4f974295b",
-      "description": "Missing connection between items",
+      "fingerprint": "81feeb36c2498288742fd019da4360c7e33a038d2532a8c2d38e3e9625042b5f",
       "endpoints": [
         "D1.1",
         "R1.1"
@@ -4190,8 +3841,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "b184a1b0af5a40800920480d69d7820f806696b6b683b7281d00fd8ac2b56588",
-      "description": "Missing connection between items",
+      "fingerprint": "2e996a37941763114a88b811d0bed72db9c2d4a5ab32af35a3b86dd449e4377f",
       "endpoints": [
         "R1.1",
         "R2.1"
@@ -4202,8 +3852,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "315501f710629e645c22ef3987cdddbe29e785739c499e544715cc753d0f91f4",
-      "description": "Missing connection between items",
+      "fingerprint": "4e1f47a2e47f999362b0dd357937f090f247d7525ab9befd9694628abe852ea3",
       "endpoints": [
         "R2.1",
         "R3.1"
@@ -4214,8 +3863,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "23765997d8578d5a9c45f75a6942f540418f2f1b01ff27adddc4ac37f0ee88a3",
-      "description": "Missing connection between items",
+      "fingerprint": "902a98768101d3fba6012d47d800c4514d803c6b443aa46303465b28e100e158",
       "endpoints": [
         "R3.1",
         "R4.1"
@@ -4226,8 +3874,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "65d8fbf0cc979473e3bafb27fcfbc65dc3a6a7be685a81a4facff0a325fe683f",
-      "description": "Missing connection between items",
+      "fingerprint": "1b7ed2dba8e4bb9254884bd75ccedbeef6a52170c2e38931fa3bf5bc2384fd44",
       "endpoints": [
         "R4.1",
         "U1.20"
@@ -4238,32 +3885,29 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "bfaa6dfb1922777ad51e28fd43ac76e7c59f876e39b7987c207854e1f0331497",
-      "description": "Missing connection between items",
+      "fingerprint": "62474ec7bae332d30cd2e1a3b418c3f7de8afa63dc6ded3998e9beae6ce284c7",
       "endpoints": [
-        "PTH pad 1 [SYS_I2C_SDA] of J41",
+        "J41.1",
         "U1.8"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 1 [SYS_I2C_SDA] of J41 <-> U1.8)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J41.1 <-> U1.8)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "e529642b0f3b81bd578c3c966232f3ace4a9b660b279947598dea45b4a6a0642",
-      "description": "Missing connection between items",
+      "fingerprint": "f065257ce5d00e718747e92aa486cca8db76ed51ef8134e0633b19c3d5ee3d51",
       "endpoints": [
-        "PTH pad 2 [SYS_I2C_SCL] of J41",
+        "J41.2",
         "U1.9"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 2 [SYS_I2C_SCL] of J41 <-> U1.9)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J41.2 <-> U1.9)."
     },
     {
       "board": "circle-main",
-      "fingerprint": "c70b57499e790243180a770f7d3e819e29a7caf04fb7d26ddbd8670e934f8ed5",
-      "description": "Missing connection between items",
+      "fingerprint": "5225ac086d60a92d6016f1a1482b45384d7898c4b1b44bf1b2927349282e3c81",
       "endpoints": [
         "U1.29",
         "U10.4"
@@ -4274,8 +3918,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "77d6481e85f6044ffb93ba88f43d5b7677b8633655124fad37bd33873e6574bf",
-      "description": "Missing connection between items",
+      "fingerprint": "131ea0ad1c42667b51124b32f5f8b4bf8a4d6a6f64e9ebc099064d8eca1f55d7",
       "endpoints": [
         "U1.30",
         "U10.5"
@@ -4286,8 +3929,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "9f9b7939c5806a188349c6faeaae9e49bb2dcc49a782a44fc9dd7e1dafc778f7",
-      "description": "Missing connection between items",
+      "fingerprint": "97c69a81b660a52a29526fb29e678072d837ba4c7ae090d55d2018f28c631344",
       "endpoints": [
         "U1.31",
         "U10.6"
@@ -4298,8 +3940,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "db76570a4ab76c1e8cc3d9f8717d3a1f0836d88d088ba62fcb0776af651209b3",
-      "description": "Missing connection between items",
+      "fingerprint": "07f0a7e60d936b5681613ba0c5998bb1197889edc4bbe7397fd3ceaf8a5d55ec",
       "endpoints": [
         "U1.32",
         "U10.3"
@@ -4310,8 +3951,7 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "0a2587a57510f3414d163f363f2096e0da0f8a8224dec23972d196af1ecc909b",
-      "description": "Missing connection between items",
+      "fingerprint": "9c2444233c89bdd9256f797edaab279fb17e56a1e1b251d4b3e7f5234a0e87e0",
       "endpoints": [
         "U1.35",
         "U14.1"
@@ -4322,20 +3962,18 @@
     },
     {
       "board": "circle-main",
-      "fingerprint": "5e783a2317280741af3fa336eba4dce0fec78c85a9d05d4643fe338247ce29ae",
-      "description": "Missing connection between items",
+      "fingerprint": "13850b6d886085fb0161a5731248bbf0536bca80aa1492a2fa0276f6e7b263b6",
       "endpoints": [
-        "PTH pad 1 [HAPTIC_VDRV] of J40",
+        "J40.1",
         "U41.1"
       ],
       "severity": "error",
       "review_gate": "PHYSICAL_ROUTING",
-      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: PTH pad 1 [HAPTIC_VDRV] of J40 <-> U41.1)."
+      "rationale": "Review Gate PHYSICAL_ROUTING: Unrouted copper net pending final manual routing review (circle-main: J40.1 <-> U41.1)."
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "84812ce144c3e4db373b862d8df1dc30399b81e5ab7346f94c5ed590554e7afe",
-      "description": "Missing connection between items",
+      "fingerprint": "caa5f41a3ec25cb375bab6ec1938638572f0b53512b99258f8374f5035006986",
       "endpoints": [
         "U102.2",
         "U102.4"
@@ -4346,8 +3984,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "e5fbd0f74626a2f7c22dc597b1120d8d1b8a606cd6fd9bb5c53fe0601e1dd53d",
-      "description": "Missing connection between items",
+      "fingerprint": "8313c9bde8d76f840744cfd7d18b6fb3b93929049b6bcec3ea710ecb28b22575",
       "endpoints": [
         "U102.2",
         "U105.1"
@@ -4358,8 +3995,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "353aea89a82423bb3d719bfc6c460f0bbd11decceedc39ca4f4718d871bef06d",
-      "description": "Missing connection between items",
+      "fingerprint": "8fd80affdcbb4901f8de94a39b60455581b69a7c86d42404836534857925bd50",
       "endpoints": [
         "U105.5",
         "U105.6"
@@ -4370,8 +4006,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "57ef15a9a03bba871c1e5b0f7173e36433a0f2d78556d592d3ea72da8221c30f",
-      "description": "Missing connection between items",
+      "fingerprint": "8500e70f13c95d78aa9532acb0c729608c34f696a39d0966ac1b0af297e2454c",
       "endpoints": [
         "U105.1",
         "U105.5"
@@ -4382,8 +4017,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "bd40406c76c843b45e5aca2e1ebed28b01970e852049bfb823e62ac285fe67a0",
-      "description": "Missing connection between items",
+      "fingerprint": "4cf83164d9a43837124cb5bc75d182f32eafee60e02f5eac4bece808aa28e54c",
       "endpoints": [
         "U105.1",
         "U105.2"
@@ -4394,8 +4028,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "62310c99ad82c2f024b4e065aab85d8d37850712817658abce7311866e90d68f",
-      "description": "Missing connection between items",
+      "fingerprint": "abe6b27cbebd8ab674698ab2a3bce8fa06ab56ec79f91c2786b43cce217feb49",
       "endpoints": [
         "U105.2",
         "U105.3"
@@ -4406,8 +4039,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "581ebbd55c0f0067a6e9a61f9b3902aab11dea4a63b9bfd8d507ea70244b9192",
-      "description": "Missing connection between items",
+      "fingerprint": "9f11e35514ad49fd12760c541f9ec36e6aad3387ffc3278dcf8bd3bf76746799",
       "endpoints": [
         "U105.6",
         "U105.7"
@@ -4418,8 +4050,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "7acb3f44948ee61cdb87c5216c1c75f5f6b9361fb8c168084f70d3a8714ca34f",
-      "description": "Missing connection between items",
+      "fingerprint": "b7db12dcdbf063f80b40a123222e28d4714cb1c5cfc2c0d7cf7790f9fb2cbade",
       "endpoints": [
         "U105.10",
         "U105.9"
@@ -4430,8 +4061,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "a50adff819629cd8d380975f7bf05d62adf6f3b4cde645faead3a4bee0d22bc9",
-      "description": "Missing connection between items",
+      "fingerprint": "6b2c7f10129af0e1a00fe4d010f7b1f56a0b1f176ba4f59def3c3ad8eab68546",
       "endpoints": [
         "U105.3",
         "U105.4"
@@ -4442,8 +4072,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "4d13bb1453bdf8f2d2df5831e0bba1851604d164c84d54122c8b2363d6265e63",
-      "description": "Missing connection between items",
+      "fingerprint": "9efa592a4295a40e30105fc4e703faaa5b4afae3da63b4afe50cbda53b6df8a2",
       "endpoints": [
         "U105.7",
         "U105.8"
@@ -4454,8 +4083,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "59221d6235388abed96ef2c78571d7bc7617f897921d4c2e8da7d528def67321",
-      "description": "Missing connection between items",
+      "fingerprint": "8226978afd618781e2ac4681ed7a0340dcd541db0f3b32c782cae4b569bf9cc1",
       "endpoints": [
         "U105.10",
         "U105.11"
@@ -4466,8 +4094,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "6a4d6d602a8c0f4880ec52391ffccde14cdbbec035bcad824f14abbe08c396c1",
-      "description": "Missing connection between items",
+      "fingerprint": "97113e5d53e65f113ffd62b8cc94a8656246c9444715e9508c6e3f253dbb922d",
       "endpoints": [
         "U105.11",
         "U105.12"
@@ -4478,8 +4105,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "ceec8bac6ccce1850538bb73a0644ecd445d86483ab1b457f7ae1c692c72ebcf",
-      "description": "Missing connection between items",
+      "fingerprint": "2988b43331d4dde21834d9182b0e2418f9342b07886c4d6c8988f6b31e868f81",
       "endpoints": [
         "D101.2",
         "U102.4"
@@ -4490,8 +4116,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "e165f26fb70d5d70b11b47bc571b2d2afaada86bd4dfc1a90bd4ee4155c97018",
-      "description": "Missing connection between items",
+      "fingerprint": "37dfc57472703856b86e36889d532051058d1f043992162eb481d3b852b3bdf2",
       "endpoints": [
         "U105.12",
         "U105.8"
@@ -4502,8 +4127,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "460516185ba54fd05f9e2227aebe049c005446edafc55699ea888d3d385dfd1d",
-      "description": "Missing connection between items",
+      "fingerprint": "60d7f516b5b3eedce01df4be858336587a8054e86a1823858d85cd4089ae67ef",
       "endpoints": [
         "J101.8",
         "U105.12"
@@ -4514,8 +4138,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "9d0893a043ff9765c82548a1e93d262363f3755f0ae48179889f332831855307",
-      "description": "Missing connection between items",
+      "fingerprint": "ca223cdd40c1a9f8e76588a1d2664823a484c2f20a8cd581c9ac6967e911b42a",
       "endpoints": [
         "C101.2",
         "D101.2"
@@ -4526,8 +4149,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "ff2f87bd2cf569f8d7226d92b33bf82b25d6540d9223d89314e45ef192969ad5",
-      "description": "Missing connection between items",
+      "fingerprint": "793158dd716b3e60289fb59a37a6fc139953668f98288a0e54ff2cda7cff7db1",
       "endpoints": [
         "C101.2",
         "U101.1"
@@ -4538,8 +4160,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "3313c9f3d691d301dd68d674729f8cd22f395f7ea66d8ac95b6618b5ecc232d9",
-      "description": "Missing connection between items",
+      "fingerprint": "cbc3bec58556dfe4580a5f947e4cb5642533cdb65e8bf8450b105ff78797bfb6",
       "endpoints": [
         "U101.1",
         "U101.14"
@@ -4550,8 +4171,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "145d6150e6a809dc0dd4bfd2e2aa3f720423aefca05586e46180a6862d6b77e1",
-      "description": "Missing connection between items",
+      "fingerprint": "0849ad9ffba07db06be9c68512b3814e321b23165dad9f97a55e5f435bedaf80",
       "endpoints": [
         "U101.7",
         "U101.8"
@@ -4562,8 +4182,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "106bd36c81a57e848d305cfd87a09df0d35d073afec7d052374d76b7f764003e",
-      "description": "Missing connection between items",
+      "fingerprint": "af2a755453cd498eabc6d6d3c8de1e38679a68f7acf2bbdf5e3aaebbc57eeb34",
       "endpoints": [
         "U101.14",
         "U101.9"
@@ -4574,8 +4193,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "e0ca37ce54d3903a13d0a1202ad34fc28ffee11bd6ba7594e7a69b55eb3d65a2",
-      "description": "Missing connection between items",
+      "fingerprint": "7626b0c51bb1c76a1ba322a88b1a1f13ec83ea60841f9be662be784e78f604a4",
       "endpoints": [
         "U101.9",
         "U103.4"
@@ -4586,8 +4204,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "d71da274e204f79bd5a8b07933abbf0042d557de168fa97450ebdfb6aa48b1b7",
-      "description": "Missing connection between items",
+      "fingerprint": "467c73d520e2f670b2b0ff3a87ca09390a64599ecd369aa6f6a457376934aa82",
       "endpoints": [
         "U101.8",
         "U101.9"
@@ -4598,8 +4215,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "0a271a1c398cb7914b45c7dcc0fdd6df6bc7a5d8e46260be4f31ad775758cf0e",
-      "description": "Missing connection between items",
+      "fingerprint": "3c4c4a7f3848e0a8c19219d8b1135611b810546209ac81a6981d34332e6f2422",
       "endpoints": [
         "U104.2",
         "U104.4"
@@ -4610,8 +4226,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "509357e3edf97b840cb33bf9f6fd228d183ba5952d58ea306ca356cd2cb1a4b0",
-      "description": "Missing connection between items",
+      "fingerprint": "5807160004c0d94f372e9510c2a7d8bbce1eed798464fc5e3846c1c9dc8d85f2",
       "endpoints": [
         "U103.4",
         "U104.4"
@@ -4622,8 +4237,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "d4f2a746fa3f53da420b6f2213c3a874d1cf662a3ec427d0a9fe87be3cad5b8b",
-      "description": "Missing connection between items",
+      "fingerprint": "61d9bb91d60240f24744505e1955c6773b02844e9be9629bf7478729e4eabfbd",
       "endpoints": [
         "J101.9",
         "U101.11"
@@ -4634,8 +4248,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "a33e476b2bcb2d230f93e1fadf054c17e7a32ef1392a3b317f3571ce7e2fe6ee",
-      "description": "Missing connection between items",
+      "fingerprint": "0a710403e453aa086cc56bd8a8875b983a3d35eef1e09a9b28c2a08601a35d6a",
       "endpoints": [
         "C102.2",
         "U101.13"
@@ -4646,8 +4259,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "d26b06c115be2688b77d5edd70e9fc8dbe3448bf3a72a5ac12fbbc05b7f6f5f6",
-      "description": "Missing connection between items",
+      "fingerprint": "4cac1618d2512d11ec918654ee56ee35f1614f99044c6337ebfc1d08c3339a12",
       "endpoints": [
         "U101.12",
         "U101.13"
@@ -4658,8 +4270,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "477b3dadd3c69d50f98bc85311bd41b4c4035ca36529a9131624c803b9771f48",
-      "description": "Missing connection between items",
+      "fingerprint": "329dd1956d3e1ff863e88700e613e35a2352f268a8c71a175fbb11d450de0a69",
       "endpoints": [
         "U101.11",
         "U101.12"
@@ -4670,8 +4281,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "fcaf2383365625d4e44c192893a2303f984d37ca582fe87cf2b506b25ea3b9df",
-      "description": "Missing connection between items",
+      "fingerprint": "5c28479694f6fee8feb2198b5cd0d8058070d5fca05c4449788c8f0ccd2a4ed4",
       "endpoints": [
         "U102.1",
         "U102.3"
@@ -4682,8 +4292,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "5123c21395217f7bc990ff21e7e34736b32b805bff2aced219fef410dadcfb18",
-      "description": "Missing connection between items",
+      "fingerprint": "4b8c5ca1a66c684fdd2841dd1e890fb98a89c551e29f9016086eecfd98577702",
       "endpoints": [
         "D101.1",
         "U102.1"
@@ -4694,8 +4303,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "d2ad77b4c62bac9c947370b0c97347798d54bc6f53b2aab69d1a37b5ee48cd57",
-      "description": "Missing connection between items",
+      "fingerprint": "16205b4ffe43d66599f02b6f5d48457fbdf5ce18bf83f843fc60a364514859e3",
       "endpoints": [
         "J101.1",
         "U104.5"
@@ -4706,8 +4314,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "9aaa41d02a4a2c45e62ee44ff3bca70855568209e00c021275fb38b2f855ce29",
-      "description": "Missing connection between items",
+      "fingerprint": "7852bb91ccdd8290a768e42e7d77396c9f6151e995d98d5bbdd1edc264dddda5",
       "endpoints": [
         "J101.1",
         "U102.3"
@@ -4718,8 +4325,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "0d1610f5dc4f49b116858770c5d4fbd4c5d73490ed8e939931a95c65dc66e18f",
-      "description": "Missing connection between items",
+      "fingerprint": "28058cc3a8380d6f30a764ed938a588a6f317963611986699ba4ec125eff2f33",
       "endpoints": [
         "U103.5",
         "U104.5"
@@ -4730,8 +4336,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "ef4a227687b8d4b5fb08c9edd16199ea2f00dfccefac43b699f2253055192974",
-      "description": "Missing connection between items",
+      "fingerprint": "e478eb58b12023cac5a53672ce0f32188b9970004353e55d832b2fb457f0c845",
       "endpoints": [
         "U103.5",
         "U103.8"
@@ -4742,8 +4347,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "8ddb9740e1aac0a51ed3c8b1abeb8b3e935cee6699458fa2a7ec11298be5eeb4",
-      "description": "Missing connection between items",
+      "fingerprint": "7eaaac567687701f394099bf36a1665171941198caf8848fb4e1da7dbfdabcc0",
       "endpoints": [
         "U101.3",
         "U102.5"
@@ -4754,8 +4358,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "b4c23b396554270736d7695905462510004b10b8286cdd87c53c9d81abfb81bc",
-      "description": "Missing connection between items",
+      "fingerprint": "3a7ab28ccd4e498031b2af0a4b016305a3d967c19c2b0a9ed5214e83be114bdb",
       "endpoints": [
         "C101.1",
         "U101.2"
@@ -4766,8 +4369,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "d7e56945e3cd572b7fec48e87546e0bcb57e6292e751651a0cfd416e9b835f71",
-      "description": "Missing connection between items",
+      "fingerprint": "0ea2ec337b2282cb3ab140bf8fb93ec97b6ade541a89c6e2ddf87d3d2889f085",
       "endpoints": [
         "U101.2",
         "U101.3"
@@ -4778,8 +4380,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "3ef6fba8724f2cb64c8818faaf803aa916ed0751359b8226e3f18725ee3835b2",
-      "description": "Missing connection between items",
+      "fingerprint": "615ede92e52ccc35f94e18205930e27a2922332ebeae3c51da8bef5ffe963c78",
       "endpoints": [
         "U101.3",
         "U103.1"
@@ -4790,8 +4391,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "3a9554d841c36fa63d92efffc4177bb587e430a720282ce9d4f3802298fc12e3",
-      "description": "Missing connection between items",
+      "fingerprint": "e9f7b0721ae098f9149bda0a674205c9dece0227feda8c72ec3631d9acf5b87b",
       "endpoints": [
         "C102.1",
         "U101.10"
@@ -4802,8 +4402,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "d4cce43421188feb4ebf122edcb99d5767ee2d2556d850c59b928951f29bd2c1",
-      "description": "Missing connection between items",
+      "fingerprint": "76b89366d58365373063b280298720aa10e2b6c878e79342662168ef74120e32",
       "endpoints": [
         "J101.2",
         "U101.10"
@@ -4814,8 +4413,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "3b9447324640310b951a38c2dd8d2d3bbe73bff090f854928b228e0922986676",
-      "description": "Missing connection between items",
+      "fingerprint": "c7336c64e564255698c6888f62dbc07a9b73d2b2ab58f3e2c7513e4d652f979e",
       "endpoints": [
         "J101.3",
         "U104.3"
@@ -4826,8 +4424,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "cbbbab3c90da9a25522395523a189ec6828a8e3d0d900ca9db0a88cee6c13331",
-      "description": "Missing connection between items",
+      "fingerprint": "086eebddd0e8cee7ede393200719a50b133b8692d3ce1b231a0d03feec4caa60",
       "endpoints": [
         "R101.1",
         "R101.2"
@@ -4838,8 +4435,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "eac21abde08608c58cf0604efcbeca52c9fb011c8cccf2066aa6163f6b82f66a",
-      "description": "Missing connection between items",
+      "fingerprint": "96eedc3ed482e37bb8b157aa59a74b1379ae11ca282186ca9b6cdb58cefbd422",
       "endpoints": [
         "U103.7",
         "U104.3"
@@ -4850,8 +4446,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "2eab8c3393704b2d6a6e84e0c13a39b8b3cc312d835fe7eec7b477b97f12ce51",
-      "description": "Missing connection between items",
+      "fingerprint": "26e0ef466ef45acdbe2e539f568c0464dbe486e60f62d5b34647ac028879da0e",
       "endpoints": [
         "R101.2",
         "U103.7"
@@ -4862,8 +4457,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "7951e60edb42df65b3874a7fc86daf28b4cac4405b2589521c2243e61cfb9a61",
-      "description": "Missing connection between items",
+      "fingerprint": "bba26e1ab297721038845a4624f2434316656d667a39c14f7525284311ea9215",
       "endpoints": [
         "J101.4",
         "U104.1"
@@ -4874,8 +4468,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "ea803ec45b097707b6fb471f5a06f4274f88433d8d619c9744de55abe6918d30",
-      "description": "Missing connection between items",
+      "fingerprint": "d81c85298a376326f733f57d1dc4224b913d9d482d2b9052528e023699e5ffd2",
       "endpoints": [
         "U103.6",
         "U104.1"
@@ -4886,8 +4479,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "88553a93032b576fd4e0627615f9ce8eda60946fef0083d8fd6b52e3c0b41564",
-      "description": "Missing connection between items",
+      "fingerprint": "0d73684ea0303296bcbd524420f62c5d98b3abcc00f030b5f9049030860978ae",
       "endpoints": [
         "R102.2",
         "U103.6"
@@ -4898,8 +4490,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "82fcb20a1be995bfccd0c1621d62c148d70e5daa17f957983ab2b7277c555281",
-      "description": "Missing connection between items",
+      "fingerprint": "a13a8a8659312858a6aac733dcb54b2ab707256eab41d61a013002a1a2cce86e",
       "endpoints": [
         "R102.1",
         "R102.2"
@@ -4910,8 +4501,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "4b74ab65841d8ebcf20802f6d276543c5f9b70c54c6d80021b1fa87bbdba491a",
-      "description": "Missing connection between items",
+      "fingerprint": "fcea97ba44696b5f0e99d5c3faeb3f76c81672a9dcb1b7a3c1b4849cda49eed8",
       "endpoints": [
         "J101.5",
         "U101.6"
@@ -4922,8 +4512,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "86194f90760b16baf3b879c2b7f001a9c8eed983ea85e6fb61f58790adbdce1d",
-      "description": "Missing connection between items",
+      "fingerprint": "39505e8746b2568f6733751ec9fe693be9c2615cc59a59498e5c89660f630900",
       "endpoints": [
         "U101.4",
         "U103.2"
@@ -4934,8 +4523,7 @@
     },
     {
       "board": "circle-ppg",
-      "fingerprint": "caa2f7212c5fe4dba3b72f4921e387e5e3aeaeb1fb19a29fb163f2605d6fa885",
-      "description": "Missing connection between items",
+      "fingerprint": "fd08385799fb34b6b0fb0ffbbdfdeaa3193d25b0ccdf406fb67aa78d707ecc5f",
       "endpoints": [
         "U101.5",
         "U103.3"

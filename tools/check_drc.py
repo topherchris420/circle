@@ -22,9 +22,15 @@ ALLOW = ROOT / "hardware/reports/drc-allowlist.json"
 
 def normalize_endpoint(desc):
     """Extract canonical Component.Pad identifier from KiCad pad description strings across KiCad versions."""
-    m = re.search(r"Pad\s+([^\s\[\]]+).*?of\s+([^\s]+)", desc)
+    m = re.search(r"(?:Pad|pin)\s+([^\s\[\]]+).*?of\s+([^\s\[\]]+)", desc, re.IGNORECASE)
     if m:
         return f"{m.group(2)}.{m.group(1)}"
+    m_via = re.search(r"Via\s+\[([^\]]+)\]", desc)
+    if m_via:
+        return f"Via[{m_via.group(1)}]"
+    m_track = re.search(r"Track\s+\[([^\]]+)\]", desc)
+    if m_track:
+        return f"Track[{m_track.group(1)}]"
     return desc.strip()
 
 
@@ -34,7 +40,6 @@ def fingerprint(board, item):
     material = json.dumps({
         "board": board,
         "type": item.get("type"),
-        "description": item.get("description"),
         "endpoints": endpoints
     }, sort_keys=True)
     return hashlib.sha256(material.encode()).hexdigest()
