@@ -9,6 +9,7 @@ Enforces:
 
 import hashlib
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -19,12 +20,22 @@ REPORTS = {
 ALLOW = ROOT / "hardware/reports/drc-allowlist.json"
 
 
+def normalize_endpoint(desc):
+    """Extract canonical Component.Pad identifier from KiCad pad description strings across KiCad versions."""
+    m = re.search(r"Pad\s+([^\s\[\]]+).*?of\s+([^\s]+)", desc)
+    if m:
+        return f"{m.group(2)}.{m.group(1)}"
+    return desc.strip()
+
+
 def fingerprint(board, item):
+    """Compute deterministic SHA-256 fingerprint for a DRC item invariant to KiCad CLI version formatting."""
+    endpoints = sorted([normalize_endpoint(i.get("description", "")) for i in item.get("items", [])])
     material = json.dumps({
         "board": board,
         "type": item.get("type"),
         "description": item.get("description"),
-        "items": [i.get("description") for i in item.get("items", [])]
+        "endpoints": endpoints
     }, sort_keys=True)
     return hashlib.sha256(material.encode()).hexdigest()
 
