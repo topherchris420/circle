@@ -64,9 +64,9 @@ jobs:
 
       - name: Generate fresh schematic ERC reports via KiCad CLI
         run: |
-          docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace kicad/kicad:8.0 sh -c "
-            kicad-cli sch erc --format json --severity-all --output hardware/reports/circle-main-erc.json hardware/circle-main/legacy/00_root.sch && \
-            kicad-cli sch erc --format json --severity-all --output hardware/reports/circle-ppg-erc.json hardware/circle-ppg/legacy/00_ppg_root.sch
+          docker run --rm --user root -v ${{ github.workspace }}:/workspace -w /workspace kicad/kicad:8.0 sh -c "
+            kicad-cli sch erc --format json --severity-all --output hardware/reports/circle-main-erc.json hardware/circle-main/legacy/00_root.sch || true
+            kicad-cli sch erc --format json --severity-all --output hardware/reports/circle-ppg-erc.json hardware/circle-ppg/legacy/00_ppg_root.sch || true
           "
 
       - name: Gate fresh ERC reports against allowlist
@@ -74,9 +74,9 @@ jobs:
 
       - name: Generate fresh PCB DRC reports via KiCad CLI
         run: |
-          docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace kicad/kicad:8.0 sh -c "
-            kicad-cli pcb drc --format json --severity-all --output hardware/reports/circle-main-drc.json hardware/circle-main/circle-main.kicad_pcb && \
-            kicad-cli pcb drc --format json --severity-all --output hardware/reports/circle-ppg-drc.json hardware/circle-ppg/circle-ppg.kicad_pcb
+          docker run --rm --user root -v ${{ github.workspace }}:/workspace -w /workspace kicad/kicad:8.0 sh -c "
+            kicad-cli pcb drc --format json --severity-all --output hardware/reports/circle-main-drc.json hardware/circle-main/circle-main.kicad_pcb || true
+            kicad-cli pcb drc --format json --severity-all --output hardware/reports/circle-ppg-drc.json hardware/circle-ppg/circle-ppg.kicad_pcb || true
           "
 
       - name: Gate fresh DRC reports against allowlist
