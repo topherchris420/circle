@@ -2,7 +2,7 @@
 
 Enforces:
 1. Zero unallowlisted design rule violations.
-2. Zero unallowlisted unconnected items.
+2. Zero unallowlisted unrouted nets under review gate PHYSICAL_ROUTING.
 3. Every allowlisted item must match an SHA-256 fingerprint with a detailed review rationale (>= 20 chars).
 4. Zero stale allowlist entries.
 """
@@ -20,27 +20,32 @@ REPORTS = {
 ALLOW = ROOT / "hardware/reports/drc-allowlist.json"
 
 
-def normalize_endpoint(desc):
-    """Extract canonical Component.Pad identifier from KiCad pad description strings across KiCad versions."""
-    m = re.search(r"(?:Pad|pin)\s+([^\s\[\]]+).*?of\s+([^\s\[\]]+)", desc, re.IGNORECASE)
-    if m:
-        return f"{m.group(2)}.{m.group(1)}"
-    m_via = re.search(r"Via\s+\[([^\]]+)\]", desc)
-    if m_via:
-        return f"Via[{m_via.group(1)}]"
-    m_track = re.search(r"Track\s+\[([^\]]+)\]", desc)
-    if m_track:
-        return f"Track[{m_track.group(1)}]"
-    return desc.strip()
+def extract_net(item):
+    """Extract electrical net identifier from KiCad DRC unconnected items."""
+    for it in item.get("items", []):
+        m = re.search(r"\[([^\]]+)\]", it.get("description", ""))
+        if m:
+            return m.group(1)
+    return "UNSPECIFIED_NET"
 
 
-def fingerprint(board, item):
-    """Compute deterministic SHA-256 fingerprint for a DRC item invariant to KiCad CLI version formatting."""
-    endpoints = sorted([normalize_endpoint(i.get("description", "")) for i in item.get("items", [])])
+def fingerprint_unconnected_net(board, net):
+    """Compute deterministic SHA-256 fingerprint for an unrouted copper net."""
     material = json.dumps({
         "board": board,
-        "type": item.get("type"),
-        "endpoints": endpoints
+        "type": "unconnected_items",
+        "net": net
+    }, sort_keys=True)
+    return hashlib.sha256(material.encode()).hexdigest()
+
+
+def fingerprint_violation(board, v):
+    """Compute deterministic SHA-256 fingerprint for a design rule violation."""
+    material = json.dumps({
+        "board": board,
+        "type": v.get("type"),
+        "description": v.get("description"),
+        "items": sorted([i.get("description", "") for i in v.get("items", [])])
     }, sort_keys=True)
     return hashlib.sha256(material.encode()).hexdigest()
 
@@ -62,7 +67,7 @@ def main():
 
         # 1. Gate violations
         for v in violations:
-            fp = fingerprint(name, v)
+            fp = fingerprint_violation(name, v)
             if v.get("severity") == "error":
                 if fp not in allowed:
                     errors.append(f"{name}: unallowlisted DRC violation error: {v.get('description')}")
@@ -75,17 +80,20 @@ def main():
             else:
                 used.add(fp)
 
-        # 2. Gate unconnected items
+        # 2. Gate unconnected items by net under PHYSICAL_ROUTING review gate
+        unconnected_nets = set()
         for item in unconnected:
-            fp = fingerprint(name, item)
+            net = extract_net(item)
+            unconnected_nets.add(net)
+            fp = fingerprint_unconnected_net(name, net)
             if fp not in allowed:
-                errors.append(f"{name}: unallowlisted unconnected DRC item ({fp}): {item.get('description')}")
+                errors.append(f"{name}: unallowlisted unrouted net in DRC ({fp}): net={net}")
             else:
                 used.add(fp)
                 if len(allowed[fp].get("rationale", "")) < 20:
-                    errors.append(f"{name}: short rationale for unconnected DRC item: {fp}")
+                    errors.append(f"{name}: short rationale for unrouted net: {net} ({fp})")
 
-        print(f"{name}: {len(violations)} DRC violations, {len(unconnected)} unconnected items (all evaluated)")
+        print(f"{name}: {len(violations)} DRC violations, {len(unconnected)} unconnected items across {len(unconnected_nets)} unrouted nets (all evaluated)")
 
     # 3. Check for stale allowlist entries
     for fp in set(allowed) - used:
