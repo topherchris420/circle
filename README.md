@@ -1,12 +1,12 @@
-# CIRCLE
+# Circle
 
-**Because a human state is rarely one signal.**
+**Most sensors stop at measurement. Circle begins there.**
 
 CIRCLE is an open-source biosignal research platform for exploring how physiological signals move together over time—and how closed-loop systems can sense, record, and respond to those changing patterns.
 
 It combines synchronized physiological sensing, deterministic recording, isolated laboratory synchronization, and locally evidenced feedback within a single reviewable architecture.
 
-> **ENGINEERING REVIEW ONLY** — Experimental research hardware. Not certified for clinical, medical, or human-connected use.
+> **ENGINEERING REVIEW ONLY** — Experimental research hardware.
 
 ---
 
