@@ -1,0 +1,26 @@
+flowchart LR
+    subgraph CIRCLE["CIRCLE Rev B Platform"]
+        Human["Human / Subject"]
+        Sensors["CIRCLE Sensing (PPG, EDA, IMU)"]
+        Compute["ESP32-S3 Compute & Storage"]
+        Bridge["CircleTelemetryBridge"]
+        Provenance["Session Record Provenance Engine"]
+    end
+
+    subgraph ATOM["ATOM Emergence Sandbox"]
+        Moderators["Moderators: Kp, Lunar, LST, Coherence"]
+        Targets["Targets: 4-Channel 2D Dynamical Field"]
+        Operators["Operators: Perceiver, Forecaster, Integrator"]
+        Analyses["Analyses: Emergent Graph & Discovery Metrics"]
+    end
+
+    Human -->|Physiological Signals| Sensors
+    Sensors -->|Raw Streams| Compute
+    Compute -->|Telemetry Chunks| Bridge
+    Bridge -->|Spatialized Bases| Targets
+    Moderators -->|Environmental Modulation| Targets
+    Moderators -->|Threshold & Decay Scaling| Operators
+    Targets -->|Local Grid Samples| Operators
+    Operators -->|Sliding-Window Pearson Correlation| Analyses
+    Analyses -->|MODEL_INFERRED Lineage| Provenance
+    Provenance -->|Deterministic Log| Compute

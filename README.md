@@ -96,6 +96,22 @@ while systematically testing:
 
 ---
 
+## Emergence Research Module (IONS-X Deep Emergence)
+
+The **CIRCLE Emergence Module** integrates the **ATOM (Analyses, Targets, Operators, Moderators)** causal discovery engine from the IONS-X Deep Emergence Lab into the CIRCLE platform.
+
+It provides a repeatable, deterministic sandbox for exploring how coupled physiological signals (EDA, raw optical PPG, 6-axis IMU) and resonance cavity drive excitations form emergent cross-channel correlations across spatial fields under environmental moderation (geomagnetic $K_p$, lunar phase, sidereal time, and solar X-ray flux).
+
+### Key Features:
+* **ATOM Architecture:** Coupled 4-channel spatial-temporal dynamical field (EM/RF, Optical/IR, Consciousness/Resonance proxy, Null Control).
+* **Autonomous Spatial Operators:** Ensemble of roving perceivers, forecasters, and integrators calculating sliding-window Pearson correlations.
+* **Deterministic Provenance:** All discoveries emit schema-compliant `MODEL_INFERRED` session records with monotonic microsecond timestamps and CRC-32C integrity checksums.
+* **Empirical & Longitudinal Telemetry:** Ingests live or recorded CIRCLE session streams and outputs interactive HTML animations, `.metrics.json` sidecars, and compressed longitudinal study logs.
+
+![CIRCLE ATOM Emergence Architecture](diagrams/emergence-architecture.svg)
+
+---
+
 ## System architecture
 
 ### `circle-main`
@@ -302,7 +318,9 @@ After regeneration, run `tools/verify_release.py` and `tools/generate_release_ma
 
 | Path | Contents |
 | --- | --- |
-| [`contracts/`](contracts/) | Machine-readable session-record contracts |
+| [`contracts/`](contracts/) | Machine-readable session-record and emergence discovery contracts |
+| [`models/emergence/`](models/emergence/) | ATOM multi-agent dynamical field simulation and CIRCLE telemetry bridge |
+| [`experiments/emergence/`](experiments/emergence/) | Emergence protocols, analysis plans, and control specifications |
 | [`diagrams/`](diagrams/) | Architecture and safety-boundary diagrams (Mermaid source + rendered SVG) |
 | [`docs/`](docs/) | Architecture, safety, timing, power, validation, and review documentation |
 | [`hardware/design-manifest.json`](hardware/design-manifest.json) | Board hierarchy, nets, 95 parts, GPIO allocation, and unresolved gates |

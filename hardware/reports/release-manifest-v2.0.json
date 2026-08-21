@@ -21,6 +21,11 @@
       "size_bytes": 5259
     },
     {
+      "path": "docs/emergence-architecture.md",
+      "sha256": "05f2c5d8d31f2ad7f11796d6962cd805b7413d4656b481e013d5ccdda8118601",
+      "size_bytes": 5282
+    },
+    {
       "path": "docs/firmware-pinmap-and-init.md",
       "sha256": "0a4cc3811cb46e8303ad56e41717de55e257ae91e1c5470fbb66c320bb11dd43",
       "size_bytes": 7766
@@ -61,6 +66,11 @@
       "size_bytes": 963
     },
     {
+      "path": "docs/rain-circle-experiment-protocol.md",
+      "sha256": "9665aae3baff3e465bd03e2536066127362b2c4d3f2642174c4e0d532358d06d",
+      "size_bytes": 7825
+    },
+    {
       "path": "docs/release-audit-report.md",
       "sha256": "3fb415c8e1fcebf5588040c1c11d21d056f496fe2c47fadf9cf0cc84befa745c",
       "size_bytes": 11353
@@ -71,9 +81,24 @@
       "size_bytes": 5484
     },
     {
+      "path": "docs/resonance-architecture.md",
+      "sha256": "d0aa060333afe7257ac6fb17e1dfca3eee474da4c64cd5502838e56a99398676",
+      "size_bytes": 5371
+    },
+    {
+      "path": "docs/resonance-hypotheses.md",
+      "sha256": "9a821aa68418bb0e074a5e14c84b38a28c671f788f546ed97a1dcd15ad3701cf",
+      "size_bytes": 3502
+    },
+    {
+      "path": "docs/resonance-safety-boundary.md",
+      "sha256": "7aed371a8925966498bda87bdeb470bb0549234e39856e3c973a3172ac1c74ab",
+      "size_bytes": 2763
+    },
+    {
       "path": "docs/review-gates.md",
-      "sha256": "6ebbf2296d5566e19debd7aa2fe21f83039cc9cb611feaefb3f50cf42730e41a",
-      "size_bytes": 1796
+      "sha256": "e7065258e6b9e409830d479f064c41e536782b9ad68bf288389cad9769b20027",
+      "size_bytes": 3170
     },
     {
       "path": "docs/safety-analysis.md",

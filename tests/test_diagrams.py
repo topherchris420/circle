@@ -24,6 +24,11 @@ class DiagramTests(unittest.TestCase):
         for term in ("BAT_HUMAN", "ISOW7742", "LAB_ISO", "NO CONDUCTIVE PATH"):
             self.assertIn(term, safety_text)
 
+    def test_mermaid_emergence_contains_required_terms(self):
+        emergence_text = (ROOT / "diagrams/emergence-architecture.mmd").read_text(encoding="utf-8")
+        for term in ("CIRCLE Rev B Platform", "ATOM Emergence Sandbox", "CircleTelemetryBridge", "Moderators", "Targets", "Operators", "Analyses"):
+            self.assertIn(term, emergence_text)
+
     def test_rendered_svgs_exist_and_warn(self):
         for name in (
             "system-architecture.svg",
@@ -31,9 +36,10 @@ class DiagramTests(unittest.TestCase):
             "resonance-architecture.svg",
             "resonance-safety-boundary.svg",
             "resonance-geometry.svg",
+            "emergence-architecture.svg",
         ):
             path = ROOT / "diagrams" / name
-            self.assertTrue(path.exists())
+            self.assertTrue(path.exists(), f"Missing rendered diagram: {name}")
             self.assertIn("ENGINEERING REVIEW ONLY", path.read_text(encoding="utf-8"))
             ET.parse(path)
 

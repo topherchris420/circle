@@ -1,0 +1,282 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://circle.invalid/contracts/emergence-discovery.schema.json",
+  "title": "Emergence Discovery Record and Experiment Configuration Schema",
+  "description": "Formal schema for CIRCLE emergence research discoveries, ATOM multi-agent simulations, and longitudinal telemetry analyses. Engineering review / bench validation only.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "experiment_id",
+    "run_id",
+    "preset",
+    "field_parameters",
+    "operator_parameters",
+    "moderator_parameters",
+    "metrics_summary",
+    "provenance",
+    "interpretation_level",
+    "status_flags"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": [
+        "1.0.0"
+      ]
+    },
+    "experiment_id": {
+      "type": "string",
+      "minLength": 3,
+      "description": "Globally unique experiment session identifier."
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 3,
+      "description": "Unique identifier for this specific simulation or analysis run."
+    },
+    "preset": {
+      "type": "string",
+      "enum": [
+        "synthetic",
+        "baseline",
+        "empirical"
+      ],
+      "description": "Simulation mode: synthetic dynamical field, baseline null control, or empirical CSV telemetry."
+    },
+    "experiment_bundle": {
+      "type": "string",
+      "enum": [
+        "balanced",
+        "quick",
+        "arv",
+        "coherence",
+        "dense-agents",
+        "custom"
+      ],
+      "description": "Named hyperparameter bundle used for this experiment."
+    },
+    "field_parameters": {
+      "$ref": "#/$defs/fieldParameters"
+    },
+    "operator_parameters": {
+      "$ref": "#/$defs/operatorParameters"
+    },
+    "moderator_parameters": {
+      "$ref": "#/$defs/moderatorParameters"
+    },
+    "discoveries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/discoveryItem"
+      }
+    },
+    "metrics_summary": {
+      "$ref": "#/$defs/metricsSummary"
+    },
+    "provenance": {
+      "$ref": "#/$defs/provenance"
+    },
+    "interpretation_level": {
+      "$ref": "#/$defs/interpretationLevel"
+    },
+    "status_flags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "crc32c": {
+      "type": "string",
+      "pattern": "^[0-9A-Fa-f]{8}$"
+    }
+  },
+  "$defs": {
+    "fieldParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "field_res",
+        "channels",
+        "channel_names"
+      ],
+      "properties": {
+        "field_res": {
+          "type": "integer",
+          "minimum": 8,
+          "maximum": 1024
+        },
+        "channels": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 16
+        },
+        "channel_names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "operatorParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "agent_count",
+        "memory_depth",
+        "corr_window",
+        "discovery_threshold",
+        "confidence_decay"
+      ],
+      "properties": {
+        "agent_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "memory_depth": {
+          "type": "integer",
+          "minimum": 10
+        },
+        "corr_window": {
+          "type": "integer",
+          "minimum": 5
+        },
+        "discovery_threshold": {
+          "type": "number",
+          "minimum": 0.01,
+          "maximum": 0.99
+        },
+        "confidence_decay": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 1.0
+        },
+        "agent_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "moderatorParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "coherence_boost",
+        "active_moderator_names"
+      ],
+      "properties": {
+        "coherence_boost": {
+          "type": "boolean"
+        },
+        "geomagnetic_influence": {
+          "type": "boolean"
+        },
+        "lunar_cycle": {
+          "type": "boolean"
+        },
+        "active_moderator_names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "discoveryItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "edge",
+        "pearson_r",
+        "confidence",
+        "operator_type",
+        "frame"
+      ],
+      "properties": {
+        "edge": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "pearson_r": {
+          "type": "number"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "operator_type": {
+          "type": "string"
+        },
+        "frame": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "device_time_start_us": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "metricsSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "total_discoveries",
+        "discoveries_by_operator_type",
+        "coherence_frame_count"
+      ],
+      "properties": {
+        "total_discoveries": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "discoveries_by_operator_type": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          }
+        },
+        "coherence_frame_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "calibration_threshold": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      }
+    },
+    "provenance": {
+      "type": "string",
+      "enum": [
+        "RAW_MEASURED",
+        "DERIVED",
+        "MODEL_INFERRED",
+        "SIMULATED",
+        "TEST",
+        "INTERVENTION"
+      ]
+    },
+    "interpretationLevel": {
+      "type": "string",
+      "enum": [
+        "MEASURED",
+        "DERIVED",
+        "MODEL_INFERRED",
+        "HYPOTHESIS_LABEL"
+      ]
+    }
+  }
+}

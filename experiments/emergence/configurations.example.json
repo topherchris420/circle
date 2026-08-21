@@ -1,0 +1,143 @@
+{
+  "$schema": "../../contracts/emergence-discovery.schema.json",
+  "version": "1.0.0",
+  "description": "Example verified configurations for CIRCLE Emergence studies.",
+  "configurations": [
+    {
+      "schema_version": "1.0.0",
+      "experiment_id": "EXP-EMERGENCE-SYNTH-001",
+      "run_id": "RUN-SYNTH-QUICK-01",
+      "preset": "synthetic",
+      "experiment_bundle": "quick",
+      "field_parameters": {
+        "field_res": 64,
+        "channels": 4,
+        "channel_names": [
+          "em_rf",
+          "optical_ir",
+          "consciousness_proxy",
+          "control_baseline"
+        ]
+      },
+      "operator_parameters": {
+        "agent_count": 50,
+        "memory_depth": 300,
+        "corr_window": 50,
+        "discovery_threshold": 0.32,
+        "confidence_decay": 0.995,
+        "agent_types": [
+          "perceiver",
+          "forecaster",
+          "integrator"
+        ]
+      },
+      "moderator_parameters": {
+        "coherence_boost": true,
+        "geomagnetic_influence": true,
+        "lunar_cycle": true,
+        "active_moderator_names": [
+          "coherence_factor"
+        ]
+      },
+      "discoveries": [
+        {
+          "edge": [
+            "ch0",
+            "ch1"
+          ],
+          "pearson_r": 0.45,
+          "confidence": 0.45,
+          "operator_type": "perceiver",
+          "frame": 12,
+          "device_time_start_us": 12000000
+        }
+      ],
+      "metrics_summary": {
+        "total_discoveries": 1,
+        "discoveries_by_operator_type": {
+          "perceiver": 1,
+          "forecaster": 0,
+          "integrator": 0
+        },
+        "coherence_frame_count": 0,
+        "calibration_threshold": null
+      },
+      "provenance": "SIMULATED",
+      "interpretation_level": "MODEL_INFERRED",
+      "status_flags": [
+        "OK",
+        "VERIFIED_EXAMPLE_CONFIG"
+      ]
+    },
+    {
+      "schema_version": "1.0.0",
+      "experiment_id": "EXP-EMERGENCE-EMPIRICAL-002",
+      "run_id": "RUN-EMPIRICAL-CIRCLE-01",
+      "preset": "empirical",
+      "experiment_bundle": "balanced",
+      "field_parameters": {
+        "field_res": 128,
+        "channels": 4,
+        "channel_names": [
+          "em_rf",
+          "optical_ir",
+          "consciousness_proxy",
+          "control_baseline"
+        ]
+      },
+      "operator_parameters": {
+        "agent_count": 300,
+        "memory_depth": 300,
+        "corr_window": 50,
+        "discovery_threshold": 0.32,
+        "confidence_decay": 0.995,
+        "agent_types": [
+          "perceiver",
+          "forecaster",
+          "integrator"
+        ]
+      },
+      "moderator_parameters": {
+        "coherence_boost": true,
+        "geomagnetic_influence": true,
+        "lunar_cycle": true,
+        "active_moderator_names": [
+          "kp_index",
+          "lunar_phase",
+          "sidereal_time",
+          "xray_flux"
+        ]
+      },
+      "discoveries": [
+        {
+          "edge": [
+            "ch1",
+            "ch2"
+          ],
+          "pearson_r": 0.52,
+          "confidence": 0.52,
+          "operator_type": "integrator",
+          "frame": 25,
+          "device_time_start_us": 25000000
+        }
+      ],
+      "metrics_summary": {
+        "total_discoveries": 1,
+        "discoveries_by_operator_type": {
+          "perceiver": 0,
+          "forecaster": 0,
+          "integrator": 1
+        },
+        "coherence_frame_count": 2,
+        "calibration_threshold": 0.35
+      },
+      "provenance": "MODEL_INFERRED",
+      "interpretation_level": "MODEL_INFERRED",
+      "status_flags": [
+        "OK",
+        "EMPIRICAL_RUN",
+        "COHERENCE_EVENTS_OBSERVED"
+      ]
+    }
+  ]
+}

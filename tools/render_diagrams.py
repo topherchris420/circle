@@ -97,6 +97,25 @@ RESONANCE_GEOM_EDGES = [
     (3, 5, "inverted element"), (0, 6, "conservation verified"),
 ]
 
+EMERGENCE_ARCH_NODES = [
+    ("CIRCLE Sensing (PPG/EDA/IMU)", 40, 180, "sensor"),
+    ("ESP32-S3 Compute & Log", 240, 180, "device"),
+    ("CircleTelemetryBridge", 440, 180, "software"),
+    ("4-Channel Target Field (ATOM)", 680, 180, "device"),
+    ("Environmental Moderators", 680, 340, "gate"),
+    ("Autonomous Operators", 920, 180, "model"),
+    ("Emergent Relationship Graph", 920, 340, "evidence"),
+    ("Provenance Session Records", 440, 480, "evidence"),
+    ("Human / Subject", 40, 480, "human"),
+    ("Closed-Loop Decision", 240, 480, "feedback"),
+]
+EMERGENCE_ARCH_EDGES = [
+    (0, 1, "raw samples"), (1, 2, "telemetry stream"), (2, 3, "spatial bases"),
+    (4, 3, "field modulation"), (4, 5, "threshold scaling"), (3, 5, "grid sampling"),
+    (5, 6, "cross correlation"), (6, 7, "MODEL_INFERRED"), (7, 1, "record log"),
+    (7, 9, "graph state"), (9, 8, "feedback intervention"), (8, 0, "response"),
+]
+
 COLORS = {
     "human": "#f3e8d1", "device": "#b9d8f2", "software": "#c9e6cf",
     "model": "#d7c6f2", "feedback": "#f2c2b8", "sensor": "#cfe8e8",
@@ -117,7 +136,7 @@ def render(path, title, nodes, edges, domains=(), footer=None):
     ET.SubElement(marker, svg_tag("path"), {"d": "M 0 0 L 10 5 L 0 10 z", "fill": "#30343b"})
     ET.SubElement(root, svg_tag("rect"), {"width": "1200", "height": "720", "fill": "#fbfaf6"})
     warning = ET.SubElement(root, svg_tag("text"), {"x": "600", "y": "34", "text-anchor": "middle", "font-family": "Arial, sans-serif", "font-size": "18", "font-weight": "bold", "fill": "#a32622"})
-    warning.text = "ENGINEERING REVIEW ONLY — NOT FOR HUMAN CONNECTION"
+    warning.text = "ENGINEERING REVIEW ONLY ? NOT FOR HUMAN CONNECTION"
     heading = ET.SubElement(root, svg_tag("text"), {"x": "600", "y": "70", "text-anchor": "middle", "font-family": "Arial, sans-serif", "font-size": "24", "font-weight": "bold", "fill": "#161b22"})
     heading.text = title
     for label, x, y, w, h, fill in domains:
@@ -173,7 +192,13 @@ def main():
         domains=(("NESTED SPHERICAL CAVITIES", 40, 120, 480, 540, "#dcebdc"), ("POLYHEDRAL CENTRAL CORE", 540, 120, 620, 540, "#dde5f5")),
         footer="Parametric nested golden-ratio spheres (Phi = 1.618034) with central dual-tetrahedral core.",
     )
-    print("rendered 5 diagrams")
+    render(
+        OUT / "emergence-architecture.svg", "CIRCLE ATOM Deep Emergence System Architecture",
+        EMERGENCE_ARCH_NODES, EMERGENCE_ARCH_EDGES,
+        domains=(("CIRCLE_MEASUREMENT_AND_BRIDGE", 25, 120, 580, 540, "#dcebdc"), ("ATOM_EMERGENCE_SANDBOX", 620, 120, 550, 540, "#dde5f5")),
+        footer="ATOM multi-agent dynamical field sandbox with MODEL_INFERRED provenance lineage.",
+    )
+    print("rendered 6 diagrams")
 
 
 if __name__ == "__main__":

@@ -15,6 +15,7 @@ def main():
         [py,"tools/check_design_manifest.py"],
         [py,"tools/check_record_schema.py"],
         [py,"tools/check_resonance_contract.py"],
+        [py,"tools/check_emergence_contract.py"],
         [py,"tools/render_diagrams.py"],
         [py,"tools/generate_schematics.py"],
         [py,"tools/generate_schematics.py","--board","circle-ppg"],
@@ -30,7 +31,7 @@ def main():
         result=run(command); steps.append(result)
         if result["exit_code"]: break
     disallowed=[]
-    pattern=re.compile(r"\b(TODO|TBD|PLACEHOLDER)\b")
+    pattern=re.compile(r"(TODO|TBD|PLACEHOLDER)")
     for path in list((ROOT/"hardware").rglob("*.json"))+list((ROOT/"docs").rglob("*.md")):
         if pattern.search(path.read_text(encoding="utf-8",errors="ignore")): disallowed.append(str(path.relative_to(ROOT)))
     artifacts=[]
