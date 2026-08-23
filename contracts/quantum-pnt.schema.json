@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://circle.org/contracts/quantum-pnt.schema.json",
+  "title": "Quantum PNT Experiment and Discovery Schema",
+  "description": "Validation schema for quantum-augmented positioning and navigation simulation records and benchmark summaries.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "experiment_type",
+    "experiment_id",
+    "version",
+    "configuration",
+    "metrics",
+    "provenance"
+  ],
+  "$defs": {
+    "provenance": {
+      "type": "string",
+      "enum": [
+        "RAW_MEASURED",
+        "DERIVED",
+        "MODEL_INFERRED",
+        "SIMULATED",
+        "TEST",
+        "INTERVENTION"
+      ]
+    },
+    "interpretationLevel": {
+      "type": "string",
+      "enum": [
+        "MEASURED",
+        "DERIVED",
+        "MODEL_INFERRED",
+        "HYPOTHESIS_LABEL"
+      ]
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "experiment_type": {
+      "type": "string",
+      "enum": ["qpns_x.quantum_pnt", "circle.pnt_fusion"]
+    },
+    "experiment_id": {
+      "type": "string"
+    },
+    "run_name": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "configuration": {
+      "type": "object",
+      "required": ["simulation", "imu", "atom_interferometer", "estimator"],
+      "properties": {
+        "simulation": {
+          "type": "object",
+          "required": ["duration_s", "dt_s", "seed"]
+        },
+        "imu": {
+          "type": "object"
+        },
+        "atom_interferometer": {
+          "type": "object"
+        },
+        "gravity_gradiometer": {
+          "type": "object"
+        },
+        "quantum_clock": {
+          "type": "object"
+        },
+        "estimator": {
+          "type": "object",
+          "required": ["type", "use_joseph_form"]
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "required": [
+        "position_rmse_m",
+        "velocity_rmse_m_s",
+        "drift_rate_m_hr"
+      ],
+      "properties": {
+        "position_rmse_m": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "position_max_error_m": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "position_final_error_m": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "velocity_rmse_m_s": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "velocity_final_error_m_s": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "attitude_rmse_mrad": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "accel_bias_rmse_mg": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "gyro_bias_rmse_deg_hr": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "drift_rate_m_hr": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "clock_max_time_error_ns": {
+          "type": "number"
+        },
+        "clock_final_time_error_ns": {
+          "type": "number"
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "interpretation_level",
+        "physical_classification",
+        "claim_status"
+      ],
+      "properties": {
+        "interpretation_level": {
+          "$ref": "#/$defs/interpretationLevel"
+        },
+        "physical_classification": {
+          "type": "string"
+        },
+        "claim_status": {
+          "type": "string"
+        }
+      }
+    },
+    "artifact_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{64}$"
+    }
+  },
+  "additionalProperties": false
+}

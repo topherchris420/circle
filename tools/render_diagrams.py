@@ -116,6 +116,25 @@ EMERGENCE_ARCH_EDGES = [
     (7, 9, "graph state"), (9, 8, "feedback intervention"), (8, 0, "response"),
 ]
 
+QUANTUM_PNT_ARCH_NODES = [
+    ("6-DOF IMU (ICM-42688)", 40, 180, "sensor"),
+    ("Cold-Atom Interferometer", 40, 300, "sensor"),
+    ("Gravity Gradiometer", 40, 420, "sensor"),
+    ("Optical Quantum Clock", 40, 540, "clock"),
+    ("CirclePNTBridge", 320, 300, "software"),
+    ("Strapdown Mechanization", 580, 180, "device"),
+    ("15-State ES-EKF / UKF", 580, 360, "model"),
+    ("Allan & Uncertainty Analysis", 860, 200, "evidence"),
+    ("PNT Session Record (CRC-32C)", 860, 460, "storage"),
+    ("Closed-Loop PNT Feedback", 580, 560, "feedback"),
+]
+QUANTUM_PNT_ARCH_EDGES = [
+    (0, 4, "f_b, omega_b"), (1, 4, "quantum phase"), (2, 4, "diff accel"),
+    (3, 4, "y(t) freq dev"), (4, 5, "IMU stream"), (5, 6, "nominal state"),
+    (4, 6, "quantum aiding"), (6, 7, "state & cov P"), (6, 8, "MODEL_INFERRED"),
+    (8, 9, "navigation fix"),
+]
+
 COLORS = {
     "human": "#f3e8d1", "device": "#b9d8f2", "software": "#c9e6cf",
     "model": "#d7c6f2", "feedback": "#f2c2b8", "sensor": "#cfe8e8",
@@ -198,7 +217,13 @@ def main():
         domains=(("CIRCLE_MEASUREMENT_AND_BRIDGE", 25, 120, 580, 540, "#dcebdc"), ("ATOM_EMERGENCE_SANDBOX", 620, 120, 550, 540, "#dde5f5")),
         footer="ATOM multi-agent dynamical field sandbox with MODEL_INFERRED provenance lineage.",
     )
-    print("rendered 6 diagrams")
+    render(
+        OUT / "quantum-pnt-architecture.svg", "CIRCLE Quantum PNT Inertial Navigation Architecture",
+        QUANTUM_PNT_ARCH_NODES, QUANTUM_PNT_ARCH_EDGES,
+        domains=(("MULTIMODAL_SENSORS", 25, 120, 260, 540, "#dcebdc"), ("BRIDGE_AND_ESTIMATOR", 300, 120, 480, 540, "#d9dde3"), ("VERIFIED_OUTPUTS", 800, 120, 370, 540, "#dde5f5")),
+        footer="Cold-atom light-pulse atom interferometry and relativistic quantum clock fusion.",
+    )
+    print("rendered 7 diagrams")
 
 
 if __name__ == "__main__":

@@ -66,6 +66,11 @@
       "size_bytes": 963
     },
     {
+      "path": "docs/quantum-pnt-architecture.md",
+      "sha256": "c8a5b743eccd21de8d865f0eb1a2a95ec4ce6469a8ec6b6b82a3b757c18a6e42",
+      "size_bytes": 5094
+    },
+    {
       "path": "docs/rain-circle-experiment-protocol.md",
       "sha256": "9665aae3baff3e465bd03e2536066127362b2c4d3f2642174c4e0d532358d06d",
       "size_bytes": 7825

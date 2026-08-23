@@ -29,6 +29,11 @@ class DiagramTests(unittest.TestCase):
         for term in ("CIRCLE Rev B Platform", "ATOM Emergence Sandbox", "CircleTelemetryBridge", "Moderators", "Targets", "Operators", "Analyses"):
             self.assertIn(term, emergence_text)
 
+    def test_mermaid_quantum_pnt_contains_required_terms(self):
+        pnt_text = (ROOT / "diagrams/quantum-pnt-architecture.mmd").read_text(encoding="utf-8")
+        for term in ("MULTIMODAL SENSING DOMAIN", "CirclePNTBridge", "15-STATE ESTIMATION ENGINE", "Cold-Atom Interferometer", "Gravity Gradiometer"):
+            self.assertIn(term, pnt_text)
+
     def test_rendered_svgs_exist_and_warn(self):
         for name in (
             "system-architecture.svg",
@@ -37,6 +42,7 @@ class DiagramTests(unittest.TestCase):
             "resonance-safety-boundary.svg",
             "resonance-geometry.svg",
             "emergence-architecture.svg",
+            "quantum-pnt-architecture.svg",
         ):
             path = ROOT / "diagrams" / name
             self.assertTrue(path.exists(), f"Missing rendered diagram: {name}")

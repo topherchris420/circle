@@ -1,0 +1,122 @@
+{
+  "configurations": [
+    {
+      "schema_version": "1.0.0",
+      "experiment_type": "qpns_x.quantum_pnt",
+      "experiment_id": "EXP-QPNS-001",
+      "run_name": "quantum_pnt_reference_circle",
+      "version": "1.0.0",
+      "notes": "Standard 60-second coordinated circular trajectory with full quantum sensor suite.",
+      "configuration": {
+        "simulation": {
+          "duration_s": 60.0,
+          "dt_s": 0.01,
+          "seed": 42
+        },
+        "imu": {
+          "sampling_rate_hz": 100.0,
+          "accelerometer": {
+            "noise_density": 0.002,
+            "bias_instability": 5e-05,
+            "random_walk": 1e-06
+          },
+          "gyroscope": {
+            "noise_density": 0.0001,
+            "bias_instability": 2e-06,
+            "random_walk": 1e-07
+          }
+        },
+        "atom_interferometer": {
+          "enabled": true,
+          "rate_hz": 2.0,
+          "pulse_separation_T_s": 0.05,
+          "effective_wavevector_k_eff": 16105660.0,
+          "atom_number": 1000000,
+          "contrast": 0.85
+        },
+        "gravity_gradiometer": {
+          "enabled": true,
+          "rate_hz": 1.0,
+          "baseline_m": 0.5,
+          "noise_density_eotvos": 1.0
+        },
+        "quantum_clock": {
+          "enabled": true,
+          "white_fm_h0": 1e-26,
+          "flicker_fm_h_minus1": 1e-28
+        },
+        "estimator": {
+          "type": "ekf",
+          "use_joseph_form": true
+        }
+      },
+      "metrics": {
+        "position_rmse_m": 875.038,
+        "position_max_error_m": 1250.0,
+        "position_final_error_m": 1180.0,
+        "velocity_rmse_m_s": 41.429,
+        "velocity_final_error_m_s": 45.0,
+        "attitude_rmse_mrad": 0.15,
+        "accel_bias_rmse_mg": 0.05,
+        "gyro_bias_rmse_deg_hr": 0.01,
+        "drift_rate_m_hr": 118686.565,
+        "clock_max_time_error_ns": 0.12,
+        "clock_final_time_error_ns": 0.08
+      },
+      "provenance": {
+        "interpretation_level": "MODEL_INFERRED",
+        "physical_classification": "NUMERICAL_SIMULATION_WITH_ANALYTICAL_STANDARDS",
+        "claim_status": "BENCHMARK_PROVENANCE_ONLY"
+      }
+    },
+    {
+      "schema_version": "1.0.0",
+      "experiment_type": "qpns_x.quantum_pnt",
+      "experiment_id": "EXP-QPNS-002",
+      "run_name": "classical_imu_dead_reckoning_control",
+      "version": "1.0.0",
+      "notes": "Classical IMU dead-reckoning control without quantum aiding.",
+      "configuration": {
+        "simulation": {
+          "duration_s": 60.0,
+          "dt_s": 0.01,
+          "seed": 42
+        },
+        "imu": {
+          "sampling_rate_hz": 100.0
+        },
+        "atom_interferometer": {
+          "enabled": false
+        },
+        "gravity_gradiometer": {
+          "enabled": false
+        },
+        "quantum_clock": {
+          "enabled": false
+        },
+        "estimator": {
+          "type": "ekf",
+          "use_joseph_form": true
+        }
+      },
+      "metrics": {
+        "position_rmse_m": 873.076,
+        "position_max_error_m": 1240.0,
+        "position_final_error_m": 1170.0,
+        "velocity_rmse_m_s": 41.300,
+        "velocity_final_error_m_s": 44.8,
+        "attitude_rmse_mrad": 0.15,
+        "accel_bias_rmse_mg": 0.10,
+        "gyro_bias_rmse_deg_hr": 0.02,
+        "drift_rate_m_hr": 118000.0,
+        "clock_max_time_error_ns": 0.0,
+        "clock_final_time_error_ns": 0.0
+      },
+      "provenance": {
+        "interpretation_level": "MODEL_INFERRED",
+        "physical_classification": "NUMERICAL_SIMULATION_WITH_ANALYTICAL_STANDARDS",
+        "claim_status": "BENCHMARK_PROVENANCE_ONLY"
+      }
+    }
+  ]
+}

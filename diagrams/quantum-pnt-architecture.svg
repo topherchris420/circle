@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-label="CIRCLE Quantum PNT Inertial Navigation Architecture">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#30343b" />
+    </marker>
+  </defs>
+  <rect width="1200" height="720" fill="#fbfaf6" />
+  <text x="600" y="34" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#a32622">ENGINEERING REVIEW ONLY ? NOT FOR HUMAN CONNECTION</text>
+  <text x="600" y="70" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#161b22">CIRCLE Quantum PNT Inertial Navigation Architecture</text>
+  <rect x="25" y="120" width="260" height="540" rx="18" fill="#dcebdc" fill-opacity="0.25" stroke="#59636e" stroke-width="2" />
+  <text x="43" y="148" font-family="Arial, sans-serif" font-size="17" font-weight="bold" fill="#252b31">MULTIMODAL_SENSORS</text>
+  <rect x="300" y="120" width="480" height="540" rx="18" fill="#d9dde3" fill-opacity="0.25" stroke="#59636e" stroke-width="2" />
+  <text x="318" y="148" font-family="Arial, sans-serif" font-size="17" font-weight="bold" fill="#252b31">BRIDGE_AND_ESTIMATOR</text>
+  <rect x="800" y="120" width="370" height="540" rx="18" fill="#dde5f5" fill-opacity="0.25" stroke="#59636e" stroke-width="2" />
+  <text x="818" y="148" font-family="Arial, sans-serif" font-size="17" font-weight="bold" fill="#252b31">VERIFIED_OUTPUTS</text>
+  <line x1="120.0" y1="211.0" x2="400.0" y2="331.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="260.0" y="265.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">f_b, omega_b</text>
+  <line x1="120.0" y1="331.0" x2="400.0" y2="331.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="260.0" y="325.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">quantum phase</text>
+  <line x1="120.0" y1="451.0" x2="400.0" y2="331.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="260.0" y="385.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">diff accel</text>
+  <line x1="120.0" y1="571.0" x2="400.0" y2="331.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="260.0" y="445.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">y(t) freq dev</text>
+  <line x1="400.0" y1="331.0" x2="660.0" y2="211.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="530.0" y="265.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">IMU stream</text>
+  <line x1="660.0" y1="211.0" x2="660.0" y2="391.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="660.0" y="295.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">nominal state</text>
+  <line x1="400.0" y1="331.0" x2="660.0" y2="391.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="530.0" y="355.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">quantum aiding</text>
+  <line x1="660.0" y1="391.0" x2="1000.0" y2="231.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="830.0" y="305.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">state &amp; cov P</text>
+  <line x1="660.0" y1="391.0" x2="1000.0" y2="491.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="830.0" y="435.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">MODEL_INFERRED</text>
+  <line x1="1000.0" y1="491.0" x2="660.0" y2="591.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="830.0" y="535.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">navigation fix</text>
+  <rect x="40" y="180" width="160" height="62" rx="10" fill="#cfe8e8" stroke="#30343b" stroke-width="2" />
+  <text x="120.0" y="216" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">6-DOF IMU (ICM-42688)</text>
+  <rect x="40" y="300" width="160" height="62" rx="10" fill="#cfe8e8" stroke="#30343b" stroke-width="2" />
+  <text x="120.0" y="336" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Cold-Atom Interferometer</text>
+  <rect x="40" y="420" width="160" height="62" rx="10" fill="#cfe8e8" stroke="#30343b" stroke-width="2" />
+  <text x="120.0" y="456" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Gravity Gradiometer</text>
+  <rect x="40" y="540" width="160" height="62" rx="10" fill="#ffe29a" stroke="#30343b" stroke-width="2" />
+  <text x="120.0" y="576" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Optical Quantum Clock</text>
+  <rect x="320" y="300" width="160" height="62" rx="10" fill="#c9e6cf" stroke="#30343b" stroke-width="2" />
+  <text x="400.0" y="336" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">CirclePNTBridge</text>
+  <rect x="580" y="180" width="160" height="62" rx="10" fill="#b9d8f2" stroke="#30343b" stroke-width="2" />
+  <text x="660.0" y="216" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Strapdown Mechanization</text>
+  <rect x="580" y="360" width="160" height="62" rx="10" fill="#d7c6f2" stroke="#30343b" stroke-width="2" />
+  <text x="660.0" y="396" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">15-State ES-EKF / UKF</text>
+  <rect x="860" y="200" width="280" height="62" rx="10" fill="#fff1bf" stroke="#30343b" stroke-width="2" />
+  <text x="1000.0" y="236" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Allan &amp; Uncertainty Analysis</text>
+  <rect x="860" y="460" width="280" height="62" rx="10" fill="#d9dde3" stroke="#30343b" stroke-width="2" />
+  <text x="1000.0" y="496" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">PNT Session Record (CRC-32C)</text>
+  <rect x="580" y="560" width="160" height="62" rx="10" fill="#f2c2b8" stroke="#30343b" stroke-width="2" />
+  <text x="660.0" y="596" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Closed-Loop PNT Feedback</text>
+  <text x="600" y="695" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#7a231f">Cold-atom light-pulse atom interferometry and relativistic quantum clock fusion.</text>
+</svg>

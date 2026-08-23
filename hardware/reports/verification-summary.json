@@ -12,7 +12,7 @@
         "tests"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 2.378
+      "elapsed_seconds": 1.594
     },
     {
       "command": [
@@ -20,7 +20,7 @@
         "tools/check_design_manifest.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.118
+      "elapsed_seconds": 0.068
     },
     {
       "command": [
@@ -28,7 +28,7 @@
         "tools/check_record_schema.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.097
+      "elapsed_seconds": 0.066
     },
     {
       "command": [
@@ -36,7 +36,7 @@
         "tools/check_resonance_contract.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.149
+      "elapsed_seconds": 0.104
     },
     {
       "command": [
@@ -44,7 +44,15 @@
         "tools/check_emergence_contract.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.736
+      "elapsed_seconds": 0.684
+    },
+    {
+      "command": [
+        "C:\\Users\\chris\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "tools/check_pnt_contract.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.217
     },
     {
       "command": [
@@ -52,7 +60,7 @@
         "tools/render_diagrams.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.087
+      "elapsed_seconds": 0.093
     },
     {
       "command": [
@@ -60,7 +68,7 @@
         "tools/generate_schematics.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.123
+      "elapsed_seconds": 0.119
     },
     {
       "command": [
@@ -70,7 +78,7 @@
         "circle-ppg"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.109
+      "elapsed_seconds": 0.113
     },
     {
       "command": [
@@ -78,7 +86,7 @@
         "version"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.215
+      "elapsed_seconds": 1.2
     },
     {
       "command": [
@@ -93,7 +101,7 @@
         "hardware/circle-main/legacy/00_root.sch"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 4.174
+      "elapsed_seconds": 6.25
     },
     {
       "command": [
@@ -108,7 +116,7 @@
         "hardware/circle-ppg/legacy/00_ppg_root.sch"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 4.202
+      "elapsed_seconds": 4.233
     },
     {
       "command": [
@@ -116,7 +124,7 @@
         "tools/check_erc.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.097
+      "elapsed_seconds": 0.116
     },
     {
       "command": [
@@ -131,7 +139,7 @@
         "hardware/circle-main/circle-main.kicad_pcb"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 19.113
+      "elapsed_seconds": 40.71
     },
     {
       "command": [
@@ -146,7 +154,7 @@
         "hardware/circle-ppg/circle-ppg.kicad_pcb"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 4.201
+      "elapsed_seconds": 4.154
     },
     {
       "command": [
@@ -154,7 +162,7 @@
         "tools/check_drc.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.115
+      "elapsed_seconds": 0.129
     }
   ],
   "artifacts": [
@@ -180,19 +188,19 @@
     },
     {
       "path": "hardware\\reports\\circle-main-erc.json",
-      "sha256": "40d9954a59d2ec4383c50d18b7055329ec0e545d5306fc5241f76fe1fbcad28c"
+      "sha256": "7374a2dfd151d83679b5a5dd0a1f0f89a1bda53984eccb7e15e54fcd802e01f5"
     },
     {
       "path": "hardware\\reports\\circle-ppg-erc.json",
-      "sha256": "a1ffebfa0450dc6be022a4a8149576341ab6164d7e75f438b45a201c46aa5be7"
+      "sha256": "2c4a6f8369cebf67d15c7564699295d15486dfb8fc8fb9e1e2601e705675ba48"
     },
     {
       "path": "hardware\\reports\\circle-main-drc.json",
-      "sha256": "94a0847b255b264e8c4f55e305ae4b770ddf9b3d0878bb76c337982431c232c7"
+      "sha256": "10785d38e3938d41414724a8f724221453455d6d9ca78ab40923a8c8a378d053"
     },
     {
       "path": "hardware\\reports\\circle-ppg-drc.json",
-      "sha256": "a01d4b65b8b9f6abe819c9b9d3273a7aeed0402e8d8c843460a6344e43bb8e55"
+      "sha256": "da8007ca597634f78be8695a40c562c7aa3598ae23e74b0339da59a1d051135d"
     },
     {
       "path": "hardware\\reports\\drc-allowlist.json",

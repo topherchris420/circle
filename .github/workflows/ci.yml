@@ -40,6 +40,9 @@ jobs:
       - name: Validate emergence contracts & physics
         run: python tools/check_emergence_contract.py
 
+      - name: Validate quantum PNT contracts & physics
+        run: python tools/check_pnt_contract.py
+
       - name: Verify diagrams rendering
         run: python tools/render_diagrams.py
 

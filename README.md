@@ -112,6 +112,24 @@ It provides a repeatable, deterministic sandbox for exploring how coupled physio
 
 ---
 
+## Quantum PNT Research Module (QPNS-X)
+
+The **CIRCLE Quantum PNT Module** integrates the **QPNS-X** research simulator for quantum-augmented inertial navigation.
+
+It couples high-rate classical inertial sensors ($100\ \text{Hz}$) with cold-atom interferometers ($^{87}\text{Rb}$ Mach-Zehnder light-pulse), differential gravity gradiometers ($\Delta a = \Gamma L$), and optical lattice quantum clocks ($y(t)$ with gravitational redshift and time dilation) fused within a 15-state Error-State Extended Kalman Filter (ES-EKF) and Manifold Unscented Kalman Filter (UKF).
+
+### Key Features:
+* **15-State Error-State EKF/UKF:** Nominal nonlinear mechanization with Joseph-form updates, PSD eigenvalue protection, and Mahalanobis gating.
+* **Cold-Atom Matter-Wave Interferometry:** Light-pulse Mach-Zehnder phase accumulation ($\Delta\Phi = k_{\text{eff}} a T^2$), fringe contrast, and atom shot-noise limits ($\sigma_\Phi = 1 / (C \sqrt{N})$).
+* **QuTiP Quantum State Engine:** 2-level atom Hamiltonian unitary propagation cross-validated against analytical phase relations.
+* **Differential Gravity Gradiometry:** Tensor gradient sensing ($\Gamma = \nabla g$) with $>120\ \text{dB}$ common-mode vibration rejection.
+* **Relativistic Frequency Standards & Allan Deviation:** Overlapping Allan deviation $\sigma_y(\tau)$ characterizing white FM, flicker floor, and random-walk noise regimes.
+* **Deterministic CRC-32C Session Records:** Emits schema-compliant `MODEL_INFERRED` records with microsecond timestamps and Castagnoli CRC-32C integrity checksums.
+
+![CIRCLE Quantum PNT Architecture](diagrams/quantum-pnt-architecture.svg)
+
+---
+
 ## System architecture
 
 ### `circle-main`
@@ -318,9 +336,11 @@ After regeneration, run `tools/verify_release.py` and `tools/generate_release_ma
 
 | Path | Contents |
 | --- | --- |
-| [`contracts/`](contracts/) | Machine-readable session-record and emergence discovery contracts |
+| [`contracts/`](contracts/) | Machine-readable session-record, emergence, and quantum-pnt discovery contracts |
 | [`models/emergence/`](models/emergence/) | ATOM multi-agent dynamical field simulation and CIRCLE telemetry bridge |
+| [`models/pnt/`](models/pnt/) | Quantum PNT telemetry bridge and session record adapter |
 | [`experiments/emergence/`](experiments/emergence/) | Emergence protocols, analysis plans, and control specifications |
+| [`experiments/pnt/`](experiments/pnt/) | Quantum PNT protocols, analysis plans, and control specifications |
 | [`diagrams/`](diagrams/) | Architecture and safety-boundary diagrams (Mermaid source + rendered SVG) |
 | [`docs/`](docs/) | Architecture, safety, timing, power, validation, and review documentation |
 | [`hardware/design-manifest.json`](hardware/design-manifest.json) | Board hierarchy, nets, 95 parts, GPIO allocation, and unresolved gates |

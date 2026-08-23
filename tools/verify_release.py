@@ -16,6 +16,7 @@ def main():
         [py,"tools/check_record_schema.py"],
         [py,"tools/check_resonance_contract.py"],
         [py,"tools/check_emergence_contract.py"],
+        [py,"tools/check_pnt_contract.py"],
         [py,"tools/render_diagrams.py"],
         [py,"tools/generate_schematics.py"],
         [py,"tools/generate_schematics.py","--board","circle-ppg"],
