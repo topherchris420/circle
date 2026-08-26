@@ -50,7 +50,7 @@ It is to create an instrument capable of studying **how signals change together*
 
 **Review artifacts:**  
 [3D animation](diagrams/circle-3d-animation.gif) ·
-[interactive 3D viewer](diagrams/circle-3d-viewer.html) ·
+[interactive 3D viewer (God's Eye View Spatial Intelligence)](diagrams/circle-3d-viewer.html) ·
 [system architecture](diagrams/system-architecture.svg) ·
 [safety analysis](docs/safety-analysis.md) ·
 [resonance architecture](diagrams/resonance-architecture.svg) ·
@@ -68,6 +68,15 @@ It is to create an instrument capable of studying **how signals change together*
 ![CIRCLE Rev B 3D Hardware & Resonance Assembly Animation](diagrams/circle-3d-animation.gif)
 
 3D turntable visualization of the CIRCLE Rev B architecture: `circle-main` (85×55 mm compute & biosignal acquisition board) with 8.0 mm reinforced isolation slot, `circle-ppg` (25×18 mm optical contact head), and the external **3-Sphere $\phi$-Resonance Chamber** with central **Merkaba (Dual-Tetrahedral) Core**.
+
+### Interactive 3D Viewer & God's Eye View Spatial Intelligence
+
+The standalone interactive browser viewer [`diagrams/circle-3d-viewer.html`](diagrams/circle-3d-viewer.html) provides complete real-time 3D spatial intelligence for the CIRCLE assembly, featuring:
+
+* **God's Eye View Tactical Telemetry HUD:** Live telemetry monitoring of spatial coordinates, rotation rate, core stability, phase lock, drive power, and dielectric boundary integrity.
+* **Sensor Optics Modes:** Dynamic optical filter simulation including Normal, CRT scanline, NVG (Night Vision Green), FLIR thermal spectrum, and Thermal NOIR modes.
+* **Interactive 3D Assembly & Exploded View:** Smooth 360° orbit/pan/zoom controls, component highlighting, and animated exploded view toggles.
+* **Resonance & Emergence Overlay:** Real-time spatial field overlay visualization of Merkaba field dynamics, phase lock, and multi-channel field excitations.
 
 ---
 
