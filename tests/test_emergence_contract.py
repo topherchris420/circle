@@ -20,6 +20,8 @@ except ImportError:
 if HAS_SCIENTIFIC:
     from models.emergence.engine import (
         CFG,
+        SimulationConfig,
+        DeviceBackend,
         EXPERIMENTS,
         CHANNEL_NAMES,
         COVARIATE_NAMES,
@@ -81,6 +83,23 @@ class EmergenceContractTest(unittest.TestCase):
     def test_crc32c_test_vectors(self):
         self.assertEqual(compute_crc32c("123456789"), "E3069283")
         self.assertEqual(compute_crc32c(""), "00000000")
+
+    @unittest.skipUnless(HAS_SCIENTIFIC, "numpy and pandas required")
+    def test_simulation_config_immutability_and_device_backend(self):
+        cfg1 = SimulationConfig()
+        cfg2 = cfg1.with_options(AGENTS=500, FIELD_RES=256)
+        self.assertEqual(cfg1.AGENTS, 300)
+        self.assertEqual(cfg2.AGENTS, 500)
+        self.assertEqual(cfg2.FIELD_RES, 256)
+
+        cfg_exp = cfg1.with_experiment('quick')
+        self.assertEqual(cfg_exp.AGENTS, 50)
+        self.assertEqual(cfg_exp.FIELD_RES, 64)
+
+        backend = DeviceBackend(use_gpu=False)
+        self.assertFalse(backend.on_gpu)
+        arr = backend.asarray([1.0, 2.0, 3.0])
+        self.assertTrue(isinstance(backend.asnumpy(arr), np.ndarray))
 
     @unittest.skipUnless(HAS_SCIENTIFIC, "numpy and pandas required")
     def test_circle_telemetry_bridge_mapping(self):

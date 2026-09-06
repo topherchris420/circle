@@ -3,7 +3,7 @@ import json
 import math
 from collections import defaultdict
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field, fields, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
@@ -11,22 +11,89 @@ from typing import Any, Optional
 import numpy as np
 import pandas as pd
 
-try:
-    import cupy as cp
 
-    xp = cp
-    fft_rfft = cp.fft.rfft2
-    ifft_irfft = cp.fft.irfft2
-    on_gpu = True
-except ImportError:
-    cp = None
-    xp = np
-    fft_rfft = np.fft.rfft2
-    ifft_irfft = np.fft.irfft2
-    on_gpu = False
+class DeviceBackend:
+    """Abstraction layer for hardware compute backends (CPU via NumPy vs GPU via CuPy)."""
+
+    def __init__(self, use_gpu: bool = True) -> None:
+        self.on_gpu = False
+        self._xp = np
+        self._rfft2 = np.fft.rfft2
+        self._irfft2 = np.fft.irfft2
+        if use_gpu:
+            try:
+                import cupy as cp
+
+                self._xp = cp
+                self._rfft2 = cp.fft.rfft2
+                self._irfft2 = cp.fft.irfft2
+                self.on_gpu = True
+            except ImportError:
+                pass
+
+    @property
+    def xp(self) -> Any:
+        return self._xp
+
+    def fft_rfft(self, a: Any) -> Any:
+        return self._rfft2(a)
+
+    def ifft_irfft(self, a: Any, s: Any = None) -> Any:
+        return self._irfft2(a, s=s)
+
+    def asarray(self, a: Any, dtype: Any = None) -> Any:
+        return self._xp.asarray(a, dtype=dtype)
+
+    def asnumpy(self, a: Any) -> np.ndarray:
+        if self.on_gpu:
+            import cupy as cp
+
+            return cp.asnumpy(a)
+        return np.asarray(a)
+
+    def exp(self, a: Any) -> Any:
+        return self._xp.exp(a)
+
+    def tanh(self, a: Any) -> Any:
+        return self._xp.tanh(a)
 
 
-class CFG:
+default_backend = DeviceBackend(use_gpu=True)
+xp = default_backend.xp
+fft_rfft = default_backend.fft_rfft
+ifft_irfft = default_backend.ifft_irfft
+on_gpu = default_backend.on_gpu
+
+
+# Named experiment bundles.
+EXPERIMENTS: Mapping[str, Mapping[str, Any]] = {
+    'balanced': {},
+    'quick': {'FIELD_RES': 64, 'AGENTS': 50, 'FRAMES': 60, 'SAMPLE_PER_FRAME': 4},
+    'arv': {
+        'LAG_FRAMES': (15, 30, 60, 120),
+        'MEMORY': 500,
+        'CORR_WINDOW': 80,
+        'DISCOVER_THRESH': 0.28,
+        'FRAMES': 400,
+    },
+    'coherence': {
+        'DISCOVER_THRESH': 0.26,
+        'CONFIDENCE_DECAY': 0.997,
+        'AGENTS': 400,
+        'FRAMES': 300,
+    },
+    'dense-agents': {
+        'AGENTS': 800,
+        'FIELD_RES': 96,
+        'FRAMES': 200,
+    },
+}
+
+
+@dataclass(frozen=True)
+class SimulationConfig:
+    """Immutable, thread-safe configuration for IONS-X ATOM simulation runs."""
+
     FIELD_RES: int = 128
     CHANNELS: int = 4
     AGENTS: int = 300
@@ -44,15 +111,28 @@ class CFG:
     SEED: int = 42
     STEP_SIZE: int = 3
 
+    def with_options(self, **kwargs: Any) -> 'SimulationConfig':
+        valid_keys = {f.name for f in fields(self)}
+        updated = {k: v for k, v in kwargs.items() if k in valid_keys and v is not None}
+        return replace(self, **updated)
 
-CFG = CFG()
+    def with_experiment(self, name: str | None) -> 'SimulationConfig':
+        if not name:
+            return self
+        if name not in EXPERIMENTS:
+            raise ValueError(f'Unknown experiment {name!r}; choose from {sorted(EXPERIMENTS)}.')
+        return replace(self, **EXPERIMENTS[name])
+
+
+CFG = SimulationConfig()
 rng = np.random.RandomState(CFG.SEED)
 
 
 def set_seed(seed: int | None = None) -> None:
-    """Set the global simulation random seed deterministically."""
+    """Set global simulation random seed deterministically."""
+    global CFG, rng
     if seed is not None:
-        CFG.SEED = int(seed)
+        CFG = CFG.with_options(SEED=int(seed))
     rng.seed(CFG.SEED)
 
 
@@ -60,37 +140,6 @@ DEFAULT_OUTPUT = Path('outputs/latest.html')
 DEFAULT_METRICS_DIR = Path('outputs')
 DEFAULT_GIF_FPS = 20
 
-# Named experiment bundles. Each maps CFG attribute -> value and is applied
-# before --quick and before any explicit numeric flags, so command-line
-# overrides always win. 'balanced' is the documented default (empty = ship CFG).
-EXPERIMENTS: Mapping[str, Mapping[str, Any]] = {
-    'balanced': {},
-    'quick': {'FIELD_RES': 64, 'AGENTS': 50, 'FRAMES': 60, 'SAMPLE_PER_FRAME': 4},
-    # Associative-remote-viewing style: patient operators reading against
-    # long temporal displacement, so widen memory, lag, and the correlation
-    # window while lowering the discovery bar for weak, lagged structure.
-    'arv': {
-        'LAG_FRAMES': (15, 30, 60, 120),
-        'MEMORY': 500,
-        'CORR_WINDOW': 80,
-        'DISCOVER_THRESH': 0.28,
-        'FRAMES': 400,
-    },
-    # Emphasize environmental coherence windows: slower confidence decay and a
-    # lower threshold let coherence-boosted structure accumulate and persist.
-    'coherence': {
-        'DISCOVER_THRESH': 0.26,
-        'CONFIDENCE_DECAY': 0.997,
-        'AGENTS': 400,
-        'FRAMES': 300,
-    },
-    # Saturate the field with operators to study crowding and density effects.
-    'dense-agents': {
-        'AGENTS': 800,
-        'FIELD_RES': 96,
-        'FRAMES': 200,
-    },
-}
 CHANNEL_NAMES = ('em_rf', 'optical_ir', 'consciousness_proxy', 'control_baseline')
 COVARIATE_NAMES = ('kp_index', 'lunar_phase', 'sidereal_time', 'xray_flux')
 
@@ -258,42 +307,38 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 
 
 def apply_experiment(name: str | None) -> None:
-    """Apply a named experiment bundle onto the global CFG in place."""
-    if not name:
-        return
-    if name not in EXPERIMENTS:
-        raise ValueError(f'Unknown experiment {name!r}; choose from {sorted(EXPERIMENTS)}.')
-    for key, value in EXPERIMENTS[name].items():
-        setattr(CFG, key, value)
+    """Apply a named experiment bundle onto global CFG in place."""
+    global CFG
+    if name:
+        CFG = CFG.with_experiment(name)
 
 
-def apply_runtime_options(args: argparse.Namespace) -> CFG:
-    # Precedence, lowest to highest: experiment bundle -> --seed -> --quick -> explicit flags.
-    apply_experiment(getattr(args, 'experiment', None))
+def apply_runtime_options(args: argparse.Namespace) -> SimulationConfig:
+    global CFG, rng
+    config = CFG.with_experiment(getattr(args, 'experiment', None))
     if getattr(args, 'seed', None) is not None:
-        CFG.SEED = args.seed
-    set_seed(CFG.SEED)
+        config = config.with_options(SEED=args.seed)
     if args.quick:
-        CFG.FIELD_RES = 64
-        CFG.AGENTS = 50
-        CFG.FRAMES = 60
-        CFG.SAMPLE_PER_FRAME = min(CFG.SAMPLE_PER_FRAME, 4)
+        config = config.with_options(
+            FIELD_RES=64,
+            AGENTS=50,
+            FRAMES=60,
+            SAMPLE_PER_FRAME=min(config.SAMPLE_PER_FRAME, 4),
+        )
+    opts: dict[str, Any] = {}
     if args.frames is not None:
-        CFG.FRAMES = args.frames
+        opts['FRAMES'] = args.frames
     if args.agents is not None:
-        CFG.AGENTS = args.agents
+        opts['AGENTS'] = args.agents
     if args.field_res is not None:
-        CFG.FIELD_RES = args.field_res
+        opts['FIELD_RES'] = args.field_res
+    config = config.with_options(**opts)
+    CFG = config
+    rng.seed(CFG.SEED)
     return CFG
 
 
 def save_animation(animation: Any, output_path: Path, fps: int = DEFAULT_GIF_FPS, dashboard: LiveDashboard | None = None) -> Path:
-    """Render the animation to ``output_path``.
-
-    A ``.gif`` suffix writes a shareable clip via Pillow; anything else writes a
-    self-contained interactive HTML animation. Both drive the same frame updates,
-    so metrics are fully populated afterward either way.
-    """
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     try:
@@ -309,7 +354,6 @@ def save_animation(animation: Any, output_path: Path, fps: int = DEFAULT_GIF_FPS
     return output_path
 
 
-# Backward-compatible alias for callers that imported the original name.
 save_animation_html = save_animation
 
 
@@ -365,6 +409,7 @@ def _spatial_bases(field_res: int) -> np.ndarray:
         ],
         dtype='float32',
     )
+
 
 @dataclass
 class TelemetryTargetField:
@@ -498,6 +543,7 @@ class TelemetryTargetField:
             ratios[f'{channel}_short_long'] = short_mean / max(long_mean, 1e-12)
         return ratios
 
+
 class PerformanceMetrics:
     def __init__(self) -> None:
         self.type_counts: dict[str, int] = defaultdict(int)
@@ -520,7 +566,8 @@ class PerformanceMetrics:
 
 
 class EnvironmentalModerators:
-    def __init__(self) -> None:
+    def __init__(self, config: SimulationConfig | None = None) -> None:
+        self.config = config or CFG
         self.coherence_events: list[int] = []
         self.m = 1.0
 
@@ -537,11 +584,11 @@ class EnvironmentalModerators:
 
     @property
     def discovery_threshold(self) -> float:
-        return float(CFG.DISCOVER_THRESH)
+        return float(self.config.DISCOVER_THRESH)
 
     @property
     def confidence_decay(self) -> float:
-        return float(CFG.CONFIDENCE_DECAY)
+        return float(self.config.CONFIDENCE_DECAY)
 
     def snapshot(self) -> dict[str, float]:
         return {'coherence_factor': float(self.m)}
@@ -601,31 +648,43 @@ class RealWorldModerator:
 
 
 class Agent:
-    def __init__(self, aid: int, atype: str) -> None:
+    def __init__(self, aid: int, atype: str, config: SimulationConfig | None = None) -> None:
         self.id = aid
         self.type = atype
+        self.config = config or CFG
         self.memory: list[Observation] = []
-        self.pos = rng.randint(0, CFG.FIELD_RES, size=2)
+        self.pos = rng.randint(0, self.config.FIELD_RES, size=2)
 
     def observe(self, obs: Observation) -> None:
         self.memory.append(obs)
-        if len(self.memory) > CFG.MEMORY:
+        if len(self.memory) > self.config.MEMORY:
             self.memory.pop(0)
 
-    def discover(self, threshold: float | None = None) -> list[dict[str, Any]]:
-        threshold = CFG.DISCOVER_THRESH if threshold is None else threshold
-        if len(self.memory) < CFG.CORR_WINDOW:
+    def discover(self, threshold: float | None = None, config: SimulationConfig | None = None) -> list[dict[str, Any]]:
+        cfg = config or self.config
+        thresh = cfg.DISCOVER_THRESH if threshold is None else threshold
+        if len(self.memory) < cfg.CORR_WINDOW:
             return []
-        data = np.array([o.values for o in self.memory[-CFG.CORR_WINDOW :]], dtype='float64')
+
+        data = np.array([o.values for o in self.memory[-cfg.CORR_WINDOW :]], dtype='float64')
+        corr_matrix = np.corrcoef(data, rowvar=False)
+
         discs: list[dict[str, Any]] = []
-        for i in range(CFG.CHANNELS):
-            for j in range(i + 1, CFG.CHANNELS):
-                r = float(np.corrcoef(data[:, i], data[:, j])[0, 1])
+        n_channels = corr_matrix.shape[0] if corr_matrix.ndim == 2 else 1
+        for i in range(n_channels):
+            for j in range(i + 1, n_channels):
+                r = float(corr_matrix[i, j])
                 if math.isnan(r):
                     continue
-                if abs(r) > threshold:
-                    discs.append({'edge': (f'ch{i}', f'ch{j}'), 'pearson_r': r, 'confidence': abs(r), 'operator_type': self.type})
+                if abs(r) > thresh:
+                    discs.append({
+                        'edge': (f'ch{i}', f'ch{j}'),
+                        'pearson_r': r,
+                        'confidence': abs(r),
+                        'operator_type': self.type,
+                    })
         return discs
+
 
 class LongitudinalMetricsRecorder:
     def __init__(self, output_dir: Path = DEFAULT_METRICS_DIR, run_id: str | None = None) -> None:
@@ -690,40 +749,55 @@ class LongitudinalMetricsRecorder:
         return csv_path, metadata_path
 
 
-def evolve_fields(F: Any, t: int, env_factor: float, env_mod: EnvironmentalModerators) -> Any:
-    Fk = fft_rfft(F)
+def evolve_fields(
+    F: Any,
+    t: int,
+    env_factor: float,
+    env_mod: EnvironmentalModerators,
+    backend: DeviceBackend | None = None,
+    config: SimulationConfig | None = None,
+) -> Any:
+    b = backend or default_backend
+    cfg = config or CFG
+    Fk = b.fft_rfft(F)
     for ci in range(F.shape[0]):
-        Fk[ci] *= xp.exp(
-            -xp.asarray([0.002, 0.0015, 0.0018, 0.0012])[ci]
+        Fk[ci] *= b.exp(
+            -b.asarray([0.002, 0.0015, 0.0018, 0.0012])[ci]
             * (
-                xp.fft.fftfreq(CFG.FIELD_RES).reshape(CFG.FIELD_RES, 1) ** 2
-                + xp.fft.rfftfreq(CFG.FIELD_RES).reshape(1, -1) ** 2
+                b.asarray(np.fft.fftfreq(cfg.FIELD_RES).reshape(cfg.FIELD_RES, 1) ** 2)
+                + b.asarray(np.fft.rfftfreq(cfg.FIELD_RES).reshape(1, -1) ** 2)
             )
             * 0.5
             * env_factor
         )
-    F = ifft_irfft(Fk, s=(CFG.FIELD_RES, CFG.FIELD_RES))
+    F = b.ifft_irfft(Fk, s=(cfg.FIELD_RES, cfg.FIELD_RES))
     F[0] += 0.045 * F[1] * env_factor
     if env_mod.is_coherence_active(t):
         F[3] = 0.7 * F[3] + 0.3 * F[2]
-    return 0.92 * F + 0.08 * xp.tanh(F * 4.0)
+    return 0.92 * F + 0.08 * b.tanh(F * 4.0)
 
 
 def build_simulation_state(
     target_field: TelemetryTargetField | None = None,
+    config: SimulationConfig | None = None,
+    backend: DeviceBackend | None = None,
 ) -> tuple[list[Agent], Any, dict[str, float], PerformanceMetrics, Any, Any]:
     import networkx as nx
 
-    agents = [Agent(i, CFG.AGENT_TYPES[i % 3]) for i in range(CFG.AGENTS)]
+    cfg = config or CFG
+    b = backend or default_backend
+    agents = [Agent(i, cfg.AGENT_TYPES[i % 3], config=cfg) for i in range(cfg.AGENTS)]
     graph = nx.DiGraph()
     conf_map: dict[str, float] = defaultdict(float)
     metrics = PerformanceMetrics()
+
     if target_field is None:
-        env_mod: Any = EnvironmentalModerators()
-        F = xp.asarray(rng.normal(0, 0.02, (CFG.CHANNELS, CFG.FIELD_RES, CFG.FIELD_RES)), dtype=xp.float32)
+        env_mod: Any = EnvironmentalModerators(config=cfg)
+        F = b.asarray(rng.normal(0, 0.02, (cfg.CHANNELS, cfg.FIELD_RES, cfg.FIELD_RES)), dtype=np.float32)
     else:
-        env_mod = RealWorldModerator(base_threshold=CFG.DISCOVER_THRESH, base_decay=CFG.CONFIDENCE_DECAY, base_window=15)
-        F = xp.asarray(target_field.field_for_frame(0), dtype=xp.float32)
+        env_mod = RealWorldModerator(base_threshold=cfg.DISCOVER_THRESH, base_decay=cfg.CONFIDENCE_DECAY, base_window=15)
+        F = b.asarray(target_field.field_for_frame(0), dtype=np.float32)
+
     return agents, graph, conf_map, metrics, env_mod, F
 
 
@@ -755,6 +829,7 @@ def _synthetic_sensor_ratios(F_cpu: np.ndarray) -> dict[str, float]:
         'optical_ir_short_long': float(np.mean(np.abs(F_cpu[1])) / baseline),
     }
 
+
 def run_simulation(
     target_field: TelemetryTargetField | None = None,
     preset: str = 'synthetic',
@@ -763,11 +838,15 @@ def run_simulation(
     live: bool = False,
     live_dashboard: LiveDashboard | None = None,
     is_notebook: bool = False,
+    config: SimulationConfig | None = None,
 ) -> SimulationArtifacts:
     import matplotlib.pyplot as plt
     import networkx as nx
     from matplotlib import gridspec
     from matplotlib.animation import FuncAnimation
+
+    cfg = config or CFG
+    backend = default_backend
 
     plt.rcParams['animation.embed_limit'] = 200
     plt.style.use('dark_background')
@@ -777,8 +856,8 @@ def run_simulation(
     ax_field = fig.add_subplot(gs[0, 0])
     ax_stats = fig.add_subplot(gs[1, 0])
 
-    agents, graph, conf_map, metrics, env_mod, F = build_simulation_state(target_field)
-    frames_to_render = CFG.FRAMES if target_field is None else min(CFG.FRAMES, target_field.frame_count)
+    agents, graph, conf_map, metrics, env_mod, F = build_simulation_state(target_field, config=cfg, backend=backend)
+    frames_to_render = cfg.FRAMES if target_field is None else min(cfg.FRAMES, target_field.frame_count)
 
     if live_dashboard is None and live:
         live_dashboard = LiveDashboard(total_frames=frames_to_render, enabled=True, is_notebook=is_notebook)
@@ -791,15 +870,15 @@ def run_simulation(
             modulation = env_mod.get_modulation(frame)
             threshold = calibrated_threshold or env_mod.discovery_threshold
             confidence_decay = env_mod.confidence_decay
-            F = evolve_fields(F, frame, modulation, env_mod)
-            F_cpu = cp.asnumpy(F) if on_gpu else F
+            F = evolve_fields(F, frame, modulation, env_mod, backend=backend, config=cfg)
+            F_cpu = backend.asnumpy(F)
             timestamp = pd.Timestamp('1970-01-01', tz='UTC') + pd.Timedelta(minutes=frame)
             moderator_values = env_mod.snapshot()
             reg_deviation = _synthetic_reg_deviation(F_cpu)
             sensor_ratios = _synthetic_sensor_ratios(F_cpu)
         else:
             F_cpu = target_field.field_for_frame(frame)
-            F = xp.asarray(F_cpu, dtype=xp.float32)
+            F = backend.asarray(F_cpu, dtype=np.float32)
             covariates = target_field.covariates_for_frame(frame)
             env_mod.update(frame, covariates)
             modulation = env_mod.get_modulation(frame)
@@ -807,15 +886,15 @@ def run_simulation(
             confidence_decay = env_mod.confidence_decay
             timestamp = target_field.timestamp_for_frame(frame)
             moderator_values = env_mod.snapshot()
-            reg_deviation = target_field.reg_variance_deviation(frame, CFG.CORR_WINDOW)
+            reg_deviation = target_field.reg_variance_deviation(frame, cfg.CORR_WINDOW)
             sensor_ratios = target_field.sensor_anomaly_ratios(frame)
 
         frame_discoveries: list[dict[str, Any]] = []
         for agent in agents:
-            agent.pos = (agent.pos + rng.randint(-CFG.STEP_SIZE, CFG.STEP_SIZE + 1, 2)) % CFG.FIELD_RES
+            agent.pos = (agent.pos + rng.randint(-cfg.STEP_SIZE, cfg.STEP_SIZE + 1, 2)) % cfg.FIELD_RES
             values = tuple(float(v) for v in F_cpu[:, agent.pos[0], agent.pos[1]])
             agent.observe(Observation(values=values, env_factor=modulation))
-            for discovery in agent.discover(threshold=threshold):
+            for discovery in agent.discover(threshold=threshold, config=cfg):
                 u, v = discovery['edge']
                 key = f'{u}->{v}'
                 conf_map[key] = max(conf_map[key], discovery['confidence'])
@@ -832,7 +911,7 @@ def run_simulation(
                 del conf_map[key]
 
         metrics.log_frame(frame, len(frame_discoveries), modulation, env_mod.is_coherence_active(frame))
-        operator_density = len(agents) / float(CFG.FIELD_RES * CFG.FIELD_RES)
+        operator_density = len(agents) / float(cfg.FIELD_RES * cfg.FIELD_RES)
         if recorder is not None:
             recorder.log_frame(
                 frame=frame,
@@ -894,6 +973,7 @@ def run_simulation(
         dashboard=live_dashboard,
     )
 
+
 def _prepare_target_and_threshold(args: argparse.Namespace) -> tuple[TelemetryTargetField | None, float | None]:
     if args.preset == 'synthetic':
         if args.input_data is not None:
@@ -908,7 +988,7 @@ def _prepare_target_and_threshold(args: argparse.Namespace) -> tuple[TelemetryTa
         raise ValueError('--preset empirical requires --input-data PATH')
 
     if args.frames is None:
-        CFG.FRAMES = target.frame_count
+        apply_runtime_options(argparse.Namespace(frames=target.frame_count, quick=False, experiment=None, seed=None, agents=None, field_res=None))
 
     if args.preset == 'baseline':
         threshold = calibrate_control_threshold(target, CFG.CORR_WINDOW, confidence=0.95)
@@ -917,7 +997,6 @@ def _prepare_target_and_threshold(args: argparse.Namespace) -> tuple[TelemetryTa
 
 
 def build_run_summary(result: RunResult, metrics: 'PerformanceMetrics') -> dict[str, Any]:
-    """Assemble the lightweight per-run summary written beside the animation."""
     return {
         'output_path': str(result.output_path),
         'preset': result.preset,
@@ -938,7 +1017,6 @@ def build_run_summary(result: RunResult, metrics: 'PerformanceMetrics') -> dict[
 
 
 def write_metrics_sidecar(result: RunResult, metrics: 'PerformanceMetrics') -> Path:
-    """Write ``<output>.metrics.json`` next to the rendered animation."""
     summary_path = result.output_path.with_suffix('.metrics.json')
     summary_path.parent.mkdir(parents=True, exist_ok=True)
     summary = build_run_summary(result, metrics)
@@ -959,6 +1037,7 @@ def main(argv: Sequence[str] | None = None) -> RunResult:
         calibrated_threshold=calibration_threshold,
         live=getattr(args, 'live', False),
         is_notebook=getattr(args, 'show', False),
+        config=CFG,
     )
     output_path = save_animation(artifacts.animation, args.output, fps=args.fps, dashboard=artifacts.dashboard)
 
@@ -987,7 +1066,7 @@ def main(argv: Sequence[str] | None = None) -> RunResult:
         frames=CFG.FRAMES,
         agents=CFG.AGENTS,
         field_res=CFG.FIELD_RES,
-        on_gpu=on_gpu,
+        on_gpu=default_backend.on_gpu,
         seed=CFG.SEED,
         preset=args.preset,
         experiment=getattr(args, 'experiment', None) or 'balanced',
@@ -996,8 +1075,6 @@ def main(argv: Sequence[str] | None = None) -> RunResult:
         calibration_threshold=artifacts.calibration_threshold,
     )
 
-    # Write the lightweight metrics summary beside the animation. The animation's
-    # frame updates ran during save_animation above, so metrics are populated now.
     if artifacts.metrics is not None and not getattr(args, 'no_metrics_sidecar', False):
         result.summary_path = write_metrics_sidecar(result, artifacts.metrics)
 
@@ -1018,7 +1095,6 @@ def main(argv: Sequence[str] | None = None) -> RunResult:
 
 
 def cli(argv: Sequence[str] | None = None) -> None:
-    """Console script entrypoint for the ions-x command."""
     main(argv)
 
 
