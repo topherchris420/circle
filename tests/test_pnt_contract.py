@@ -6,6 +6,8 @@ import re
 import sys
 import unittest
 
+import numpy as np
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
@@ -16,6 +18,7 @@ from models.pnt.bridge import (
     compute_crc32c,
     PNT_STREAM_MAPPINGS,
 )
+from models.pnt.estimator import PNTStateEstimator, PNTNavigationState
 
 
 class PNTContractTest(unittest.TestCase):
@@ -76,6 +79,25 @@ class PNTContractTest(unittest.TestCase):
         self.assertIn("CALIBRATED_NAVIGATION", rec["status_flags"])
         self.assertIn("QUANTUM_AUGMENTED", rec["status_flags"])
         self.assertRegex(rec["crc32c"], r"^[0-9A-Fa-f]{8}$")
+
+    def test_pnt_state_estimator_mechanization_and_updates(self):
+        estimator = PNTStateEstimator(dt_s=0.01)
+        f_meas = np.array([0.0, 0.0, 9.80665])
+        w_meas = np.array([0.0, 0.0, 0.0])
+
+        estimator.predict(f_meas, w_meas)
+        self.assertEqual(estimator.P.shape, (15, 15))
+
+        ai_res = estimator.update_quantum_interferometer(ai_accel_b=np.array([0.001, 0.0, 0.0]))
+        self.assertIn("innovation_norm", ai_res)
+
+        clock_res = estimator.update_quantum_clock(clock_phase_s=1e-9, current_height_m=100.0)
+        self.assertIn("redshift", clock_res)
+        self.assertIn("time_dilation", clock_res)
+
+        summary = estimator.state_summary()
+        self.assertIn("position_rmse_m", summary)
+        self.assertIn("velocity_rmse_m_s", summary)
 
     def test_example_configurations_file_parses_and_conforms(self):
         self.assertTrue(self.configs_path.exists())

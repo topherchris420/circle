@@ -347,7 +347,7 @@ After regeneration, run `tools/verify_release.py` and `tools/generate_release_ma
 | --- | --- |
 | [`contracts/`](contracts/) | Machine-readable session-record, emergence, and quantum-pnt discovery contracts |
 | [`models/emergence/`](models/emergence/) | ATOM multi-agent dynamical field simulation and CIRCLE telemetry bridge |
-| [`models/pnt/`](models/pnt/) | Quantum PNT telemetry bridge and session record adapter |
+| [`models/pnt/`](models/pnt/) | 15-state ES-EKF estimator, Quantum PNT telemetry bridge, and session record adapter |
 | [`experiments/emergence/`](experiments/emergence/) | Emergence protocols, analysis plans, and control specifications |
 | [`experiments/pnt/`](experiments/pnt/) | Quantum PNT protocols, analysis plans, and control specifications |
 | [`diagrams/`](diagrams/) | Architecture and safety-boundary diagrams (Mermaid source + rendered SVG) |

@@ -4,7 +4,15 @@
   "steps": [
     {
       "command": [
-        "C:\\Users\\chris\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "kicad-cli"
+      ],
+      "exit_code": 0,
+      "skipped": true,
+      "reason": "kicad-cli binary not found in environment"
+    },
+    {
+      "command": [
+        "/home/jules/.pyenv/versions/3.12.13/bin/python",
         "-m",
         "unittest",
         "discover",
@@ -12,234 +20,150 @@
         "tests"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.594
+      "elapsed_seconds": 1.775
     },
     {
       "command": [
-        "C:\\Users\\chris\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "/home/jules/.pyenv/versions/3.12.13/bin/python",
         "tools/check_design_manifest.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.068
+      "elapsed_seconds": 0.044
     },
     {
       "command": [
-        "C:\\Users\\chris\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "/home/jules/.pyenv/versions/3.12.13/bin/python",
         "tools/check_record_schema.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.066
+      "elapsed_seconds": 0.051
     },
     {
       "command": [
-        "C:\\Users\\chris\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "/home/jules/.pyenv/versions/3.12.13/bin/python",
         "tools/check_resonance_contract.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.104
+      "elapsed_seconds": 0.091
     },
     {
       "command": [
-        "C:\\Users\\chris\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "/home/jules/.pyenv/versions/3.12.13/bin/python",
         "tools/check_emergence_contract.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.684
+      "elapsed_seconds": 0.526
     },
     {
       "command": [
-        "C:\\Users\\chris\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "/home/jules/.pyenv/versions/3.12.13/bin/python",
         "tools/check_pnt_contract.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.217
+      "elapsed_seconds": 0.163
     },
     {
       "command": [
-        "C:\\Users\\chris\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "/home/jules/.pyenv/versions/3.12.13/bin/python",
         "tools/render_diagrams.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.093
+      "elapsed_seconds": 0.057
     },
     {
       "command": [
-        "C:\\Users\\chris\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "/home/jules/.pyenv/versions/3.12.13/bin/python",
         "tools/generate_schematics.py"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.119
+      "elapsed_seconds": 0.086
     },
     {
       "command": [
-        "C:\\Users\\chris\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "/home/jules/.pyenv/versions/3.12.13/bin/python",
         "tools/generate_schematics.py",
         "--board",
         "circle-ppg"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.113
-    },
-    {
-      "command": [
-        "C:\\Users\\chris\\AppData\\Local\\Programs\\KiCad\\10.0\\bin\\kicad-cli.exe",
-        "version"
-      ],
-      "exit_code": 0,
-      "elapsed_seconds": 1.2
-    },
-    {
-      "command": [
-        "C:\\Users\\chris\\AppData\\Local\\Programs\\KiCad\\10.0\\bin\\kicad-cli.exe",
-        "sch",
-        "erc",
-        "--format",
-        "json",
-        "--severity-all",
-        "--output",
-        "hardware/reports/circle-main-erc.json",
-        "hardware/circle-main/legacy/00_root.sch"
-      ],
-      "exit_code": 0,
-      "elapsed_seconds": 6.25
-    },
-    {
-      "command": [
-        "C:\\Users\\chris\\AppData\\Local\\Programs\\KiCad\\10.0\\bin\\kicad-cli.exe",
-        "sch",
-        "erc",
-        "--format",
-        "json",
-        "--severity-all",
-        "--output",
-        "hardware/reports/circle-ppg-erc.json",
-        "hardware/circle-ppg/legacy/00_ppg_root.sch"
-      ],
-      "exit_code": 0,
-      "elapsed_seconds": 4.233
-    },
-    {
-      "command": [
-        "C:\\Users\\chris\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
-        "tools/check_erc.py"
-      ],
-      "exit_code": 0,
-      "elapsed_seconds": 0.116
-    },
-    {
-      "command": [
-        "C:\\Users\\chris\\AppData\\Local\\Programs\\KiCad\\10.0\\bin\\kicad-cli.exe",
-        "pcb",
-        "drc",
-        "--format",
-        "json",
-        "--severity-all",
-        "--output",
-        "hardware/reports/circle-main-drc.json",
-        "hardware/circle-main/circle-main.kicad_pcb"
-      ],
-      "exit_code": 0,
-      "elapsed_seconds": 40.71
-    },
-    {
-      "command": [
-        "C:\\Users\\chris\\AppData\\Local\\Programs\\KiCad\\10.0\\bin\\kicad-cli.exe",
-        "pcb",
-        "drc",
-        "--format",
-        "json",
-        "--severity-all",
-        "--output",
-        "hardware/reports/circle-ppg-drc.json",
-        "hardware/circle-ppg/circle-ppg.kicad_pcb"
-      ],
-      "exit_code": 0,
-      "elapsed_seconds": 4.154
-    },
-    {
-      "command": [
-        "C:\\Users\\chris\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
-        "tools/check_drc.py"
-      ],
-      "exit_code": 0,
-      "elapsed_seconds": 0.129
+      "elapsed_seconds": 0.079
     }
   ],
   "artifacts": [
     {
-      "path": "docs\\superpowers\\specs\\2026-08-14-circle-rev-a-design.md",
+      "path": "docs/superpowers/specs/2026-08-14-circle-rev-a-design.md",
       "sha256": "3d6506d683bf0a1ffe8de91277e7f91dac665de1bd0f32c82b8f4c0d313f2ec7"
     },
     {
-      "path": "hardware\\design-manifest.json",
+      "path": "hardware/design-manifest.json",
       "sha256": "8e92c1bd8d47faa49f4cd6d777c6d2fbf0e681c62cb5a91ee00102f6d9423071"
     },
     {
-      "path": "hardware\\interfaces.json",
+      "path": "hardware/interfaces.json",
       "sha256": "fb8dd7d6f5a409663db0b934ea8d78aac5521cf795f27763b0a4b39cac89f602"
     },
     {
-      "path": "hardware\\circle-main\\legacy\\00_root.sch",
+      "path": "hardware/circle-main/legacy/00_root.sch",
       "sha256": "1668fbf31b4e699637c165203ce1e18e401d27e93603a4871cd1b1268d17df57"
     },
     {
-      "path": "hardware\\circle-ppg\\legacy\\00_ppg_root.sch",
+      "path": "hardware/circle-ppg/legacy/00_ppg_root.sch",
       "sha256": "3dabcc5205f1b49b98981e440a54df5c83e64eb32e2b8d3751ab9d478fc606e3"
     },
     {
-      "path": "hardware\\reports\\circle-main-erc.json",
-      "sha256": "7374a2dfd151d83679b5a5dd0a1f0f89a1bda53984eccb7e15e54fcd802e01f5"
+      "path": "hardware/reports/circle-main-erc.json",
+      "sha256": "8d393ee31d3f1ddf3764933ee0bbc16ea7591556082ea7b5395d138e0cf7abce"
     },
     {
-      "path": "hardware\\reports\\circle-ppg-erc.json",
-      "sha256": "2c4a6f8369cebf67d15c7564699295d15486dfb8fc8fb9e1e2601e705675ba48"
+      "path": "hardware/reports/circle-ppg-erc.json",
+      "sha256": "68abc74f37121d648807560da1432709693a22c838c8febed9cadb2f3c7a93ab"
     },
     {
-      "path": "hardware\\reports\\circle-main-drc.json",
-      "sha256": "10785d38e3938d41414724a8f724221453455d6d9ca78ab40923a8c8a378d053"
+      "path": "hardware/reports/circle-main-drc.json",
+      "sha256": "3e69dec3e3d2580764864d990ba6407a805b6b445d12fc55501f31cd1d7c6609"
     },
     {
-      "path": "hardware\\reports\\circle-ppg-drc.json",
-      "sha256": "da8007ca597634f78be8695a40c562c7aa3598ae23e74b0339da59a1d051135d"
+      "path": "hardware/reports/circle-ppg-drc.json",
+      "sha256": "04ef170a442da5d2b16d7475b0339512a8724631d0285d446d6c6bb7eda49f41"
     },
     {
-      "path": "hardware\\reports\\drc-allowlist.json",
-      "sha256": "92baa5ac528e8b42c534cedddbd895248c7cbac6edc3473d6b0bac2875f6da59"
+      "path": "hardware/reports/drc-allowlist.json",
+      "sha256": "ec4e12267e9a22980f763f919a4f3c636b11e4e1a856f5b8228dd0086c721ee1"
     },
     {
-      "path": "hardware\\reports\\erc-allowlist.json",
+      "path": "hardware/reports/erc-allowlist.json",
       "sha256": "453f6ea590196bc0eb90446f8d7a1811cc8507523abafff34dac26f4c13c39d7"
     },
     {
-      "path": "hardware\\reports\\bom\\circle-main-revB-sourced.csv",
+      "path": "hardware/reports/bom/circle-main-revB-sourced.csv",
       "sha256": "fb2f06367dc1e8bfbf662ad426edab5a35fac018ce69888bba0f678cf6cb6bca"
     },
     {
-      "path": "hardware\\reports\\bom\\circle-main-revB.csv",
+      "path": "hardware/reports/bom/circle-main-revB.csv",
       "sha256": "5a71edd8148e629222684b0e92047850744203d61e38f73cb68c5ae267f5a326"
     },
     {
-      "path": "hardware\\reports\\bom\\circle-main.csv",
-      "sha256": "e0f03d9717d79bca0ea14b69dc9b3b98f5c4d2e303ca686d0f1f2f7fb3325059"
+      "path": "hardware/reports/bom/circle-main.csv",
+      "sha256": "74a5eef9c33640030b19ef71c990490f44ff0468297dec8617383ddca32a98c5"
     },
     {
-      "path": "hardware\\reports\\bom\\circle-ppg-revB-sourced.csv",
+      "path": "hardware/reports/bom/circle-ppg-revB-sourced.csv",
       "sha256": "86b12544f2c772f05051ed91ab775e57b4914b679d9763e0222f5b211cf931c8"
     },
     {
-      "path": "hardware\\reports\\bom\\circle-ppg-revB.csv",
+      "path": "hardware/reports/bom/circle-ppg-revB.csv",
       "sha256": "c6433298ea51ca27e2b65875ec1804771c612863aa39860796db9ff4372c1770"
     },
     {
-      "path": "hardware\\reports\\bom\\circle-ppg.csv",
-      "sha256": "e0f03d9717d79bca0ea14b69dc9b3b98f5c4d2e303ca686d0f1f2f7fb3325059"
+      "path": "hardware/reports/bom/circle-ppg.csv",
+      "sha256": "74a5eef9c33640030b19ef71c990490f44ff0468297dec8617383ddca32a98c5"
     },
     {
-      "path": "hardware\\reports\\pdf\\circle-main.pdf",
+      "path": "hardware/reports/pdf/circle-main.pdf",
       "sha256": "4da04e9686af10387524cf233e4979d6a399b71bf259eac5a7d0a0dbeaf21b66"
     },
     {
-      "path": "hardware\\reports\\pdf\\circle-ppg.pdf",
+      "path": "hardware/reports/pdf/circle-ppg.pdf",
       "sha256": "be8cb11d36b58ab82acb8921e44a343152b3a214ab94ddcee0872ede4ba20a54"
     }
   ],

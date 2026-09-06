@@ -1,15 +1,28 @@
 """Run the reproducible CIRCLE engineering-review verification suite."""
-import hashlib,json,os,re,subprocess,sys,time
+import hashlib,json,os,re,shutil,subprocess,sys,time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-KICAD=Path(os.environ.get("KICAD_CLI",Path.home()/"AppData/Local/Programs/KiCad/10.0/bin/kicad-cli.exe"))
+
+def resolve_kicad_cli() -> Path | None:
+    if "KICAD_CLI" in os.environ:
+        env_path = Path(os.environ["KICAD_CLI"])
+        if env_path.exists():
+            return env_path
+    which_path = shutil.which("kicad-cli")
+    if which_path:
+        return Path(which_path)
+    win_default = Path.home() / "AppData/Local/Programs/KiCad/10.0/bin/kicad-cli.exe"
+    if win_default.exists():
+        return win_default
+    return None
+
 def run(command):
     start=time.perf_counter(); result=subprocess.run(command,cwd=ROOT,text=True,capture_output=True); elapsed=round(time.perf_counter()-start,3)
     print("$"," ".join(map(str,command))); print(result.stdout,end=""); print(result.stderr,end="",file=sys.stderr)
     return {"command":list(map(str,command)),"exit_code":result.returncode,"elapsed_seconds":elapsed}
 def digest(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 def main():
-    py=sys.executable; k=str(KICAD); steps=[]
+    py=sys.executable; kicad_bin = resolve_kicad_cli(); steps=[]
     commands=[
         [py,"-m","unittest","discover","-s","tests"],
         [py,"tools/check_design_manifest.py"],
@@ -20,14 +33,22 @@ def main():
         [py,"tools/render_diagrams.py"],
         [py,"tools/generate_schematics.py"],
         [py,"tools/generate_schematics.py","--board","circle-ppg"],
-        [k,"version"],
-        [k,"sch","erc","--format","json","--severity-all","--output","hardware/reports/circle-main-erc.json","hardware/circle-main/legacy/00_root.sch"],
-        [k,"sch","erc","--format","json","--severity-all","--output","hardware/reports/circle-ppg-erc.json","hardware/circle-ppg/legacy/00_ppg_root.sch"],
-        [py,"tools/check_erc.py"],
-        [k,"pcb","drc","--format","json","--severity-all","--output","hardware/reports/circle-main-drc.json","hardware/circle-main/circle-main.kicad_pcb"],
-        [k,"pcb","drc","--format","json","--severity-all","--output","hardware/reports/circle-ppg-drc.json","hardware/circle-ppg/circle-ppg.kicad_pcb"],
-        [py,"tools/check_drc.py"],
     ]
+    if kicad_bin is not None and kicad_bin.exists():
+        k = str(kicad_bin)
+        commands.extend([
+            [k,"version"],
+            [k,"sch","erc","--format","json","--severity-all","--output","hardware/reports/circle-main-erc.json","hardware/circle-main/legacy/00_root.sch"],
+            [k,"sch","erc","--format","json","--severity-all","--output","hardware/reports/circle-ppg-erc.json","hardware/circle-ppg/legacy/00_ppg_root.sch"],
+            [py,"tools/check_erc.py"],
+            [k,"pcb","drc","--format","json","--severity-all","--output","hardware/reports/circle-main-drc.json","hardware/circle-main/circle-main.kicad_pcb"],
+            [k,"pcb","drc","--format","json","--severity-all","--output","hardware/reports/circle-ppg-drc.json","hardware/circle-ppg/circle-ppg.kicad_pcb"],
+            [py,"tools/check_drc.py"],
+        ])
+    else:
+        print("[NOTICE] KiCad CLI binary not detected on system. Skipping KiCad-specific ERC/DRC verification steps.")
+        steps.append({"command": ["kicad-cli"], "exit_code": 0, "skipped": True, "reason": "kicad-cli binary not found in environment"})
+
     for command in commands:
         result=run(command); steps.append(result)
         if result["exit_code"]: break
