@@ -6,19 +6,25 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: read
+
 jobs:
   fast-ci:
     name: Fast Software, Contracts & Deterministic Generation
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
         run: |
@@ -78,22 +84,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Generate fresh schematic ERC reports via KiCad CLI
+      - name: Generate and gate fresh reports with pinned KiCad 10.0.5
         run: |
-          docker run --rm --user root -v ${{ github.workspace }}:/workspace -w /workspace kicad/kicad:8.0 sh -c "
-            kicad-cli sch erc --format json --severity-all --output hardware/reports/circle-main-erc.json hardware/circle-main/legacy/00_root.sch || true
-            kicad-cli sch erc --format json --severity-all --output hardware/reports/circle-ppg-erc.json hardware/circle-ppg/legacy/00_ppg_root.sch || true
-          "
-
-      - name: Gate fresh ERC reports against allowlist
-        run: python tools/check_erc.py
-
-      - name: Generate fresh PCB DRC reports via KiCad CLI
-        run: |
-          docker run --rm --user root -v ${{ github.workspace }}:/workspace -w /workspace kicad/kicad:8.0 sh -c "
-            kicad-cli pcb drc --format json --severity-all --output hardware/reports/circle-main-drc.json hardware/circle-main/circle-main.kicad_pcb || true
-            kicad-cli pcb drc --format json --severity-all --output hardware/reports/circle-ppg-drc.json hardware/circle-ppg/circle-ppg.kicad_pcb || true
-          "
-
-      - name: Gate fresh DRC reports against allowlist
-        run: python tools/check_drc.py
+          docker run --rm --user root -v "${{ github.workspace }}:/workspace" -w /workspace \
+            kicad/kicad:10.0.5@sha256:182c8005cb775a2c448a4c18681d489f1ff472a761885eba3e08b07e3c0564de \
+            python3 tools/run_kicad_checks.py

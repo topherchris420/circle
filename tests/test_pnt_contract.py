@@ -76,8 +76,8 @@ class PNTContractTest(unittest.TestCase):
         self.assertEqual(rec["schema_version"], "2.0.0")
         self.assertEqual(rec["record_type"], "MODEL_RESULT")
         self.assertEqual(rec["provenance"], "MODEL_INFERRED")
-        self.assertIn("CALIBRATED_NAVIGATION", rec["status_flags"])
-        self.assertIn("QUANTUM_AUGMENTED", rec["status_flags"])
+        self.assertIn("SIMULATED_INPUT", rec["status_flags"])
+        self.assertIn("REFERENCE_AIDED_ESTIMATE", rec["status_flags"])
         self.assertRegex(rec["crc32c"], r"^[0-9A-Fa-f]{8}$")
 
     def test_pnt_state_estimator_mechanization_and_updates(self):
@@ -96,8 +96,8 @@ class PNTContractTest(unittest.TestCase):
         self.assertIn("time_dilation", clock_res)
 
         summary = estimator.state_summary()
-        self.assertIn("position_rmse_m", summary)
-        self.assertIn("velocity_rmse_m_s", summary)
+        self.assertIn("position_uncertainty_rss_m", summary)
+        self.assertIn("velocity_uncertainty_rss_m_s", summary)
 
     def test_example_configurations_file_parses_and_conforms(self):
         self.assertTrue(self.configs_path.exists())

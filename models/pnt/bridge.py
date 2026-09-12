@@ -2,33 +2,12 @@
 
 from __future__ import annotations
 
-import hashlib
-import json
 import math
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional
 import numpy as np
 
-# Pure-Python Castagnoli CRC-32C (0x82F63B78 polynomial)
-CRC32C_TABLE = []
-for i in range(256):
-    crc = i
-    for _ in range(8):
-        if crc & 1:
-            crc = (crc >> 1) ^ 0x82F63B78
-        else:
-            crc = crc >> 1
-    CRC32C_TABLE.append(crc)
-
-
-def compute_crc32c(data: str | bytes) -> str:
-    """Compute 8-character uppercase hex CRC-32C checksum."""
-    if isinstance(data, str):
-        data = data.encode("utf-8")
-    crc = 0xFFFFFFFF
-    for byte in data:
-        crc = (crc >> 8) ^ CRC32C_TABLE[(crc ^ byte) & 0xFF]
-    return f"{crc ^ 0xFFFFFFFF:08X}"
+from models.session_records import compute_crc32c, seal_record
+from .experiment import PNTExperimentConfig
 
 
 PNT_STREAM_MAPPINGS = {
@@ -97,57 +76,26 @@ class CirclePNTSessionRecordAdapter:
         artifact_id: str = "quantum_pnt_experiment.json",
     ) -> Dict[str, Any]:
         """Create validated MODEL_INFERRED session record with CRC-32C."""
-        duration_us = int(round(duration_s * 1e6))
-        end_us = device_time_start_us + duration_us
-        total_frames = int(round(duration_s / dt_s))
-
-        status_flags = ["OK", "CALIBRATED_NAVIGATION"]
-        if position_rmse_m < 5.0:
-            status_flags.append("HIGH_PRECISION_FIX")
-        status_flags.append("QUANTUM_AUGMENTED")
-
+        config = PNTExperimentConfig(duration_s=duration_s, dt_s=dt_s)
+        for name, value in (("position_rmse_m", position_rmse_m), ("velocity_rmse_m_s", velocity_rmse_m_s), ("drift_rate_m_hr", drift_rate_m_hr)):
+            if not math.isfinite(value) or value < 0:
+                raise ValueError(f"{name} must be finite and nonnegative")
+        if not experiment_id:
+            raise ValueError("experiment_id must not be empty")
+        total_frames = round(duration_s / dt_s)
+        reference_frames = math.floor(duration_s * config.reference_rate_hz + 1e-9)
         record = {
             "schema_version": "2.0.0",
             "record_type": "MODEL_RESULT",
             "provenance": "MODEL_INFERRED",
             "device_time_start_us": device_time_start_us,
-            "device_time_end_us": end_us,
-            "status_flags": status_flags,
-            "source_stream_ids": [
-                "CIRCLE_IMU_ICM42688",
-                "CIRCLE_ATOM_INTERFEROMETER",
-                "CIRCLE_GRAVITY_GRADIOMETER",
-                "CIRCLE_QUANTUM_CLOCK"
-            ],
+            "device_time_end_us": device_time_start_us + round(duration_s * 1e6),
+            "status_flags": ["OK", "SIMULATED_INPUT", "REFERENCE_AIDED_ESTIMATE"],
+            "source_stream_ids": ["SIMULATED_IMU", "SIMULATED_REFERENCE_ACCELEROMETER"],
             "source_sequence_ranges": [
-                {
-                    "stream_id": "CIRCLE_IMU_ICM42688",
-                    "first_sequence": 0,
-                    "last_sequence": total_frames
-                },
-                {
-                    "stream_id": "CIRCLE_ATOM_INTERFEROMETER",
-                    "first_sequence": 0,
-                    "last_sequence": int(round(duration_s * 2.0))
-                },
-                {
-                    "stream_id": "CIRCLE_GRAVITY_GRADIOMETER",
-                    "first_sequence": 0,
-                    "last_sequence": int(round(duration_s * 1.0))
-                },
-                {
-                    "stream_id": "CIRCLE_QUANTUM_CLOCK",
-                    "first_sequence": 0,
-                    "last_sequence": total_frames
-                }
+                {"stream_id": "SIMULATED_IMU", "first_sequence": 0, "last_sequence": total_frames - 1},
+                {"stream_id": "SIMULATED_REFERENCE_ACCELEROMETER", "first_sequence": 0, "last_sequence": reference_frames - 1},
             ],
-            "model": {
-                "name": "QPNS_X_QUANTUM_PNT",
-                "version": "1.0.0",
-                "artifact_id": artifact_id
-            }
+            "model": {"name": "QPNS_X_TRANSLATION_BIAS_BENCHMARK", "version": "1.1.0", "artifact_id": artifact_id},
         }
-
-        canonical_json = json.dumps(record, sort_keys=True, separators=(",", ":"))
-        record["crc32c"] = compute_crc32c(canonical_json)
-        return record
+        return seal_record(record)

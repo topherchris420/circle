@@ -195,9 +195,9 @@ class EmergenceContractTest(unittest.TestCase):
         set_seed(42)
         target = TelemetryTargetField.from_null_control(frame_count=20, field_res=16, rng=rng)
         
-        art1 = run_simulation(target_field=target, preset="synthetic")
+        art1 = run_simulation(target_field=target, preset="synthetic", render=False)
         self.assertIsNotNone(art1.metrics)
-        self.assertIsNotNone(art1.animation)
+        self.assertEqual(len(art1.metrics.discovery_rate_history), 20)
 
     def test_example_configurations_file_parses_and_conforms(self):
         self.assertTrue(self.configs_path.exists())
