@@ -111,7 +111,7 @@ while systematically testing:
 
 ### 2. Emergence Research Module (IONS-X Deep Emergence)
 
-The **CIRCLE Emergence Module** integrates the **ATOM (Analyses, Targets, Operators, Moderators)** causal discovery engine from the IONS-X Deep Emergence Lab into the CIRCLE platform.
+The **CIRCLE Emergence Module** integrates the **ATOM (Analyses, Targets, Operators, Moderators)** correlation exploration engine from the IONS-X Deep Emergence Lab into the CIRCLE platform.
 
 It provides a repeatable, deterministic sandbox for exploring how coupled physiological signals (EDA, raw optical PPG, 6-axis IMU) and resonance cavity drive excitations form emergent cross-channel correlations across spatial fields under environmental moderation (geomagnetic $K_p$, lunar phase, sidereal time, and solar X-ray flux).
 
@@ -125,21 +125,18 @@ It provides a repeatable, deterministic sandbox for exploring how coupled physio
 
 ---
 
-### 3. Quantum PNT Research Module (QPNS-X)
+### 3. PNT Estimator Research Module (QPNS-X)
 
-The **CIRCLE Quantum PNT Module** integrates the **QPNS-X** research simulator for quantum-augmented inertial navigation.
+The runnable **PNT benchmark** compares the implemented 15-state estimator with an unaided inertial baseline using identical simulated IMU samples and known ground truth. A lower-rate reference accelerometer supplies bias observations; seeded sensor noise makes runs reproducible.
 
-It couples high-rate classical inertial sensors ($100\ \text{Hz}$) with cold-atom interferometers ($^{87}\text{Rb}$ Mach-Zehnder light-pulse), differential gravity gradiometers ($\Delta a = \Gamma L$), and optical lattice quantum clocks ($y(t)$ with gravitational redshift and time dilation) fused within a 15-state Error-State Extended Kalman Filter (ES-EKF) and Manifold Unscented Kalman Filter (UKF).
+* **Calculated errors:** Position and velocity RMSE come from the evaluated trajectory, with a baseline comparison and an exported trace.
+* **Bounded reference updates:** Synchronized IMU-minus-reference observations, Mahalanobis outlier rejection, linear solves, and Joseph-form covariance updates.
+* **Auditable exports:** Metrics retain the configuration and seed; a validated session record references the metrics file by SHA-256 and labels its inputs as simulated.
+* **Explicit scope:** Translation with known initial pose. Quantum-state propagation, atom fringes, UKF, gradiometer fusion, and clock fusion remain research extensions; this benchmark does not validate those capabilities or hardware accuracy.
 
-#### Key Features:
-* **15-State Error-State EKF/UKF:** Nominal nonlinear mechanization with Joseph-form updates, PSD eigenvalue protection, and Mahalanobis gating.
-* **Cold-Atom Matter-Wave Interferometry:** Light-pulse Mach-Zehnder phase accumulation ($\Delta\Phi = k_{\text{eff}} a T^2$), fringe contrast, and atom shot-noise limits ($\sigma_\Phi = 1 / (C \sqrt{N})$).
-* **QuTiP Quantum State Engine:** 2-level atom Hamiltonian unitary propagation cross-validated against analytical phase relations.
-* **Differential Gravity Gradiometry:** Tensor gradient sensing ($\Gamma = \nabla g$) with $>120\ \text{dB}$ common-mode vibration rejection.
-* **Relativistic Frequency Standards & Allan Deviation:** Overlapping Allan deviation $\sigma_y(\tau)$ characterizing white FM, flicker floor, and random-walk noise regimes.
-* **Deterministic CRC-32C Session Records:** Emits schema-compliant `MODEL_INFERRED` records with microsecond timestamps and Castagnoli CRC-32C integrity checksums.
+The diagram below describes the broader research architecture. See the [implemented experiment and its limits](docs/reproducible-experiments.md#pnt-benchmark-with-ground-truth).
 
-![CIRCLE Quantum PNT Architecture](diagrams/quantum-pnt-architecture.svg)
+![CIRCLE Quantum PNT Research Architecture](diagrams/quantum-pnt-architecture.svg)
 
 ---
 
@@ -200,7 +197,7 @@ CIRCLE High-Speed Acquisition
   ↓
 Timestamped & Provenance-Aware Records
   ↓
-Causal Inference / Adaptive Model Decision
+Model Inference / Adaptive Decision
   ↓
 Local Response (Haptic / Resonant Intervention)
   ↓
@@ -265,7 +262,7 @@ pip install -r requirements.txt
 
 ### Running Fast Repository Checks
 
-The core verification suite uses Python standard library modules and runs cleanly on any platform:
+After installing `requirements.txt`, run the software and contract checks:
 
 ```bash
 # Run unit tests
@@ -282,6 +279,24 @@ python tools/check_emergence_contract.py
 python tools/check_pnt_contract.py
 python tools/check_resonance_contract.py
 ```
+
+---
+
+## Reproducible runs and evidence audit
+
+```bash
+# Evaluate every frame without rendering an animation
+python tools/run_emergence_lab.py --quick --headless --seed 42 \
+  --output outputs/emergence.html --export-session-records outputs/emergence-record.json
+
+# Audit actual exported records (single JSON, arrays, or NDJSON)
+python tools/check_session.py outputs/emergence-record.json
+
+# Verify software explicitly when KiCad is unavailable
+python tools/verify_release.py --software-only
+```
+
+The [reproducibility guide](docs/reproducible-experiments.md) covers validated session replay, a [synthetic telemetry example](experiments/emergence/telemetry.example.ndjson), source-column selection, inclusive sequence ranges, simulation provenance, and verification scopes. Animation redraws do not change the experiment. Supplied control data and native device times are preserved.
 
 ---
 
@@ -308,8 +323,8 @@ Open the resulting `.html` output file in any web browser to view the spatial fi
 To execute the cold-atom matter-wave interferometer and ES-EKF navigation simulation:
 
 ```bash
-# Run a 10-second Quantum PNT simulation and export a compliant session record
-python tools/run_pnt_experiment.py --duration 10.0 --dt 0.01 --output-session-record docs/pnt-session.json
+# Compare the estimator with an unaided baseline against simulated truth
+python tools/run_pnt_experiment.py --duration 10.0 --dt 0.01 --seed 42 --output-session-record outputs/pnt-session.json
 ```
 
 ---
@@ -331,11 +346,13 @@ $env:KICAD_CLI="C:\Program Files\KiCad\10.0\bin\kicad-cli.exe"
 py -3.11 tools/verify_release.py
 ```
 
-A successful run concludes with:
+A complete successful run concludes with:
 
 ```text
 CIRCLE Rev B review package: VERIFIED
 ```
+
+Missing KiCad produces `INCOMPLETE` and a nonzero exit code. Explicit `--software-only` mode reports `SOFTWARE_VERIFIED` and never sets the full-release `verified` flag. Fresh hardware checks require the exact version in `toolchain.json`; CI pins the same Docker image by digest.
 
 ---
 
@@ -373,14 +390,14 @@ To ensure scientific integrity and eliminate ambiguity between direct observatio
 
 | Provenance Mode | Description & Application |
 | --- | --- |
-| `MEASURED` | Raw, direct physical observations from hardware sensors (e.g. ADS1220 ADC codes, MAX30102 PPG optical counts, ICM-42688-P IMU readings). |
+| `RAW_MEASURED` | Raw, direct physical observations from hardware sensors (e.g. ADS1220 ADC codes, MAX30102 PPG optical counts, ICM-42688-P IMU readings). |
 | `DERIVED` | Direct mathematical transformations of raw physical data without stochastic models (e.g. bandpass filtering, unit conversion, FFT spectra). |
 | `MODEL_INFERRED` | States estimated by algorithmic models, estimators, or neural networks (e.g. ES-EKF pose, ATOM correlation matrices, GP-UCB predictions). |
 | `SIMULATED` | Pure synthetic data produced by physics engines or numeric simulators. |
 | `TEST` | Synthetic validation vectors injected during bench checkouts and automated testing. |
 | `INTERVENTION` | Recorded feedback events triggered by the closed-loop system (e.g. haptic pulses, resonance frequency adjustments). |
 
-Every record contains microsecond monotonic time bounds, sequence counters, source IDs, and Castagnoli CRC-32C checksums for tamper detection.
+Records carry microsecond time bounds and provenance, with source lineage where required. CRC-32C detects accidental corruption; it is not authentication. The session auditor validates schema contents, checksums, sequence continuity, and semantic time/range constraints.
 
 ---
 

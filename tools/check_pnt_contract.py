@@ -12,6 +12,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from models.pnt.bridge import CirclePNTSessionRecordAdapter, compute_crc32c, PNT_STREAM_MAPPINGS
+from models.session_records import validate_record
 
 
 def main() -> int:
@@ -56,6 +57,7 @@ def main() -> int:
         velocity_rmse_m_s=0.05,
         drift_rate_m_hr=50.0,
     )
+    validate_record(rec)
     assert rec["schema_version"] == "2.0.0"
     assert rec["record_type"] == "MODEL_RESULT"
     assert rec["provenance"] == "MODEL_INFERRED"

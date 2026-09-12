@@ -6,9 +6,11 @@
 
 The **CIRCLE Emergence Research Module** integrates the **ATOM (Analyses, Targets, Operators, Moderators)** dynamical field simulation and causal discovery engine (originating from IONS-X Deep Emergence Lab) into the CIRCLE biosignal research ecosystem.
 
-It provides a repeatable, deterministic sandbox for exploring how physiological signals (photoplethysmography optical absorption, electrodermal activity, 6-axis inertial motion) and resonance cavity drive excitations form emergent, nonlocal, or causal cross-channel correlations across spatial fields under environmental moderation.
+It provides a repeatable, deterministic sandbox for exploring how physiological signals (photoplethysmography optical absorption, electrodermal activity, 6-axis inertial motion) and resonance cavity drive excitations form pairwise cross-channel correlations across spatial fields under environmental moderation.
 
 ---
+
+The implemented analysis computes Pearson correlations on normalized spatial model fields. It does not establish causal direction, nonlocal effects, or direct measurements of consciousness. See [reproducible experiments](reproducible-experiments.md) for input selection, simulated controls, and record validation.
 
 ## 1. The ATOM Architecture
 
@@ -39,7 +41,8 @@ The module formalizes field-theoretic discovery into four interacting layers:
 A coupled 4-channel spatial-temporal field $F(x, y, t) \in \mathbb{R}^{4 	imes N 	imes N}$ integrated using 2D Fourier spectral diffusion:
 
 $$\mathcal{F}[F_c](k_x, k_y, t + \Delta t) = \mathcal{F}[F_c](k_x, k_y, t) \cdot \exp\left(-
-u_c (k_x^2 + k_y^2) \Delta t \cdot M(t)ight)$$
+u_c (k_x^2 + k_y^2) \Delta t \cdot M(t)
+ight)$$
 
 followed by non-linear saturation $F \leftarrow (1 - \lambda) F + \lambda 	anh(4 F)$ and cross-channel coupling.
 

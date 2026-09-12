@@ -12,6 +12,8 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from models.session_records import validate_record
+
 SCHEMA_PATH = ROOT / "contracts/emergence-discovery.schema.json"
 CONFIGS_PATH = ROOT / "experiments/emergence/configurations.example.json"
 SESSION_SCHEMA_PATH = ROOT / "contracts/session-record.schema.json"
@@ -119,6 +121,7 @@ def check_telemetry_bridge_and_crc32c() -> None:
         device_time_start_us=0,
         device_time_end_us=100000,
     )
+    validate_record(record)
 
     # Validate against session-record.schema.json
     session_schema = json.loads(SESSION_SCHEMA_PATH.read_text(encoding="utf-8"))

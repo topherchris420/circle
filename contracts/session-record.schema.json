@@ -44,6 +44,15 @@
       "type": "string",
       "pattern": "^[0-9A-Fa-f]{8}$"
     },
+    "stream_id": {"type": "string", "minLength": 1},
+    "sequence": {"type": "integer", "minimum": 0},
+    "payload": {
+      "description": "One aligned telemetry snapshot at device_time_start_us; multi-sample binary chunks are not defined by this JSON profile.",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {"minLength": 1},
+      "additionalProperties": {"type": "number"}
+    },
     "source_stream_ids": {
       "type": "array",
       "minItems": 1,
@@ -151,6 +160,10 @@
     }
   },
   "allOf": [
+    {
+      "if": {"required": ["record_type"], "properties": {"record_type": {"const": "SAMPLE_CHUNK"}}},
+      "then": {"required": ["stream_id", "sequence", "payload"]}
+    },
     {
       "if": {
         "required": ["provenance"],

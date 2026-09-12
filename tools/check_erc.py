@@ -1,16 +1,26 @@
 """Gate KiCad ERC reports; this is not an electrical-safety certification."""
 import hashlib, json
 from pathlib import Path
+try:
+    from .kicad_reports import load_report
+except ImportError:
+    from kicad_reports import load_report
 ROOT=Path(__file__).resolve().parents[1]
 REPORTS={"circle-main":ROOT/"hardware/reports/circle-main-erc.json","circle-ppg":ROOT/"hardware/reports/circle-ppg-erc.json"}
 ALLOW=ROOT/"hardware/reports/erc-allowlist.json"
 def fingerprint(sheet,violation):
     material=json.dumps({"sheet":sheet,"type":violation.get("type"),"description":violation.get("description"),"items":[i.get("description") for i in violation.get("items",[])]},sort_keys=True)
     return hashlib.sha256(material.encode()).hexdigest()
-def main():
+def main(reports_dir=None):
     allow=json.loads(ALLOW.read_text(encoding="utf-8")).get("allowlist",[]); allowed={a["fingerprint"]:a for a in allow}; used=set(); errors=[]
     for name,path in REPORTS.items():
-        data=json.loads(path.read_text(encoding="utf-8")); violations=[(s["path"],v) for s in data.get("sheets",[]) for v in s.get("violations",[])]
+        if reports_dir is not None: path = Path(reports_dir) / path.name
+        try:
+            data = load_report(path, "erc", "00_root.sch" if name == "circle-main" else "00_ppg_root.sch")
+        except (OSError, ValueError) as exc:
+            errors.append(str(exc))
+            continue
+        violations=[(s["path"],v) for s in data["sheets"] for v in s["violations"]]
         for sheet,v in violations:
             fp=fingerprint(sheet,v)
             if v.get("severity")=="error": errors.append(f"{name}:{sheet}: error: {v.get('description')}")

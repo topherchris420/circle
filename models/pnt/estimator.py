@@ -46,8 +46,18 @@ class PNTStateEstimator:
         gyro_noise_std: float = 0.005,
         ai_accel_noise_std: float = 0.001,
         clock_noise_std: float = 1e-12,
+        innovation_gate: float = 16.0,
     ) -> None:
+        if not math.isfinite(dt_s) or dt_s <= 0:
+            raise ValueError("dt_s must be finite and positive")
+        for name, value in (("accel_noise_std", accel_noise_std), ("gyro_noise_std", gyro_noise_std)):
+            if not math.isfinite(value) or value < 0:
+                raise ValueError(f"{name} must be finite and nonnegative")
+        for name, value in (("ai_accel_noise_std", ai_accel_noise_std), ("clock_noise_std", clock_noise_std), ("innovation_gate", innovation_gate)):
+            if not math.isfinite(value) or value <= 0:
+                raise ValueError(f"{name} must be finite and positive")
         self.dt = dt_s
+        self.innovation_gate = innovation_gate
         self.state = PNTNavigationState(
             position_m=np.zeros(3, dtype=np.float64),
             velocity_m_s=np.zeros(3, dtype=np.float64),
@@ -78,6 +88,8 @@ class PNTStateEstimator:
 
     def predict(self, f_meas_b: np.ndarray, omega_meas_b: np.ndarray) -> None:
         """High-rate inertial mechanization and error state covariance propagation."""
+        f_meas_b = self._vector(f_meas_b, "f_meas_b")
+        omega_meas_b = self._vector(omega_meas_b, "omega_meas_b")
         f_b = f_meas_b - self.state.accel_bias_m_s2
         w_b = omega_meas_b - self.state.gyro_bias_rad_s
 
@@ -119,10 +131,27 @@ class PNTStateEstimator:
         # Covariance propagation
         self.P = F_x @ self.P @ F_x.T + self.Q
 
-    def update_quantum_interferometer(self, ai_accel_b: np.ndarray) -> Dict[str, Any]:
-        """Kalman measurement update using cold-atom matter-wave accelerometer."""
+    @staticmethod
+    def _vector(value: np.ndarray, name: str) -> np.ndarray:
+        vector = np.asarray(value, dtype=np.float64)
+        if vector.shape != (3,) or not np.isfinite(vector).all():
+            raise ValueError(f"{name} must be a finite 3-vector")
+        return vector
+
+    def update_quantum_interferometer(
+        self, ai_accel_b: np.ndarray, imu_specific_force_b: np.ndarray | None = None,
+    ) -> Dict[str, Any]:
+        """Observe IMU bias from synchronized IMU minus reference specific force.
+
+        With no IMU argument, ai_accel_b is an already formed bias observation
+        (legacy API), not an absolute acceleration measurement. ai_accel_std must
+        describe the noise of the differenced observation.
+        """
+        observation = self._vector(ai_accel_b, "ai_accel_b")
+        if imu_specific_force_b is not None:
+            observation = self._vector(imu_specific_force_b, "imu_specific_force_b") - observation
         f_est_b = self.state.accel_bias_m_s2
-        z = ai_accel_b - f_est_b  # Innovation
+        z = observation - f_est_b
 
         H = np.zeros((3, 15), dtype=np.float64)
         H[:, 9:12] = np.eye(3)  # Directly observes accelerometer bias
@@ -131,14 +160,20 @@ class PNTStateEstimator:
 
         # Joseph-form update
         S = H @ self.P @ H.T + R
-        K = self.P @ H.T @ np.linalg.inv(S)
+        mahalanobis_sq = float(z @ np.linalg.solve(S, z))
+        if mahalanobis_sq > self.innovation_gate:
+            return {"innovation_norm": float(np.linalg.norm(z)),
+                    "mahalanobis_sq": mahalanobis_sq, "status": "AI_UPDATE_REJECTED"}
+        K = np.linalg.solve(S, H @ self.P).T
 
         self.dx = K @ z
         I_KH = np.eye(15, dtype=np.float64) - K @ H
         self.P = I_KH @ self.P @ I_KH.T + K @ R @ K.T
+        self.P = 0.5 * (self.P + self.P.T)
 
         self._inject_error_state()
-        return {"innovation_norm": float(np.linalg.norm(z)), "status": "AI_UPDATE_SUCCESS"}
+        return {"innovation_norm": float(np.linalg.norm(z)),
+                "mahalanobis_sq": mahalanobis_sq, "status": "AI_UPDATE_SUCCESS"}
 
     def update_quantum_clock(self, clock_phase_s: float, current_height_m: float) -> Dict[str, Any]:
         """Kalman measurement update using relativistic quantum clock error."""
@@ -173,6 +208,6 @@ class PNTStateEstimator:
             "attitude_rad": self.state.attitude_rad.tolist(),
             "accel_bias_m_s2": self.state.accel_bias_m_s2.tolist(),
             "gyro_bias_rad_s": self.state.gyro_bias_rad_s.tolist(),
-            "position_rmse_m": float(np.sqrt(np.trace(self.P[0:3, 0:3]))),
-            "velocity_rmse_m_s": float(np.sqrt(np.trace(self.P[3:6, 3:6]))),
+            "position_uncertainty_rss_m": float(np.sqrt(np.trace(self.P[0:3, 0:3]))),
+            "velocity_uncertainty_rss_m_s": float(np.sqrt(np.trace(self.P[3:6, 3:6]))),
         }

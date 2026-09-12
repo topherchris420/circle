@@ -24,11 +24,14 @@ class DeviceBackend:
             try:
                 import cupy as cp
 
+                # Import success alone does not establish that a CUDA device works.
+                cp.zeros(1).sum().item()
+
                 self._xp = cp
                 self._rfft2 = cp.fft.rfft2
                 self._irfft2 = cp.fft.irfft2
                 self.on_gpu = True
-            except ImportError:
+            except (ImportError, RuntimeError):
                 pass
 
     @property
@@ -92,7 +95,7 @@ EXPERIMENTS: Mapping[str, Mapping[str, Any]] = {
 
 @dataclass(frozen=True)
 class SimulationConfig:
-    """Immutable, thread-safe configuration for IONS-X ATOM simulation runs."""
+    """Immutable configuration for IONS-X ATOM simulation runs."""
 
     FIELD_RES: int = 128
     CHANNELS: int = 4
@@ -110,6 +113,16 @@ class SimulationConfig:
     SAMPLE_PER_FRAME: int = 8
     SEED: int = 42
     STEP_SIZE: int = 3
+
+    def __post_init__(self) -> None:
+        for name in ('FIELD_RES', 'AGENTS', 'MEMORY', 'CORR_WINDOW', 'FRAMES', 'SAMPLE_PER_FRAME'):
+            value = getattr(self, name)
+            if isinstance(value, bool) or not isinstance(value, int) or value < 1:
+                raise ValueError(f'{name} must be a positive integer')
+        if self.FIELD_RES < 2 or self.CORR_WINDOW < 2 or self.CHANNELS != 4:
+            raise ValueError('FIELD_RES and CORR_WINDOW must be >= 2; CHANNELS must be 4')
+        if self.MEMORY < self.CORR_WINDOW:
+            raise ValueError('MEMORY must be at least CORR_WINDOW')
 
     def with_options(self, **kwargs: Any) -> 'SimulationConfig':
         valid_keys = {f.name for f in fields(self)}
@@ -315,7 +328,8 @@ def apply_experiment(name: str | None) -> None:
 
 def apply_runtime_options(args: argparse.Namespace) -> SimulationConfig:
     global CFG, rng
-    config = CFG.with_experiment(getattr(args, 'experiment', None))
+    # Each CLI invocation starts from defaults, including repeated calls in Python.
+    config = SimulationConfig().with_experiment(getattr(args, 'experiment', None))
     if getattr(args, 'seed', None) is not None:
         config = config.with_options(SEED=args.seed)
     if args.quick:
@@ -374,18 +388,20 @@ def _filled_numeric_series(df: pd.DataFrame, aliases: Sequence[str], default: fl
     column = _find_column(df, aliases)
     if column is None:
         return pd.Series(default, index=df.index, dtype='float64')
-    numeric = pd.to_numeric(df[column], errors='coerce')
-    return numeric.ffill().bfill().fillna(default).astype('float64')
+    numeric = pd.to_numeric(df[column], errors='raise').astype('float64')
+    if not np.isfinite(numeric.to_numpy()).all():
+        raise ValueError(f'Telemetry column {column!r} contains missing or non-finite samples')
+    return numeric
 
 
 def _filled_timestamps(df: pd.DataFrame) -> pd.Series:
     column = _find_column(df, ('timestamp', 'time', 'datetime', 'date_time', 'utc_timestamp'))
     if column is None:
         return pd.Series(pd.date_range('1970-01-01', periods=len(df), freq='min', tz='UTC'))
-    timestamps = pd.to_datetime(df[column], errors='coerce', utc=True)
-    if timestamps.isna().all():
-        return pd.Series(pd.date_range('1970-01-01', periods=len(df), freq='min', tz='UTC'))
-    return timestamps.ffill().bfill()
+    timestamps = pd.to_datetime(df[column], errors='raise', utc=True)
+    if timestamps.isna().any() or not timestamps.is_monotonic_increasing or timestamps.duplicated().any():
+        raise ValueError('Telemetry timestamps must be valid and strictly increasing')
+    return timestamps
 
 
 def _normalize_values(values: pd.Series) -> np.ndarray:
@@ -418,6 +434,9 @@ class TelemetryTargetField:
     raw_values: pd.DataFrame
     covariates: pd.DataFrame
     source: str = 'dataframe'
+    input_values: pd.DataFrame | None = None
+    channel_sources: dict[str, str] = field(default_factory=dict)
+    generated_control: bool = False
 
     @classmethod
     def from_csv(cls, input_path: Path, field_res: int, rng: np.random.RandomState) -> 'TelemetryTargetField':
@@ -436,19 +455,27 @@ class TelemetryTargetField:
     ) -> 'TelemetryTargetField':
         if df.empty:
             raise ValueError('Input telemetry data must contain at least one row.')
+        if field_res < 2:
+            raise ValueError('field_res must be >= 2')
 
         timestamps = _filled_timestamps(df).reset_index(drop=True)
         raw_values = pd.DataFrame(index=range(len(df)))
         for canonical, aliases in SENSOR_ALIASES.items():
             raw_values[canonical] = _filled_numeric_series(df, aliases).reset_index(drop=True)
-        raw_values['control_baseline'] = rng.normal(0.0, 1.0, len(df))
+        control_aliases = ('control_baseline', 'sham_control')
+        generated_control = _find_column(df, control_aliases) is None
+        raw_values['control_baseline'] = (
+            rng.normal(0.0, 1.0, len(df)) if generated_control
+            else _filled_numeric_series(df, control_aliases).reset_index(drop=True)
+        )
 
         covariates = pd.DataFrame(index=range(len(df)))
         for canonical, aliases in COVARIATE_ALIASES.items():
             covariates[canonical] = _filled_numeric_series(df, aliases).reset_index(drop=True)
 
         fields = cls._map_to_grid(raw_values, field_res=field_res, rng=rng)
-        return cls(fields=fields, timestamps=timestamps, raw_values=raw_values, covariates=covariates, source=source)
+        return cls(fields=fields, timestamps=timestamps, raw_values=raw_values, covariates=covariates,
+                   source=source, input_values=df.copy(), generated_control=generated_control)
 
     @classmethod
     def from_null_control(
@@ -521,6 +548,7 @@ class TelemetryTargetField:
             raw_values=raw_values,
             covariates=self.covariates.copy(),
             source=f'{self.source}:control-only',
+            generated_control=self.generated_control,
         )
 
     def reg_variance_deviation(self, frame: int, window: int = 50) -> float:
@@ -566,14 +594,15 @@ class PerformanceMetrics:
 
 
 class EnvironmentalModerators:
-    def __init__(self, config: SimulationConfig | None = None) -> None:
+    def __init__(self, config: SimulationConfig | None = None, random_state: np.random.RandomState | None = None) -> None:
         self.config = config or CFG
+        self.rng = random_state if random_state is not None else rng
         self.coherence_events: list[int] = []
         self.m = 1.0
 
     def update(self, t: int) -> None:
         self.m = 1.0 + 0.03 * math.sin(t / 31.8) + 0.02 * math.cos(t / 55.7)
-        if rng.rand() < 0.02:
+        if self.rng.rand() < 0.02:
             self.coherence_events.append(t)
 
     def get_modulation(self, t: int) -> float:
@@ -648,12 +677,13 @@ class RealWorldModerator:
 
 
 class Agent:
-    def __init__(self, aid: int, atype: str, config: SimulationConfig | None = None) -> None:
+    def __init__(self, aid: int, atype: str, config: SimulationConfig | None = None, random_state: np.random.RandomState | None = None) -> None:
         self.id = aid
         self.type = atype
         self.config = config or CFG
         self.memory: list[Observation] = []
-        self.pos = rng.randint(0, self.config.FIELD_RES, size=2)
+        random_state = random_state if random_state is not None else rng
+        self.pos = random_state.randint(0, self.config.FIELD_RES, size=2)
 
     def observe(self, obs: Observation) -> None:
         self.memory.append(obs)
@@ -667,14 +697,21 @@ class Agent:
             return []
 
         data = np.array([o.values for o in self.memory[-cfg.CORR_WINDOW :]], dtype='float64')
-        corr_matrix = np.corrcoef(data, rowvar=False)
+        # Constant channels carry no correlation evidence; avoid divide-by-zero
+        # warnings and compute only normalized, finite channel relationships.
+        centered = data - data.mean(axis=0)
+        norms = np.linalg.norm(centered, axis=0)
+        usable = np.isfinite(norms) & (norms > 0)
+        normalized = np.zeros_like(centered)
+        normalized[:, usable] = centered[:, usable] / norms[usable]
+        corr_matrix = np.clip(normalized.T @ normalized, -1.0, 1.0)
 
         discs: list[dict[str, Any]] = []
         n_channels = corr_matrix.shape[0] if corr_matrix.ndim == 2 else 1
         for i in range(n_channels):
             for j in range(i + 1, n_channels):
                 r = float(corr_matrix[i, j])
-                if math.isnan(r):
+                if not usable[i] or not usable[j] or not math.isfinite(r):
                     continue
                 if abs(r) > thresh:
                     discs.append({
@@ -781,19 +818,21 @@ def build_simulation_state(
     target_field: TelemetryTargetField | None = None,
     config: SimulationConfig | None = None,
     backend: DeviceBackend | None = None,
+    random_state: np.random.RandomState | None = None,
 ) -> tuple[list[Agent], Any, dict[str, float], PerformanceMetrics, Any, Any]:
     import networkx as nx
 
     cfg = config or CFG
     b = backend or default_backend
-    agents = [Agent(i, cfg.AGENT_TYPES[i % 3], config=cfg) for i in range(cfg.AGENTS)]
-    graph = nx.DiGraph()
+    random_state = random_state if random_state is not None else np.random.RandomState(cfg.SEED)
+    agents = [Agent(i, cfg.AGENT_TYPES[i % len(cfg.AGENT_TYPES)], config=cfg, random_state=random_state) for i in range(cfg.AGENTS)]
+    graph = nx.Graph()
     conf_map: dict[str, float] = defaultdict(float)
     metrics = PerformanceMetrics()
 
     if target_field is None:
-        env_mod: Any = EnvironmentalModerators(config=cfg)
-        F = b.asarray(rng.normal(0, 0.02, (cfg.CHANNELS, cfg.FIELD_RES, cfg.FIELD_RES)), dtype=np.float32)
+        env_mod: Any = EnvironmentalModerators(config=cfg, random_state=random_state)
+        F = b.asarray(random_state.normal(0, 0.02, (cfg.CHANNELS, cfg.FIELD_RES, cfg.FIELD_RES)), dtype=np.float32)
     else:
         env_mod = RealWorldModerator(base_threshold=cfg.DISCOVER_THRESH, base_decay=cfg.CONFIDENCE_DECAY, base_window=15)
         F = b.asarray(target_field.field_for_frame(0), dtype=np.float32)
@@ -810,6 +849,8 @@ def calibrate_control_threshold(target_field: TelemetryTargetField, corr_window:
     for end in range(corr_window, len(control) + 1):
         left = control[end - corr_window : end]
         right = historic_null[end - corr_window : end]
+        if np.std(left) == 0 or np.std(right) == 0:
+            continue
         r = float(np.corrcoef(left, right)[0, 1])
         if not math.isnan(r):
             correlations.append(abs(r))
@@ -839,40 +880,34 @@ def run_simulation(
     live_dashboard: LiveDashboard | None = None,
     is_notebook: bool = False,
     config: SimulationConfig | None = None,
+    render: bool = True,
 ) -> SimulationArtifacts:
-    import matplotlib.pyplot as plt
     import networkx as nx
-    from matplotlib import gridspec
-    from matplotlib.animation import FuncAnimation
 
     cfg = config or CFG
+    if target_field is not None:
+        cfg = cfg.with_options(FIELD_RES=target_field.field_res, FRAMES=min(cfg.FRAMES, target_field.frame_count))
     backend = default_backend
-
-    plt.rcParams['animation.embed_limit'] = 200
-    plt.style.use('dark_background')
-    fig = plt.figure(figsize=(16, 9))
-    gs = gridspec.GridSpec(2, 3)
-    ax_graph = fig.add_subplot(gs[:, 1:])
-    ax_field = fig.add_subplot(gs[0, 0])
-    ax_stats = fig.add_subplot(gs[1, 0])
-
-    agents, graph, conf_map, metrics, env_mod, F = build_simulation_state(target_field, config=cfg, backend=backend)
-    frames_to_render = cfg.FRAMES if target_field is None else min(cfg.FRAMES, target_field.frame_count)
+    random_state = np.random.RandomState(cfg.SEED)
+    agents, graph, conf_map, metrics, env_mod, F = build_simulation_state(
+        target_field, config=cfg, backend=backend, random_state=random_state,
+    )
+    frames_to_render = cfg.FRAMES
 
     if live_dashboard is None and live:
         live_dashboard = LiveDashboard(total_frames=frames_to_render, enabled=True, is_notebook=is_notebook)
 
-    def update(frame: int) -> None:
+    def advance(frame: int) -> dict[str, Any]:
         nonlocal F
 
         if target_field is None:
             env_mod.update(frame)
             modulation = env_mod.get_modulation(frame)
-            threshold = calibrated_threshold or env_mod.discovery_threshold
+            threshold = env_mod.discovery_threshold if calibrated_threshold is None else calibrated_threshold
             confidence_decay = env_mod.confidence_decay
             F = evolve_fields(F, frame, modulation, env_mod, backend=backend, config=cfg)
             F_cpu = backend.asnumpy(F)
-            timestamp = pd.Timestamp('1970-01-01', tz='UTC') + pd.Timedelta(minutes=frame)
+            timestamp = pd.Timestamp('1970-01-01', tz='UTC') + pd.Timedelta(milliseconds=20 * frame)
             moderator_values = env_mod.snapshot()
             reg_deviation = _synthetic_reg_deviation(F_cpu)
             sensor_ratios = _synthetic_sensor_ratios(F_cpu)
@@ -882,7 +917,7 @@ def run_simulation(
             covariates = target_field.covariates_for_frame(frame)
             env_mod.update(frame, covariates)
             modulation = env_mod.get_modulation(frame)
-            threshold = calibrated_threshold or env_mod.discovery_threshold
+            threshold = env_mod.discovery_threshold if calibrated_threshold is None else calibrated_threshold
             confidence_decay = env_mod.confidence_decay
             timestamp = target_field.timestamp_for_frame(frame)
             moderator_values = env_mod.snapshot()
@@ -891,7 +926,7 @@ def run_simulation(
 
         frame_discoveries: list[dict[str, Any]] = []
         for agent in agents:
-            agent.pos = (agent.pos + rng.randint(-cfg.STEP_SIZE, cfg.STEP_SIZE + 1, 2)) % cfg.FIELD_RES
+            agent.pos = (agent.pos + random_state.randint(-cfg.STEP_SIZE, cfg.STEP_SIZE + 1, 2)) % cfg.FIELD_RES
             values = tuple(float(v) for v in F_cpu[:, agent.pos[0], agent.pos[1]])
             agent.observe(Observation(values=values, env_factor=modulation))
             for discovery in agent.discover(threshold=threshold, config=cfg):
@@ -937,39 +972,64 @@ def run_simulation(
                 last_edge=last_edge,
             )
 
-        ax_field.clear()
-        ax_field.imshow(F_cpu[0], cmap='magma')
-        ax_field.set_title('Channel 0: EM/RF Telemetry')
-        ax_field.axis('off')
+        if not render:
+            return {}
+        return {
+            "field": F_cpu[0].copy(), "graph": graph.copy(),
+            "total_discoveries": metrics.total_discoveries,
+            "modulation": modulation, "reg_deviation": reg_deviation,
+            "sensor_ratios": dict(sensor_ratios),
+        }
 
-        ax_graph.clear()
-        nx.draw(graph, ax=ax_graph, with_labels=True, node_color='orange', edge_color='cyan')
-        ax_graph.set_title('Emergent ATOM Discoveries')
+    # Evaluate each frame exactly once. Animation initialization, scrubbing, and
+    # repeated exports must never advance the experiment or inflate its metrics.
+    snapshots = []
+    for frame in range(frames_to_render):
+        snapshot = advance(frame)
+        if render:
+            snapshots.append(snapshot)
+    animation = None
+    if render:
+        import matplotlib.pyplot as plt
+        from matplotlib import gridspec
+        from matplotlib.animation import FuncAnimation
 
-        ax_stats.clear()
-        ax_stats.axis('off')
-        ax_stats.text(
-            0.05,
-            0.75,
-            (
-                f'Total Cumulative Discoveries: {metrics.total_discoveries}\n'
-                f'Active Environmental Coherence Factor: {modulation:.3f}\n'
-                f'REG Variance Deviation: {reg_deviation:.3f}\n'
-                'Sensor Anomaly Multi-scale Ratios:\n'
-                f"  EM/RF: {sensor_ratios['em_rf_short_long']:.3f}\n"
-                f"  Optical/IR: {sensor_ratios['optical_ir_short_long']:.3f}"
-            ),
-            fontsize=12,
-            va='top',
-        )
-        ax_stats.set_title(f'Run Stats ({preset})')
+        plt.rcParams['animation.embed_limit'] = 200
+        with plt.style.context('dark_background'):
+            fig = plt.figure(figsize=(16, 9))
+            gs = gridspec.GridSpec(2, 3)
+            ax_graph = fig.add_subplot(gs[:, 1:])
+            ax_field = fig.add_subplot(gs[0, 0])
+            ax_stats = fig.add_subplot(gs[1, 0])
+        positions = nx.circular_layout([f'ch{i}' for i in range(cfg.CHANNELS)])
 
-    animation = FuncAnimation(fig, update, frames=frames_to_render, interval=50, repeat=False)
+        def draw_frame(frame: int) -> None:
+            snapshot = snapshots[frame]
+            ax_field.clear()
+            ax_field.imshow(snapshot['field'], cmap='magma')
+            ax_field.set_title('Channel 0: EM/RF Telemetry')
+            ax_field.axis('off')
+            ax_graph.clear()
+            nx.draw(snapshot['graph'], pos=positions, ax=ax_graph, with_labels=True,
+                    node_color='orange', edge_color='cyan')
+            ax_graph.set_title('ATOM Correlations (model output)')
+            ax_stats.clear()
+            ax_stats.axis('off')
+            ratios = snapshot['sensor_ratios']
+            ax_stats.text(0.05, 0.75, (
+                f"Cumulative discoveries: {snapshot['total_discoveries']}\n"
+                f"Environmental model factor: {snapshot['modulation']:.3f}\n"
+                f"REG variance deviation: {snapshot['reg_deviation']:.3f}\n"
+                f"EM/RF ratio: {ratios['em_rf_short_long']:.3f}\n"
+                f"Optical/IR ratio: {ratios['optical_ir_short_long']:.3f}"
+            ), fontsize=12, va='top')
+            ax_stats.set_title(f'Run stats ({preset})')
+
+        animation = FuncAnimation(fig, draw_frame, frames=frames_to_render, interval=50,
+                                  init_func=lambda: None, repeat=False)
     return SimulationArtifacts(
-        animation=animation,
-        recorder=recorder,
-        calibration_threshold=calibrated_threshold,
-        metrics=metrics,
+        animation=animation, recorder=recorder,
+        calibration_threshold=calibrated_threshold, metrics=metrics,
         dashboard=live_dashboard,
     )
 
@@ -1012,7 +1072,6 @@ def build_run_summary(result: RunResult, metrics: 'PerformanceMetrics') -> dict[
         'coherence_frame_count': len(metrics.coherence_frames),
         'discovery_rate_history': list(metrics.discovery_rate_history),
         'calibration_threshold': result.calibration_threshold,
-        'generated_at': datetime.now(timezone.utc).isoformat(),
     }
 
 

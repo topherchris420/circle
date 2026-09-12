@@ -6,3 +6,4 @@ __pycache__/
 hardware/reports/work/
 outputs/
 .pytest_cache/
+.venv/

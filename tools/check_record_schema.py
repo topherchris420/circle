@@ -43,6 +43,7 @@ EXPECTED_RECORD_TYPES = [
     "SESSION_TRAILER",
 ]
 EXPECTED_CONDITIONALS = {
+    ("record_type", "SAMPLE_CHUNK"): ["stream_id", "sequence", "payload"],
     ("provenance", "MODEL_INFERRED"): ["source_stream_ids", "source_sequence_ranges", "model"],
     ("provenance", "INTERVENTION"): ["decision_id", "actuation_evidence_ids"],
     ("record_type", "GAP"): ["dropped_first_sequence", "dropped_last_sequence", "cause"],

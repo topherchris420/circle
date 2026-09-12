@@ -6,13 +6,15 @@
 
 ## 1. Overview
 
-The Quantum PNT module simulates and benchmarks multi-sensor fusion combining:
-1. 6-DOF Tactical/Navigation Grade Inertial Measurement Units (IMU)
-2. Cold-Atom Light-Pulse Mach-Zehnder Atom Interferometers
-3. Differential Cold-Atom Gravity Gradiometers
-4. Optical Lattice / Cold-Atom Quantum Clocks
+The runnable benchmark evaluates the implemented estimator with simulated IMU and reference accelerometer streams. It compares aided and unaided navigation against known truth, with deterministic noise, actual trajectory errors, and checksummed records bound to a metrics artifact.
 
-All filtering is executed via a 15-state Error-State Extended Kalman Filter (ES-EKF) or Manifold Unscented Kalman Filter (UKF) with Joseph-form covariance updates and strict positive-semidefinite (PSD) eigenvalue protection.
+```bash
+python tools/run_pnt_experiment.py --duration 10 --dt 0.01 --seed 42 \
+  --output-session-record outputs/pnt-record.json
+python tools/check_session.py outputs/pnt-record.json
+```
+
+The [reproducibility guide](../../docs/reproducible-experiments.md) defines the executed workload and its limits. The protocol, analysis plan, controls, and configuration examples in this directory describe the broader proposed research program. Their quantum-state, gradiometer, clock, UKF, NEES, and Allan-deviation studies are not implemented by this benchmark.
 
 ---
 

@@ -11,6 +11,10 @@ import hashlib
 import json
 import re
 from pathlib import Path
+try:
+    from .kicad_reports import load_report
+except ImportError:
+    from kicad_reports import load_report
 
 ROOT = Path(__file__).resolve().parents[1]
 REPORTS = {
@@ -50,18 +54,26 @@ def fingerprint_violation(board, v):
     return hashlib.sha256(material.encode()).hexdigest()
 
 
-def main():
+def main(reports_dir=None):
     allow_data = json.loads(ALLOW.read_text(encoding="utf-8")).get("allowlist", []) if ALLOW.exists() else []
     allowed = {a["fingerprint"]: a for a in allow_data}
     used = set()
     errors = []
 
     for name, path in REPORTS.items():
+        if reports_dir is not None:
+            path = Path(reports_dir) / path.name
         if not path.exists():
             errors.append(f"Missing DRC report: {path}")
             continue
 
-        data = json.loads(path.read_text(encoding="utf-8"))
+        try:
+            data = load_report(path, "drc", f"{name}.kicad_pcb")
+        except (OSError, ValueError) as exc:
+            errors.append(str(exc))
+            continue
+        if data["schematic_parity"]:
+            errors.append(f"{name}: schematic parity violations require review")
         violations = data.get("violations", [])
         unconnected = data.get("unconnected_items", [])
 

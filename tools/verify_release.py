@@ -1,69 +1,106 @@
-"""Run the reproducible CIRCLE engineering-review verification suite."""
-import hashlib,json,os,re,shutil,subprocess,sys,time
+"""Verify CIRCLE software or the complete pinned-toolchain engineering package."""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
 from pathlib import Path
-ROOT=Path(__file__).resolve().parents[1]
+import re
+import subprocess
+import sys
+import time
 
-def resolve_kicad_cli() -> Path | None:
-    if "KICAD_CLI" in os.environ:
-        env_path = Path(os.environ["KICAD_CLI"])
-        if env_path.exists():
-            return env_path
-    which_path = shutil.which("kicad-cli")
-    if which_path:
-        return Path(which_path)
-    win_default = Path.home() / "AppData/Local/Programs/KiCad/10.0/bin/kicad-cli.exe"
-    if win_default.exists():
-        return win_default
-    return None
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
-def run(command):
-    start=time.perf_counter(); result=subprocess.run(command,cwd=ROOT,text=True,capture_output=True); elapsed=round(time.perf_counter()-start,3)
-    print("$"," ".join(map(str,command))); print(result.stdout,end=""); print(result.stderr,end="",file=sys.stderr)
-    return {"command":list(map(str,command)),"exit_code":result.returncode,"elapsed_seconds":elapsed}
-def digest(path): return hashlib.sha256(path.read_bytes()).hexdigest()
-def main():
-    py=sys.executable; kicad_bin = resolve_kicad_cli(); steps=[]
-    commands=[
-        [py,"-m","unittest","discover","-s","tests"],
-        [py,"tools/check_design_manifest.py"],
-        [py,"tools/check_record_schema.py"],
-        [py,"tools/check_resonance_contract.py"],
-        [py,"tools/check_emergence_contract.py"],
-        [py,"tools/check_pnt_contract.py"],
-        [py,"tools/render_diagrams.py"],
-        [py,"tools/generate_schematics.py"],
-        [py,"tools/generate_schematics.py","--board","circle-ppg"],
+from tools.run_kicad_checks import resolve_kicad_cli
+
+
+def run(command: list[str]) -> dict:
+    started = time.perf_counter()
+    print("$", " ".join(command), flush=True)
+    try:
+        result = subprocess.run(command, cwd=ROOT, text=True, capture_output=True)
+        print(result.stdout, end="")
+        print(result.stderr, end="", file=sys.stderr)
+        code = result.returncode
+    except OSError as exc:
+        print(str(exc), file=sys.stderr)
+        code = 1
+    return {"command": command, "exit_code": code, "elapsed_seconds": round(time.perf_counter() - started, 3)}
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--software-only", action="store_true", help="Check software and archived report contracts; does not verify hardware")
+    parser.add_argument("--output", type=Path, help="Write verification summary to this path")
+    args = parser.parse_args(argv)
+    py = sys.executable
+    commands = [
+        [py, "-m", "unittest", "discover", "-s", "tests"],
+        *[[py, f"tools/{name}.py"] for name in (
+            "check_design_manifest", "check_record_schema", "check_resonance_contract",
+            "check_emergence_contract", "check_pnt_contract", "render_diagrams", "generate_schematics",
+        )],
+        [py, "tools/generate_schematics.py", "--board", "circle-ppg"],
+        [py, "tools/check_erc.py"],
+        [py, "tools/check_drc.py"],
     ]
-    if kicad_bin is not None and kicad_bin.exists():
-        k = str(kicad_bin)
-        commands.extend([
-            [k,"version"],
-            [k,"sch","erc","--format","json","--severity-all","--output","hardware/reports/circle-main-erc.json","hardware/circle-main/legacy/00_root.sch"],
-            [k,"sch","erc","--format","json","--severity-all","--output","hardware/reports/circle-ppg-erc.json","hardware/circle-ppg/legacy/00_ppg_root.sch"],
-            [py,"tools/check_erc.py"],
-            [k,"pcb","drc","--format","json","--severity-all","--output","hardware/reports/circle-main-drc.json","hardware/circle-main/circle-main.kicad_pcb"],
-            [k,"pcb","drc","--format","json","--severity-all","--output","hardware/reports/circle-ppg-drc.json","hardware/circle-ppg/circle-ppg.kicad_pcb"],
-            [py,"tools/check_drc.py"],
-        ])
-    else:
-        print("[NOTICE] KiCad CLI binary not detected on system. Skipping KiCad-specific ERC/DRC verification steps.")
-        steps.append({"command": ["kicad-cli"], "exit_code": 0, "skipped": True, "reason": "kicad-cli binary not found in environment"})
-
+    steps = []
     for command in commands:
-        result=run(command); steps.append(result)
-        if result["exit_code"]: break
-    disallowed=[]
-    pattern=re.compile(r"(TODO|TBD|PLACEHOLDER)")
-    for path in list((ROOT/"hardware").rglob("*.json"))+list((ROOT/"docs").rglob("*.md")):
-        if pattern.search(path.read_text(encoding="utf-8",errors="ignore")): disallowed.append(str(path.relative_to(ROOT)))
-    artifacts=[]
-    patterns=["docs/superpowers/specs/*.md","hardware/*.json","hardware/circle-main/legacy/00_root.sch","hardware/circle-ppg/legacy/00_ppg_root.sch","hardware/reports/*-erc.json","hardware/reports/*-drc.json","hardware/reports/*-allowlist.json","hardware/reports/bom/*.csv","hardware/reports/pdf/*.pdf"]
-    for pattern_glob in patterns:
-        for path in sorted(ROOT.glob(pattern_glob)): artifacts.append({"path":str(path.relative_to(ROOT)),"sha256":digest(path)})
-    ok=all(s["exit_code"]==0 for s in steps) and not disallowed
-    summary={"verified":ok,"release_class":"ENGINEERING_REVIEW_ONLY","steps":steps,"artifacts":artifacts,"disallowed_placeholders":disallowed,"limitations":["KiCad 10 CLI parses, ERC-checks, and exports legacy sources but does not import legacy .sch into native .kicad_sch.","ERC validates parser-visible structure; architecture-level NET annotations do not constitute fabrication-ready electrical connectivity.","No fabrication, powered-electrode, human, EMC, or regulatory validation performed."]}
-    out=ROOT/"hardware/reports/verification-summary.json"; out.write_text(json.dumps(summary,indent=2)+"\n",encoding="utf-8",newline="\n")
-    if ok: print("CIRCLE Rev B review package: VERIFIED")
-    else: print("CIRCLE Rev B review package: FAILED")
-    return int(not ok)
-if __name__=="__main__": raise SystemExit(main())
+        step = run(command)
+        steps.append(step)
+        if step["exit_code"]:
+            break
+    software_ok = len(steps) == len(commands) and all(s["exit_code"] == 0 for s in steps)
+    disallowed = []
+    placeholder_pattern = re.compile(r"\b(TODO|TBD|PLACEHOLDER)\b")
+    for path in sorted(list((ROOT / "hardware").rglob("*.json")) + list((ROOT / "docs").rglob("*.md"))):
+        if placeholder_pattern.search(path.read_text(encoding="utf-8", errors="ignore")):
+            disallowed.append(str(path.relative_to(ROOT)))
+    software_ok = software_ok and not disallowed
+    hardware_checked = False
+    hardware_ok = False
+    reason = "Full hardware verification was not requested" if args.software_only else None
+    if software_ok and not args.software_only:
+        if resolve_kicad_cli() is None:
+            reason = "Pinned KiCad CLI is unavailable; fresh ERC/DRC checks were not performed"
+        else:
+            hardware_checked = True
+            step = run([py, "tools/run_kicad_checks.py"])
+            steps.append(step)
+            hardware_ok = step["exit_code"] == 0
+    verified = software_ok and hardware_ok
+    status = "VERIFIED" if verified else (
+        "SOFTWARE_VERIFIED" if software_ok and args.software_only else
+        "INCOMPLETE" if software_ok and not hardware_checked else "FAILED"
+    )
+    artifacts = []
+    for pattern in ("hardware/*.json", "contracts/*.json", "hardware/reports/*-erc.json", "hardware/reports/*-drc.json", "hardware/reports/*-allowlist.json"):
+        for path in sorted(ROOT.glob(pattern)):
+            artifacts.append({"path": str(path.relative_to(ROOT)), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()})
+    summary = {
+        "verified": verified, "software_verified": software_ok,
+        "hardware_checked": hardware_checked, "status": status,
+        "release_class": "ENGINEERING_REVIEW_ONLY", "steps": steps,
+        "artifacts": artifacts, "disallowed_placeholders": disallowed,
+        "incomplete_reason": reason,
+        "limitations": [
+            "Archived report validation does not establish fresh hardware verification.",
+            "ERC structure and explicitly allowlisted routing do not authorize fabrication.",
+            "No fabrication, powered-electrode, human, EMC, or regulatory validation performed.",
+        ],
+    }
+    output = args.output or ROOT / ("outputs/software-verification-summary.json" if args.software_only else "hardware/reports/verification-summary.json")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+    print(f"CIRCLE Rev B review package: {status}")
+    if reason:
+        print(reason)
+    return 0 if verified or (software_ok and args.software_only) else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
