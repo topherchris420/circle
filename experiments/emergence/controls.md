@@ -1,6 +1,6 @@
 # Emergence Controls and Blinding Strategy
 
-> **ENGINEERING REVIEW ONLY** ? Experimental controls specification. Not certified for clinical or medical application.
+> **ENGINEERING REVIEW ONLY** — Experimental controls specification. Not certified for clinical or medical application.
 
 ## 1. Control Architectures
 

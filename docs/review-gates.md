@@ -1,6 +1,6 @@
 # Review Gates
 
-> **ENGINEERING REVIEW ONLY ? NOT FOR FABRICATION OR HUMAN CONNECTION.**
+> **ENGINEERING REVIEW ONLY — NOT FOR FABRICATION OR HUMAN CONNECTION.**
 
 | Gate | Blocking evidence | Affected area | Verification | Release consequence |
 |---|---|---|---|---|
