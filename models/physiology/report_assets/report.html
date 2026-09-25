@@ -1,0 +1,73 @@
+<div class="page">
+  <header class="masthead">
+    <p class="eyebrow">{{EYEBROW}}</p>
+    <h1>CIRCLE closed-loop session</h1>
+    <p class="lede">Every trace below was recovered from raw Rev&nbsp;B sensor codes, drawn over the hidden ground truth it is scored against, and can be re-derived from the exported evidence bundle alone.</p>
+    <dl class="status">{{STATUS}}</dl>
+  </header>
+
+  <section class="recorder" aria-labelledby="recorder-title">
+    <div class="recorder-head">
+      <h2 id="recorder-title">Polygraph</h2>
+      <div class="chapters" id="chapters" role="group" aria-label="Jump to a moment"></div>
+    </div>
+    <p class="caption" id="chapter-caption" aria-live="polite"></p>
+    <div class="trace-frame">
+      <canvas id="trace" tabindex="0" role="img" aria-label="Stacked physiological channels on a shared time axis. Use the chapter buttons, drag to zoom, arrow keys to pan."></canvas>
+      <div class="scope-controls">
+        <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
+        <button type="button" id="zoom-out" aria-label="Zoom out">−</button>
+        <button type="button" id="zoom-reset">Reset</button>
+      </div>
+    </div>
+    <canvas id="overview" aria-hidden="true"></canvas>
+    <div class="legend" aria-label="How to read the traces">
+      <span class="key"><i class="k-est"></i>Recovered from raw codes</span>
+      <span class="key"><i class="k-truth"></i>Hidden ground truth</span>
+      <span class="key"><i class="k-ghost"></i>Matched sham arm</span>
+      <span class="key"><i class="k-motion"></i>IMU-detected motion</span>
+      <span class="key"><i class="k-loop"></i>Paced-breathing guidance</span>
+      <span class="hint">Drag across the traces to zoom · double-click to reset · arrow keys pan</span>
+    </div>
+  </section>
+
+  <div class="columns">
+    <section class="card scorecard" aria-labelledby="score-title">
+      <h2 id="score-title">Scored against ground truth</h2>
+      <p class="section-note"><abbr class="src src-spec">Spec</abbr> targets come from CIRCLE's timing and validation documents. <abbr class="src src-twin">Twin</abbr> targets are software regression targets for this simulation, not clinical accuracy.</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th scope="col">Check</th><th scope="col" class="num">Result</th><th scope="col" class="num">Target</th><th scope="col"><span class="sr-only">Status</span></th></tr></thead>
+          <tbody>{{SCORE_ROWS}}</tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card chain" aria-labelledby="chain-title">
+      <h2 id="chain-title">One intervention, end to end</h2>
+      <ol class="steps">{{CHAIN}}</ol>
+      <figure class="micro">
+        <canvas id="micro" role="img" aria-label="IMU vibration envelope around the first haptic command, with command, electrical onset, and physical onset markers."></canvas>
+        <figcaption>First cue at millisecond scale: raw IMU samples at 400 SPS, the carrier envelope, and the 50&nbsp;% crossing the pipeline reports as physical onset.</figcaption>
+      </figure>
+    </section>
+  </div>
+
+  <section class="card counterfactual" aria-labelledby="cf-title">
+    <h2 id="cf-title">Matched counterfactual</h2>
+    {{COUNTERFACTUAL}}
+  </section>
+
+  <footer class="colophon">
+    <div class="reproduce">
+      <h2>Reproduce and audit</h2>
+      <div class="cmd"><code id="cmd-run">{{RUN_COMMAND}}</code><button type="button" data-copy="cmd-run">Copy</button></div>
+      <div class="cmd"><code id="cmd-audit">{{AUDIT_COMMAND}}</code><button type="button" data-copy="cmd-audit">Copy</button></div>
+      <div class="cmd"><code id="cmd-bench">{{BENCH_COMMAND}}</code><button type="button" data-copy="cmd-bench">Copy</button></div>
+    </div>
+    <div class="limits">
+      <h2>What this does not show</h2>
+      <p>All data are simulated by a phenomenological twin; no person or hardware was involved. Agreement with the twin tests the software's measurement, timing, and evidence logic, not physiology, calibration, or clinical accuracy. SpO₂ uses an uncalibrated curve and reads about 1 point low by design. The arousal index is an engineering trigger, not a psychological measure. CIRCLE Rev&nbsp;B remains engineering-review-only hardware.</p>
+    </div>
+  </footer>
+</div>

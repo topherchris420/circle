@@ -47,6 +47,7 @@ def main(argv: list[str] | None = None) -> int:
         [py, "tools/generate_schematics.py", "--board", "circle-ppg"],
         [py, "tools/check_erc.py"],
         [py, "tools/check_drc.py"],
+        [py, "tools/run_physiology_twin.py", "--output", "outputs/physiology", "--audit"],
     ]
     steps = []
     for command in commands:

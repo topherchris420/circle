@@ -1,6 +1,6 @@
 # CIRCLE Emergence Research Experiments
 
-> **ENGINEERING REVIEW ONLY** ? Experimental research protocols. Not certified for clinical, medical, or human-connected use.
+> **ENGINEERING REVIEW ONLY** — Experimental research protocols. Not certified for clinical, medical, or human-connected use.
 
 ## Overview
 

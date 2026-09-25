@@ -1,6 +1,6 @@
 # Emergence Experiment Execution Protocol
 
-> **ENGINEERING REVIEW ONLY** ? Experimental research protocol. Not certified for clinical or medical application.
+> **ENGINEERING REVIEW ONLY** — Experimental research protocol. Not certified for clinical or medical application.
 
 ## 1. Objective
 

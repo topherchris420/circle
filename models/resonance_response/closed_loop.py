@@ -26,39 +26,59 @@ GEOMETRIES = ("GOLDEN_RATIO_SPHERES", "EQUAL_SPHERES", "RANDOM_SPHERES", "SHAM_O
 CORES = ("DUAL_TETRAHEDRON_MERKABA", "SPHERICAL_CORE", "CUBIC_CORE", "NO_CORE", "SHAM_OFF")
 MODULATIONS = ("NONE_CW", "SINE_AM", "PULSED", "BURST", "SHAM_OFF")
 
-# Exact two-sided Student's-t critical values at alpha = 0.05
-STUDENT_T_CRITICAL_TABLE = {
-    1: 12.706,
-    2: 4.303,
-    3: 3.182,
-    4: 2.776,
-    5: 2.571,
-    6: 2.447,
-    7: 2.365,
-    8: 2.306,
-    9: 2.262,
-    10: 2.228,
-    12: 2.179,
-    15: 2.131,
-    20: 2.086,
-    25: 2.060,
-    30: 2.042,
-}
+def _regularized_incomplete_beta(x: float, a: float, b: float) -> float:
+    """I_x(a, b) by Lentz's continued fraction (Numerical Recipes 6.4)."""
+    if x <= 0.0:
+        return 0.0
+    if x >= 1.0:
+        return 1.0
+    if x > (a + 1.0) / (a + b + 2.0):
+        return 1.0 - _regularized_incomplete_beta(1.0 - x, b, a)
+    tiny = 1e-300
+    front = math.exp(a * math.log(x) + b * math.log1p(-x) - (math.lgamma(a) + math.lgamma(b) - math.lgamma(a + b)))
+    c, d = 1.0, 1.0 - (a + b) * x / (a + 1.0)
+    d = 1.0 / (d if abs(d) > tiny else tiny)
+    h = d
+    for m in range(1, 400):
+        for numerator in (m * (b - m) * x / ((a + 2 * m - 1) * (a + 2 * m)),
+                          -(a + m) * (a + b + m) * x / ((a + 2 * m) * (a + 2 * m + 1))):
+            d = 1.0 + numerator * d
+            d = 1.0 / (d if abs(d) > tiny else tiny)
+            c = 1.0 + numerator / c
+            c = c if abs(c) > tiny else tiny
+            h *= d * c
+        if abs(d * c - 1.0) < 1e-15:
+            break
+    return front * h / a
 
 
-def get_student_t_critical_value(df: int) -> float:
-    """Return exact two-sided critical value t_{0.025, df} for degrees of freedom df."""
+def student_t_two_sided_p(t: float, df: float) -> float:
+    """P(|T| >= |t|) for Student's t with df degrees of freedom."""
     if df <= 0:
-        return 12.706
-    if df in STUDENT_T_CRITICAL_TABLE:
-        return STUDENT_T_CRITICAL_TABLE[df]
-    if df < 10:
-        keys = sorted(k for k in STUDENT_T_CRITICAL_TABLE.keys() if k < 10)
-        return STUDENT_T_CRITICAL_TABLE[min(keys, key=lambda k: abs(k - df))]
-    if df <= 30:
-        keys = sorted(k for k in STUDENT_T_CRITICAL_TABLE.keys() if k >= 10)
-        return STUDENT_T_CRITICAL_TABLE[min(keys, key=lambda k: abs(k - df))]
-    return round(1.95996 + (2.378 / df) + (2.82 / (df ** 2)), 3)
+        raise ValueError("df must be positive")
+    return _regularized_incomplete_beta(df / (df + t * t), df / 2.0, 0.5)
+
+
+def get_student_t_critical_value(df: int, alpha: float = 0.05) -> float:
+    """Exact two-sided critical value t_{alpha/2, df}, found by bisection on the t CDF.
+
+    df below 1 is treated as 1 (the most conservative defined value).
+    """
+    if not 0.0 < alpha < 1.0:
+        raise ValueError("alpha must lie in (0, 1)")
+    df = max(1.0, float(df))
+    lo, hi = 0.0, 1.0
+    while student_t_two_sided_p(hi, df) > alpha:
+        hi *= 2.0
+    for _ in range(200):
+        mid = 0.5 * (lo + hi)
+        if student_t_two_sided_p(mid, df) > alpha:
+            lo = mid
+        else:
+            hi = mid
+        if hi - lo < 1e-12:
+            break
+    return 0.5 * (lo + hi)
 
 
 def classify_condition_role(geometry: str, core: str, amp_v: float) -> str:

@@ -1,6 +1,6 @@
 # Emergence Statistical Analysis Plan
 
-> **ENGINEERING REVIEW ONLY** ? Experimental analysis plan. Not certified for clinical or medical application.
+> **ENGINEERING REVIEW ONLY** — Experimental analysis plan. Not certified for clinical or medical application.
 
 ## 1. Primary Estimand
 

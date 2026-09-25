@@ -47,6 +47,8 @@ The goal is not simply to collect signals. It is to create an instrument capable
 | **Status** | Automated repository verification passes; physical fabrication and human connection remain blocked by unresolved review gates |
 
 **Review Artifacts:**
+[Physiology Session Report](diagrams/circle-physiology-session.html) ·
+[Physiology Pipeline](docs/physiology-pipeline.md) ·
 [3D Animation](diagrams/circle-3d-animation.gif) ·
 [Interactive 3D WebGL Viewer](diagrams/circle-3d-viewer.html) ·
 [System Architecture](diagrams/system-architecture.svg) ·
@@ -60,6 +62,37 @@ The goal is not simply to collect signals. It is to create an instrument capable
 [Optical Schematic](hardware/reports/pdf/circle-ppg.pdf) ·
 [Review Gates](docs/review-gates.md) ·
 [Verification Summary](hardware/reports/verification-summary.json)
+
+---
+
+## Physiology Twin & Closed-Loop Evidence
+
+![CIRCLE polygraph: every channel recovered from raw Rev B sensor codes, drawn over hidden ground truth](diagrams/physiology-polygraph.png)
+
+CIRCLE's signal pipeline turns raw Rev B sensor codes into physiology, closes the loop with haptic feedback, and records every step as auditable evidence. No hardware has been built, so it runs against a **physiological twin**: a seeded model of heartbeats, breathing, skin conductance, oxygen saturation, and movement whose ground truth is known. The twin is rendered through the ADS1220, MAX30102, and ICM-42688-P the way the firmware would record them, including device clock drift, interrupt capture latency, and FIFO overflow.
+
+One command runs a six-minute session (rest, breath hold, stressor, recovery), scores it against hidden truth, and audits the export:
+
+```bash
+python tools/run_physiology_twin.py --output outputs/physiology --audit
+```
+
+| Recovered from raw sensor codes | Held-out result (50 sessions) |
+| --- | --- |
+| Heartbeats from PPG (±50 ms, motion-free) | F1 0.9999 |
+| Heart rate · HRV (RMSSD) | MAE 0.39 bpm · 1.5 ms |
+| Breathing rate · breath hold (apnea) | MAE 0.36 /min · IoU 0.98 |
+| Skin conductance responses | sensitivity 0.98 · PPV 1.00 · amplitude error 4 % |
+| SpO₂ during hand movement | 0 false desaturations after IMU gating (naive estimate falls to ~87 %) |
+| PPG timestamps across a FIFO overflow | ≤ 0.56 ms (spec ≤ 1 ms); lost samples declared exactly |
+| Haptic command → IMU-observed vibration | within 3 ms of truth |
+
+- **Closed loop, strictly causal.** A controller that reads only data at least 1 s old detects sustained arousal after the stressor and starts paced-breathing cues at 6/min. Breathing entrains, and the controller releases guidance on its own.
+- **Every decision replays bit-for-bit.** [`tools/audit_physiology_run.py`](tools/audit_physiology_run.py) re-runs the pipeline and the controller from the raw bundle alone. It then walks each intervention's evidence chain: decision → exact sample ranges → command → TLV3201 current edge → IMU-observed vibration.
+- **A true counterfactual.** The sham arm shares every random draw, so the two arms differ only because of the intervention, under the twin's *assumed* response model.
+- **Held-out scoring.** Methods were developed on seeds 0–29. The table comes from seeds 100–149: 999 of 1000 checks pass, and the one failure is documented.
+
+Open the [interactive session report](diagrams/circle-physiology-session.html) locally, and read [the methods, evidence format, and review findings](docs/physiology-pipeline.md). The twin also surfaced two firmware findings for Rev B: the ADS1220 has no native 64 SPS mode, and MAX30102 timestamps must anchor on the FIFO interrupt rather than the read.
 
 ---
 
@@ -237,6 +270,7 @@ It does **not** constitute medical, regulatory, safety, or physical hardware aut
 | Verification Scope | Evidence / Mechanism | Status |
 | --- | --- | --- |
 | **Repository Contracts** | Unit test suite + design manifest & JSON schema validators | ✅ Checks Pass |
+| **Physiology Pipeline & Closed Loop** | Twin session scored against hidden ground truth (20 checks), bit-for-bit decision replay, independent evidence audit | ✅ Checks Pass (simulated data) |
 | **Generated Artifacts** | Rendered SVG diagrams, HTML 3D viewers, schematics regenerate deterministically | ✅ Checks Pass |
 | **Schematic Syntax & ERC** | KiCad CLI schematic parsing and Electrical Rules Checking (0 violations across 10 sheets) | ✅ Checks Pass |
 | **PCB DRC & Routing** | KiCad DRC rules (0 rule violations; unrouted copper nets gated under SHA-256 fingerprinted allowlist) | ⚠️ Open Allowlist |
@@ -278,6 +312,9 @@ python tools/check_record_schema.py
 python tools/check_emergence_contract.py
 python tools/check_pnt_contract.py
 python tools/check_resonance_contract.py
+
+# Closed-loop physiology session: score against ground truth, then audit the evidence
+python tools/run_physiology_twin.py --output outputs/physiology --audit
 ```
 
 ---
@@ -406,13 +443,14 @@ Records carry microsecond time bounds and provenance, with source lineage where 
 When reviewing the CIRCLE architecture:
 
 1. **Architecture Overview:** Read [`docs/architecture.md`](docs/architecture.md) and inspect [`diagrams/system-architecture.svg`](diagrams/system-architecture.svg).
-2. **Safety & Domain Isolation:** Review [`docs/safety-analysis.md`](docs/safety-analysis.md) alongside [`diagrams/safety-boundaries.svg`](diagrams/safety-boundaries.svg).
-3. **Schematics Review:** Examine rendered schematics for [`circle-main`](hardware/reports/pdf/circle-main.pdf) and [`circle-ppg`](hardware/reports/pdf/circle-ppg.pdf).
-4. **Interactive 3D Hardware:** Launch [`diagrams/circle-3d-viewer.html`](diagrams/circle-3d-viewer.html) in a browser to inspect physical layouts and component clearance.
-5. **Review Gates:** Audit unresolved items in [`docs/review-gates.md`](docs/review-gates.md).
-6. **Electrical Specifications:** Inspect [`docs/pin-allocation.md`](docs/pin-allocation.md), [`docs/power-budget-analysis.md`](docs/power-budget-analysis.md), and [`docs/timing-and-data-model.md`](docs/timing-and-data-model.md).
-7. **Research Subsystems:** Study the [Resonance](docs/resonance-architecture.md), [Emergence](docs/emergence-architecture.md), and [Quantum PNT](docs/quantum-pnt-architecture.md) module specs.
-8. **Verification:** Execute `python tools/verify_release.py` and inspect [`hardware/reports/verification-summary.json`](hardware/reports/verification-summary.json).
+2. **Signal Pipeline & Evidence:** Run `python tools/run_physiology_twin.py --audit`, open the session report, and read [`docs/physiology-pipeline.md`](docs/physiology-pipeline.md).
+3. **Safety & Domain Isolation:** Review [`docs/safety-analysis.md`](docs/safety-analysis.md) alongside [`diagrams/safety-boundaries.svg`](diagrams/safety-boundaries.svg).
+4. **Schematics Review:** Examine rendered schematics for [`circle-main`](hardware/reports/pdf/circle-main.pdf) and [`circle-ppg`](hardware/reports/pdf/circle-ppg.pdf).
+5. **Interactive 3D Hardware:** Launch [`diagrams/circle-3d-viewer.html`](diagrams/circle-3d-viewer.html) in a browser to inspect physical layouts and component clearance.
+6. **Review Gates:** Audit unresolved items in [`docs/review-gates.md`](docs/review-gates.md).
+7. **Electrical Specifications:** Inspect [`docs/pin-allocation.md`](docs/pin-allocation.md), [`docs/power-budget-analysis.md`](docs/power-budget-analysis.md), and [`docs/timing-and-data-model.md`](docs/timing-and-data-model.md).
+8. **Research Subsystems:** Study the [Resonance](docs/resonance-architecture.md), [Emergence](docs/emergence-architecture.md), and [Quantum PNT](docs/quantum-pnt-architecture.md) module specs.
+9. **Verification:** Execute `python tools/verify_release.py` and inspect [`hardware/reports/verification-summary.json`](hardware/reports/verification-summary.json).
 
 ---
 
@@ -431,7 +469,7 @@ circle/
 │   ├── reports/             # Generated PDFs, Gerbers, BOMs, STEP models, and DRC/ERC logs
 │   ├── design-manifest.json # Complete pin, network, part, and GPIO allocation specification
 │   └── interfaces.json      # Electrical domain and inter-board interface contracts
-├── models/                  # Physics simulators & telemetry bridges (emergence, quantum PNT, resonance)
+├── models/                  # Physiology twin & signal pipeline, physics simulators, telemetry bridges
 ├── tests/                   # Automated repository contract, schema, and simulation test suite
 └── tools/                   # PCB builders, schematic generators, verifiers, and experiment runners
 ```

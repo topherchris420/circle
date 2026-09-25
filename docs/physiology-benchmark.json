@@ -1,0 +1,238 @@
+{
+ "all_passed": false,
+ "checks": {
+  "apnea_iou": {
+   "label": "Breath-hold (apnea) interval IoU",
+   "mean": 0.9811273800000001,
+   "pass_rate": 1.0,
+   "source": "TWIN",
+   "target": ">= 0.85",
+   "unit": "",
+   "worst": 0.959612
+  },
+  "arousal_tracking": {
+   "label": "Controller arousal index vs latent truth (Pearson r)",
+   "mean": 0.91916376,
+   "pass_rate": 1.0,
+   "source": "TWIN",
+   "target": ">= 0.85",
+   "unit": "",
+   "worst": 0.886977
+  },
+  "beat_f1": {
+   "label": "PPG beat F1 (motion-free, +/-50 ms)",
+   "mean": 0.99990348,
+   "pass_rate": 1.0,
+   "source": "TWIN",
+   "target": ">= 0.99",
+   "unit": "",
+   "worst": 0.998785
+  },
+  "beat_f1_all": {
+   "label": "PPG beat F1 (all, incl. motion)",
+   "mean": 0.97614592,
+   "pass_rate": 1.0,
+   "source": "TWIN",
+   "target": ">= 0.95",
+   "unit": "",
+   "worst": 0.964571
+  },
+  "clock_ppm": {
+   "label": "SYNC clock-rate estimate error",
+   "mean": 6.652e-05,
+   "pass_rate": 1.0,
+   "source": "TWIN",
+   "target": "<= 0.1",
+   "unit": "ppm",
+   "worst": 0.000224
+  },
+  "edge_max": {
+   "label": "EDA/IMU edge timestamp max",
+   "mean": 16.095963980000004,
+   "pass_rate": 1.0,
+   "source": "SPEC validation-plan.md",
+   "target": "<= 25",
+   "unit": "us",
+   "worst": 21.640552
+  },
+  "edge_p999": {
+   "label": "EDA/IMU edge timestamp P99.9",
+   "mean": 9.5434301,
+   "pass_rate": 1.0,
+   "source": "SPEC validation-plan.md",
+   "target": "<= 10",
+   "unit": "us",
+   "worst": 9.73456
+  },
+  "gaps_exact": {
+   "label": "Declared GAP ranges equal true sample loss",
+   "mean": 1.0,
+   "pass_rate": 1.0,
+   "source": "SPEC timing-and-data-model.md",
+   "target": "== 1",
+   "unit": "bool",
+   "worst": 1.0
+  },
+  "haptic_physical": {
+   "label": "IMU-observed haptic onset error (max)",
+   "mean": 2.70965616,
+   "pass_rate": 1.0,
+   "source": "TWIN (2 IMU samples)",
+   "target": "<= 5.0",
+   "unit": "ms",
+   "worst": 2.97346
+  },
+  "hr_mae": {
+   "label": "Heart rate MAE (1 Hz)",
+   "mean": 0.38994994000000005,
+   "pass_rate": 1.0,
+   "source": "TWIN",
+   "target": "<= 1.0",
+   "unit": "bpm",
+   "worst": 0.43522
+  },
+  "motion_iou": {
+   "label": "Motion episode IoU (IMU)",
+   "mean": 0.7175965000000002,
+   "pass_rate": 1.0,
+   "source": "TWIN",
+   "target": ">= 0.60",
+   "unit": "",
+   "worst": 0.706704
+  },
+  "ppg_fifo": {
+   "label": "PPG FIFO timestamp reconstruction max",
+   "mean": 552.6526,
+   "pass_rate": 1.0,
+   "source": "SPEC timing-and-data-model.md",
+   "target": "<= 1000",
+   "unit": "us",
+   "worst": 556.9526
+  },
+  "resp_mae": {
+   "label": "Respiratory rate MAE (RIIV breaths)",
+   "mean": 0.3570964,
+   "pass_rate": 1.0,
+   "source": "TWIN",
+   "target": "<= 1.0",
+   "unit": "breaths/min",
+   "worst": 0.493959
+  },
+  "rmssd_mae": {
+   "label": "RMSSD MAE (60 s windows)",
+   "mean": 1.4993360000000004,
+   "pass_rate": 1.0,
+   "source": "TWIN",
+   "target": "<= 5",
+   "unit": "ms",
+   "worst": 2.158215
+  },
+  "scl_mae": {
+   "label": "Tonic skin conductance MAE",
+   "mean": 0.035369439999999995,
+   "pass_rate": 1.0,
+   "source": "TWIN",
+   "target": "<= 0.10",
+   "unit": "uS",
+   "worst": 0.062521
+  },
+  "scr_amplitude": {
+   "label": "SCR amplitude error (median, relative)",
+   "mean": 0.04316178,
+   "pass_rate": 1.0,
+   "source": "TWIN",
+   "target": "<= 0.15",
+   "unit": "",
+   "worst": 0.086066
+  },
+  "scr_ppv": {
+   "label": "SCR positive predictive value",
+   "mean": 1.0,
+   "pass_rate": 1.0,
+   "source": "TWIN",
+   "target": ">= 0.90",
+   "unit": "",
+   "worst": 1.0
+  },
+  "scr_sensitivity": {
+   "label": "SCR sensitivity (>= 0.05 uS, motion-free)",
+   "mean": 0.9809277599999998,
+   "pass_rate": 0.98,
+   "source": "TWIN",
+   "target": ">= 0.85",
+   "unit": "",
+   "worst": 0.785714
+  },
+  "spo2_false_desat": {
+   "label": "False desaturation windows after IMU gating",
+   "mean": 0.0,
+   "pass_rate": 1.0,
+   "source": "TWIN",
+   "target": "== 0",
+   "unit": "windows",
+   "worst": 0.0
+  },
+  "spo2_mae": {
+   "label": "SpO2 MAE, gated (includes uncalibrated bias)",
+   "mean": 1.1546410800000002,
+   "pass_rate": 1.0,
+   "source": "TWIN",
+   "target": "<= 2.0",
+   "unit": "%",
+   "worst": 1.174793
+  }
+ },
+ "provenance": "SIMULATED",
+ "seeds": [
+  100,
+  101,
+  102,
+  103,
+  104,
+  105,
+  106,
+  107,
+  108,
+  109,
+  110,
+  111,
+  112,
+  113,
+  114,
+  115,
+  116,
+  117,
+  118,
+  119,
+  120,
+  121,
+  122,
+  123,
+  124,
+  125,
+  126,
+  127,
+  128,
+  129,
+  130,
+  131,
+  132,
+  133,
+  134,
+  135,
+  136,
+  137,
+  138,
+  139,
+  140,
+  141,
+  142,
+  143,
+  144,
+  145,
+  146,
+  147,
+  148,
+  149
+ ]
+}

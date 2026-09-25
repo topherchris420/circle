@@ -1,6 +1,6 @@
 # Preliminary Power Budget
 
-> **ENGINEERING REVIEW ONLY ? NOT FOR FABRICATION OR HUMAN CONNECTION.**
+> **ENGINEERING REVIEW ONLY — NOT FOR FABRICATION OR HUMAN CONNECTION.**
 
 | Rail/load | Nominal | Peak | Source | Confidence | Margin | Measurement hook |
 |---|---:|---:|---|---|---:|---|

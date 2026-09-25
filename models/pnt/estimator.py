@@ -176,7 +176,13 @@ class PNTStateEstimator:
                 "mahalanobis_sq": mahalanobis_sq, "status": "AI_UPDATE_SUCCESS"}
 
     def update_quantum_clock(self, clock_phase_s: float, current_height_m: float) -> Dict[str, Any]:
-        """Kalman measurement update using relativistic quantum clock error."""
+        """Propagate the relativistic clock-error model by one step.
+
+        Adds gravitational redshift (g h / c^2) and velocity time dilation
+        (v^2 / 2c^2). This is a deterministic model propagation, not a Kalman
+        measurement update: clock_phase_s is accepted for API compatibility but
+        is not fused, and the error-state covariance is unchanged.
+        """
         # Gravitational redshift: gh / c^2
         redshift = (G_STANDARD * current_height_m) / (C_LIGHT ** 2)
         v_sq = np.sum(self.state.velocity_m_s ** 2)

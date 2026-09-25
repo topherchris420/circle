@@ -1,6 +1,6 @@
 # ESP32-S3 Pin Allocation
 
-> **ENGINEERING REVIEW ONLY ? NOT FOR FABRICATION OR HUMAN CONNECTION.**
+> **ENGINEERING REVIEW ONLY — NOT FOR FABRICATION OR HUMAN CONNECTION.**
 
 | GPIO | Function | Direction | Boot state | Strapping risk | Pull | Timing role | Sheet |
 |---|---|---|---|---|---|---|---|

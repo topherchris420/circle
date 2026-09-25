@@ -97,6 +97,16 @@ The reference update estimates IMU bias from synchronized IMU minus reference sp
 
 The reference is a Gaussian sensor model. Quantum-state propagation, atom fringes, gradiometer fusion, clock fusion, large rotations, and hardware accuracy are not validated by this benchmark. Exported records no longer claim calibrated navigation or list sensors that were not simulated.
 
+## Closed-loop physiology session with ground truth
+
+```bash
+python tools/run_physiology_twin.py --seed 7 --output outputs/physiology --audit
+python tools/audit_physiology_run.py outputs/physiology
+python tools/check_session.py outputs/physiology/session.ndjson
+```
+
+The physiology twin renders known physiology through models of the Rev B EDA, PPG, and IMU hardware and firmware timing. The pipeline and closed-loop controller read only the resulting raw codes and device timestamps. The run directory contains a contract-valid evidence session, hashed raw streams, every pipeline output, the hidden truth, a scorecard, and an interactive report. Two runs with the same seed are byte-identical. The audit re-derives every output and replays every controller decision from the raw bundle alone. See [physiology-pipeline.md](physiology-pipeline.md) for methods, scoring conventions, the held-out benchmark, and limitations.
+
 ## Verification scopes
 
 ```bash
