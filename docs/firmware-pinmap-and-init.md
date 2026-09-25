@@ -89,3 +89,6 @@ sequenceDiagram
 2. **Fail-Open Assertion Protocol**:
    - Firmware must never assert `EDA_FW_REQUEST` (GPIO45) until all system diagnostics pass and MCP23017 confirms `USB_PRESENT == 0`.
    - If MCP23017 signals a `SYS_STATUS_INT_N` interrupt indicating USB insertion, firmware logs the timestamped reason and gracefully deasserts GPIO45 (even though hardware interlocks de-energize the relays independently).
+3. **Sample Clocks and Timestamps** (review findings from the [physiology twin](physiology-pipeline.md#findings-for-the-rev-b-design-review)):
+   - The ADS1220 has no native 64 SPS data rate (normal mode: 20, 45, 90, 175 SPS and up). Achieve 64 SPS with timer-triggered single-shot conversions at the 90 SPS setting (about 11.2 ms each), or select a native rate. Record the DRDY-to-sample-center offset with the stream.
+   - Timestamp MAX30102 samples from the hardware-captured FIFO almost-full interrupt edge, with a tracked sample period, never from the FIFO read time. Read `OVF_COUNTER` on every service and declare the exact loss as a `GAP`. Service the FIFO before `OVF_COUNTER` can saturate (31 samples: about 0.46 s after the interrupt at 100 SPS with a 16-sample threshold).

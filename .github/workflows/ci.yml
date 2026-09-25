@@ -49,6 +49,9 @@ jobs:
       - name: Validate quantum PNT contracts & physics
         run: python tools/check_pnt_contract.py
 
+      - name: Closed-loop physiology twin, ground-truth scorecard & independent audit
+        run: python tools/run_physiology_twin.py --output outputs/physiology --audit
+
       - name: Verify diagrams rendering
         run: python tools/render_diagrams.py
 
