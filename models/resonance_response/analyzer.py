@@ -6,6 +6,8 @@ Implements:
 3. Contiguous Block-Level Sham Permutation (swapping entire contiguous blocks L = max(2, 2*tau)).
 4. True Overlapping Moving Block Bootstrap (Künsch 1989 / Politis & Romano 1994).
 5. True Circular-Shift Permutation (x_{(t + tau) mod N}) preserving 100% of time-series autocorrelation.
+   Monte Carlo p-values use (b + 1) / (m + 1) (Phipson & Smyth 2010), so a
+   finite permutation sample can never report an impossible p = 0.
 6. Baseline-subtracted phantom delta evaluation (Delta_phantom = active - base) to eliminate DC false alarms.
 """
 
@@ -167,7 +169,7 @@ class ResonanceAnalyzer:
                 if perm_stat >= obs_stat - 1e-12:
                     count_extreme += 1
 
-            p_val = count_extreme / float(self.n_permutations)
+            p_val = (count_extreme + 1) / float(self.n_permutations + 1)
             return p_val, tau
         else:
             n_ab = len(active_base)
@@ -192,7 +194,7 @@ class ResonanceAnalyzer:
                 if perm_stat >= obs_stat - 1e-12:
                     count_extreme += 1
 
-            p_val = count_extreme / float(self.n_permutations)
+            p_val = (count_extreme + 1) / float(self.n_permutations + 1)
             return p_val, tau
 
     def _overlapping_moving_block_bootstrap(
