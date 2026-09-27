@@ -15,7 +15,9 @@ The index is an engineering trigger, not a validated psychological measure.
 Quality gates have teeth. Before acting, the controller requires every
 input stream to be fresh at the cutoff, no ADC saturation in the window,
 enough beat coverage, little motion, finite features, and (to trigger) at
-least two of the three physiological components to agree. A failed gate is a
+both physiological systems to agree: cardiovascular (heart rate) and
+electrodermal (tonic skin conductance). Phasic response counts in a 30 s
+window are too sparse to count as agreement; they contribute to the index only. A failed gate is a
 recorded decision (HOLD_*), with explicit reasons. During guidance, repeated
 gate failures stop the program: a loop that cannot observe its effect is no
 longer closed.
@@ -35,7 +37,8 @@ from .streams import RawSession
 
 CONTROLLER_VERSION = "1.1.0"
 
-HOLD_REASONS = ("DATA_STALE", "SATURATION", "BEAT_COVERAGE_LOW", "MOTION_EXCESSIVE", "FEATURE_MISSING")
+HOLD_REASONS = ("DATA_STALE", "SATURATION", "EDA_CONTACT_LOST", "PPG_COUPLING_CHANGED", "BEAT_COVERAGE_LOW", "MOTION_EXCESSIVE",
+                "MOTION_AT_CUTOFF", "FEATURE_MISSING")
 
 
 @dataclass(frozen=True)
@@ -68,9 +71,12 @@ class ControllerConfig:
     scl_sd_floor_us: float = 0.25
     scr_rate_floor_per_min: float = 2.0
     stale_after_s: float = 0.5
-    agreement_z: float = 1.0
-    agreement_min_components: int = 2
+    agreement_z: float = 2.0
     max_quality_failures_in_program: int = 3
+    eda_contact_floor_us: float = 0.3
+    min_eda_contact_fraction: float = 0.9
+    recent_clean_s: float = 3.0
+    ppg_coupling_band: float = 0.5
 
     def __post_init__(self) -> None:
         positive = ("evaluation_period_s", "decision_margin_s", "feature_window_s", "hr_window_s",
@@ -87,8 +93,8 @@ class ControllerConfig:
             raise ValueError("min_program_s cannot exceed max_program_s")
         if not 0 < self.stale_after_s < self.feature_window_s:
             raise ValueError("stale_after_s must be positive and shorter than the feature window")
-        if not 1 <= self.agreement_min_components <= 3:
-            raise ValueError("agreement_min_components must be 1, 2, or 3")
+        if not 0 < self.recent_clean_s < self.hr_window_s:
+            raise ValueError("recent_clean_s must be positive and shorter than hr_window_s")
         if self.max_quality_failures_in_program < 1:
             raise ValueError("max_quality_failures_in_program must be at least 1")
         if self.decision_margin_s < 0.6:
@@ -151,6 +157,9 @@ def window_features(session: RawSession, t0_us: int, t1_us: int, config: Control
         w = session.streams[name].window(t0_us, t1_us)
         out[f"{name}_age_s"] = round((t1_us - int(w.device_time_us[-1])) / 1e6, 6) if len(w) else round(config.feature_window_s, 6)
     out["saturated_samples"] = float(_saturated(session, t0_us, t1_us))
+    recent_ppg = session.streams["ppg"].window(t1_us - int(config.recent_clean_s * 1e6), t1_us)
+    if len(recent_ppg):
+        out["ppg_ir_dc_counts"] = round(float(np.median(recent_ppg.columns["ir_counts"])), 3)
     hr_from = end_s - config.hr_window_s
     valid = beats["ibi_valid"] & (beats["ibi_end_s"] >= hr_from) & (beats["ibi_start_s"] >= t0_us / 1e6)
     covered = float(np.sum(beats["ibi_s"][valid])) if valid.any() else 0.0
@@ -159,6 +168,10 @@ def window_features(session: RawSession, t0_us: int, t1_us: int, config: Control
         out["hr_bpm"] = round(float(60.0 / np.mean(beats["ibi_s"][valid])), 6)
     if len(eda["t_s"]):
         recent = eda["t_s"] >= end_s - config.scl_window_s
+        # A lifted electrode reads near-zero conductance; that is a contact fault, not calm skin.
+        # Judged over the same samples the tonic level is taken from.
+        contact = eda["conductance_us"][recent] >= config.eda_contact_floor_us
+        out["eda_contact_fraction"] = round(float(np.mean(contact)) if recent.any() else 0.0, 6)
         if recent.any():
             out["scl_us"] = round(float(np.mean(eda["tonic_us"][recent])), 6)
         scr = [s for s in eda["scrs"] if s["onset_s"] >= end_s - config.scr_window_s and not s["motion_confounded"]]
@@ -166,6 +179,8 @@ def window_features(session: RawSession, t0_us: int, t1_us: int, config: Control
     if len(motion["t_s"]):
         recent = motion["t_s"] >= hr_from
         out["motion_fraction"] = round(float(np.mean(motion["flag"][recent])) if recent.any() else 0.0, 6)
+        latest = motion["t_s"] >= end_s - config.recent_clean_s
+        out["motion_at_cutoff"] = 1.0 if latest.any() and bool(np.any(motion["flag"][latest])) else 0.0
     else:
         out["motion_fraction"] = 1.0
     return out
@@ -185,17 +200,29 @@ def _saturated(session: RawSession, t0_us: int, t1_us: int) -> int:
     return count
 
 
-def quality_gate(features: dict[str, float], config: ControllerConfig) -> list[str]:
+def quality_gate(features: dict[str, float], config: ControllerConfig, baseline: dict[str, float] | None = None) -> list[str]:
     """Explicit reasons the evidence is inadequate for a decision (empty list: adequate)."""
     reasons = []
+    reference = (baseline or {}).get("ppg_ir_dc_counts")
+    if reference and "ppg_ir_dc_counts" in features:
+        ratio = features["ppg_ir_dc_counts"] / reference
+        features["ppg_dc_ratio"] = round(ratio, 6)
+        if not config.ppg_coupling_band <= ratio <= 1 / config.ppg_coupling_band:
+            # Received light changed several-fold: the optical geometry is no longer the baseline's.
+            reasons.append("PPG_COUPLING_CHANGED")
     if any(features.get(f"{name}_age_s", math.inf) > config.stale_after_s for name in ("eda", "ppg", "imu")):
         reasons.append("DATA_STALE")
     if features.get("saturated_samples", 0.0) > 0:
         reasons.append("SATURATION")
+    if features.get("eda_contact_fraction", 0.0) < config.min_eda_contact_fraction:
+        reasons.append("EDA_CONTACT_LOST")
     if features.get("beat_coverage", 0.0) < config.min_beat_coverage:
         reasons.append("BEAT_COVERAGE_LOW")
     if features.get("motion_fraction", 1.0) > config.max_motion_fraction:
         reasons.append("MOTION_EXCESSIVE")
+    if features.get("motion_at_cutoff", 1.0) > 0:
+        # The newest evidence is corrupted: the current state is unknown.
+        reasons.append("MOTION_AT_CUTOFF")
     if not all(key in features for key in ("hr_z", "scl_z", "scr_z")):
         reasons.append("FEATURE_MISSING")
     return reasons
@@ -264,6 +291,7 @@ class ClosedLoopController:
         if len(hr_windows) < 2 or len(scl_windows) < 2:
             raise ValueError("Baseline phase does not contain enough clean data for the controller")
         duration_min = (t1 - t0) / 60e6
+        ir = session.streams["ppg"].window(t0, t1).columns["ir_counts"]
         clean_scr = [s for s in eda["scrs"] if not s["motion_confounded"]]
         self.baseline = {
             "hr_bpm": round(float(np.mean(hr_windows)), 6),
@@ -271,6 +299,7 @@ class ClosedLoopController:
             "scl_us": round(float(np.mean(scl_windows)), 6),
             "scl_sd_us": round(max(float(np.std(scl_windows, ddof=1)), c.scl_sd_floor_us), 6),
             "scr_rate_per_min": round(len(clean_scr) / duration_min, 6),
+            "ppg_ir_dc_counts": round(float(np.median(ir)), 3),
             "windows": float(len(hr_windows)),
         }
         self.baseline_window_us = (t0, t1)
@@ -304,12 +333,18 @@ class ClosedLoopController:
         agreeing = 0
         if all(math.isfinite(z) for z in (z_hr, z_scl, z_scr)):
             index = c.weight_hr * z_hr + c.weight_scl * z_scl + c.weight_scr * z_scr
-            agreeing = sum(1 for z in (z_hr, z_scl, z_scr) if z >= c.agreement_z)
+            # Agreement is judged per physiological system. A few phasic responses in a
+            # 30 s window are counting noise, so electrodermal agreement rests on tonic level.
+            cardio = z_hr >= c.agreement_z
+            electrodermal = z_scl >= c.agreement_z
+            agreeing = int(cardio) + int(electrodermal)
             features.update({"hr_z": round(z_hr, 6), "scl_z": round(z_scl, 6), "scr_z": round(z_scr, 6),
-                             "arousal_index": round(index, 6), "components_agreeing": float(agreeing)})
+                             "arousal_index": round(index, 6),
+                             "cardiovascular_agrees": float(cardio), "electrodermal_agrees": float(electrodermal),
+                             "systems_agreeing": float(agreeing)})
         else:
             index = float("nan")
-        reasons = quality_gate(features, c)
+        reasons = quality_gate(features, c, self.baseline)
         quality_ok = not reasons
         features["quality_ok"] = 1.0 if quality_ok else 0.0
         armed = c.arm_phase in markers
@@ -320,7 +355,7 @@ class ClosedLoopController:
         self._step(evaluation, index, quality_ok, armed, t_us, agreeing)
         return evaluation
 
-    def _step(self, ev: Evaluation, index: float, quality_ok: bool, armed: bool, t_us: int, agreeing: int = 3) -> None:
+    def _step(self, ev: Evaluation, index: float, quality_ok: bool, armed: bool, t_us: int, agreeing: int = 2) -> None:
         c = self.config
         if self.state == "REFRACTORY" and self.refractory_until_us is not None and t_us >= self.refractory_until_us:
             self.state = "IDLE"
@@ -329,8 +364,10 @@ class ClosedLoopController:
             if not armed:
                 pass
             elif not quality_ok:
+                # A hold breaks the streak: "consecutive" means adjacent, adequately observed evaluations.
+                self.trigger_count = 0
                 ev.action = "HOLD_QUALITY"
-            elif index >= c.trigger_index and agreeing < c.agreement_min_components:
+            elif index >= c.trigger_index and agreeing < 2:
                 # One physiological system alone cannot trigger an intervention.
                 self.trigger_count = 0
                 ev.action = "HOLD_SIGNALS_DISAGREE"

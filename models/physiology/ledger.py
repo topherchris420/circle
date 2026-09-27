@@ -95,7 +95,7 @@ def build_ledger(records: list[dict[str, Any]]) -> dict[str, Any]:
         "passport": passport(records),
         "controller": {"version": _flag(config_record, "CONTROLLER_VERSION:"), "trigger_index": config["trigger_index"],
                        "release_index": config["release_index"], "decision_margin_s": config["decision_margin_s"],
-                       "agreement_z": config["agreement_z"], "agreement_min_components": config["agreement_min_components"]},
+                       "agreement_z": config["agreement_z"]},
         "evaluations": evaluations,
         "decisions": decisions,
         "holds_by_reason": dict(sorted(holds.items())),
@@ -125,6 +125,14 @@ def _link_detail(link: dict[str, Any], events: dict[str, dict[str, Any]]) -> dic
     return out
 
 
+def _agreement(ev: dict[str, Any], config: dict[str, Any]) -> str:
+    f, formula = ev["features"], ev["formula"]
+    cardio = f"cardiovascular: HR z {formula['hr']['z']:.2f} >= {config['agreement_z']:.1f}" if f.get("cardiovascular_agrees") else "cardiovascular not elevated"
+    electro = (f"electrodermal: SCL z {formula['scl']['z']:.2f} >= {config['agreement_z']:.1f}" if f.get("electrodermal_agrees")
+               else "electrodermal not elevated")
+    return f"both systems agree ({cardio}; {electro})"
+
+
 def _why(evaluations: list[dict[str, Any]], i: int, config: dict[str, Any]) -> str:
     ev = evaluations[i]
     action = ev["action"] or ""
@@ -134,8 +142,7 @@ def _why(evaluations: list[dict[str, Any]], i: int, config: dict[str, Any]) -> s
         run = [e["arousal_index"] for e in evaluations[max(0, i - needed + 1):i + 1]]
         parts = [f"arousal index {', '.join(f'{x:.2f}' for x in run)} >= trigger {config['trigger_index']:.2f} "
                  f"for {needed} consecutive evaluations",
-                 f"{int(ev['features'].get('components_agreeing', 0))}/3 components with z >= {config['agreement_z']:.1f} "
-                 f"(minimum {int(config['agreement_min_components'])})",
+                 _agreement(ev, config),
                  "all quality gates passed",
                  f"inputs taken <= {ev['input_cutoff_us']} us, decided at {ev['decision_time_us']} us"]
         return "; ".join(parts)
@@ -177,7 +184,7 @@ def passport(records: list[dict[str, Any]], extra: dict[str, str] | None = None)
         "INPUT": f"{len(streams)} streams ({', '.join(r['stream_id'] for r in streams)})",
         "GAPS": f"{sum(1 for r in records if r['record_type'] == 'GAP')} declared",
         "EVALUATIONS": f"{len(evaluations)} ({decisions} decisions, {gate_failed} failed a quality gate, {holds} held an action)",
-        "INTERVENTIONS": (f"{len(interventions)} programs, {observed}/{cues} cues physically observed" if interventions
+        "INTERVENTIONS": (f"{len(interventions)} program(s), {observed}/{cues} cues physically observed" if interventions
                           else f"none actuated ({sham_commands} sham commands logged)" if sham_commands else "none"),
         "HUMAN DATA": "NONE" if "NOT_HUMAN_DATA" in flags else "UNSPECIFIED",
         "HARDWARE DRIVEN": "NONE" if "PHYSIOLOGY_TWIN" in flags else "UNSPECIFIED",

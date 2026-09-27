@@ -30,6 +30,7 @@ from models.physiology.evidence import (analysis_document, build_session_records
 from models.physiology.experiment import SessionConfig, SessionRun, run_session
 from models.physiology.ledger import build_ledger, passport, passport_text
 from models.physiology.pipeline import PIPELINE_VERSION
+from models.physiology.scenarios import SCENARIOS, system_checks
 from models.physiology.report import build_report
 from models.physiology.twin import TwinConfig
 from models.physiology.validation import score
@@ -146,6 +147,33 @@ def benchmark(seeds: list[int], duration: float | None) -> dict:
             "all_passed": not failures}
 
 
+def scenario_suite(names: list[str], seeds: list[int]) -> dict:
+    """Run adversarial scenarios and judge the closed loop against hidden truth."""
+    results = []
+    for name in names:
+        scenario = SCENARIOS[name]
+        for seed in seeds:
+            run = run_session(scenario.configure(seed))
+            result = system_checks(run, scenario)
+            results.append(result)
+            failed = [c["id"] for c in result["checks"] if not c["passed"]]
+            print(f"{name:<18} seed {seed:<4} {'PASS' if result['passed'] else 'FAIL ' + ','.join(failed):<40} "
+                  f"decisions {result['decisions'] or 'none'}  holds {result['holds_by_reason'] or 'none'}", flush=True)
+    return {"provenance": "SIMULATED", "note": "System-level checks judged against twin truth; not evidence of hardware "
+            "or human behavior.", "scenarios": {n: SCENARIOS[n].tests for n in names}, "seeds": seeds,
+            "results": results, "all_passed": all(r["passed"] for r in results)}
+
+
+def corpus(result: dict) -> dict:
+    """Compact, frozen expected outcomes: any behavioral change must update this file deliberately."""
+    return {"provenance": "SIMULATED", "note": "Regenerate with: python tools/run_physiology_twin.py --scenarios "
+            "--output outputs/scenarios --corpus tests/fixtures/scenario-outcomes.json",
+            "outcomes": {f"{r['scenario']}@{r['seed']}": {
+                "passed": r["passed"], "failed_checks": [c["id"] for c in r["checks"] if not c["passed"]],
+                "decisions": [list(d) for d in r["decisions"]], "holds_by_reason": r["holds_by_reason"]}
+                for r in result["results"]}}
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--seed", type=int, default=7, help="Twin seed (default 7)")
@@ -157,9 +185,29 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--audit", action="store_true", help="Independently audit the exported directory")
     parser.add_argument("--benchmark", type=int, metavar="N", help="Score N seeds instead of exporting one run")
     parser.add_argument("--benchmark-start", type=int, default=100, help="First benchmark seed (held out from development)")
+    parser.add_argument("--scenario", choices=sorted(SCENARIOS), default="clean",
+                        help="Adversarial scenario for a single exported run (default clean)")
+    parser.add_argument("--scenarios", nargs="*", metavar="NAME",
+                        help="Run the adversarial scenario suite (all scenarios if no names) and write scenarios.json")
+    parser.add_argument("--scenario-seeds", type=int, nargs="+", default=[7], help="Seeds for --scenarios")
+    parser.add_argument("--corpus", type=Path, help="With --scenarios: also write the compact regression corpus here")
     args = parser.parse_args(argv)
     started = time.perf_counter()
     try:
+        if args.scenarios is not None:
+            names = args.scenarios or list(SCENARIOS)
+            unknown = sorted(set(names) - set(SCENARIOS))
+            if unknown:
+                raise ValueError(f"Unknown scenarios {unknown}; choose from {sorted(SCENARIOS)}")
+            result = scenario_suite(names, args.scenario_seeds)
+            args.output.mkdir(parents=True, exist_ok=True)
+            (args.output / "scenarios.json").write_bytes(dumps(result))
+            if args.corpus:
+                args.corpus.parent.mkdir(parents=True, exist_ok=True)
+                args.corpus.write_bytes(dumps(corpus(result)))
+            passed = sum(r["passed"] for r in result["results"])
+            print(f"Scenario suite: {passed}/{len(result['results'])} runs passed every system check")
+            return 0 if result["all_passed"] else 1
         if args.benchmark:
             seeds = list(range(args.benchmark_start, args.benchmark_start + args.benchmark))
             result = benchmark(seeds, args.duration)
@@ -174,8 +222,10 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Benchmark over {len(seeds)} seeds: {result['checks_passed']}/{result['checks_run']} checks passed"
                   f"{'' if result['all_passed'] else ' (failures retained above and in benchmark.json)'}")
             return 0 if result["all_passed"] else 1
-        twin = TwinConfig(seed=args.seed) if args.duration is None else TwinConfig(seed=args.seed, duration_s=args.duration)
-        config = SessionConfig(twin=twin, actuate=not args.sham)
+        config = SCENARIOS[args.scenario].configure(args.seed)
+        if args.duration is not None:
+            config = replace(config, twin=replace(config.twin, duration_s=args.duration))
+        config = replace(config, actuate=not args.sham)
         run = run_session(config)
         counterfactual = None if args.no_counterfactual else run_session(replace(config, actuate=not config.actuate))
         exported = export_run(run, args.output, counterfactual, with_report=not args.no_report)

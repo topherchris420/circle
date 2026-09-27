@@ -81,6 +81,15 @@ class RigConfig:
     haptic_accel_g: float = 0.09
     haptic_pulse_s: float = 0.060
     haptic_rise_s: float = 0.004
+    # Firmware policy: hold the first FIFO batch until a second interrupt measures the
+    # sensor's sample period (False reproduces nominal-period stamping of that batch).
+    ppg_hold_first_batch: bool = True
+    # Adversarial impairments (all off by default). Intervals are true seconds.
+    eda_contact_loss: tuple[tuple[float, float], ...] = ()
+    ppg_coupling_loss: tuple[tuple[float, float, float], ...] = ()  # (start, end, residual optical coupling)
+    ppg_detach: tuple[float, float] | None = None                   # sensor head unplugged: samples lost
+    haptic_ppg_coupling_per_g: float = 0.0                           # optical intensity change per g of LRA vibration
+    haptic_eda_coupling_us_per_g: float = 0.0                        # electrode micro-motion from the LRA
 
     def __post_init__(self) -> None:
         if not 0 < self.ppg_fifo_threshold < self.ppg_fifo_depth:
@@ -93,6 +102,14 @@ class RigConfig:
             # OVF_COUNTER saturates at 31; beyond that the loss count is not observable.
             if lost >= 31:
                 raise ValueError("FIFO stall would saturate OVF_COUNTER; loss count would be unobservable")
+        for start, end in self.eda_contact_loss:
+            if not 0 <= start < end:
+                raise ValueError("eda_contact_loss intervals must be increasing and nonnegative")
+        for start, end, residual in self.ppg_coupling_loss:
+            if not 0 <= start < end or not 0 < residual <= 1:
+                raise ValueError("ppg_coupling_loss needs start < end and residual coupling in (0, 1]")
+        if self.ppg_detach is not None and not 0 < self.ppg_detach[0] < self.ppg_detach[1]:
+            raise ValueError("ppg_detach must be an increasing interval after t = 0")
         if 1e6 / self.eda_rate_hz <= EDA_CONVERSION_US:
             raise ValueError("EDA rate leaves no time for the single-shot conversion")
 
@@ -115,6 +132,16 @@ class HapticOutcome:
     electrical_onset: DeviceEvent | None
     completion: DeviceEvent | None
     truth: dict[str, float]
+
+
+def _interval_factor(t: np.ndarray, intervals: list[tuple[float, float, float]], ramp_s: float = 0.3) -> np.ndarray:
+    """Multiplicative factor that falls to `residual` inside each interval, with smooth edges."""
+    factor = np.ones_like(np.asarray(t, dtype=np.float64))
+    for start, end, residual in intervals:
+        x = np.clip(np.minimum(t - start, end - t) / ramp_s, 0.0, 1.0)
+        inside = x * x * (3 - 2 * x)
+        factor *= 1 - (1 - residual) * inside
+    return factor
 
 
 def _capture_latency_us(rng: np.random.Generator, n: int) -> np.ndarray:
@@ -212,6 +239,7 @@ class SensorRig:
         reads: list[np.ndarray] = []
         self.ppg_gaps: list[Gap] = []
         self.ppg_anchor_log: list[dict[str, float]] = []
+        pending: tuple[np.ndarray, int, float] | None = None
         while True:
             s_int = next_unread + c.ppg_fifo_threshold - 1
             if s_int >= n:
@@ -228,14 +256,26 @@ class SensorRig:
             if anchor is not None:
                 observed = (edge_dev - anchor[1]) / (s_int - anchor[0])
                 if abs(observed - period_est) < 0.05 * nominal_us:
-                    period_est += 0.2 * (observed - period_est)
+                    first_measurement = pending is not None
+                    period_est = observed if first_measurement else period_est + 0.2 * (observed - period_est)
             batch = np.arange(next_unread, next_unread + stored)
-            seqs.append(batch)
-            batch_stamps = np.round(edge_dev + (batch - s_int) * period_est).astype(np.int64)
-            stamps.append(batch_stamps)
             # The batch exists in firmware memory only once the FIFO read completes.
             read_done = int(math.floor(float(self.clock.to_device_us(edge_true + service)))) + 150
-            reads.append(np.maximum(batch_stamps, read_done))
+            if pending is not None:
+                # Stamp the held first batch now that the period has been measured.
+                held, held_int, held_edge = pending
+                held_stamps = np.round(held_edge + (held - held_int) * period_est).astype(np.int64)
+                seqs.append(held)
+                stamps.append(held_stamps)
+                reads.append(np.maximum(held_stamps, read_done))
+                pending = None
+            if anchor is None and c.ppg_hold_first_batch:
+                pending = (batch, s_int, float(edge_dev))
+            else:
+                seqs.append(batch)
+                batch_stamps = np.round(edge_dev + (batch - s_int) * period_est).astype(np.int64)
+                stamps.append(batch_stamps)
+                reads.append(np.maximum(batch_stamps, read_done))
             self.ppg_anchor_log.append({"sequence": s_int, "edge_device_us": edge_dev, "period_estimate_us": period_est})
             if lost:
                 read_dev = int(math.floor(float(self.clock.to_device_us(edge_true + service))))
@@ -248,6 +288,18 @@ class SensorRig:
         self.ppg_seq = np.concatenate(seqs).astype(np.int64)
         self.ppg_dev = np.concatenate(stamps)
         self.ppg_avail = np.maximum.accumulate(np.concatenate(reads))
+        if c.ppg_detach is not None:
+            # Sensor head unplugged: I2C reads fail, samples are lost, and firmware
+            # declares the loss when the head answers again (sequence from the sample clock).
+            lost = (t[self.ppg_seq] >= c.ppg_detach[0]) & (t[self.ppg_seq] < c.ppg_detach[1])
+            if lost.any() and not lost.all():
+                first, last = int(self.ppg_seq[lost][0]), int(self.ppg_seq[lost][-1])
+                after = np.flatnonzero(~lost & (np.arange(len(lost)) > np.flatnonzero(lost)[-1]))
+                declared_at = int(self.ppg_avail[after[0]]) if len(after) else int(self.ppg_avail[-1])
+                self.ppg_gaps.append(Gap("ppg", first, last, declared_at,
+                                         f"PPG_HEAD_NOT_RESPONDING: I2C reads failed for {c.ppg_detach[1] - c.ppg_detach[0]:.1f} s"))
+                self.ppg_gaps.sort(key=lambda g: g.first_sequence)
+                self.ppg_seq, self.ppg_dev, self.ppg_avail = self.ppg_seq[~lost], self.ppg_dev[~lost], self.ppg_avail[~lost]
         self.ppg_t = t[self.ppg_seq]
         self.ppg_edge_dev_exact = self.clock.to_device_us(self.ppg_t)
 
@@ -331,7 +383,9 @@ class SensorRig:
             return
         t = self.eda_t[span]
         g_us = self.twin.skin_conductance(t) + 0.002 * self.eda_noise[span, 0]
-        g = np.clip(g_us, 0.05, None) * 1e-6
+        g_us = g_us + self.config.haptic_eda_coupling_us_per_g * np.abs(self._vibration(t))
+        g_us = np.clip(g_us, 0.05, None) * _interval_factor(t, [(a, b, 0.004) for a, b in self.config.eda_contact_loss])
+        g = np.clip(g_us, 0.0002, None) * 1e-6
         v_sense = EDA_EXCITATION_V * EDA_SERIES_LIMIT_OHM * g / (1 + EDA_SERIES_LIMIT_OHM * g)
         v_sense = v_sense + 0.6e-6 * self.eda_noise[span, 1]
         full = 2 ** (EDA_BITS - 1)
@@ -347,7 +401,8 @@ class SensorRig:
         volume = self.twin.blood_volume(t)
         ratio = optical_ratio_of_ratios(self.twin.spo2_at(t))
         wander = 0.0035 * self.twin.respiration(t) + 0.002 * np.sin(2 * math.pi * t / 170 + self._ppg_wander_phase)
-        common = 1 + wander + self.twin.ppg_motion(t)
+        common = (1 + wander + self.twin.ppg_motion(t) + c.haptic_ppg_coupling_per_g * self._vibration(t))
+        common = common * _interval_factor(t, list(c.ppg_coupling_loss))
         pi_ir = c.ppg_perfusion_index_ir
         ir = c.ppg_dc_ir_counts * common * (1 - pi_ir * volume) + 7.0 * self.ppg_noise[span, 1]
         red = c.ppg_dc_red_counts * common * (1 - ratio * pi_ir * volume) + 9.0 * self.ppg_noise[span, 0]

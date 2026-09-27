@@ -1,0 +1,341 @@
+{
+ "by_scenario": {
+  "ambiguous": {
+   "failures": [],
+   "passed": 30,
+   "runs": 30
+  },
+  "clean": {
+   "failures": [],
+   "passed": 30,
+   "runs": 30
+  },
+  "feedback_artifact": {
+   "failures": [],
+   "passed": 30,
+   "runs": 30
+  },
+  "motion_heavy": {
+   "failures": [
+    {
+     "decisions": [
+      [
+       305.0,
+       "START_PACED_BREATHING"
+      ],
+      [
+       330.0,
+       "STOP_QUALITY_LOST"
+      ]
+     ],
+     "details": {
+      "no_unwarranted_intervention": [
+       {
+        "latent_arousal": 0.218,
+        "t_s": 304.99
+       }
+      ]
+     },
+     "failed_checks": [
+      "no_unwarranted_intervention"
+     ],
+     "seed": 503
+    },
+    {
+     "decisions": [
+      [
+       305.0,
+       "START_PACED_BREATHING"
+      ],
+      [
+       330.0,
+       "STOP_QUALITY_LOST"
+      ]
+     ],
+     "details": {
+      "no_unwarranted_intervention": [
+       {
+        "latent_arousal": 0.327,
+        "t_s": 304.99
+       }
+      ]
+     },
+     "failed_checks": [
+      "no_unwarranted_intervention"
+     ],
+     "seed": 506
+    },
+    {
+     "decisions": [
+      [
+       305.0,
+       "START_PACED_BREATHING"
+      ],
+      [
+       330.0,
+       "STOP_QUALITY_LOST"
+      ]
+     ],
+     "details": {
+      "no_unwarranted_intervention": [
+       {
+        "latent_arousal": 0.287,
+        "t_s": 304.99
+       }
+      ]
+     },
+     "failed_checks": [
+      "no_unwarranted_intervention"
+     ],
+     "seed": 513
+    },
+    {
+     "decisions": [
+      [
+       305.0,
+       "START_PACED_BREATHING"
+      ],
+      [
+       330.0,
+       "STOP_QUALITY_LOST"
+      ]
+     ],
+     "details": {
+      "no_unwarranted_intervention": [
+       {
+        "latent_arousal": 0.301,
+        "t_s": 304.99
+       }
+      ]
+     },
+     "failed_checks": [
+      "no_unwarranted_intervention"
+     ],
+     "seed": 514
+    },
+    {
+     "decisions": [
+      [
+       305.0,
+       "START_PACED_BREATHING"
+      ],
+      [
+       330.0,
+       "STOP_QUALITY_LOST"
+      ]
+     ],
+     "details": {
+      "no_unwarranted_intervention": [
+       {
+        "latent_arousal": 0.302,
+        "t_s": 304.99
+       }
+      ]
+     },
+     "failed_checks": [
+      "no_unwarranted_intervention"
+     ],
+     "seed": 515
+    },
+    {
+     "decisions": [
+      [
+       305.0,
+       "START_PACED_BREATHING"
+      ],
+      [
+       330.0,
+       "STOP_QUALITY_LOST"
+      ]
+     ],
+     "details": {
+      "no_unwarranted_intervention": [
+       {
+        "latent_arousal": 0.221,
+        "t_s": 304.99
+       }
+      ]
+     },
+     "failed_checks": [
+      "no_unwarranted_intervention"
+     ],
+     "seed": 517
+    },
+    {
+     "decisions": [
+      [
+       305.0,
+       "START_PACED_BREATHING"
+      ],
+      [
+       330.0,
+       "STOP_QUALITY_LOST"
+      ]
+     ],
+     "details": {
+      "no_unwarranted_intervention": [
+       {
+        "latent_arousal": 0.261,
+        "t_s": 304.99
+       }
+      ]
+     },
+     "failed_checks": [
+      "no_unwarranted_intervention"
+     ],
+     "seed": 519
+    },
+    {
+     "decisions": [
+      [
+       305.0,
+       "START_PACED_BREATHING"
+      ],
+      [
+       330.0,
+       "STOP_QUALITY_LOST"
+      ]
+     ],
+     "details": {
+      "no_unwarranted_intervention": [
+       {
+        "latent_arousal": 0.265,
+        "t_s": 304.99
+       }
+      ]
+     },
+     "failed_checks": [
+      "no_unwarranted_intervention"
+     ],
+     "seed": 521
+    },
+    {
+     "decisions": [
+      [
+       305.0,
+       "START_PACED_BREATHING"
+      ],
+      [
+       330.0,
+       "STOP_QUALITY_LOST"
+      ]
+     ],
+     "details": {
+      "no_unwarranted_intervention": [
+       {
+        "latent_arousal": 0.317,
+        "t_s": 304.99
+       }
+      ]
+     },
+     "failed_checks": [
+      "no_unwarranted_intervention"
+     ],
+     "seed": 523
+    },
+    {
+     "decisions": [
+      [
+       305.0,
+       "START_PACED_BREATHING"
+      ],
+      [
+       330.0,
+       "STOP_QUALITY_LOST"
+      ]
+     ],
+     "details": {
+      "no_unwarranted_intervention": [
+       {
+        "latent_arousal": 0.254,
+        "t_s": 304.99
+       }
+      ]
+     },
+     "failed_checks": [
+      "no_unwarranted_intervention"
+     ],
+     "seed": 525
+    },
+    {
+     "decisions": [
+      [
+       305.0,
+       "START_PACED_BREATHING"
+      ],
+      [
+       330.0,
+       "STOP_QUALITY_LOST"
+      ]
+     ],
+     "details": {
+      "no_unwarranted_intervention": [
+       {
+        "latent_arousal": 0.232,
+        "t_s": 304.99
+       }
+      ]
+     },
+     "failed_checks": [
+      "no_unwarranted_intervention"
+     ],
+     "seed": 527
+    }
+   ],
+   "passed": 19,
+   "runs": 30
+  },
+  "poor_contact": {
+   "failures": [],
+   "passed": 30,
+   "runs": 30
+  },
+  "sensor_loss": {
+   "failures": [],
+   "passed": 30,
+   "runs": 30
+  },
+  "timing_fault": {
+   "failures": [],
+   "passed": 30,
+   "runs": 30
+  }
+ },
+ "generated_by": "python tools/run_physiology_twin.py --scenarios --scenario-seeds 500..529",
+ "note": "Final evaluation on seeds never examined during development. Earlier held-out rounds (seeds 100-109, 200-219) exposed three controller defects that were fixed before this run; see docs/closed-loop-evidence.md. Failures are retained, not tuned away.",
+ "provenance": "SIMULATED",
+ "runs": 210,
+ "runs_passed": 199,
+ "seeds": [
+  500,
+  501,
+  502,
+  503,
+  504,
+  505,
+  506,
+  507,
+  508,
+  509,
+  510,
+  511,
+  512,
+  513,
+  514,
+  515,
+  516,
+  517,
+  518,
+  519,
+  520,
+  521,
+  522,
+  523,
+  524,
+  525,
+  526,
+  527,
+  528,
+  529
+ ]
+}

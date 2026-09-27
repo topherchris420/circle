@@ -84,8 +84,23 @@ PHASE_DRIVE = {
     "BREATH_HOLD": 0.30,
     "SETTLE": 0.15,
     "STRESSOR": 0.88,
+    "QUIET_TASK": 0.12,
     "RECOVERY": 0.10,
 }
+
+
+@dataclass(frozen=True)
+class CardiacDrive:
+    """A heart-rate change with no sympathetic (electrodermal) component.
+
+    Stands in for postural, thermal, or exertional cardiac changes: the same
+    heart-rate signature as arousal, produced by a different pathway. Used to
+    test whether the controller mistakes one system's change for a state change.
+    """
+    label: str
+    start_s: float
+    duration_s: float
+    delta_bpm: float
 
 
 @dataclass(frozen=True)
@@ -109,6 +124,7 @@ class TwinConfig:
     duration_s: float = 360.0
     phases: tuple[ProtocolPhase, ...] = DEFAULT_PHASES
     motion: tuple[MotionEpisode, ...] = DEFAULT_MOTION
+    cardiac_drive: tuple[CardiacDrive, ...] = ()
     stimulus_interval_s: float = 12.0
     physiology: PhysiologyParams = field(default_factory=PhysiologyParams)
 
@@ -180,6 +196,12 @@ class PhysiologyTwin:
         self._mayer_phase = float(phase_rng.uniform(0, 2 * math.pi))
 
         self.drive = np.array([PHASE_DRIVE[config.phase_at(t)] for t in self.t_grid])
+        self.cardiac_offset = np.zeros(n)
+        for episode in config.cardiac_drive:
+            ramp = min(8.0, episode.duration_s / 3)
+            up = _smoothstep((self.t_grid - episode.start_s) / ramp)
+            down = _smoothstep((episode.start_s + episode.duration_s - self.t_grid) / ramp)
+            self.cardiac_offset += episode.delta_bpm * up * down
         hold = np.array([config.phase_at(t) == "BREATH_HOLD" for t in self.t_grid], dtype=float)
         self._hold_raw = hold
 
@@ -341,7 +363,7 @@ class PhysiologyTwin:
 
             rsa = p.rsa_amplitude_bpm * (1 - 0.55 * a_c) * (1 + p.rsa_resonance_gain * math.exp(-((f - 0.1) / 0.035) ** 2)) * amp
             s["hr_ou"] += -s["hr_ou"] / 4.0 * dt + 0.9 * math.sqrt(2 * dt / 4.0) * xi[2]
-            hr = (p.resting_hr_bpm + p.arousal_hr_gain_bpm * a - 5.0 * hold
+            hr = (p.resting_hr_bpm + p.arousal_hr_gain_bpm * a - 5.0 * hold + self.cardiac_offset[k]
                   + rsa * math.sin(s["phi"] - 0.35)
                   + p.mayer_amplitude_bpm * math.sin(mayer_w * t + self._mayer_phase) + s["hr_ou"])
 
@@ -509,6 +531,7 @@ class PhysiologyTwin:
             "scrs": [{k: (round(v, 6) if isinstance(v, float) else v) for k, v in s.items() if k != "norm"} for s in self.scrs],
             "stimuli_s": self.stimuli,
             "motion_episodes": [asdict(m) for m in self.config.motion],
+            "cardiac_drive": [asdict(c) for c in self.config.cardiac_drive],
             "phases": [asdict(p) for p in self.config.phases],
             "motion_magnitude_g_10hz": motion_env[:: int(KINEMATIC_RATE_HZ / 10)].round(5).tolist(),
         }
