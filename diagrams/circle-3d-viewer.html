@@ -330,12 +330,13 @@
     <h1><span class="rec-dot"></span> Vers3Dynamics · CIRCLE Rev B</h1>
     <p class="subtitle">Multimodal Biosignal Sensing · Isolated Lab Sync · Nested Phi-Cavity & Merkaba Core</p>
     <span class="badge badge-warn">ENGINEERING REVIEW ONLY — NOT CERTIFIED FOR HUMAN CONNECTION</span>
+    <span class="badge badge-warn">VISUALIZATION OF INTENDED GEOMETRY — NOT EVIDENCE OF PHYSICAL BEHAVIOR</span>
   </div>
 
   <!-- Telemetry HUD Panel -->
   <div id="telemetry-hud">
     <div class="hud-title">
-      <span>SPATIAL INTELLIGENCE HUD</span>
+      <span>VIEWER STATE · NO LIVE TELEMETRY</span>
       <span id="fps-counter" style="color: #7ee787;">60 FPS</span>
     </div>
     <div class="hud-row"><span class="hud-label">TIMESTAMP (UTC):</span><span class="hud-val" id="hud-time">--:--:--.---</span></div>
@@ -343,9 +344,10 @@
     <div class="hud-row"><span class="hud-label">TARGET TRACK:</span><span class="hud-val" id="hud-target">GLOBAL ORBIT</span></div>
     <div class="hud-row"><span class="hud-label">CAM ELEVATION / AZ:</span><span class="hud-val" id="hud-cam-angle">0.0° / 0.0°</span></div>
     <div class="hud-row"><span class="hud-label">CAM DISTANCE:</span><span class="hud-val" id="hud-cam-dist">0.0 mm</span></div>
-    <div class="hud-row"><span class="hud-label">PHI RESONANCE (R_φ):</span><span class="hud-val alert" id="hud-r-phi">1.618034</span></div>
-    <div class="hud-row"><span class="hud-label">ISOLATION BARRIER:</span><span class="hud-val active">5.0 kVrms ISOW7742</span></div>
-    <div class="hud-row"><span class="hud-label">DETECTION MESH:</span><span class="hud-val active" id="hud-mesh-status">ENABLED [D]</span></div>
+    <div class="hud-row"><span class="hud-label">DESIGN RATIO φ:</span><span class="hud-val" id="hud-r-phi">1.618034 (geometry constant, not a measurement)</span></div>
+    <div class="hud-row"><span class="hud-label">ISOLATOR RATING:</span><span class="hud-val">5.0 kVrms (ISOW7742 datasheet; assembled barrier NOT TESTED)</span></div>
+    <div class="hud-row"><span class="hud-label">DATA SHOWN:</span><span class="hud-val">design geometry only · nothing here is simulated or measured</span></div>
+    <div class="hud-row"><span class="hud-label">BOUNDING BOXES:</span><span class="hud-val active" id="hud-mesh-status">ENABLED [D]</span></div>
   </div>
 
   <!-- Detection Overlay for Bounding Boxes -->
@@ -376,11 +378,11 @@
   </div>
 
   <div id="legend">
-    <div class="legend-item human">● BAT_HUMAN Domain (Isolated)</div>
-    <div class="legend-item iso">● LAB_ISO Domain (5 kVrms)</div>
+    <div class="legend-item human">● BAT_HUMAN (human-connected domain)</div>
+    <div class="legend-item iso">● LAB_ISO (isolated laboratory domain)</div>
     <div class="legend-item slot">⚡ 8.0mm Cutout Slot</div>
-    <div class="legend-item chamber">● 3-Sphere Phi Resonator (300/185/115 mm)</div>
-    <div class="legend-item core">● Merkaba Dual-Tetrahedral Core</div>
+    <div class="legend-item chamber">● 3-Sphere φ chamber, 300/185/115 mm (concept, not built)</div>
+    <div class="legend-item core">● Dual-tetrahedron core (concept, not built)</div>
   </div>
 
   <div id="controls-hint">Hotkeys: [1-5] Optics · [D] Mesh · [C] Cockpit View · [R] Reset · Drag: Rotate / Pan</div>
@@ -687,8 +689,7 @@
       document.getElementById('hud-cam-dist').textContent = `${dist.toFixed(1)} mm`;
 
       // Live fluctuating Phi Resonance metric calculation
-      const rPhiVal = (1.6180339887 + 0.002 * Math.sin(clock.getElapsedTime() * 2.5)).toFixed(6);
-      document.getElementById('hud-r-phi').textContent = rPhiVal;
+      // No animated 'resonance' value: the viewer shows design geometry, not telemetry.
     }
 
     // Animation Loop

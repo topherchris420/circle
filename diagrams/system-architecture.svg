@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-label="CIRCLE Rev A Closed-Loop Architecture">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-label="CIRCLE Closed-Loop Evidence Architecture">
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#30343b" />
@@ -7,21 +7,21 @@
   </defs>
   <rect width="1200" height="720" fill="#fbfaf6" />
   <text x="600" y="34" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#a32622">ENGINEERING REVIEW ONLY ? NOT FOR HUMAN CONNECTION</text>
-  <text x="600" y="70" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#161b22">CIRCLE Rev A Closed-Loop Architecture</text>
+  <text x="600" y="70" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#161b22">CIRCLE Closed-Loop Evidence Architecture</text>
   <line x1="120.0" y1="141.0" x2="290.0" y2="141.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
-  <text x="205.0" y="135.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">sense</text>
+  <text x="205.0" y="135.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">signals</text>
   <line x1="290.0" y1="141.0" x2="460.0" y2="141.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
-  <text x="375.0" y="135.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">synchronize</text>
+  <text x="375.0" y="135.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">raw + availability</text>
   <line x1="460.0" y1="141.0" x2="630.0" y2="141.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
-  <text x="545.0" y="135.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">model</text>
+  <text x="545.0" y="135.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">lawful window</text>
   <line x1="630.0" y1="141.0" x2="800.0" y2="141.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
-  <text x="715.0" y="135.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">decide</text>
+  <text x="715.0" y="135.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">evaluate</text>
   <line x1="800.0" y1="141.0" x2="1010.0" y2="141.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
   <text x="905.0" y="135.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">command</text>
   <line x1="1010.0" y1="141.0" x2="120.0" y2="141.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
-  <text x="565.0" y="135.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">intervene</text>
-  <line x1="120.0" y1="141.0" x2="290.0" y2="141.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
-  <text x="205.0" y="135.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">measure</text>
+  <text x="565.0" y="135.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">cue</text>
+  <line x1="1010.0" y1="141.0" x2="290.0" y2="141.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="650.0" y="135.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">IMU observes actuation</text>
   <line x1="120.0" y1="361.0" x2="290.0" y2="361.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
   <text x="205.0" y="355.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">samples</text>
   <line x1="290.0" y1="361.0" x2="460.0" y2="361.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
@@ -45,15 +45,15 @@
   <rect x="40" y="110" width="160" height="62" rx="10" fill="#f3e8d1" stroke="#30343b" stroke-width="2" />
   <text x="120.0" y="146" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Human</text>
   <rect x="210" y="110" width="160" height="62" rx="10" fill="#b9d8f2" stroke="#30343b" stroke-width="2" />
-  <text x="290.0" y="146" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">CIRCLE</text>
-  <rect x="380" y="110" width="160" height="62" rx="10" fill="#c9e6cf" stroke="#30343b" stroke-width="2" />
-  <text x="460.0" y="146" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">VitalSync</text>
+  <text x="290.0" y="146" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Sense</text>
+  <rect x="380" y="110" width="160" height="62" rx="10" fill="#fff1bf" stroke="#30343b" stroke-width="2" />
+  <text x="460.0" y="146" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Preserve</text>
   <rect x="550" y="110" width="160" height="62" rx="10" fill="#c9e6cf" stroke="#30343b" stroke-width="2" />
-  <text x="630.0" y="146" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">DRR</text>
+  <text x="630.0" y="146" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Infer (cutoff)</text>
   <rect x="720" y="110" width="160" height="62" rx="10" fill="#d7c6f2" stroke="#30343b" stroke-width="2" />
-  <text x="800.0" y="146" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">AdaptiveDecision</text>
+  <text x="800.0" y="146" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Decide + Gates</text>
   <rect x="930" y="110" width="160" height="62" rx="10" fill="#f2c2b8" stroke="#30343b" stroke-width="2" />
-  <text x="1010.0" y="146" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Feedback</text>
+  <text x="1010.0" y="146" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Intervene</text>
   <rect x="40" y="330" width="160" height="62" rx="10" fill="#cfe8e8" stroke="#30343b" stroke-width="2" />
   <text x="120.0" y="366" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Sensors</text>
   <rect x="210" y="330" width="160" height="62" rx="10" fill="#b9d8f2" stroke="#30343b" stroke-width="2" />

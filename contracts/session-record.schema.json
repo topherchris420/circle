@@ -108,6 +108,16 @@
       "type": "string",
       "minLength": 1
     },
+    "decision_time_us": {
+      "description": "Device time at which a decision or inference was made. Evidence used by the decision must have been available (held in memory) at or before this time.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "input_cutoff_us": {
+      "description": "Newest sample instant (device time) the decision or inference was permitted to use. Must not exceed decision_time_us.",
+      "type": "integer",
+      "minimum": 0
+    },
     "actuation_evidence_ids": {
       "type": "array",
       "minItems": 1,
@@ -115,6 +125,23 @@
       "items": {
         "type": "string",
         "minLength": 1
+      }
+    },
+    "execution_chain": {
+      "description": "Per-command execution evidence for an INTERVENTION. Each stage is a distinct recorded event: the command firmware issued, the electrical onset it caused, and the physical actuation an independent sensor observed. A stage is claimed only when its evidence id is present. None of these stages is evidence that physiology changed.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["cue_index", "command_id", "stage"],
+        "properties": {
+          "cue_index": {"type": "integer", "minimum": 0},
+          "command_id": {"type": "string", "minLength": 1},
+          "electrical_onset_id": {"type": "string", "minLength": 1},
+          "physical_observation_id": {"type": "string", "minLength": 1},
+          "stage": {"type": "string", "enum": ["COMMAND_ONLY", "ELECTRICAL_ONSET_OBSERVED", "PHYSICALLY_OBSERVED"]}
+        }
       }
     },
     "dropped_first_sequence": {

@@ -67,6 +67,12 @@ def validate_record(record: Any) -> None:
     if record["device_time_end_us"] < record["device_time_start_us"]:
         raise SessionRecordError("device_time_end_us precedes device_time_start_us")
 
+    cutoff, decided = record.get("input_cutoff_us"), record.get("decision_time_us")
+    if cutoff is not None and decided is not None and cutoff > decided:
+        raise SessionRecordError("input_cutoff_us is later than decision_time_us: evidence from the future")
+    if cutoff is not None and decided is None:
+        raise SessionRecordError("input_cutoff_us requires decision_time_us")
+
     ranges = record.get("source_sequence_ranges", [])
     stream_ids = record.get("source_stream_ids", [])
     if ranges or stream_ids:
@@ -80,6 +86,21 @@ def validate_record(record: Any) -> None:
             if first <= previous.get(item["stream_id"], -1):
                 raise SessionRecordError("Source sequence ranges overlap")
             previous[item["stream_id"]] = last
+    chain = record.get("execution_chain")
+    if chain is not None:
+        if record["record_type"] != "INTERVENTION":
+            raise SessionRecordError("execution_chain belongs only on INTERVENTION records")
+        evidence = set(record.get("actuation_evidence_ids", []))
+        for link in chain:
+            has_electrical, has_physical = "electrical_onset_id" in link, "physical_observation_id" in link
+            claimed = link["stage"]
+            earned = ("PHYSICALLY_OBSERVED" if has_physical else
+                      "ELECTRICAL_ONSET_OBSERVED" if has_electrical else "COMMAND_ONLY")
+            if claimed != earned:
+                raise SessionRecordError(f"Execution stage {claimed} is not what its evidence shows ({earned})")
+            ids = [link["command_id"]] + [link[k] for k in ("electrical_onset_id", "physical_observation_id") if k in link]
+            if not set(ids) <= evidence:
+                raise SessionRecordError("Execution chain cites evidence missing from actuation_evidence_ids")
     if record["record_type"] == "GAP":
         if record["dropped_last_sequence"] < record["dropped_first_sequence"]:
             raise SessionRecordError("Dropped sequence range is reversed")

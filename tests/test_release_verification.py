@@ -78,3 +78,28 @@ class ReleaseVerificationTest(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'did not produce'):
                     run_checks(Path('/fake/kicad'), output)
             self.assertEqual(stale.read_text(), 'archived evidence')
+
+
+class CheckedInSummaryTest(unittest.TestCase):
+    def test_checked_in_summary_never_claims_more_than_it_ran(self):
+        path = Path(__file__).resolve().parents[1] / 'hardware/reports/verification-summary.json'
+        summary = json.loads(path.read_text())
+        skipped = [s for s in summary.get('steps', []) if s.get('skipped')]
+        if summary.get('verified'):
+            self.assertTrue(summary.get('hardware_checked'), 'verified requires a fresh hardware check')
+            self.assertEqual(skipped, [], 'verified cannot coexist with skipped steps')
+        scopes = summary['scopes']
+        self.assertEqual(scopes['HUMAN_USE'], 'NOT_AUTHORIZED')
+        self.assertEqual(scopes['FABRICATION'], 'NOT_AUTHORIZED')
+        if not summary.get('hardware_checked'):
+            self.assertNotIn('FRESH', scopes['SCHEMATIC_ERC'])
+
+    def test_gate_scopes_are_never_set_by_software_success(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / 'hardware').mkdir()
+            gates = json.loads((Path(__file__).resolve().parents[1] / 'hardware/review-gates.json').read_text())
+            (root / 'hardware/review-gates.json').write_text(json.dumps(gates))
+            scopes = verify_release.gate_scopes(root)
+        self.assertEqual(scopes['BENCH_VALIDATION'], 'NOT_PERFORMED')
+        self.assertEqual(scopes['HUMAN_USE'], 'NOT_AUTHORIZED')

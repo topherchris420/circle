@@ -4,6 +4,7 @@
     <h1>CIRCLE closed-loop session</h1>
     <p class="lede">Every trace below was recovered from raw Rev&nbsp;B sensor codes, drawn over the hidden ground truth it is scored against, and can be re-derived from the exported evidence bundle alone.</p>
     <dl class="status">{{STATUS}}</dl>
+    {{PASSPORT}}
   </header>
 
   <section class="recorder" aria-labelledby="recorder-title">
@@ -52,6 +53,18 @@
       </figure>
     </section>
   </div>
+
+  <section class="card ledger" aria-labelledby="ledger-title">
+    <h2 id="ledger-title">Decision ledger: why did CIRCLE act, or hold?</h2>
+    <p class="section-note">Every controller evaluation, re-derivable from the raw bundle. Open a row to follow it down the evidence stack: formula, input cutoff, quality gate, and the exact sample ranges it read. Provenance: raw streams are <abbr title="SIMULATED here; RAW_MEASURED on hardware">simulated device codes</abbr>; windows and observations are <b>DERIVED</b>; evaluations are <b>MODEL_INFERRED</b>; cues are <b>INTERVENTION</b>.</p>
+    {{LEDGER}}
+  </section>
+
+  <section class="card execution" aria-labelledby="exec-title">
+    <h2 id="exec-title">Did each intervention actually happen?</h2>
+    <p class="section-note">A command is not evidence that a motor moved. Each cue earns a stage only from its own recorded evidence: the firmware command, the TLV3201 current edge, and vibration independently observed by the wrist IMU. None of these stages is evidence that physiology changed.</p>
+    {{EXECUTION}}
+  </section>
 
   <section class="card counterfactual" aria-labelledby="cf-title">
     <h2 id="cf-title">Matched counterfactual</h2>

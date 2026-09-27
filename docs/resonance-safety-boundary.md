@@ -35,6 +35,6 @@ CIRCLE BAT_HUMAN Domain                    CIRCLE LAB_ISO Domain
 
 ## 3. Physical Spacing & High-Voltage Isolation
 
-1. **8.0 mm Cutout Slot:** The physical PCB slot prevents surface creepage and dielectric breakdown between `BAT_HUMAN` and `LAB_ISO` domains up to 5.0 kVrms surge ratings.
+1. **8.0 mm Cutout Slot:** The PCB design includes a slot intended to increase creepage between `BAT_HUMAN` and `LAB_ISO`. The 5.0 kVrms figure is the isolator's component rating; the assembled barrier has not been reviewed or tested (gate `ISOLATION_CREEPAGE_CLEARANCE`).
 2. **Fail-Off Interlocks:** Any attachment of USB or debug instrumentation automatically opens hardware optocoupler / solid-state switches on the EDA analog front-end.
-3. **Power Budgeting & Thermal Limiting:** The resonance drive power is strictly measured and clamped to prevent localized chamber heating from invalidating temperature baselines.
+3. **Power Budgeting & Thermal Limiting:** Any future drive must measure and clamp input power so chamber heating cannot masquerade as a response. No chamber or drive exists.

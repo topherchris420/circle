@@ -67,7 +67,7 @@ class TelemetryReplayTest(unittest.TestCase):
         records += [snapshot(i, 100 + i * 20, "EDA", {"eda_raw": float(i)}) for i in range(3)]
         target = CircleTelemetryBridge(field_res=4).from_records(records)
         self.assertEqual(target.frame_count, 3)
-        np.testing.assert_array_equal(target.raw_values.consciousness_proxy, [0., 1., 2.])
+        np.testing.assert_array_equal(target.raw_values.eda_or_entropy, [0., 1., 2.])
         records[0]["payload"]["ppg_red"] = 5
         with self.assertRaisesRegex(ValueError, "CRC-32C mismatch"):
             CircleTelemetryBridge(field_res=4).from_records(records)

@@ -823,6 +823,15 @@
   });
   overview.addEventListener("pointerup", () => { ovDrag = null; });
 
+  for (const button of document.querySelectorAll(".show-evidence")) {
+    button.addEventListener("click", () => {
+      clearChapter();
+      caption.textContent = "Evaluation window: the samples this decision was allowed to read end at the input cutoff.";
+      setView([parseFloat(button.dataset.t0), parseFloat(button.dataset.t1)], true);
+      trace.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+    });
+  }
+
   for (const button of document.querySelectorAll("[data-copy]")) {
     button.addEventListener("click", () => {
       const code = document.getElementById(button.dataset.copy);

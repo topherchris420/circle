@@ -1,0 +1,105 @@
+{
+ "note": "Regenerate with: python tools/run_physiology_twin.py --scenarios --output outputs/scenarios --corpus tests/fixtures/scenario-outcomes.json",
+ "outcomes": {
+  "ambiguous@7": {
+   "decisions": [],
+   "failed_checks": [],
+   "holds_by_reason": {
+    "BEAT_COVERAGE_LOW": 3,
+    "MOTION_AT_CUTOFF": 2,
+    "MOTION_EXCESSIVE": 3,
+    "SIGNALS_DISAGREE": 13
+   },
+   "passed": true
+  },
+  "clean@7": {
+   "decisions": [
+    [
+     240.0,
+     "START_PACED_BREATHING"
+    ],
+    [
+     310.0,
+     "STOP_RELEASED"
+    ]
+   ],
+   "failed_checks": [],
+   "holds_by_reason": {},
+   "passed": true
+  },
+  "feedback_artifact@7": {
+   "decisions": [
+    [
+     240.0,
+     "START_PACED_BREATHING"
+    ],
+    [
+     310.0,
+     "STOP_RELEASED"
+    ]
+   ],
+   "failed_checks": [],
+   "holds_by_reason": {},
+   "passed": true
+  },
+  "motion_heavy@7": {
+   "decisions": [],
+   "failed_checks": [],
+   "holds_by_reason": {
+    "BEAT_COVERAGE_LOW": 14,
+    "FEATURE_MISSING": 2,
+    "MOTION_AT_CUTOFF": 11,
+    "MOTION_EXCESSIVE": 14
+   },
+   "passed": true
+  },
+  "poor_contact@7": {
+   "decisions": [],
+   "failed_checks": [],
+   "holds_by_reason": {
+    "BEAT_COVERAGE_LOW": 10,
+    "EDA_CONTACT_LOST": 7,
+    "FEATURE_MISSING": 3,
+    "MOTION_AT_CUTOFF": 2,
+    "MOTION_EXCESSIVE": 3,
+    "PPG_COUPLING_CHANGED": 5
+   },
+   "passed": true
+  },
+  "sensor_loss@7": {
+   "decisions": [
+    [
+     240.0,
+     "START_PACED_BREATHING"
+    ],
+    [
+     260.0,
+     "STOP_QUALITY_LOST"
+    ]
+   ],
+   "failed_checks": [],
+   "holds_by_reason": {
+    "BEAT_COVERAGE_LOW": 3,
+    "MOTION_AT_CUTOFF": 2,
+    "MOTION_EXCESSIVE": 3
+   },
+   "passed": true
+  },
+  "timing_fault@7": {
+   "decisions": [
+    [
+     240.0,
+     "START_PACED_BREATHING"
+    ],
+    [
+     310.0,
+     "STOP_RELEASED"
+    ]
+   ],
+   "failed_checks": [],
+   "holds_by_reason": {},
+   "passed": true
+  }
+ },
+ "provenance": "SIMULATED"
+}

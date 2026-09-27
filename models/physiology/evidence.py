@@ -7,8 +7,9 @@ A run directory is self-auditing:
                    mapping, protocol and haptic events, GAPs, windowed
                    MODEL_RESULTs with exact source sequence ranges, every
                    controller evaluation, INTERVENTIONs, trailer.
-  raw/*.csv.gz     integer sensor codes, sequence numbers, and device
-                   timestamps (deterministic gzip, mtime 0). The JSON session
+  raw/*.csv.gz     integer sensor codes, sequence numbers, device sample
+                   timestamps, and device availability times (when firmware
+                   held each sample; deterministic gzip, mtime 0). The JSON session
                    profile carries one snapshot per record, so multi-sample
                    raw data lives here and is bound by SHA-256.
   analysis.json    every pipeline output, re-derivable from raw/ alone.
@@ -62,8 +63,8 @@ def _finite(payload: dict[str, Any]) -> dict[str, float]:
 
 # ------------------------------------------------------------------ raw bundle
 def _csv_bytes(stream: Stream) -> bytes:
-    header = ["sequence", "device_time_us", *STREAM_COLUMNS[stream.name]]
-    matrix = np.column_stack([stream.sequence, stream.device_time_us,
+    header = ["sequence", "device_time_us", "available_us", *STREAM_COLUMNS[stream.name]]
+    matrix = np.column_stack([stream.sequence, stream.device_time_us, stream.available_us,
                               *[stream.columns[c] for c in STREAM_COLUMNS[stream.name]]]).astype(np.int64)
     buffer = io.StringIO()
     buffer.write(",".join(header) + "\n")
@@ -89,14 +90,15 @@ def read_stream(path: Path, name: str) -> tuple[Stream, str]:
     content = gzip.decompress(path.read_bytes())
     lines = content.decode("ascii").splitlines()
     header = lines[0].split(",")
-    expected = ["sequence", "device_time_us", *STREAM_COLUMNS[name]]
+    expected = ["sequence", "device_time_us", "available_us", *STREAM_COLUMNS[name]]
     if header != expected:
         raise ValueError(f"{path.name}: unexpected columns {header}")
     if len(lines) > 1:
         matrix = np.array(",".join(lines[1:]).split(","), dtype=np.int64).reshape(len(lines) - 1, len(header))
     else:
         matrix = np.zeros((0, len(header)), dtype=np.int64)
-    stream = Stream(name, matrix[:, 0], matrix[:, 1], {c: matrix[:, i + 2] for i, c in enumerate(STREAM_COLUMNS[name])})
+    stream = Stream(name, matrix[:, 0], matrix[:, 1], {c: matrix[:, i + 3] for i, c in enumerate(STREAM_COLUMNS[name])},
+                    matrix[:, 2])
     return stream, hashlib.sha256(content).hexdigest()
 
 
@@ -131,7 +133,9 @@ def build_session_records(run: Any, raw_entries: dict[str, dict[str, Any]], anal
     def add(priority: int, record: dict[str, Any]) -> None:
         ordered.append((record["device_time_start_us"], priority, record))
 
-    add(0, _record("SESSION_HEADER", "SIMULATED", start_us, start_us, [*sim, arm, f"PIPELINE_VERSION:{PIPELINE_VERSION}"],
+    add(0, _record("SESSION_HEADER", "SIMULATED", start_us, start_us,
+                   [*sim, arm, f"SESSION_ID:{config.session_id}", f"SCENARIO:{config.scenario}",
+                    f"PIPELINE_VERSION:{PIPELINE_VERSION}", "HARDWARE_MODEL:REV_B_FORWARD_MODEL"],
                    stream_id="session", payload={"seed": config.twin.seed, "duration_s": config.twin.duration_s}))
     for name, stream in raw.streams.items():
         entry = raw_entries[f"raw/{name}.csv.gz"]
@@ -158,14 +162,16 @@ def build_session_records(run: Any, raw_entries: dict[str, dict[str, Any]], anal
     for window in analysis.windows:
         ranges = window["source_sequence_ranges"]
         add(6, _record("MODEL_RESULT", "MODEL_INFERRED", window["device_time_start_us"], window["device_time_end_us"],
-                       ["PHYSIOLOGY_WINDOW", "SIMULATED_INPUT"], stream_id="physiology_windows",
+                       ["PHYSIOLOGY_WINDOW", "SIMULATED_INPUT", "OFFLINE_NONCAUSAL", "LINEAGE:WINDOW_ATTRIBUTION"],
+                       stream_id="physiology_windows",
                        payload=_finite(window["payload"]),
                        source_stream_ids=sorted({r["stream_id"] for r in ranges}), source_sequence_ranges=ranges,
                        model={"name": "CIRCLE_PHYSIOLOGY_PIPELINE", "version": PIPELINE_VERSION, "artifact_id": model_id}))
     t0, t1 = run.controller_baseline_window_us
     ranges = run.controller_baseline_ranges
-    add(7, _record("MODEL_RESULT", "MODEL_INFERRED", t0, t1, ["CONTROLLER_BASELINE", "SIMULATED_INPUT"],
+    add(7, _record("MODEL_RESULT", "MODEL_INFERRED", t0, t1, ["CONTROLLER_BASELINE", "SIMULATED_INPUT", "LINEAGE:COMPLETE_CAUSAL_INPUT"],
                    stream_id="controller", payload=_finite(run.controller_baseline),
+                   decision_time_us=run.controller_baseline_decided_us, input_cutoff_us=t1,
                    source_stream_ids=sorted({r["stream_id"] for r in ranges}), source_sequence_ranges=ranges,
                    model={"name": "CIRCLE_CLOSED_LOOP_CONTROLLER", "version": CONTROLLER_VERSION, "artifact_id": model_id}))
     for ev in run.evaluations:
@@ -175,7 +181,8 @@ def build_session_records(run: Any, raw_entries: dict[str, dict[str, Any]], anal
         if "physical_onset_s" not in obs:
             continue
         t = int(round(obs["physical_onset_s"] * 1e6))
-        record = _record("EVENT", "DERIVED", t, t, [EVENT_KIND_FLAG + "HAPTIC_PHYSICAL_OBSERVATION", "IMU_VIBRATION_ENVELOPE", *sim],
+        record = _record("EVENT", "DERIVED", t, t, [EVENT_KIND_FLAG + "HAPTIC_PHYSICAL_OBSERVATION", "IMU_VIBRATION_ENVELOPE", *sim,
+                                                   *(["AFTER_SHAM_COMMAND_FALSE_OBSERVATION"] if obs.get("sham") else [])],
                          stream_id="haptic_observations", sequence=len(observations),
                          payload=_finite({"program": obs["program"], "cue_index": obs["cue_index"],
                                           "latency_from_command_us": (obs["physical_onset_s"] - obs["command_s"]) * 1e6,
@@ -194,15 +201,7 @@ def build_session_records(run: Any, raw_entries: dict[str, dict[str, Any]], anal
         programs.setdefault(program, []).append(event)
     if config.actuate:
         for program, events in sorted(programs.items()):
-            evidence = [e.evidence_id for e in events if e.kind in ("HAPTIC_COMMAND", "HAPTIC_ELECTRICAL_ONSET")]
-            evidence += [observations[(program, e.attribute("cue_index"))] for e in events
-                         if e.kind == "HAPTIC_COMMAND" and (program, e.attribute("cue_index")) in observations]
-            commands = [e for e in events if e.kind == "HAPTIC_COMMAND"]
-            add(11, _record("INTERVENTION", "INTERVENTION", min(e.device_time_us for e in events), max(e.device_time_us for e in events),
-                            ["PACED_BREATHING_HAPTIC_CUES", "SIMULATED_ACTUATION", "NO_HARDWARE_DRIVEN"],
-                            stream_id="interventions", decision_id=f"PBR-{int(program)}", actuation_evidence_ids=evidence,
-                            payload={"program": program, "cues": len(commands),
-                                     "cue_period_s": config.controller.cue_period_s}))
+            add(11, intervention_record(program, events, observations, config.controller.cue_period_s))
     counts = {f"samples_{name}": len(s) for name, s in raw.streams.items()}
     counts.update({"gaps": len(raw.gaps), "evaluations": len(run.evaluations), "haptic_events": len(raw.events_of("HAPTIC_"))})
     add(99, _record("SESSION_TRAILER", "SIMULATED", end_us, end_us, [*sim, arm], stream_id="session", payload=counts))
@@ -210,10 +209,49 @@ def build_session_records(run: Any, raw_entries: dict[str, dict[str, Any]], anal
     return [seal_record(record) for _, _, record in ordered]
 
 
+def intervention_record(program: float, events: list[DeviceEvent], observations: dict[tuple[float, float], str],
+                        cue_period_s: float) -> dict[str, Any]:
+    """One guidance program: the decision that caused it and, per cue, what shows it happened.
+
+    DECISION (decision_id) -> COMMAND (firmware GO) -> ELECTRICAL ONSET
+    (TLV3201 current edge) -> PHYSICAL OBSERVATION (IMU-derived vibration).
+    Each stage is claimed only if its own evidence exists. The record makes no
+    claim that physiology changed; that needs a matched control.
+    """
+    commands = sorted((e for e in events if e.kind == "HAPTIC_COMMAND"), key=lambda e: e.attribute("cue_index"))
+    onsets = {e.attribute("cue_index"): e for e in events if e.kind == "HAPTIC_ELECTRICAL_ONSET"}
+    chain, evidence = [], []
+    for command in commands:
+        cue = command.attribute("cue_index")
+        link: dict[str, Any] = {"cue_index": int(cue), "command_id": command.evidence_id}
+        evidence.append(command.evidence_id)
+        if cue in onsets:
+            link["electrical_onset_id"] = onsets[cue].evidence_id
+            evidence.append(onsets[cue].evidence_id)
+        if (program, cue) in observations:
+            link["physical_observation_id"] = observations[(program, cue)]
+            evidence.append(observations[(program, cue)])
+        link["stage"] = ("PHYSICALLY_OBSERVED" if "physical_observation_id" in link else
+                         "ELECTRICAL_ONSET_OBSERVED" if "electrical_onset_id" in link else "COMMAND_ONLY")
+        chain.append(link)
+    observed = sum(1 for link in chain if link["stage"] == "PHYSICALLY_OBSERVED")
+    electrical = sum(1 for link in chain if "electrical_onset_id" in link)
+    complete = bool(chain) and observed == len(chain)
+    return _record("INTERVENTION", "INTERVENTION", min(e.device_time_us for e in events), max(e.device_time_us for e in events),
+                   ["PACED_BREATHING_HAPTIC_CUES", "TARGET:WRIST_LRA", "SIMULATED_ACTUATION", "NO_HARDWARE_DRIVEN",
+                    "EXECUTION:ALL_CUES_PHYSICALLY_OBSERVED" if complete else "EXECUTION:INCOMPLETE",
+                    "EFFECT:NOT_ASSERTED_WITHOUT_MATCHED_CONTROL"],
+                   stream_id="interventions", decision_id=f"PBR-{int(program)}", actuation_evidence_ids=evidence,
+                   execution_chain=chain,
+                   payload={"program": program, "cues": len(commands), "cues_electrical_onset": electrical,
+                            "cues_physically_observed": observed, "cue_period_s": cue_period_s})
+
+
 def evaluation_record(ev: Evaluation, model_id: str) -> dict[str, Any]:
-    flags = ["CONTROLLER_EVALUATION", f"STATE:{ev.state}", "SIMULATED_INPUT"]
+    flags = ["CONTROLLER_EVALUATION", f"STATE:{ev.state}", "SIMULATED_INPUT", "LINEAGE:COMPLETE_CAUSAL_INPUT"]
     if ev.action:
         flags.append(f"ACTION:{ev.action}")
+    flags += [f"GATE_FAIL:{reason}" for reason in ev.gate_reasons] or ["GATE_PASS"]
     payload = _finite(ev.features)
     payload["cues_scheduled"] = len(ev.cues_device_us)
     if ev.program is not None:
@@ -221,6 +259,7 @@ def evaluation_record(ev: Evaluation, model_id: str) -> dict[str, Any]:
     ranges = ev.source_sequence_ranges
     return _record("MODEL_RESULT", "MODEL_INFERRED", ev.window_start_us, ev.device_time_us, flags,
                    stream_id="controller", payload=payload, decision_id=ev.decision_id,
+                   decision_time_us=ev.decision_time_us, input_cutoff_us=ev.input_cutoff_us,
                    source_stream_ids=sorted({r["stream_id"] for r in ranges}), source_sequence_ranges=ranges,
                    model={"name": "CIRCLE_CLOSED_LOOP_CONTROLLER", "version": CONTROLLER_VERSION, "artifact_id": model_id})
 
@@ -297,4 +336,5 @@ def analysis_document(analysis: Analysis) -> dict[str, Any]:
 
 
 def dumps(document: Any) -> bytes:
-    return (json.dumps(document, indent=1, sort_keys=True, allow_nan=False) + "\n").encode("utf-8")
+    """Deterministic JSON; non-finite numbers become null rather than invalid JSON."""
+    return (json.dumps(_jsonable(document), indent=1, sort_keys=True, allow_nan=False) + "\n").encode("utf-8")

@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/contracts/review-gates.schema.json",
+  "title": "CIRCLE Review Gates",
+  "description": "Machine-readable review gates. A gate records what evidence is required, what exists, and who reviewed it. The repository can record that evidence is missing; it cannot close a gate that needs physical measurement or independent professional review.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "release_class", "gates"],
+  "properties": {
+    "schema": {"const": "circle-review-gates/1"},
+    "release_class": {"const": "ENGINEERING_REVIEW_ONLY"},
+    "note": {"type": "string"},
+    "gates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "domain", "requirement", "evidence_required", "evidence_kind", "status", "blocks",
+                     "blocker", "artifacts", "reviewer", "closure_condition"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]+$"},
+          "domain": {"enum": ["ELECTRICAL_SAFETY", "POWER", "ISOLATION", "SIGNAL_INTEGRITY", "PCB", "FIRMWARE",
+                              "MEASUREMENT", "EMC", "BIOCOMPATIBILITY", "HUMAN_RESEARCH", "RESEARCH_MODULE"]},
+          "requirement": {"type": "string", "minLength": 10},
+          "evidence_required": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 3}},
+          "evidence_kind": {
+            "type": "array", "minItems": 1, "uniqueItems": true,
+            "items": {"enum": ["AUTOMATED_CHECK", "CALCULATION", "INDEPENDENT_REVIEW", "PHYSICAL_MEASUREMENT",
+                               "ACCREDITED_TEST", "ETHICS_APPROVAL"]}
+          },
+          "status": {"enum": ["OPEN", "IN_REVIEW", "CLOSED"]},
+          "blocks": {
+            "type": "array", "minItems": 1, "uniqueItems": true,
+            "items": {"enum": ["FABRICATION", "POWERED_BENCH_TEST", "HUMAN_CONNECTION", "INTERPRETATION", "RESEARCH_EXECUTION"]}
+          },
+          "blocker": {"type": "string"},
+          "artifacts": {"type": "array", "items": {"type": "string", "minLength": 1}},
+          "automated_check": {"type": "string"},
+          "reviewer": {"type": ["string", "null"]},
+          "closed_on": {"type": ["string", "null"], "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+          "closure_condition": {"type": "string", "minLength": 10}
+        }
+      }
+    }
+  }
+}

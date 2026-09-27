@@ -7,7 +7,7 @@ ROOT = Path(__file__).parents[1]
 class DiagramTests(unittest.TestCase):
     def test_mermaid_system_contains_required_terms(self):
         text = (ROOT / "diagrams/system-architecture.mmd").read_text(encoding="utf-8")
-        for term in ("Human", "CIRCLE", "VitalSync", "DRR", "AdaptiveDecision", "Feedback"):
+        for term in ("Human", "Sense", "Preserve", "Infer", "Decide", "Intervene", "Verify"):
             self.assertIn(term, text)
 
     def test_mermaid_safety_contains_required_terms(self):

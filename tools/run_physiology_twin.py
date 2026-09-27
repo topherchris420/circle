@@ -28,7 +28,9 @@ from models.physiology.controller import CONTROLLER_VERSION, replay
 from models.physiology.evidence import (analysis_document, build_session_records, dumps, source_digest,
                                         write_raw_bundle)
 from models.physiology.experiment import SessionConfig, SessionRun, run_session
+from models.physiology.ledger import build_ledger, passport, passport_text
 from models.physiology.pipeline import PIPELINE_VERSION
+from models.physiology.scenarios import SCENARIOS, system_checks
 from models.physiology.report import build_report
 from models.physiology.twin import TwinConfig
 from models.physiology.validation import score
@@ -48,8 +50,15 @@ def export_run(run: SessionRun, output: Path, counterfactual: SessionRun | None,
     scorecard = score(run, truth)
     replayed = replay(run.raw, run.config.controller, run.evaluation_end_us)
     replay_identical = [a.comparable() for a in replayed] == [b.comparable() for b in run.evaluations]
+    ledger = build_ledger(records)
+    session_passport = passport(records, {"REPLAY AT EXPORT": "REPLAY_MATCH" if replay_identical else "REPLAY_DIVERGENCE",
+                                          "SCORECARD": f"{sum(c['passed'] for c in scorecard['checks'])}/{len(scorecard['checks'])} "
+                                                       "twin checks passed (simulation only)",
+                                          "AUDIT": "not part of export; run tools/audit_physiology_run.py"})
     documents = {
         "session.ndjson": session_bytes,
+        "closed_loop_ledger.json": dumps(ledger),
+        "passport.txt": passport_text(session_passport).encode("utf-8"),
         "analysis.json": dumps(analysis_document(analysis)),
         "truth.json": dumps(compact_truth(truth)),
         "scorecard.json": dumps(scorecard),
@@ -61,7 +70,7 @@ def export_run(run: SessionRun, output: Path, counterfactual: SessionRun | None,
                     "the twin's ASSUMED response model, not evidence of efficacy.",
             "truth": {k: counterfactual.twin.truth()[k] for k in ("t_s", "arousal", "hr_bpm", "resp_rate_bpm", "entrainment")},
             "decisions": [{"device_time_us": e.device_time_us, "action": e.action, "decision_id": e.decision_id}
-                          for e in counterfactual.evaluations if e.action and e.action != "HOLD_QUALITY"],
+                          for e in counterfactual.evaluations if e.action and not e.action.startswith("HOLD_")],
         })
     if with_report:
         documents["report.html"] = build_report(run, truth, scorecard, counterfactual, records, replay_identical).encode("utf-8")
@@ -82,7 +91,11 @@ def export_run(run: SessionRun, output: Path, counterfactual: SessionRun | None,
         "environment": {"python": platform.python_version(), "numpy": np.__version__},
         "config": {"arm": "ACTIVE" if config.actuate else "SHAM", "twin": asdict(config.twin),
                    "rig": asdict(config.rig), "controller": asdict(config.controller)},
-        "decision_replay": {"evaluations": len(run.evaluations), "identical": replay_identical},
+        "session_id": config.session_id,
+        "scenario": config.scenario,
+        "passport": session_passport,
+        "decision_replay": {"evaluations": len(run.evaluations), "identical": replay_identical,
+                            "status": "REPLAY_MATCH" if replay_identical else "REPLAY_DIVERGENCE"},
         "scorecard": {"passed": sum(c["passed"] for c in scorecard["checks"]), "total": len(scorecard["checks"])},
         "artifacts": dict(sorted(artifacts.items())),
     }
@@ -106,6 +119,7 @@ def benchmark(seeds: list[int], duration: float | None) -> dict:
     values: dict[str, list] = {}
     meta: dict[str, dict] = {}
     passes: dict[str, int] = {}
+    failures: list[dict] = []
     for seed in seeds:
         twin = TwinConfig(seed=seed) if duration is None else TwinConfig(seed=seed, duration_s=duration)
         run = run_session(SessionConfig(twin=twin))
@@ -114,6 +128,9 @@ def benchmark(seeds: list[int], duration: float | None) -> dict:
             values.setdefault(check["id"], []).append(check["value"])
             passes[check["id"]] = passes.get(check["id"], 0) + int(check["passed"])
             meta[check["id"]] = {k: check[k] for k in ("label", "target", "unit", "source")}
+            if not check["passed"]:
+                failures.append({"seed": seed, "check": check["id"], "label": check["label"],
+                                 "value": check["value"], "target": check["target"], "unit": check["unit"]})
         print(f"seed {seed}: {sum(c['passed'] for c in card['checks'])}/{len(card['checks'])} checks passed", flush=True)
     summary = {}
     for key, vals in values.items():
@@ -123,8 +140,38 @@ def benchmark(seeds: list[int], duration: float | None) -> dict:
         summary[key] = {**meta[key], "mean": float(np.nanmean(arr)),
                         "worst": float(np.nanmax(arr) if lower_is_better else np.nanmin(arr)),
                         "pass_rate": passes[key] / len(seeds)}
+    total = sum(len(values[k]) for k in values)
     return {"provenance": "SIMULATED", "seeds": seeds, "checks": summary,
-            "all_passed": all(v["pass_rate"] == 1.0 for v in summary.values())}
+            "checks_run": total, "checks_passed": total - len(failures),
+            "failures": failures,
+            "all_passed": not failures}
+
+
+def scenario_suite(names: list[str], seeds: list[int]) -> dict:
+    """Run adversarial scenarios and judge the closed loop against hidden truth."""
+    results = []
+    for name in names:
+        scenario = SCENARIOS[name]
+        for seed in seeds:
+            run = run_session(scenario.configure(seed))
+            result = system_checks(run, scenario)
+            results.append(result)
+            failed = [c["id"] for c in result["checks"] if not c["passed"]]
+            print(f"{name:<18} seed {seed:<4} {'PASS' if result['passed'] else 'FAIL ' + ','.join(failed):<40} "
+                  f"decisions {result['decisions'] or 'none'}  holds {result['holds_by_reason'] or 'none'}", flush=True)
+    return {"provenance": "SIMULATED", "note": "System-level checks judged against twin truth; not evidence of hardware "
+            "or human behavior.", "scenarios": {n: SCENARIOS[n].tests for n in names}, "seeds": seeds,
+            "results": results, "all_passed": all(r["passed"] for r in results)}
+
+
+def corpus(result: dict) -> dict:
+    """Compact, frozen expected outcomes: any behavioral change must update this file deliberately."""
+    return {"provenance": "SIMULATED", "note": "Regenerate with: python tools/run_physiology_twin.py --scenarios "
+            "--output outputs/scenarios --corpus tests/fixtures/scenario-outcomes.json",
+            "outcomes": {f"{r['scenario']}@{r['seed']}": {
+                "passed": r["passed"], "failed_checks": [c["id"] for c in r["checks"] if not c["passed"]],
+                "decisions": [list(d) for d in r["decisions"]], "holds_by_reason": r["holds_by_reason"]}
+                for r in result["results"]}}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -138,9 +185,29 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--audit", action="store_true", help="Independently audit the exported directory")
     parser.add_argument("--benchmark", type=int, metavar="N", help="Score N seeds instead of exporting one run")
     parser.add_argument("--benchmark-start", type=int, default=100, help="First benchmark seed (held out from development)")
+    parser.add_argument("--scenario", choices=sorted(SCENARIOS), default="clean",
+                        help="Adversarial scenario for a single exported run (default clean)")
+    parser.add_argument("--scenarios", nargs="*", metavar="NAME",
+                        help="Run the adversarial scenario suite (all scenarios if no names) and write scenarios.json")
+    parser.add_argument("--scenario-seeds", type=int, nargs="+", default=[7], help="Seeds for --scenarios")
+    parser.add_argument("--corpus", type=Path, help="With --scenarios: also write the compact regression corpus here")
     args = parser.parse_args(argv)
     started = time.perf_counter()
     try:
+        if args.scenarios is not None:
+            names = args.scenarios or list(SCENARIOS)
+            unknown = sorted(set(names) - set(SCENARIOS))
+            if unknown:
+                raise ValueError(f"Unknown scenarios {unknown}; choose from {sorted(SCENARIOS)}")
+            result = scenario_suite(names, args.scenario_seeds)
+            args.output.mkdir(parents=True, exist_ok=True)
+            (args.output / "scenarios.json").write_bytes(dumps(result))
+            if args.corpus:
+                args.corpus.parent.mkdir(parents=True, exist_ok=True)
+                args.corpus.write_bytes(dumps(corpus(result)))
+            passed = sum(r["passed"] for r in result["results"])
+            print(f"Scenario suite: {passed}/{len(result['results'])} runs passed every system check")
+            return 0 if result["all_passed"] else 1
         if args.benchmark:
             seeds = list(range(args.benchmark_start, args.benchmark_start + args.benchmark))
             result = benchmark(seeds, args.duration)
@@ -149,10 +216,16 @@ def main(argv: list[str] | None = None) -> int:
             for key, entry in result["checks"].items():
                 print(f"  {entry['label']:<52} mean {entry['mean']:>10.4f}  worst {entry['worst']:>10.4f}  "
                       f"target {entry['target']:<8} pass {entry['pass_rate']:.0%}")
-            print(f"Benchmark over {len(seeds)} held-out seeds: {'ALL CHECKS PASSED' if result['all_passed'] else 'FAILURES'}")
+            for failure in result["failures"]:
+                print(f"  FAILED seed {failure['seed']}: {failure['label']} = {failure['value']} "
+                      f"(target {failure['target']} {failure['unit']})".rstrip())
+            print(f"Benchmark over {len(seeds)} seeds: {result['checks_passed']}/{result['checks_run']} checks passed"
+                  f"{'' if result['all_passed'] else ' (failures retained above and in benchmark.json)'}")
             return 0 if result["all_passed"] else 1
-        twin = TwinConfig(seed=args.seed) if args.duration is None else TwinConfig(seed=args.seed, duration_s=args.duration)
-        config = SessionConfig(twin=twin, actuate=not args.sham)
+        config = SCENARIOS[args.scenario].configure(args.seed)
+        if args.duration is not None:
+            config = replace(config, twin=replace(config.twin, duration_s=args.duration))
+        config = replace(config, actuate=not args.sham)
         run = run_session(config)
         counterfactual = None if args.no_counterfactual else run_session(replace(config, actuate=not config.actuate))
         exported = export_run(run, args.output, counterfactual, with_report=not args.no_report)
@@ -173,6 +246,7 @@ def main(argv: list[str] | None = None) -> int:
         result = audit_run(args.output)
         for name, entry in result["checks"].items():
             print(f"  audit {name}: {'OK' if entry['passed'] else 'FAILED'}")
+        print(f"  audit replay status: {result['replay_status']}")
         ok = ok and result["valid"]
     print(f"  elapsed {time.perf_counter() - started:.1f} s")
     return 0 if ok else 1

@@ -158,7 +158,11 @@ def _carrier_envelope(accel: np.ndarray, fs: float, carrier_hz: float) -> np.nda
 
 
 def detect_haptic_vibration(imu: Stream, descriptor: dict[str, float], session: RawSession) -> list[dict[str, Any]]:
-    """Physical haptic onset observed by the on-board IMU (50 % envelope crossing)."""
+    """Physical haptic onset observed by the on-board IMU (50 % envelope crossing).
+
+    Sham commands are examined with the identical detector. Nothing should be
+    observed after them; any detection there is a false physical observation.
+    """
     onsets = {(e.attribute("program"), e.attribute("cue_index")): e for e in session.events_of("HAPTIC_ELECTRICAL_ONSET")}
     results = []
     if not len(imu):
@@ -167,14 +171,15 @@ def detect_haptic_vibration(imu: Stream, descriptor: dict[str, float], session: 
     accel, _ = imu_physical(imu, descriptor)
     t = _seconds(imu.device_time_us)
     for command in session.events_of("HAPTIC_COMMAND"):
-        if command.kind != "HAPTIC_COMMAND":
+        if command.kind not in ("HAPTIC_COMMAND", "HAPTIC_COMMAND_SHAM"):
             continue
         key = (command.attribute("program"), command.attribute("cue_index"))
         t_cmd = command.device_time_us / 1e6
         lo = int(np.searchsorted(t, t_cmd - 0.05))
         hi = int(np.searchsorted(t, t_cmd + 0.15))
         record: dict[str, Any] = {"program": key[0], "cue_index": key[1], "command_s": t_cmd,
-                                  "command_evidence": command.evidence_id}
+                                  "command_evidence": command.evidence_id,
+                                  "sham": command.kind == "HAPTIC_COMMAND_SHAM"}
         onset_event = onsets.get(key)
         if onset_event is not None:
             record["electrical_onset_s"] = onset_event.device_time_us / 1e6
@@ -525,6 +530,9 @@ def analyze_respiration(ppg: Stream, descriptor: dict[str, float], motion_episod
             "rate_t_s": np.array(rate_t), "rate_bpm": np.array(rate)}
 
 
+SPO2_MIN_AC_COUNTS = 80.0
+
+
 def analyze_spo2(ppg: Stream, descriptor: dict[str, float], motion_episodes: list[tuple[float, float]],
                  window_s: float = 4.0, hop_s: float = 1.0) -> dict[str, Any]:
     """Ratio-of-ratios SpO2 per window, reported naive and IMU/quality gated."""
@@ -552,7 +560,15 @@ def analyze_spo2(ppg: Stream, descriptor: dict[str, float], motion_episodes: lis
             center = float(0.5 * (t[s] + t[e - 1]))
             perfusion = ac_i / dc_i
             corr = np.corrcoef(red_bp[s:e], ir_bp[s:e])[0, 1]
-            ok = (s >= edge and e <= len(t) - edge and perfusion > 0.001 and corr > 0.9
+            # A step in received light (coupling change, contact shift) scales both
+            # channels together and drives R toward 1, exactly like motion.
+            # Judged over the band-pass filter's support: its ringing carries a step into neighbours.
+            support = ir[max(0, s - len(taps) // 2):e + len(taps) // 2]
+            dc_stable = (np.max(support) - np.min(support)) / dc_i < 0.03
+            # Sensor noise (~10 counts RMS) inflates a small red AC and biases R upward,
+            # reading as desaturation; require pulsatile amplitude well above it.
+            snr_ok = min(ac_r, ac_i) >= SPO2_MIN_AC_COUNTS
+            ok = (s >= edge and e <= len(t) - edge and perfusion > 0.001 and corr > 0.9 and dc_stable and snr_ok
                   and not any(lo <= t[e - 1] and hi >= t[s] for lo, hi in motion_episodes))
             out_t.append(center)
             naive.append(value)

@@ -9,9 +9,9 @@ NS = "http://www.w3.org/2000/svg"
 ET.register_namespace("", NS)
 
 SYSTEM_NODES = [
-    ("Human", 40, 110, "human"), ("CIRCLE", 210, 110, "device"),
-    ("VitalSync", 380, 110, "software"), ("DRR", 550, 110, "software"),
-    ("AdaptiveDecision", 720, 110, "model"), ("Feedback", 930, 110, "feedback"),
+    ("Human", 40, 110, "human"), ("Sense", 210, 110, "device"),
+    ("Preserve", 380, 110, "evidence"), ("Infer (cutoff)", 550, 110, "software"),
+    ("Decide + Gates", 720, 110, "model"), ("Intervene", 930, 110, "feedback"),
     ("Sensors", 40, 330, "sensor"), ("Capture", 210, 330, "device"),
     ("SRAM", 380, 330, "storage"), ("PSRAM", 550, 330, "storage"),
     ("microSD", 720, 330, "storage"), ("Record Assembly", 380, 470, "device"),
@@ -20,9 +20,9 @@ SYSTEM_NODES = [
     ("Raw + Timing + Sequence + Quality + Provenance Evidence", 600, 590, "evidence"),
 ]
 SYSTEM_EDGES = [
-    (0, 1, "sense"), (1, 2, "synchronize"), (2, 3, "model"),
-    (3, 4, "decide"), (4, 5, "command"), (5, 0, "intervene"),
-    (0, 1, "measure"), (6, 7, "samples"), (7, 8, "DMA"),
+    (0, 1, "signals"), (1, 2, "raw + availability"), (2, 3, "lawful window"),
+    (3, 4, "evaluate"), (4, 5, "command"), (5, 0, "cue"),
+    (5, 1, "IMU observes actuation"), (6, 7, "samples"), (7, 8, "DMA"),
     (8, 9, "spill"), (9, 10, "async write"), (7, 11, "records"),
     (11, 12, "lower priority"), (13, 7, "timestamps"),
     (13, 5, "action time"), (13, 11, "metadata"), (11, 14, "preserve"),
@@ -186,7 +186,7 @@ def render(path, title, nodes, edges, domains=(), footer=None):
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    render(OUT / "system-architecture.svg", "CIRCLE Rev A Closed-Loop Architecture", SYSTEM_NODES, SYSTEM_EDGES)
+    render(OUT / "system-architecture.svg", "CIRCLE Closed-Loop Evidence Architecture", SYSTEM_NODES, SYSTEM_EDGES)
     render(
         OUT / "safety-boundaries.svg", "CIRCLE Rev A Human / Laboratory Safety Boundary",
         SAFETY_NODES, SAFETY_EDGES,

@@ -40,6 +40,12 @@ jobs:
       - name: Validate session record schema
         run: python tools/check_record_schema.py
 
+      - name: Validate review gates and derived authorizations
+        run: python tools/check_review_gates.py
+
+      - name: Validate capability registry and module boundaries
+        run: python tools/check_module_registry.py
+
       - name: Validate resonance contracts & physics
         run: python tools/check_resonance_contract.py
 
@@ -51,6 +57,12 @@ jobs:
 
       - name: Closed-loop physiology twin, ground-truth scorecard & independent audit
         run: python tools/run_physiology_twin.py --output outputs/physiology --audit
+
+      - name: Sham arm (negative control) with independent audit
+        run: python tools/run_physiology_twin.py --sham --no-counterfactual --output outputs/physiology-sham --audit
+
+      - name: Adversarial scenario suite judged against hidden truth
+        run: python tools/run_physiology_twin.py --scenarios --output outputs/scenarios
 
       - name: Verify diagrams rendering
         run: python tools/render_diagrams.py

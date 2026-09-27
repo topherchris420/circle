@@ -2,7 +2,9 @@
 
 > **ENGINEERING REVIEW ONLY — NOT FOR CLINICAL OR HUMAN CONNECTION**
 
-This document records the formal hazard log, known limitations, procedural risks, and regulatory boundaries for the CIRCLE Rev B platform.
+This document records the hazard log, known limitations, procedural risks, and regulatory boundaries for the CIRCLE Rev B platform.
+
+> Residual-risk ratings below are **design-intent estimates**. No mitigation has been built or tested, and no independent risk review (e.g. ISO 14971) has been performed. A rating such as LOW means "LOW if the design works as intended", which is exactly what bench tests and independent review must establish. See [`hardware/review-gates.json`](../hardware/review-gates.json).
 
 ---
 
@@ -18,12 +20,12 @@ This document records the formal hazard log, known limitations, procedural risks
 
 ## 2. Formal Hazard Analysis & Risk Register
 
-| Hazard ID | Hazard Scenario | Potential Consequence | Risk Level (Pre-Mitigation) | Designed Hardware Mitigation | Residual Risk Level | Procedural / Operational Constraint |
+| Hazard ID | Hazard Scenario | Potential Consequence | Risk Level (Pre-Mitigation) | Designed Hardware Mitigation (untested) | Residual Risk (design intent, unverified) | Procedural / Operational Constraint |
 |---|---|---|:---:|---|:---:|---|
 | **HAZ-01** | Arbitrary grounded oscilloscope probe clipped to `BAT_HUMAN_GND` testpoint while electrodes are on subject | Creates non-isolated path to earth ground through scope mains earth | **HIGH** | Testpoints are physically isolated from electrode circuit by PhotoMOS relays when interlock opens. | **LOW (Procedural)** | **MANDATORY**: Never connect earthed test equipment, logic analyzers, or scopes to `BAT_HUMAN` domain during human testing. Use battery-powered DMMs or isolated differential probes. |
-| **HAZ-02** | Battery over-discharge or reverse connection at connector J2 | Battery degradation, swelling, or thermal runaway | **MEDIUM** | Keyed JST-PH 3-pin connector prevents physical reverse mating; BQ24074 incorporates reverse-current blocking; TPS3700 cuts off at 3.20V. | **NEGLIGIBLE** | Use only authenticated LiPo cells with integrated overcurrent/undervoltage protection modules (PCM). |
-| **HAZ-03** | Dielectric breakdown across laboratory isolation barrier (> 5 kV surge) | High voltage from laboratory equipment enters subject domain | **HIGH** | TI ISOW7742 provides 5.0 kVrms reinforced dielectric rating; PCB features an 8.0 mm physical no-copper cutout slot. | **NEGLIGIBLE** | Perform 100% production hipot test (1000 VDC for 2s) across barrier prior to laboratory use. |
-| **HAZ-04** | MicroSD card write stall causing sensor FIFO overflow | Loss of critical physiological time-series data | **MEDIUM** | 8MB Octal PSRAM absorbs continuous write stalls up to 60 seconds; binary frame format records exact gap sequence numbers. | **NEGLIGIBLE** | Format cards with exFAT/FAT32 using 32KB cluster alignment before recording sessions. |
+| **HAZ-02** | Battery over-discharge or reverse connection at connector J2 | Battery degradation, swelling, or thermal runaway | **MEDIUM** | Keyed JST-PH 3-pin connector prevents physical reverse mating; BQ24074 incorporates reverse-current blocking; TPS3700 cuts off at 3.20V. | **LOW if verified** | Use only authenticated LiPo cells with integrated overcurrent/undervoltage protection modules (PCM). |
+| **HAZ-03** | Dielectric breakdown across laboratory isolation barrier (> 5 kV surge) | High voltage from laboratory equipment enters subject domain | **HIGH** | TI ISOW7742 is rated 5.0 kVrms reinforced (component datasheet); the PCB design includes an 8.0 mm no-copper slot. The assembled barrier is untested. | **UNVERIFIED — gate ISOLATION_CREEPAGE_CLEARANCE open** | Perform 100% production hipot test (1000 VDC for 2s) across barrier prior to laboratory use. |
+| **HAZ-04** | MicroSD card write stall causing sensor FIFO overflow | Loss of critical physiological time-series data | **MEDIUM** | 8 MB PSRAM is sized (by calculation) to absorb write stalls of about 60 s; the twin shows exact GAP declaration for sensor-FIFO loss. No firmware exists. | **UNVERIFIED** | Format cards with exFAT/FAT32 using 32KB cluster alignment before recording sessions. |
 
 ---
 

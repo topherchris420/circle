@@ -15,6 +15,7 @@ if str(ROOT) not in sys.path:
 
 from models.emergence import engine
 from models.emergence.bridge import CircleSessionRecordAdapter, CircleTelemetryBridge
+from models.emergence.null_model import circular_shift_null
 from models.session_records import load_session
 
 
@@ -72,6 +73,10 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         "--no-metrics-sidecar",
         action="store_true",
         help="Do not write <output>.metrics.json sidecar summary.",
+    )
+    parser.add_argument(
+        "--null-surrogates", type=int, default=99,
+        help="Circular-shift surrogates for the null model (0 disables; results are then flagged NO_NULL_MODEL).",
     )
     parser.add_argument(
         "--export-session-records",
@@ -142,8 +147,18 @@ def main(argv: Sequence[str] | None = None) -> int:
         preset=preset, experiment=args.experiment or ("quick" if args.quick else "balanced"),
         calibration_threshold=artifacts.calibration_threshold,
     )
+    null = circular_shift_null(artifacts.metrics.observation_history, artifacts.metrics.threshold_history,
+                               config.CORR_WINDOW, args.null_surrogates, seed=config.SEED + 1,
+                               synthetic=preset == "synthetic" and target_field is None)
     if not args.no_metrics_sidecar:
         result.summary_path = engine.write_metrics_sidecar(result, artifacts.metrics)
+        summary = json.loads(result.summary_path.read_text(encoding="utf-8"))
+        summary["null_model"] = null
+        if preset == "synthetic" and target_field is None:
+            summary["injected_couplings"] = ("Synthetic generator couples ch0 <- ch1 every frame and mixes ch3 <- ch2 "
+                                             "during coherence windows: known truth for scoring the discovery engine, "
+                                             "which also means ch3 is not a clean null channel in synthetic mode.")
+        result.summary_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         if target_field is not None:
             summary = json.loads(result.summary_path.read_text(encoding="utf-8"))
             summary["input"] = {
@@ -163,7 +178,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         end_us = (result.frames - 1) * 20_000
         source_ids = None
         source_ranges = None
-        status_flags = ["OK", "SIMULATED_INPUT" if preset != "empirical" else "TELEMETRY_INPUT"]
+        status_flags = ["EXPLORATORY_NOT_CONFIRMATORY", "SIMULATED_INPUT" if preset != "empirical" else "TELEMETRY_INPUT",
+                        f"NULL_MODEL:{null['status'] if args.null_surrogates else 'NO_NULL_MODEL'}"]
+        if null.get("status") == "COMPUTED":
+            status_flags.append("NULL_P_TOTAL:" + ("BELOW_0.05" if null["p_total"] < 0.05 else "NOT_BELOW_0.05"))
         if target_field is not None:
             start_us = int(target_field.timestamps.iloc[0].value // 1000)
             end_us = int(target_field.timestamps.iloc[result.frames - 1].value // 1000)
@@ -184,10 +202,20 @@ def main(argv: Sequence[str] | None = None) -> int:
             device_time_end_us=end_us, source_stream_ids=source_ids,
             source_sequence_ranges=source_ranges, status_flags=status_flags,
             artifact_id="sha256:" + hashlib.sha256((result.summary_path or result.output_path).read_bytes()).hexdigest(),
+            payload={k: float(v) for k, v in (("discoveries_observed", null["observed_total"]),
+                                             ("null_surrogates", null["surrogates"]),
+                                             ("null_total_mean", null.get("null_total_mean")),
+                                             ("null_p_total", null.get("p_total"))) if v is not None},
         )
         args.export_session_records.parent.mkdir(parents=True, exist_ok=True)
         args.export_session_records.write_text(json.dumps(session_record, indent=2) + "\n", encoding="utf-8")
         print(f"Exported CIRCLE session record: {args.export_session_records}")
+    if null.get("status") == "COMPUTED":
+        print(f"Null model ({null['surrogates']} circular-shift surrogates): observed {null['observed_total']} discoveries, "
+              f"null mean {null['null_total_mean']}, p = {null['p_total']}; pairs distinguishable from chance "
+              f"(FWER < 0.05): {null['pairs_significant_fwer_0_05'] or 'none'}")
+    else:
+        print(f"Null model: {null.get('status')} ({null.get('note', 'disabled')}); discovery counts are uninterpretable")
     print(
         f"CIRCLE Emergence run complete: {result.summary_path if args.headless else result.output_path} "
         f"({result.frames} frames, {result.agents} agents, {result.field_res}x{result.field_res}, "

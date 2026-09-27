@@ -212,8 +212,8 @@ class ClosedLoopSessionTest(unittest.TestCase):
         shutil.copytree(self.out, copy)
         path = copy / "raw" / "eda.csv.gz"
         lines = gzip.decompress(path.read_bytes()).decode().splitlines()
-        seq, t, code = lines[5000].split(",")
-        lines[5000] = f"{seq},{t},{int(code) + 40000}"
+        seq, t, available, code = lines[5000].split(",")
+        lines[5000] = f"{seq},{t},{available},{int(code) + 40000}"
         path.write_bytes(gzip.compress(("\n".join(lines) + "\n").encode(), mtime=0))
         result = audit_run(copy)
         self.assertFalse(result["valid"])
@@ -233,6 +233,7 @@ class ClosedLoopSessionTest(unittest.TestCase):
         result = audit_run(copy)
         self.assertTrue(result["checks"]["session_contract"]["passed"])
         self.assertFalse(result["checks"]["decisions_replayed"]["passed"])
+        self.assertFalse(result["valid"])
 
     def test_export_is_byte_deterministic(self):
         again = self.tmp / "again"

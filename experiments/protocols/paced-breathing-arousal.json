@@ -1,0 +1,22 @@
+{
+  "schema": "circle-experiment-protocol/1",
+  "protocol_id": "PROTO-5A1CE0B1",
+  "proposed_by": {"kind": "AI_MODEL", "name": "illustrative example (hand-written to show the proposal path)", "model_version": "n/a"},
+  "hypothesis": "In the twin, paced haptic breathing lowers the controller's arousal proxy during recovery relative to a matched sham, without increasing IMU motion.",
+  "rationale": "Compiled from the request: 'Test whether paced haptic breathing reduces this arousal proxy without increasing motion artifacts.'",
+  "target": "SIMULATION",
+  "scenario": "clean",
+  "arms": [{"id": "ACTIVE", "actuate": true}, {"id": "SHAM", "actuate": false}],
+  "intervention": {"kind": "HAPTIC_PACED_BREATHING", "cue_period_s": 10},
+  "decision_rule": {"controller": "CIRCLE_CLOSED_LOOP_CONTROLLER", "overrides": {}},
+  "quality_gates": {"min_beat_coverage": 0.7, "max_motion_fraction": 0.2},
+  "outcomes": [
+    {"id": "arousal_proxy", "metric": "recovery_arousal_index_mean", "role": "PRIMARY", "direction": "DECREASE"},
+    {"id": "latent_arousal", "metric": "recovery_latent_arousal_mean", "role": "SECONDARY", "direction": "DECREASE"},
+    {"id": "motion", "metric": "recovery_motion_fraction", "role": "SAFETY", "direction": "NO_INCREASE"}
+  ],
+  "seeds": [300, 301, 302, 303, 304, 305, 306, 307],
+  "stopping_rule": {"kind": "FIXED_SAMPLE", "note": "Eight matched seed pairs, fixed before any run."},
+  "analysis_plan": {"test": "PAIRED_SIGN_FLIP_PERMUTATION", "alpha": 0.05, "correction": "HOLM",
+                    "exclusions": "None. Sessions whose replay diverges invalidate the run rather than being dropped."}
+}

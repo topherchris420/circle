@@ -25,7 +25,7 @@ This document records the architectural and electrical design decisions, compone
 
 ## 2. Component Selection Details & Lifecycle Status
 
-All selected components have been verified for active lifecycle status, active manufacturing, and broad availability across major authorized distributors (Digi-Key, Mouser, Newark):
+Lifecycle status below was recorded from manufacturer listings at design time and must be re-checked before any purchase; it is not a supply guarantee:
 
 1. **ESP32-S3-WROOM-1-N16R8**: Espressif Systems (Active, 10-year longevity commitment).
 2. **BQ24074RGTR**: Texas Instruments (Active, high-volume production).

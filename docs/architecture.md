@@ -69,10 +69,10 @@ $$\text{EDA\_PREPARE} = \text{EDA\_FW\_REQUEST} \land \text{BATTERY\_VALID} \lan
 $$\text{EDA\_ACTIVE} = \text{EDA\_PREPARE} \land \text{EDA\_ANALOG\_GOOD}$$
 
 ### 2.2 Functional Behavior
-1. **Asynchronous Deassertion**: If USB VBUS, a debug header, or an external expansion cable is mated, the corresponding detection line immediately deasserts $\text{EDA\_PREPARE}$ within $< 100\text{ ns}$.
+1. **Asynchronous Deassertion**: If USB VBUS, a debug header, or an external expansion cable is mated, the corresponding detection line deasserts $\text{EDA\_PREPARE}$; gate-delay calculation gives $< 100\text{ ns}$ (the validation plan requires $< 10\ \mu\text{s}$ measured).
 2. **Bilateral Disconnect**: Two separate Panasonic AQY212GS PhotoMOS relays (K1 and K2) physically disconnect both the Drive and Sense electrode conductors.
 3. **Power Removal**: The TPS7A2033 analog LDO is disabled, de-energizing the excitation voltage reference and ADC front-end.
-4. **Passive Series Limiting**: Four $49.9\text{ k}\Omega \pm 0.1\%$ precision resistors ($199.6\text{ k}\Omega$ total loop resistance) are permanently placed in series with the electrode leads. Even if a relay switch suffers a catastrophic contact weld, the maximum fault current under a 5.5V rail is strictly limited to $I \le 27.5\text{ }\mu\text{A}$, far below the $50.0\text{ }\mu\text{A}$ auxiliary current limit.
+4. **Passive Series Limiting**: Four $49.9\text{ k}\Omega \pm 0.1\%$ precision resistors ($199.6\text{ k}\Omega$ total loop resistance) are permanently placed in series with the electrode leads. By calculation, even with a welded relay contact the fault current under a 5.5 V rail is $I \le 5.5\text{ V} / 199.6\text{ k}\Omega \approx 27.5\text{ }\mu\text{A}$, below the $50.0\text{ }\mu\text{A}$ design limit. This is an unreviewed design calculation (gate `EDA_LIMIT_NETWORK`), not a measurement.
 
 ---
 
@@ -87,7 +87,7 @@ $$\text{EDA\_ACTIVE} = \text{EDA\_PREPARE} \land \text{EDA\_ANALOG\_GOOD}$$
 - **ESP32-S3-WROOM-1-N16R8**: Dual-core 240 MHz MCU with 16MB Flash and 8MB Octal PSRAM. Runs deterministic acquisition tasks on dedicated cores.
 - **MicroSD 4-bit SDMMC**: Dedicated high-speed storage interface with DMA buffering:
   $$\text{Sensors} \longrightarrow \text{Internal SRAM DMA} \longrightarrow \text{PSRAM Ring Buffer} \longrightarrow \text{Asynchronous SDMMC}$$
-  Provides over 60 seconds of stall absorption during heavy SD write operations without dropping a single sample.
+  Sized by calculation to absorb roughly 60 seconds of SD write stalls (design target; no firmware or hardware test exists).
 
 ### 3.3 Sensor Interfaces
 - **TDK InvenSense ICM-42688-P**: High-precision 6-axis IMU on dedicated SPI bus (GPIO10-13) with hardware timestamping via `IMU_DRDY` (GPIO14).
@@ -95,18 +95,34 @@ $$\text{EDA\_ACTIVE} = \text{EDA\_PREPARE} \land \text{EDA\_ANALOG\_GOOD}$$
 - **`circle-ppg` Daughterboard**: Keyed JST-GH 9-pin interface carrying I2C, interrupts, board identification EEPROM (AT24CS02), and isolated LED pulse power returns.
 
 ### 3.4 Isolated Synchronization
-- **TI ISOW7742DWER**: Reinforced digital isolator (5.0 kVrms) with integrated low-emission DC/DC converter.
-- **SYNC IN**: Symmetrical resistor divider and SN74LVC1G17 Schmitt buffer capturing external triggers ($< 15\text{ ns}$ delay, $< 250\text{ ps}$ jitter).
+- **TI ISOW7742DWER**: Digital isolator rated 5.0 kVrms reinforced (datasheet rating; the assembled barrier is untested) with integrated DC/DC converter.
+- **SYNC IN**: Symmetrical resistor divider and SN74LVC1G17 Schmitt buffer capturing external triggers (datasheet: $< 15\text{ ns}$ delay; system timing untested).
 - **SYNC OUT**: BSS138 open-drain MOSFET output allowing external pull-up voltages up to 12V.
 
 ---
 
-## 4. Closed-Loop Operation Model
+## 4. Closed-Loop Evidence Model
 
-The system closes the physical research loop with deterministic timing evidence:
-$$\text{Human} \longrightarrow \text{CIRCLE Sensing} \longrightarrow \text{VitalSync} \longrightarrow \text{DRR Modeling} \longrightarrow \text{Adaptive Decision} \longrightarrow \text{Locally Evidenced Feedback} \longrightarrow \text{Human} \longrightarrow \text{Measurement}$$
+CIRCLE is organized in three layers. Only the first two define the instrument.
 
-Every recorded event retains:
-- Authoritative 64-bit device-monotonic timestamp ($\mu\text{s}$ resolution).
-- Provenance classification (`RAW_MEASURED`, `DERIVED`, `MODEL_INFERRED`, `SIMULATED`, `TEST`, `INTERVENTION`).
-- CRC-32C frame data integrity checksums.
+| Layer | Contents | Status |
+|---|---|---|
+| **1. Sensing and evidence** | Rev B acquisition design, device clock, availability-aware raw streams, session record contract, provenance | Hardware designed, not built; software implemented and simulation-validated |
+| **2. Closed-loop experimentation** | Signal pipeline, temporally lawful controller, execution evidence, audit and replay, adversarial scenarios, protocol validation | Implemented; validated only against the physiology twin |
+| **3. Research extensions** | Resonance, emergence, PNT, R.A.I.N. protocol contracts | Bounded modules attached through contracts; removable without breaking layers 1–2 (checked by `tools/check_module_registry.py`) |
+
+The loop, and the evidence each step leaves behind:
+
+```
+sense      raw codes, sample time, availability time           RAW_MEASURED (SIMULATED in the twin)
+preserve   hashed raw bundle, declared GAPs, device events     STREAM_DESCRIPTOR, GAP, EVENT
+infer      windows and controller features with lineage        DERIVED, MODEL_INFERRED (+ input cutoff)
+decide     evaluation with gate results and decision time      MODEL_RESULT (decision_id)
+intervene  firmware command                                    EVENT: HAPTIC_COMMAND
+observe    electrical onset; independent IMU observation       EVENT (TLV3201 edge); EVENT, DERIVED from IMU
+verify     replay from raw, temporal check, execution chain    audit replay status
+```
+
+A decision, a command, a physical actuation, an observed effect, and an interpretation are different things and are recorded as different things. A command is not evidence that a motor moved; an electrical edge is not evidence the vibration reached the body; nothing in a session asserts that physiology changed. Effect claims require matched controls. See [closed-loop evidence](closed-loop-evidence.md).
+
+External analysis systems (DRR, R.A.I.N., typed-judgment critics) attach above the record: they may read sessions and propose protocols, and they never write evidence. Every recorded event retains its 64-bit device-monotonic timestamp (µs resolution), provenance class, and CRC-32C checksum.

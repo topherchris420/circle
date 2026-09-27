@@ -3,6 +3,17 @@
 A RawSession holds integer sensor codes, firmware sequence numbers, native
 device timestamps (microseconds), declared gaps, and device-logged events.
 It carries no ground truth, and no model output feeds back into it.
+
+Every sample has two device times:
+
+  device_time_us      when the sample was taken (the reconstructed sample
+                      instant; for FIFO streams this is an estimate).
+  available_us        when firmware held the sample in memory (DRDY read
+                      completion, or the FIFO batch read). A decision at
+                      device time T may use a sample only if available_us <= T.
+
+The distinction matters after a FIFO stall: samples taken at 185.0 s may not
+exist in memory until 185.4 s. Temporal lawfulness is judged on availability.
 """
 
 from __future__ import annotations
@@ -26,24 +37,35 @@ class Stream:
     sequence: np.ndarray
     device_time_us: np.ndarray
     columns: dict[str, np.ndarray]
+    available_us: np.ndarray | None = None
 
     def __post_init__(self) -> None:
         n = len(self.sequence)
-        if len(self.device_time_us) != n or any(len(v) != n for v in self.columns.values()):
+        if self.available_us is None:
+            self.available_us = np.array(self.device_time_us, copy=True)
+        if (len(self.device_time_us) != n or len(self.available_us) != n
+                or any(len(v) != n for v in self.columns.values())):
             raise ValueError(f"Stream {self.name} columns differ in length")
         if n and (np.any(np.diff(self.sequence) <= 0) or np.any(np.diff(self.device_time_us) <= 0)):
             raise ValueError(f"Stream {self.name} sequence and time must increase strictly")
+        if n and np.any(np.diff(self.available_us) < 0):
+            raise ValueError(f"Stream {self.name} availability times must not decrease (firmware reads in order)")
+        if n and np.any(self.available_us < self.device_time_us):
+            raise ValueError(f"Stream {self.name} has a sample available before it was taken")
 
     def __len__(self) -> int:
         return len(self.sequence)
 
     def until(self, device_time_us: int) -> "Stream":
-        stop = int(np.searchsorted(self.device_time_us, device_time_us, side="right"))
+        """Samples firmware held in memory at device_time_us (availability, not sample time)."""
+        assert self.available_us is not None
+        stop = int(np.searchsorted(self.available_us, device_time_us, side="right"))
         return self.slice(0, stop)
 
     def slice(self, start: int, stop: int) -> "Stream":
+        assert self.available_us is not None
         return Stream(self.name, self.sequence[start:stop], self.device_time_us[start:stop],
-                      {k: v[start:stop] for k, v in self.columns.items()})
+                      {k: v[start:stop] for k, v in self.columns.items()}, self.available_us[start:stop])
 
     def window(self, t0_us: int, t1_us: int) -> "Stream":
         """Samples with t0_us <= device_time_us <= t1_us."""
@@ -88,7 +110,7 @@ class RawSession:
     events: list[DeviceEvent] = field(default_factory=list)
 
     def until(self, device_time_us: int) -> "RawSession":
-        """Everything the device had recorded by device_time_us (inclusive)."""
+        """Everything the device held in memory at device_time_us (inclusive)."""
         return RawSession(
             {name: s.until(device_time_us) for name, s in self.streams.items()},
             self.descriptors,

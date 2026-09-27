@@ -299,7 +299,11 @@ def score(run: Any, truth: dict[str, Any]) -> dict[str, Any]:
     # ---------------------------------------------------------------- haptic
     truth_haptic = {(h["program"], h["cue_index"]): h for h in timing["haptic"]}
     lat_e, lat_p, phys_err = [], [], []
+    sham = [h for h in an.haptic if h.get("sham")]
+    false_observations = sum(1 for h in sham if "physical_onset_s" in h)
     for h in an.haptic:
+        if h.get("sham"):
+            continue
         key = (h["program"], h["cue_index"])
         if "electrical_onset_s" in h:
             lat_e.append((h["electrical_onset_s"] - h["command_s"]) * 1000)
@@ -311,10 +315,14 @@ def score(run: Any, truth: dict[str, Any]) -> dict[str, Any]:
                           "physical_latency_ms_median": float(np.median(lat_p)) if lat_p else float("nan"),
                           "physical_onset_error_ms_max_abs": float(np.max(np.abs(phys_err))) if phys_err else float("nan"),
                           "physical_onset_error_ms_median": float(np.median(phys_err)) if phys_err else float("nan"),
-                          "imu_sample_period_ms": 1000.0 / run.raw.descriptors["imu"]["nominal_rate_hz"]}
+                          "imu_sample_period_ms": 1000.0 / run.raw.descriptors["imu"]["nominal_rate_hz"],
+                          "sham_commands": len(sham), "false_physical_observations": false_observations}
     if phys_err:
         worst = sections["haptic"]["physical_onset_error_ms_max_abs"]
         checks.append(Check("haptic_physical", "IMU-observed haptic onset error (max)", worst, "<= 5.0", "ms", "TWIN (2 IMU samples)", worst <= 5.0))
+    if sham:
+        checks.append(Check("haptic_sham_negative", "Physical observations after sham commands (must be none)", float(false_observations),
+                            "== 0", "cues", "TWIN (negative control)", false_observations == 0))
 
     # ---------------------------------------------------------- arousal/loop
     ev_t = np.array([lab(e.window_end_us / 1e6) for e in run.evaluations if "arousal_index" in e.features])
@@ -323,8 +331,9 @@ def score(run: Any, truth: dict[str, Any]) -> dict[str, Any]:
     r = float(np.corrcoef(ev_i, truth_a)[0, 1]) if len(ev_i) > 3 else float("nan")
     sections["closed_loop"] = {"evaluations": len(run.evaluations), "arousal_index_vs_truth_r": r,
                                "decisions": [{"t_lab_s": float(lab(e.device_time_us / 1e6)), "action": e.action, "decision_id": e.decision_id}
-                                             for e in run.evaluations if e.action and e.action != "HOLD_QUALITY"],
-                               "quality_holds": sum(1 for e in run.evaluations if e.action == "HOLD_QUALITY")}
+                                             for e in run.evaluations if e.action and not e.action.startswith("HOLD_")],
+                               "quality_holds": sum(1 for e in run.evaluations if e.action == "HOLD_QUALITY"),
+                               "disagreement_holds": sum(1 for e in run.evaluations if e.action == "HOLD_SIGNALS_DISAGREE")}
     checks.append(Check("arousal_tracking", "Controller arousal index vs latent truth (Pearson r)", r, ">= 0.85", "", "TWIN", r >= 0.85))
     return {"sections": sections, "checks": [c.to_dict() for c in checks],
             "passed": all(c.passed for c in checks), "check_count": len(checks)}

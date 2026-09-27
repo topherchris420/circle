@@ -1,0 +1,423 @@
+{
+  "schema": "circle-review-gates/1",
+  "release_class": "ENGINEERING_REVIEW_ONLY",
+  "note": "Repository checks can show evidence is missing; they never close a gate that requires physical measurement, accredited testing, independent review, or ethics approval. A CLOSED gate must name its reviewer, date, and artifacts.",
+  "gates": [
+    {
+      "id": "EDA_LIMIT_NETWORK",
+      "domain": "ELECTRICAL_SAFETY",
+      "requirement": "Worst-case electrode current stays below the reviewed limit under every single fault, including a welded switch.",
+      "evidence_required": [
+        "Independent worst-case calculation over resistor tolerance, rail maximum, and leakage",
+        "Reviewed part and footprint",
+        "Bench measurement of short-circuit electrode current on an assembled board"
+      ],
+      "evidence_kind": [
+        "CALCULATION",
+        "INDEPENDENT_REVIEW",
+        "PHYSICAL_MEASUREMENT"
+      ],
+      "status": "OPEN",
+      "blocks": [
+        "FABRICATION",
+        "HUMAN_CONNECTION"
+      ],
+      "blocker": "The 27.5 uA figure is a design calculation (5.5 V / 199.6 kOhm); it has not been independently reviewed or measured.",
+      "artifacts": [
+        "docs/safety-analysis.md",
+        "docs/safety-and-fault-analysis.md"
+      ],
+      "reviewer": null,
+      "closure_condition": "Independent reviewer signs the calculation and a measured fault current on assembled hardware is recorded."
+    },
+    {
+      "id": "EDA_SWITCH_SELECTION",
+      "domain": "ELECTRICAL_SAFETY",
+      "requirement": "Electrode disconnect switches open on every unsafe condition and fail open.",
+      "evidence_required": [
+        "Reviewed switch part, drive circuit, and footprint",
+        "Interlock injection tests (USB, debug, expansion, low battery) on hardware"
+      ],
+      "evidence_kind": [
+        "INDEPENDENT_REVIEW",
+        "PHYSICAL_MEASUREMENT"
+      ],
+      "status": "OPEN",
+      "blocks": [
+        "FABRICATION",
+        "HUMAN_CONNECTION"
+      ],
+      "blocker": "Switch behavior is taken from datasheets and schematic intent only.",
+      "artifacts": [
+        "docs/safety-analysis.md"
+      ],
+      "reviewer": null,
+      "closure_condition": "Interlock injection tests pass on assembled hardware and an independent reviewer approves the design."
+    },
+    {
+      "id": "BATTERY_AND_CHARGE_CURRENT",
+      "domain": "POWER",
+      "requirement": "Battery charging, protection, and undervoltage behavior stay inside cell ratings.",
+      "evidence_required": [
+        "Charge-current calculation",
+        "Protected-cell sourcing requirement",
+        "Bench charge and cutoff measurements"
+      ],
+      "evidence_kind": [
+        "CALCULATION",
+        "PHYSICAL_MEASUREMENT"
+      ],
+      "status": "OPEN",
+      "blocks": [
+        "FABRICATION",
+        "POWERED_BENCH_TEST"
+      ],
+      "blocker": "No charger has been powered.",
+      "artifacts": [
+        "docs/power-and-thermal-calculations.md"
+      ],
+      "reviewer": null,
+      "closure_condition": "Measured charge current and cutoff thresholds recorded within limits."
+    },
+    {
+      "id": "POWER_MAGNETICS_AND_THERMALS",
+      "domain": "POWER",
+      "requirement": "Regulator magnetics and thermal dissipation have margin at worst-case load.",
+      "evidence_required": [
+        "Inductor saturation and thermal calculations",
+        "Thermal measurement under load"
+      ],
+      "evidence_kind": [
+        "CALCULATION",
+        "PHYSICAL_MEASUREMENT"
+      ],
+      "status": "OPEN",
+      "blocks": [
+        "FABRICATION",
+        "POWERED_BENCH_TEST"
+      ],
+      "blocker": "Efficiency and ripple figures are datasheet-derived design targets.",
+      "artifacts": [
+        "docs/power-budget-analysis.md"
+      ],
+      "reviewer": null,
+      "closure_condition": "Measured ripple, efficiency, and temperature rise recorded at worst-case load."
+    },
+    {
+      "id": "ISOLATION_CREEPAGE_CLEARANCE",
+      "domain": "ISOLATION",
+      "requirement": "The BAT_HUMAN / LAB_ISO barrier meets the required creepage, clearance, and withstand for the intended use.",
+      "evidence_required": [
+        "Creepage and clearance review against the applicable standard and pollution degree",
+        "Hipot test of the assembled barrier",
+        "Independent review"
+      ],
+      "evidence_kind": [
+        "INDEPENDENT_REVIEW",
+        "ACCREDITED_TEST"
+      ],
+      "status": "OPEN",
+      "blocks": [
+        "FABRICATION",
+        "HUMAN_CONNECTION"
+      ],
+      "blocker": "5.0 kVrms is the ISOW7742 component rating. The assembled barrier has not been reviewed or tested.",
+      "artifacts": [
+        "docs/architecture.md"
+      ],
+      "reviewer": null,
+      "closure_condition": "Accredited or independently witnessed withstand test on assembled boards plus reviewed creepage analysis."
+    },
+    {
+      "id": "PPG_CABLE_SIGNAL_INTEGRITY",
+      "domain": "SIGNAL_INTEGRITY",
+      "requirement": "The optical head cable carries I2C, interrupts, and LED current without corrupting samples.",
+      "evidence_required": [
+        "Cable capacitance and rise-time calculation",
+        "Bench waveform capture at the cable length used"
+      ],
+      "evidence_kind": [
+        "CALCULATION",
+        "PHYSICAL_MEASUREMENT"
+      ],
+      "status": "OPEN",
+      "blocks": [
+        "FABRICATION"
+      ],
+      "blocker": "No cable has been characterized.",
+      "artifacts": [],
+      "reviewer": null,
+      "closure_condition": "Measured rise times and error-free transfer over the intended cable."
+    },
+    {
+      "id": "FOOTPRINT_VERIFICATION",
+      "domain": "PCB",
+      "requirement": "Every footprint matches its manufacturer land pattern and pinout.",
+      "evidence_required": [
+        "Footprint-by-footprint review against datasheets",
+        "First-article inspection"
+      ],
+      "evidence_kind": [
+        "INDEPENDENT_REVIEW",
+        "PHYSICAL_MEASUREMENT"
+      ],
+      "status": "OPEN",
+      "blocks": [
+        "FABRICATION"
+      ],
+      "blocker": "Custom footprints are generated and unreviewed.",
+      "artifacts": [
+        "hardware/libraries/circle-footprints.pretty"
+      ],
+      "reviewer": null,
+      "closure_condition": "Signed footprint review and first-article inspection."
+    },
+    {
+      "id": "PHYSICAL_ROUTING",
+      "domain": "PCB",
+      "requirement": "All copper connectivity is routed; DRC contains no unexplained connectivity items.",
+      "evidence_required": [
+        "Fresh KiCad DRC with zero unallowlisted violations",
+        "Every unconnected item routed or individually reviewed"
+      ],
+      "evidence_kind": [
+        "AUTOMATED_CHECK",
+        "INDEPENDENT_REVIEW"
+      ],
+      "status": "OPEN",
+      "blocks": [
+        "FABRICATION"
+      ],
+      "blocker": "DRC passes only because unrouted nets are fingerprinted in an open allowlist; the boards are not routed.",
+      "artifacts": [
+        "hardware/reports/drc-allowlist.json",
+        "hardware/reports/circle-main-drc.json",
+        "hardware/reports/circle-ppg-drc.json"
+      ],
+      "reviewer": null,
+      "closure_condition": "The DRC allowlist contains no unconnected_items and a reviewer approves the routed layout.",
+      "automated_check": "tools/check_drc.py"
+    },
+    {
+      "id": "FIRMWARE_IMPLEMENTATION",
+      "domain": "FIRMWARE",
+      "requirement": "Firmware implements the timing, FIFO, gap, availability, and evidence behavior the twin models.",
+      "evidence_required": [
+        "Firmware source",
+        "Hardware-in-the-loop tests reproducing twin timing assumptions"
+      ],
+      "evidence_kind": [
+        "AUTOMATED_CHECK",
+        "PHYSICAL_MEASUREMENT"
+      ],
+      "status": "OPEN",
+      "blocks": [
+        "POWERED_BENCH_TEST",
+        "HUMAN_CONNECTION"
+      ],
+      "blocker": "No firmware exists in this repository; the twin's firmware behavior is a specification.",
+      "artifacts": [
+        "docs/firmware-pinmap-and-init.md"
+      ],
+      "reviewer": null,
+      "closure_condition": "Firmware passes loopback tests matching docs/firmware-pinmap-and-init.md and the twin's timing model."
+    },
+    {
+      "id": "BENCH_BRINGUP",
+      "domain": "MEASUREMENT",
+      "requirement": "Every bring-up test in the validation plan passes on assembled boards.",
+      "evidence_required": [
+        "Recorded results for each bring-up step"
+      ],
+      "evidence_kind": [
+        "PHYSICAL_MEASUREMENT"
+      ],
+      "status": "OPEN",
+      "blocks": [
+        "HUMAN_CONNECTION"
+      ],
+      "blocker": "No board has been fabricated.",
+      "artifacts": [
+        "docs/board-bringup-and-validation-plan.md"
+      ],
+      "reviewer": null,
+      "closure_condition": "Recorded bench results for every step in docs/board-bringup-and-validation-plan.md."
+    },
+    {
+      "id": "ELECTRONIC_PHANTOM_VALIDATION",
+      "domain": "MEASUREMENT",
+      "requirement": "Acquisition, timing, and pipeline are validated against electrical and optical phantoms with known injected truth before any body contact.",
+      "evidence_required": [
+        "EDA resistor/conductance phantom sweep",
+        "Optical PPG phantom with known pulse timing",
+        "Haptic-to-IMU loopback on a fixture"
+      ],
+      "evidence_kind": [
+        "PHYSICAL_MEASUREMENT"
+      ],
+      "status": "OPEN",
+      "blocks": [
+        "HUMAN_CONNECTION",
+        "INTERPRETATION"
+      ],
+      "blocker": "Only the software twin exists; no phantom has been built.",
+      "artifacts": [
+        "docs/physical-evidence-ladder.md"
+      ],
+      "reviewer": null,
+      "closure_condition": "Phantom sessions pass the same audit and scorecard structure as the twin, with measured truth."
+    },
+    {
+      "id": "INDEPENDENT_ELECTRICAL_SAFETY_REVIEW",
+      "domain": "ELECTRICAL_SAFETY",
+      "requirement": "A qualified independent reviewer approves the human-connected design for the intended research use.",
+      "evidence_required": [
+        "Risk analysis",
+        "Independent reviewer report"
+      ],
+      "evidence_kind": [
+        "INDEPENDENT_REVIEW"
+      ],
+      "status": "OPEN",
+      "blocks": [
+        "FABRICATION",
+        "HUMAN_CONNECTION"
+      ],
+      "blocker": "Automated KiCad checks are not an electrical-safety review.",
+      "artifacts": [
+        "docs/known-issues-and-risks.md"
+      ],
+      "reviewer": null,
+      "closure_condition": "Signed independent safety review naming the reviewed revision."
+    },
+    {
+      "id": "EMC_TESTING",
+      "domain": "EMC",
+      "requirement": "Emissions and immunity are acceptable for the intended environment.",
+      "evidence_required": [
+        "Pre-compliance scan",
+        "Accredited EMC testing where required"
+      ],
+      "evidence_kind": [
+        "ACCREDITED_TEST"
+      ],
+      "status": "OPEN",
+      "blocks": [
+        "HUMAN_CONNECTION"
+      ],
+      "blocker": "Not tested.",
+      "artifacts": [],
+      "reviewer": null,
+      "closure_condition": "Recorded EMC test report for the tested revision."
+    },
+    {
+      "id": "BIOCOMPATIBILITY",
+      "domain": "BIOCOMPATIBILITY",
+      "requirement": "Skin-contact materials are acceptable for the intended contact duration.",
+      "evidence_required": [
+        "Material declarations",
+        "Biocompatibility evaluation of contact parts"
+      ],
+      "evidence_kind": [
+        "INDEPENDENT_REVIEW",
+        "ACCREDITED_TEST"
+      ],
+      "status": "OPEN",
+      "blocks": [
+        "HUMAN_CONNECTION"
+      ],
+      "blocker": "No contact materials or enclosures are specified.",
+      "artifacts": [],
+      "reviewer": null,
+      "closure_condition": "Evaluation report for the actual contact materials."
+    },
+    {
+      "id": "HUMAN_RESEARCH_APPROVAL",
+      "domain": "HUMAN_RESEARCH",
+      "requirement": "Any human-connected session runs under an approved research protocol with informed consent.",
+      "evidence_required": [
+        "Ethics / IRB approval of a specific protocol",
+        "Operator training and procedural safety rules"
+      ],
+      "evidence_kind": [
+        "ETHICS_APPROVAL"
+      ],
+      "status": "OPEN",
+      "blocks": [
+        "HUMAN_CONNECTION"
+      ],
+      "blocker": "No protocol has been submitted. Repository verification never authorizes human connection.",
+      "artifacts": [],
+      "reviewer": null,
+      "closure_condition": "Approval letter for a named protocol and hardware revision, after every other HUMAN_CONNECTION gate is closed."
+    },
+    {
+      "id": "RESONANCE_SIMULATION_CONTROLS",
+      "domain": "RESEARCH_MODULE",
+      "requirement": "Resonance simulations run matched geometry, core, sham, and unpowered controls with identical physics and measurement logic.",
+      "evidence_required": [
+        "Automated simulation tests",
+        "Schema validation"
+      ],
+      "evidence_kind": [
+        "AUTOMATED_CHECK"
+      ],
+      "status": "OPEN",
+      "blocks": [
+        "RESEARCH_EXECUTION"
+      ],
+      "blocker": "Simulation controls are implemented; this gate stays open until a preregistered confirmatory plan with multiple-comparison correction is reviewed.",
+      "artifacts": [
+        "experiments/resonance/analysis-plan.md"
+      ],
+      "reviewer": null,
+      "closure_condition": "Reviewed preregistered analysis plan that names every compared condition and its correction.",
+      "automated_check": "tools/check_resonance_contract.py"
+    },
+    {
+      "id": "RESONANCE_ISOLATION_BARRIER",
+      "domain": "ISOLATION",
+      "requirement": "The resonance apparatus has no conductive path to BAT_HUMAN; synchronization crosses only the isolated SYNC interface.",
+      "evidence_required": [
+        "Wiring review",
+        "Withstand and continuity test of the assembled setup"
+      ],
+      "evidence_kind": [
+        "INDEPENDENT_REVIEW",
+        "PHYSICAL_MEASUREMENT"
+      ],
+      "status": "OPEN",
+      "blocks": [
+        "FABRICATION",
+        "HUMAN_CONNECTION"
+      ],
+      "blocker": "No apparatus exists.",
+      "artifacts": [
+        "docs/resonance-safety-boundary.md"
+      ],
+      "reviewer": null,
+      "closure_condition": "Measured isolation of the assembled apparatus and reviewer approval."
+    },
+    {
+      "id": "RESONANCE_ARTIFACT_DISCRIMINATION",
+      "domain": "RESEARCH_MODULE",
+      "requirement": "Any apparent response is shown not to be instrumentation pickup: it must be absent on resistor, optical, disconnected, shielded, and dummy-load phantoms.",
+      "evidence_required": [
+        "Phantom sweeps under the identical drive conditions"
+      ],
+      "evidence_kind": [
+        "PHYSICAL_MEASUREMENT"
+      ],
+      "status": "OPEN",
+      "blocks": [
+        "INTERPRETATION"
+      ],
+      "blocker": "Not characterized.",
+      "artifacts": [
+        "experiments/resonance/controls.md"
+      ],
+      "reviewer": null,
+      "closure_condition": "Phantom results recorded for every drive condition used in a human or biological claim."
+    }
+  ]
+}

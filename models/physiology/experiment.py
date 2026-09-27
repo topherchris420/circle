@@ -2,8 +2,9 @@
 
 The loop is strictly causal. At each controller evaluation time T (device
 clock) the twin has generated physiology only up to T, the rig has recorded
-only samples whose physical instant precedes T - 0.5 s, and the controller
-reads only samples at least decision_margin old. Cues it schedules reach the
+only samples whose physical instant precedes T - 0.5 s, the controller is
+handed only samples whose availability time (FIFO/DRDY read completion) is
+<= T, and it uses only samples taken at least decision_margin before T. Cues it schedules reach the
 body through the haptic hardware model at their physical onset time.
 """
 
@@ -29,6 +30,11 @@ class SessionConfig:
     rig: RigConfig = field(default_factory=RigConfig)
     controller: ControllerConfig = field(default_factory=ControllerConfig)
     actuate: bool = True
+    scenario: str = "clean"
+
+    @property
+    def session_id(self) -> str:
+        return f"TWIN-{self.scenario.upper()}-S{self.twin.seed}-{'ACTIVE' if self.actuate else 'SHAM'}"
 
 
 @dataclass
@@ -41,6 +47,7 @@ class SessionRun:
     controller_baseline: dict[str, float]
     controller_baseline_window_us: tuple[int, int]
     controller_baseline_ranges: list[dict[str, Any]]
+    controller_baseline_decided_us: int
     evaluation_end_us: int
     twin: PhysiologyTwin
     rig: SensorRig
@@ -85,7 +92,8 @@ def run_session(config: SessionConfig | None = None) -> SessionRun:
         log_markers_through(t_true)
         twin.advance_to(t_true)
         rig.acquire_until(t_true - ACQUISITION_LAG_S)
-        session = rig.raw_session()
+        # The controller sees only what firmware held in memory at t_dev.
+        session = rig.raw_session().until(t_dev)
         _assert_complete_through(rig, t_dev - margin)
         evaluation = controller.evaluate(session, t_dev)
         last_evaluated = t_dev
@@ -108,7 +116,7 @@ def run_session(config: SessionConfig | None = None) -> SessionRun:
     if controller.baseline is None or controller.baseline_window_us is None:
         raise ValueError("Session ended before the controller baseline could be established")
     return SessionRun(config, raw, analyze(raw), evaluations, outcomes, dict(controller.baseline),
-                      controller.baseline_window_us, list(controller.baseline_ranges), last_evaluated, twin, rig)
+                      controller.baseline_window_us, list(controller.baseline_ranges), int(controller.baseline_decided_us or 0), last_evaluated, twin, rig)
 
 
 def _cue_number(evaluations: list[Evaluation], program: int | None, cue_us: int) -> int:

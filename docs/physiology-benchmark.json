@@ -12,7 +12,7 @@
   },
   "arousal_tracking": {
    "label": "Controller arousal index vs latent truth (Pearson r)",
-   "mean": 0.91916376,
+   "mean": 0.91919462,
    "pass_rate": 1.0,
    "source": "TWIN",
    "target": ">= 0.85",
@@ -84,7 +84,7 @@
   },
   "hr_mae": {
    "label": "Heart rate MAE (1 Hz)",
-   "mean": 0.38994994000000005,
+   "mean": 0.38983441999999996,
    "pass_rate": 1.0,
    "source": "TWIN",
    "target": "<= 1.0",
@@ -102,21 +102,21 @@
   },
   "ppg_fifo": {
    "label": "PPG FIFO timestamp reconstruction max",
-   "mean": 552.6526,
+   "mean": 31.5830867,
    "pass_rate": 1.0,
    "source": "SPEC timing-and-data-model.md",
    "target": "<= 1000",
    "unit": "us",
-   "worst": 556.9526
+   "worst": 39.17839
   },
   "resp_mae": {
    "label": "Respiratory rate MAE (RIIV breaths)",
-   "mean": 0.3570964,
+   "mean": 0.3564279800000001,
    "pass_rate": 1.0,
    "source": "TWIN",
    "target": "<= 1.0",
    "unit": "breaths/min",
-   "worst": 0.493959
+   "worst": 0.49396
   },
   "rmssd_mae": {
    "label": "RMSSD MAE (60 s windows)",
@@ -129,7 +129,7 @@
   },
   "scl_mae": {
    "label": "Tonic skin conductance MAE",
-   "mean": 0.035369439999999995,
+   "mean": 0.0353698,
    "pass_rate": 1.0,
    "source": "TWIN",
    "target": "<= 0.10",
@@ -174,14 +174,26 @@
   },
   "spo2_mae": {
    "label": "SpO2 MAE, gated (includes uncalibrated bias)",
-   "mean": 1.1546410800000002,
+   "mean": 1.1543592,
    "pass_rate": 1.0,
    "source": "TWIN",
    "target": "<= 2.0",
    "unit": "%",
-   "worst": 1.174793
+   "worst": 1.174936
   }
  },
+ "checks_passed": 999,
+ "checks_run": 1000,
+ "failures": [
+  {
+   "check": "scr_sensitivity",
+   "label": "SCR sensitivity (>= 0.05 uS, motion-free)",
+   "seed": 147,
+   "target": ">= 0.85",
+   "unit": "",
+   "value": 0.785714
+  }
+ ],
  "provenance": "SIMULATED",
  "seeds": [
   100,
