@@ -158,7 +158,11 @@ def _carrier_envelope(accel: np.ndarray, fs: float, carrier_hz: float) -> np.nda
 
 
 def detect_haptic_vibration(imu: Stream, descriptor: dict[str, float], session: RawSession) -> list[dict[str, Any]]:
-    """Physical haptic onset observed by the on-board IMU (50 % envelope crossing)."""
+    """Physical haptic onset observed by the on-board IMU (50 % envelope crossing).
+
+    Sham commands are examined with the identical detector. Nothing should be
+    observed after them; any detection there is a false physical observation.
+    """
     onsets = {(e.attribute("program"), e.attribute("cue_index")): e for e in session.events_of("HAPTIC_ELECTRICAL_ONSET")}
     results = []
     if not len(imu):
@@ -167,14 +171,15 @@ def detect_haptic_vibration(imu: Stream, descriptor: dict[str, float], session: 
     accel, _ = imu_physical(imu, descriptor)
     t = _seconds(imu.device_time_us)
     for command in session.events_of("HAPTIC_COMMAND"):
-        if command.kind != "HAPTIC_COMMAND":
+        if command.kind not in ("HAPTIC_COMMAND", "HAPTIC_COMMAND_SHAM"):
             continue
         key = (command.attribute("program"), command.attribute("cue_index"))
         t_cmd = command.device_time_us / 1e6
         lo = int(np.searchsorted(t, t_cmd - 0.05))
         hi = int(np.searchsorted(t, t_cmd + 0.15))
         record: dict[str, Any] = {"program": key[0], "cue_index": key[1], "command_s": t_cmd,
-                                  "command_evidence": command.evidence_id}
+                                  "command_evidence": command.evidence_id,
+                                  "sham": command.kind == "HAPTIC_COMMAND_SHAM"}
         onset_event = onsets.get(key)
         if onset_event is not None:
             record["electrical_onset_s"] = onset_event.device_time_us / 1e6

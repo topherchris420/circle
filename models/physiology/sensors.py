@@ -44,6 +44,11 @@ EDA_CONVERSION_US = 11_200
 PPG_FULL_SCALE = 2**18 - 1
 IMU_ACCEL_LSB_PER_G = 8192.0
 IMU_GYRO_LSB_PER_DPS = 65.5
+# DRDY-to-data latency: SPI read of the conversion result after the captured
+# edge (assumptions sized to a few-MHz SPI transaction plus ISR entry).
+EDA_READ_LATENCY_US = 60
+IMU_READ_LATENCY_US = 35
+SYNC_READ_LATENCY_US = 5
 
 
 def optical_ratio_of_ratios(spo2_pct: np.ndarray) -> np.ndarray:
@@ -204,6 +209,7 @@ class SensorRig:
         stalled = False
         seqs: list[np.ndarray] = []
         stamps: list[np.ndarray] = []
+        reads: list[np.ndarray] = []
         self.ppg_gaps: list[Gap] = []
         self.ppg_anchor_log: list[dict[str, float]] = []
         while True:
@@ -225,7 +231,11 @@ class SensorRig:
                     period_est += 0.2 * (observed - period_est)
             batch = np.arange(next_unread, next_unread + stored)
             seqs.append(batch)
-            stamps.append(np.round(edge_dev + (batch - s_int) * period_est).astype(np.int64))
+            batch_stamps = np.round(edge_dev + (batch - s_int) * period_est).astype(np.int64)
+            stamps.append(batch_stamps)
+            # The batch exists in firmware memory only once the FIFO read completes.
+            read_done = int(math.floor(float(self.clock.to_device_us(edge_true + service)))) + 150
+            reads.append(np.maximum(batch_stamps, read_done))
             self.ppg_anchor_log.append({"sequence": s_int, "edge_device_us": edge_dev, "period_estimate_us": period_est})
             if lost:
                 read_dev = int(math.floor(float(self.clock.to_device_us(edge_true + service))))
@@ -237,6 +247,7 @@ class SensorRig:
             anchor = (s_int, float(edge_dev))
         self.ppg_seq = np.concatenate(seqs).astype(np.int64)
         self.ppg_dev = np.concatenate(stamps)
+        self.ppg_avail = np.maximum.accumulate(np.concatenate(reads))
         self.ppg_t = t[self.ppg_seq]
         self.ppg_edge_dev_exact = self.clock.to_device_us(self.ppg_t)
 
@@ -361,13 +372,16 @@ class SensorRig:
         n = self._rendered
         streams = {
             "eda": Stream("eda", np.arange(n["eda"], dtype=np.int64), self.eda_dev[:n["eda"]],
-                          {"code": self.eda_codes[:n["eda"]]}),
+                          {"code": self.eda_codes[:n["eda"]]}, self.eda_dev[:n["eda"]] + EDA_READ_LATENCY_US),
             "ppg": Stream("ppg", self.ppg_seq[:n["ppg"]], self.ppg_dev[:n["ppg"]],
-                          {"red_counts": self.ppg_codes[:n["ppg"], 0], "ir_counts": self.ppg_codes[:n["ppg"], 1]}),
+                          {"red_counts": self.ppg_codes[:n["ppg"], 0], "ir_counts": self.ppg_codes[:n["ppg"], 1]},
+                          self.ppg_avail[:n["ppg"]]),
             "imu": Stream("imu", np.arange(n["imu"], dtype=np.int64), self.imu_dev[:n["imu"]],
-                          {name: self.imu_codes[:n["imu"], i] for i, name in enumerate(STREAM_COLUMNS["imu"])}),
+                          {name: self.imu_codes[:n["imu"], i] for i, name in enumerate(STREAM_COLUMNS["imu"])},
+                          self.imu_dev[:n["imu"]] + IMU_READ_LATENCY_US),
             "sync": Stream("sync", np.arange(n["sync"], dtype=np.int64), self.sync_dev[:n["sync"]],
-                           {"lab_pulse_index": self.sync_t[:n["sync"]].astype(np.int64)}),
+                           {"lab_pulse_index": self.sync_t[:n["sync"]].astype(np.int64)},
+                           self.sync_dev[:n["sync"]] + SYNC_READ_LATENCY_US),
         }
         last_ppg = int(self.ppg_seq[n["ppg"] - 1]) if n["ppg"] else -1
         gaps = [g for g in self.ppg_gaps if g.last_sequence < last_ppg]

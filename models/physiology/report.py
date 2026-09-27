@@ -190,6 +190,8 @@ def _report_data(run: Any, truth: dict[str, Any], scorecard: dict[str, Any], cou
     cues = []
     haptic_truth = {(h["program"], h["cue_index"]): h for h in truth["timing"]["haptic"]}
     for h in an.haptic:
+        if h.get("sham"):
+            continue
         entry = {"t": _r(lab(h["command_s"]), 3)}
         if "electrical_onset_s" in h:
             entry["elec_ms"] = _r((h["electrical_onset_s"] - h["command_s"]) * 1000, 3)

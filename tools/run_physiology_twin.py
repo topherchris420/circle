@@ -28,6 +28,7 @@ from models.physiology.controller import CONTROLLER_VERSION, replay
 from models.physiology.evidence import (analysis_document, build_session_records, dumps, source_digest,
                                         write_raw_bundle)
 from models.physiology.experiment import SessionConfig, SessionRun, run_session
+from models.physiology.ledger import build_ledger, passport, passport_text
 from models.physiology.pipeline import PIPELINE_VERSION
 from models.physiology.report import build_report
 from models.physiology.twin import TwinConfig
@@ -48,8 +49,15 @@ def export_run(run: SessionRun, output: Path, counterfactual: SessionRun | None,
     scorecard = score(run, truth)
     replayed = replay(run.raw, run.config.controller, run.evaluation_end_us)
     replay_identical = [a.comparable() for a in replayed] == [b.comparable() for b in run.evaluations]
+    ledger = build_ledger(records)
+    session_passport = passport(records, {"REPLAY AT EXPORT": "REPLAY_MATCH" if replay_identical else "REPLAY_DIVERGENCE",
+                                          "SCORECARD": f"{sum(c['passed'] for c in scorecard['checks'])}/{len(scorecard['checks'])} "
+                                                       "twin checks passed (simulation only)",
+                                          "AUDIT": "not part of export; run tools/audit_physiology_run.py"})
     documents = {
         "session.ndjson": session_bytes,
+        "closed_loop_ledger.json": dumps(ledger),
+        "passport.txt": passport_text(session_passport).encode("utf-8"),
         "analysis.json": dumps(analysis_document(analysis)),
         "truth.json": dumps(compact_truth(truth)),
         "scorecard.json": dumps(scorecard),
@@ -61,7 +69,7 @@ def export_run(run: SessionRun, output: Path, counterfactual: SessionRun | None,
                     "the twin's ASSUMED response model, not evidence of efficacy.",
             "truth": {k: counterfactual.twin.truth()[k] for k in ("t_s", "arousal", "hr_bpm", "resp_rate_bpm", "entrainment")},
             "decisions": [{"device_time_us": e.device_time_us, "action": e.action, "decision_id": e.decision_id}
-                          for e in counterfactual.evaluations if e.action and e.action != "HOLD_QUALITY"],
+                          for e in counterfactual.evaluations if e.action and not e.action.startswith("HOLD_")],
         })
     if with_report:
         documents["report.html"] = build_report(run, truth, scorecard, counterfactual, records, replay_identical).encode("utf-8")
@@ -82,7 +90,11 @@ def export_run(run: SessionRun, output: Path, counterfactual: SessionRun | None,
         "environment": {"python": platform.python_version(), "numpy": np.__version__},
         "config": {"arm": "ACTIVE" if config.actuate else "SHAM", "twin": asdict(config.twin),
                    "rig": asdict(config.rig), "controller": asdict(config.controller)},
-        "decision_replay": {"evaluations": len(run.evaluations), "identical": replay_identical},
+        "session_id": config.session_id,
+        "scenario": config.scenario,
+        "passport": session_passport,
+        "decision_replay": {"evaluations": len(run.evaluations), "identical": replay_identical,
+                            "status": "REPLAY_MATCH" if replay_identical else "REPLAY_DIVERGENCE"},
         "scorecard": {"passed": sum(c["passed"] for c in scorecard["checks"]), "total": len(scorecard["checks"])},
         "artifacts": dict(sorted(artifacts.items())),
     }
@@ -106,6 +118,7 @@ def benchmark(seeds: list[int], duration: float | None) -> dict:
     values: dict[str, list] = {}
     meta: dict[str, dict] = {}
     passes: dict[str, int] = {}
+    failures: list[dict] = []
     for seed in seeds:
         twin = TwinConfig(seed=seed) if duration is None else TwinConfig(seed=seed, duration_s=duration)
         run = run_session(SessionConfig(twin=twin))
@@ -114,6 +127,9 @@ def benchmark(seeds: list[int], duration: float | None) -> dict:
             values.setdefault(check["id"], []).append(check["value"])
             passes[check["id"]] = passes.get(check["id"], 0) + int(check["passed"])
             meta[check["id"]] = {k: check[k] for k in ("label", "target", "unit", "source")}
+            if not check["passed"]:
+                failures.append({"seed": seed, "check": check["id"], "label": check["label"],
+                                 "value": check["value"], "target": check["target"], "unit": check["unit"]})
         print(f"seed {seed}: {sum(c['passed'] for c in card['checks'])}/{len(card['checks'])} checks passed", flush=True)
     summary = {}
     for key, vals in values.items():
@@ -123,8 +139,11 @@ def benchmark(seeds: list[int], duration: float | None) -> dict:
         summary[key] = {**meta[key], "mean": float(np.nanmean(arr)),
                         "worst": float(np.nanmax(arr) if lower_is_better else np.nanmin(arr)),
                         "pass_rate": passes[key] / len(seeds)}
+    total = sum(len(values[k]) for k in values)
     return {"provenance": "SIMULATED", "seeds": seeds, "checks": summary,
-            "all_passed": all(v["pass_rate"] == 1.0 for v in summary.values())}
+            "checks_run": total, "checks_passed": total - len(failures),
+            "failures": failures,
+            "all_passed": not failures}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -149,7 +168,11 @@ def main(argv: list[str] | None = None) -> int:
             for key, entry in result["checks"].items():
                 print(f"  {entry['label']:<52} mean {entry['mean']:>10.4f}  worst {entry['worst']:>10.4f}  "
                       f"target {entry['target']:<8} pass {entry['pass_rate']:.0%}")
-            print(f"Benchmark over {len(seeds)} held-out seeds: {'ALL CHECKS PASSED' if result['all_passed'] else 'FAILURES'}")
+            for failure in result["failures"]:
+                print(f"  FAILED seed {failure['seed']}: {failure['label']} = {failure['value']} "
+                      f"(target {failure['target']} {failure['unit']})".rstrip())
+            print(f"Benchmark over {len(seeds)} seeds: {result['checks_passed']}/{result['checks_run']} checks passed"
+                  f"{'' if result['all_passed'] else ' (failures retained above and in benchmark.json)'}")
             return 0 if result["all_passed"] else 1
         twin = TwinConfig(seed=args.seed) if args.duration is None else TwinConfig(seed=args.seed, duration_s=args.duration)
         config = SessionConfig(twin=twin, actuate=not args.sham)
@@ -173,6 +196,7 @@ def main(argv: list[str] | None = None) -> int:
         result = audit_run(args.output)
         for name, entry in result["checks"].items():
             print(f"  audit {name}: {'OK' if entry['passed'] else 'FAILED'}")
+        print(f"  audit replay status: {result['replay_status']}")
         ok = ok and result["valid"]
     print(f"  elapsed {time.perf_counter() - started:.1f} s")
     return 0 if ok else 1

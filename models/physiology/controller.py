@@ -1,7 +1,8 @@
 """Causal closed-loop controller: sustained arousal -> haptic paced-breathing cues.
 
 At each evaluation time T (device clock) the controller reads only raw
-samples with device_time_us <= T - decision_margin. Every decision is a pure
+samples that firmware held in memory at T (available_us <= T) and that were
+taken no later than the input cutoff T - decision_margin. Every decision is a pure
 function of those samples, the protocol markers logged before T, and the
 controller's own earlier state. The online loop and an offline replay of the
 exported raw bundle therefore produce identical decisions; tools audit this.
@@ -10,6 +11,14 @@ Arousal index (dimensionless):
     0.45 * z(HR) + 0.35 * z(SCL) + 0.20 * z(SCR rate)
 with z-scores against the REST_BASELINE phase and conservative SD floors.
 The index is an engineering trigger, not a validated psychological measure.
+
+Quality gates have teeth. Before acting, the controller requires every
+input stream to be fresh at the cutoff, no ADC saturation in the window,
+enough beat coverage, little motion, finite features, and (to trigger) at
+least two of the three physiological components to agree. A failed gate is a
+recorded decision (HOLD_*), with explicit reasons. During guidance, repeated
+gate failures stop the program: a loop that cannot observe its effect is no
+longer closed.
 """
 
 from __future__ import annotations
@@ -24,7 +33,9 @@ from .dsp import contiguous_runs
 from .pipeline import analyze_eda, analyze_motion, detect_beats
 from .streams import RawSession
 
-CONTROLLER_VERSION = "1.0.0"
+CONTROLLER_VERSION = "1.1.0"
+
+HOLD_REASONS = ("DATA_STALE", "SATURATION", "BEAT_COVERAGE_LOW", "MOTION_EXCESSIVE", "FEATURE_MISSING")
 
 
 @dataclass(frozen=True)
@@ -56,6 +67,10 @@ class ControllerConfig:
     hr_sd_floor_bpm: float = 2.0
     scl_sd_floor_us: float = 0.25
     scr_rate_floor_per_min: float = 2.0
+    stale_after_s: float = 0.5
+    agreement_z: float = 1.0
+    agreement_min_components: int = 2
+    max_quality_failures_in_program: int = 3
 
     def __post_init__(self) -> None:
         positive = ("evaluation_period_s", "decision_margin_s", "feature_window_s", "hr_window_s",
@@ -70,6 +85,12 @@ class ControllerConfig:
             raise ValueError("release_index must be below trigger_index (hysteresis)")
         if self.min_program_s > self.max_program_s:
             raise ValueError("min_program_s cannot exceed max_program_s")
+        if not 0 < self.stale_after_s < self.feature_window_s:
+            raise ValueError("stale_after_s must be positive and shorter than the feature window")
+        if not 1 <= self.agreement_min_components <= 3:
+            raise ValueError("agreement_min_components must be 1, 2, or 3")
+        if self.max_quality_failures_in_program < 1:
+            raise ValueError("max_quality_failures_in_program must be at least 1")
         if self.decision_margin_s < 0.6:
             raise ValueError("decision_margin_s must cover PPG FIFO latency (>= 0.6 s)")
 
@@ -89,11 +110,21 @@ class Evaluation:
     program: int | None = None
     cues_device_us: list[int] = field(default_factory=list)
     source_sequence_ranges: list[dict[str, Any]] = field(default_factory=list)
+    gate_reasons: list[str] = field(default_factory=list)
+
+    @property
+    def decision_time_us(self) -> int:
+        return self.device_time_us
+
+    @property
+    def input_cutoff_us(self) -> int:
+        """Newest sample instant the evaluation was permitted to use."""
+        return self.window_end_us
 
     def comparable(self) -> tuple:
         return (self.device_time_us, self.window_start_us, self.window_end_us,
                 tuple(sorted(self.features.items())), self.state, self.action, self.decision_id,
-                self.program, tuple(self.cues_device_us))
+                self.program, tuple(self.cues_device_us), tuple(self.gate_reasons))
 
 
 def _window_ranges(session: RawSession, t0: int, t1: int) -> list[dict[str, Any]]:
@@ -115,6 +146,11 @@ def window_features(session: RawSession, t0_us: int, t1_us: int, config: Control
     beats = detect_beats(session.streams["ppg"].window(t0_us, t1_us), d["ppg"], episodes)
     eda = analyze_eda(session.streams["eda"].window(t0_us, t1_us), d["eda"], episodes)
     out: dict[str, float] = {}
+    # Freshness: age of each stream's newest usable sample at the input cutoff.
+    for name in ("eda", "ppg", "imu"):
+        w = session.streams[name].window(t0_us, t1_us)
+        out[f"{name}_age_s"] = round((t1_us - int(w.device_time_us[-1])) / 1e6, 6) if len(w) else round(config.feature_window_s, 6)
+    out["saturated_samples"] = float(_saturated(session, t0_us, t1_us))
     hr_from = end_s - config.hr_window_s
     valid = beats["ibi_valid"] & (beats["ibi_end_s"] >= hr_from) & (beats["ibi_start_s"] >= t0_us / 1e6)
     covered = float(np.sum(beats["ibi_s"][valid])) if valid.any() else 0.0
@@ -135,6 +171,41 @@ def window_features(session: RawSession, t0_us: int, t1_us: int, config: Control
     return out
 
 
+def _saturated(session: RawSession, t0_us: int, t1_us: int) -> int:
+    """Samples at an ADC rail inside the window (clipped codes carry no amplitude evidence)."""
+    d = session.descriptors
+    count = 0
+    eda = session.streams["eda"].window(t0_us, t1_us).columns["code"]
+    full = 2 ** (int(d["eda"]["adc_bits"]) - 1)
+    count += int(np.sum((eda <= -full) | (eda >= full - 1)))
+    ppg = session.streams["ppg"].window(t0_us, t1_us)
+    top = int(d["ppg"]["full_scale_counts"])
+    for column in ("red_counts", "ir_counts"):
+        count += int(np.sum((ppg.columns[column] <= 0) | (ppg.columns[column] >= top)))
+    return count
+
+
+def quality_gate(features: dict[str, float], config: ControllerConfig) -> list[str]:
+    """Explicit reasons the evidence is inadequate for a decision (empty list: adequate)."""
+    reasons = []
+    if any(features.get(f"{name}_age_s", math.inf) > config.stale_after_s for name in ("eda", "ppg", "imu")):
+        reasons.append("DATA_STALE")
+    if features.get("saturated_samples", 0.0) > 0:
+        reasons.append("SATURATION")
+    if features.get("beat_coverage", 0.0) < config.min_beat_coverage:
+        reasons.append("BEAT_COVERAGE_LOW")
+    if features.get("motion_fraction", 1.0) > config.max_motion_fraction:
+        reasons.append("MOTION_EXCESSIVE")
+    if not all(key in features for key in ("hr_z", "scl_z", "scr_z")):
+        reasons.append("FEATURE_MISSING")
+    return reasons
+
+
+STATE_FIELDS = ("baseline", "baseline_ranges", "baseline_window_us", "baseline_decided_us", "state", "trigger_count", "release_count",
+                "programs", "program_start_us", "program_anchor_us", "next_cue", "refractory_until_us",
+                "quality_failures")
+
+
 class ClosedLoopController:
     """Stateful, deterministic decision policy over raw device data."""
 
@@ -143,6 +214,7 @@ class ClosedLoopController:
         self.baseline: dict[str, float] | None = None
         self.baseline_ranges: list[dict[str, Any]] = []
         self.baseline_window_us: tuple[int, int] | None = None
+        self.baseline_decided_us: int | None = None
         self.state = "IDLE"
         self.trigger_count = 0
         self.release_count = 0
@@ -151,6 +223,24 @@ class ClosedLoopController:
         self.program_anchor_us: int | None = None
         self.next_cue = 0
         self.refractory_until_us: int | None = None
+        self.quality_failures = 0
+
+    # ------------------------------------------------------------ state
+    def snapshot(self) -> dict[str, Any]:
+        """Complete controller state, sufficient to resume after a restart."""
+        import copy
+        return {name: copy.deepcopy(getattr(self, name)) for name in STATE_FIELDS}
+
+    @classmethod
+    def restore(cls, config: ControllerConfig, state: dict[str, Any]) -> "ClosedLoopController":
+        missing = set(STATE_FIELDS) - set(state)
+        if missing:
+            raise ValueError(f"Controller state is incomplete: missing {sorted(missing)}")
+        import copy
+        controller = cls(config)
+        for name in STATE_FIELDS:
+            setattr(controller, name, copy.deepcopy(state[name]))
+        return controller
 
     # ------------------------------------------------------------ baseline
     def _compute_baseline(self, session: RawSession, bounds: tuple[int, int]) -> None:
@@ -202,6 +292,7 @@ class ClosedLoopController:
         end_us = t_us - margin
         if self.baseline is None:
             self._compute_baseline(session, (ordered[i][1], ordered[i + 1][1]))
+            self.baseline_decided_us = t_us
         start_us = end_us - int(c.feature_window_s * 1e6)
         features = window_features(session, start_us, end_us, c)
         b = self.baseline
@@ -210,23 +301,26 @@ class ClosedLoopController:
         z_scl = (features["scl_us"] - b["scl_us"]) / b["scl_sd_us"] if "scl_us" in features else float("nan")
         scr_den = max(b["scr_rate_per_min"], c.scr_rate_floor_per_min)
         z_scr = (features["scr_rate_per_min"] - b["scr_rate_per_min"]) / scr_den if "scr_rate_per_min" in features else float("nan")
-        quality_ok = (features["beat_coverage"] >= c.min_beat_coverage and features["motion_fraction"] <= c.max_motion_fraction
-                      and all(math.isfinite(z) for z in (z_hr, z_scl, z_scr)))
+        agreeing = 0
         if all(math.isfinite(z) for z in (z_hr, z_scl, z_scr)):
             index = c.weight_hr * z_hr + c.weight_scl * z_scl + c.weight_scr * z_scr
+            agreeing = sum(1 for z in (z_hr, z_scl, z_scr) if z >= c.agreement_z)
             features.update({"hr_z": round(z_hr, 6), "scl_z": round(z_scl, 6), "scr_z": round(z_scr, 6),
-                             "arousal_index": round(index, 6)})
+                             "arousal_index": round(index, 6), "components_agreeing": float(agreeing)})
         else:
             index = float("nan")
+        reasons = quality_gate(features, c)
+        quality_ok = not reasons
         features["quality_ok"] = 1.0 if quality_ok else 0.0
         armed = c.arm_phase in markers
         features["armed"] = 1.0 if armed else 0.0
         evaluation = Evaluation(t_us, start_us, end_us, features, self.state,
-                                source_sequence_ranges=_window_ranges(session, start_us, end_us))
-        self._step(evaluation, index, quality_ok, armed, t_us)
+                                source_sequence_ranges=_window_ranges(session, start_us, end_us),
+                                gate_reasons=reasons)
+        self._step(evaluation, index, quality_ok, armed, t_us, agreeing)
         return evaluation
 
-    def _step(self, ev: Evaluation, index: float, quality_ok: bool, armed: bool, t_us: int) -> None:
+    def _step(self, ev: Evaluation, index: float, quality_ok: bool, armed: bool, t_us: int, agreeing: int = 3) -> None:
         c = self.config
         if self.state == "REFRACTORY" and self.refractory_until_us is not None and t_us >= self.refractory_until_us:
             self.state = "IDLE"
@@ -236,12 +330,17 @@ class ClosedLoopController:
                 pass
             elif not quality_ok:
                 ev.action = "HOLD_QUALITY"
+            elif index >= c.trigger_index and agreeing < c.agreement_min_components:
+                # One physiological system alone cannot trigger an intervention.
+                self.trigger_count = 0
+                ev.action = "HOLD_SIGNALS_DISAGREE"
             else:
                 self.trigger_count = self.trigger_count + 1 if index >= c.trigger_index else 0
                 if self.trigger_count >= c.trigger_consecutive and self.programs < c.max_programs:
                     self.programs += 1
                     self.state = "PROGRAM"
                     self.release_count = 0
+                    self.quality_failures = 0
                     self.program_start_us = t_us
                     self.program_anchor_us = t_us + c.compute_latency_us
                     self.next_cue = 0
@@ -252,8 +351,11 @@ class ClosedLoopController:
             assert self.program_anchor_us is not None
             elapsed = (t_us - self.program_anchor_us) / 1e6
             stop_reason = None
+            self.quality_failures = 0 if quality_ok else self.quality_failures + 1
             if elapsed >= c.max_program_s:
                 stop_reason = "STOP_MAX_DURATION"
+            elif self.quality_failures >= c.max_quality_failures_in_program:
+                stop_reason = "STOP_QUALITY_LOST"
             elif quality_ok and elapsed >= c.min_program_s:
                 self.release_count = self.release_count + 1 if index < c.release_index else 0
                 if self.release_count >= c.release_consecutive:
