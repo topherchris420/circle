@@ -17,6 +17,7 @@ from typing import Any
 
 import numpy as np
 
+from .ledger import build_ledger, passport
 from .pipeline import _carrier_envelope, heart_rate_series, imu_physical
 
 TEMPLATE_DIR = Path(__file__).resolve().parent / "report_assets"
@@ -27,7 +28,7 @@ GROUPS = [
     ("Respiration", ("resp_mae", "apnea_iou")),
     ("Oxygen saturation", ("spo2_mae", "spo2_false_desat")),
     ("Electrodermal", ("scr_sensitivity", "scr_ppv", "scr_amplitude", "scl_mae")),
-    ("Motion and haptics", ("motion_iou", "haptic_physical")),
+    ("Motion and haptics", ("motion_iou", "haptic_physical", "haptic_sham_negative")),
     ("Closed loop", ("arousal_tracking",)),
 ]
 
@@ -278,8 +279,9 @@ def _report_data(run: Any, truth: dict[str, Any], scorecard: dict[str, Any], cou
         ev = next(e for e in run.evaluations if e.decision_id == start["id"])
         rr_pts = np.array([p for p in points["rr_est"] if p[0] and start["t"] + 20 <= p[0] <= (stop["t"] if stop else duration)])
         rr_text = f"{np.median(rr_pts[:, 1]):.1f}" if len(rr_pts) else "—"
-        release = (f"The index then fell below 1.0 twice and released guidance at {stop['t']:.0f} s."
-                   if stop else "Guidance ran to the end of the session.")
+        release = ("Guidance ran to the end of the session." if not stop else
+                   f"The index then fell below 1.0 twice and released guidance at {stop['t']:.0f} s." if stop["action"] == "STOP_RELEASED" else
+                   f"Guidance stopped at {stop['t']:.0f} s ({stop['action'].replace('_', ' ').lower()}).")
         cf_text = " The grey traces are the matched sham arm, with identical noise and no actuation." if counterfactual else ""
         chapters.append({"id": "loop", "label": "Closed loop", "t0": start["t"] - 18, "t1": min(duration, (stop["t"] if stop else duration) + 20),
                          "caption": f"Guidance is armed for recovery. The arousal index read {ev.features['arousal_index']:.1f}, above "
@@ -341,6 +343,7 @@ def _static_sections(run: Any, truth: dict[str, Any], scorecard: dict[str, Any],
     ]
     status_html = "".join(f'<div class="stat {k}"><dt>{escape(a)}</dt><dd>{escape(b)}</dd></div>' for a, b, k in status)
 
+    ledger = build_ledger(records)
     # Evidence chain.
     start = next((e for e in run.evaluations if e.action == "START_PACED_BREATHING"), None)
     stop = next((e for e in run.evaluations if e.action and e.action.startswith("STOP")), None)
@@ -354,9 +357,9 @@ def _static_sections(run: Any, truth: dict[str, Any], scorecard: dict[str, Any],
                       f"{f['scl_z']:.1f} and SCR rate z {f['scr_z']:.1f}. Signal quality passed: beat coverage "
                       f"{f['beat_coverage']:.0%}, no motion. Window ends 1 s before the decision.",
                       f"Source ranges: {ranges}"))
+        why = next((d["why"] for d in ledger["decisions"] if d["decision_id"] == start.decision_id), "")
         chain.append(("Decision", start.decision_id,
-                      "Second consecutive evaluation at or above the trigger index of 2.0, so the controller starts "
-                      "paced breathing: one haptic cue every 10 s (6 breaths/min).",
+                      f"Why the system acted: {escape(why)}. It starts paced breathing: one haptic cue every 10 s (6 breaths/min).",
                       "MODEL_RESULT record, MODEL_INFERRED, CRC-32C sealed"))
         elec = [c["elec_ms"] for c in cues if c.get("elec_ms") is not None]
         phys = [c["phys_ms"] for c in cues if c.get("phys_ms") is not None]
@@ -373,9 +376,9 @@ def _static_sections(run: Any, truth: dict[str, Any], scorecard: dict[str, Any],
                           "Commands are logged but not actuated, so there is no electrical or physical evidence.",
                           "EVENT records: HAPTIC_COMMAND_SHAM"))
         if stop is not None:
-            chain.append(("Release", stop.decision_id,
-                          f"At t = {lab(stop.device_time_us):.1f} s the index read {stop.features.get('arousal_index', float('nan')):.2f}, "
-                          "below the release level of 1.0 on two consecutive evaluations after the 60 s minimum.",
+            why = next((d["why"] for d in ledger["decisions"] if d["decision_id"] == stop.decision_id), stop.action)
+            chain.append(("Release" if stop.action == "STOP_RELEASED" else "Stop", stop.decision_id,
+                          f"At t = {lab(stop.device_time_us):.1f} s: {escape(why)}.",
                           "MODEL_RESULT record with decision_id"))
         chain.append(("Audit", "re-derived",
                       f"{'All' if replay_identical else 'Not all'} {len(run.evaluations)} evaluations re-derive bit-for-bit from the "
@@ -427,8 +430,84 @@ def _static_sections(run: Any, truth: dict[str, Any], scorecard: dict[str, Any],
         "SCORE_ROWS": "".join(rows),
         "CHAIN": chain_html or '<li><p>No closed-loop decision was taken in this session.</p></li>',
         "COUNTERFACTUAL": cf_html,
+        "PASSPORT": _passport_html(records, replay_identical, passed, len(scorecard["checks"])),
+        "LEDGER": _ledger_html(ledger, lab),
+        "EXECUTION": _execution_html(ledger, lab),
         "RUN_COMMAND": escape(f"python tools/run_physiology_twin.py --seed {seed}{arm_flag} --output outputs/physiology --audit"),
         "AUDIT_COMMAND": escape("python tools/audit_physiology_run.py outputs/physiology"),
         "BENCH_COMMAND": escape("python tools/run_physiology_twin.py --benchmark 50"),
         "SEED": str(seed),
     }
+
+
+def _passport_html(records: list[dict[str, Any]], replay_identical: bool, passed: int, total: int) -> str:
+    values = passport(records, {"REPLAY AT EXPORT": "REPLAY_MATCH" if replay_identical else "REPLAY_DIVERGENCE",
+                                "TWIN CHECKS": f"{passed}/{total} (simulation only)"})
+    rows = "".join(f"<div><dt>{escape(k)}</dt><dd>{escape(v)}</dd></div>" for k, v in values.items())
+    return f'<dl class="passport" aria-label="Session passport">{rows}</dl>'
+
+
+def _ledger_html(ledger: dict[str, Any], lab: Any) -> str:
+    """Every controller evaluation; each row opens onto why it acted or held, and on which samples."""
+    rows = []
+    for ev in ledger["evaluations"]:
+        t = lab(ev["decision_time_us"])
+        t0 = lab(ev["window_start_us"])
+        action = ev["action"] or "—"
+        kind = ("act" if action.startswith(("START", "STOP")) else "hold" if action.startswith("HOLD") else "none")
+        gate = ", ".join(ev["gate"])
+        index = _fmt(ev["arousal_index"])
+        formula = " + ".join(f'{c["weight"]:.2f} × z<sub>{escape(name)}</sub> {c["z"]:.2f} = {c["contribution"]:.2f}'
+                             for name, c in ev["formula"].items()) or "features incomplete; no index"
+        ranges = "; ".join(f'{r["stream_id"].upper()} #{r["first_sequence"]:,}–#{r["last_sequence"]:,}'
+                           for r in ev["source_sequence_ranges"])
+        why = next((d["why"] for d in ledger["decisions"] if d["evaluation"] == ev["id"]), None)
+        feats = ev["features"]
+        detail = [f"<p><b>Formula.</b> {formula} → index {index}</p>",
+                  f"<p><b>Time.</b> Inputs taken ≤ {ev['input_cutoff_us']:,} µs; decided at {ev['decision_time_us']:,} µs "
+                  f"(device clock). Window starts {ev['window_start_us']:,} µs.</p>",
+                  f"<p><b>Quality gate.</b> {escape(gate)} · beat coverage {feats.get('beat_coverage', 0):.0%} · motion "
+                  f"{feats.get('motion_fraction', 0):.0%} · stream ages EDA {feats.get('eda_age_s', 0) * 1000:.0f} ms, "
+                  f"PPG {feats.get('ppg_age_s', 0) * 1000:.0f} ms, IMU {feats.get('imu_age_s', 0) * 1000:.0f} ms</p>",
+                  f'<p class="step-meta"><b>Exact samples.</b> {escape(ranges)} · record CRC-32C {ev["record_crc32c"]}</p>']
+        if why:
+            detail.insert(0, f"<p><b>Why.</b> {escape(why)}</p>")
+        rows.append(
+            f'<details class="ev ev-{kind}"><summary><span class="ev-t">{t:6.1f} s</span>'
+            f'<span class="ev-state">{escape(ev["state_after"] or "")}</span><span class="ev-action">{escape(action)}</span>'
+            f'<span class="ev-index">{index}</span><span class="ev-gate">{escape(gate)}</span></summary>'
+            f'<div class="ev-body">{"".join(detail)}<button type="button" class="show-evidence" data-t0="{t0:.3f}" '
+            f'data-t1="{t + 2:.3f}">Show this window on the polygraph</button></div></details>')
+    holds = ledger["holds_by_reason"]
+    hold_text = ", ".join(f"{k.replace('_', ' ').lower()} × {v}" for k, v in holds.items()) or "none"
+    gate_text = ", ".join(f"{k.replace('_', ' ').lower()} × {v}" for k, v in ledger["gate_failures_by_reason"].items()) or "none"
+    return (f'<p class="section-note">Holds taken: {escape(hold_text)}. Quality-gate failures (including while idle or '
+            f'guiding): {escape(gate_text)}. Holding is a decision, recorded like any other.</p>'
+            f'<div class="ledger-head"><span>Decided</span><span>State after</span><span>Action</span><span>Index</span><span>Gate</span></div>'
+            f'{"".join(rows)}')
+
+
+def _execution_html(ledger: dict[str, Any], lab: Any) -> str:
+    rows = []
+    for decision in ledger["decisions"]:
+        if decision["action"] != "START_PACED_BREATHING":
+            continue
+        if "execution_chain" not in decision:
+            rows.append(f'<tr><td colspan="5">{escape(decision["decision_id"])}: {escape(decision.get("execution", ""))} — '
+                        'commands were logged but, by design, not actuated.</td></tr>')
+            continue
+        for link in decision["execution_chain"]:
+            elec, phys = link["electrical_onset"], link["physical_observation"]
+            elec_text = f"+{elec['latency_from_command_us'] / 1000:.2f} ms" if elec else "not observed"
+            phys_text = f"+{phys['latency_from_command_us'] / 1000:.2f} ms" if phys else "not observed"
+            state = "pass" if link["stage"] == "PHYSICALLY_OBSERVED" else "fail"
+            issued = lab(link["command"]["device_time_us"])
+            rows.append(
+                f'<tr><th scope="row">{escape(decision["decision_id"])} · cue {link["cue_index"]}</th>'
+                f'<td class="num">{issued:.2f} s</td><td class="num">{elec_text}</td><td class="num">{phys_text}</td>'
+                f'<td><span class="pill {state}">{escape(link["stage"].replace("_", " ").lower())}</span></td></tr>')
+    if not rows:
+        return '<p class="muted">No intervention was decided in this session. That is a complete result.</p>'
+    return ('<table class="exec"><thead><tr><th scope="col">Command</th><th scope="col" class="num">Issued</th>'
+            '<th scope="col" class="num">Electrical onset</th><th scope="col" class="num">IMU-observed vibration</th>'
+            f'<th scope="col">Stage earned</th></tr></thead><tbody>{"".join(rows)}</tbody></table>')

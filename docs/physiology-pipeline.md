@@ -20,6 +20,10 @@ python tools/run_physiology_twin.py --benchmark 50
 
 # Matched arms: decisions logged, cues never actuated
 python tools/run_physiology_twin.py --sham --output outputs/physiology-sham
+
+# Adversarial scenarios judged against hidden truth (seven families)
+python tools/run_physiology_twin.py --scenarios
+python tools/run_physiology_twin.py --scenario poor_contact --output outputs/poor-contact --audit
 ```
 
 Open `outputs/physiology/report.html` in a browser. An example is committed at [`diagrams/circle-physiology-session.html`](../diagrams/circle-physiology-session.html).
@@ -31,7 +35,7 @@ flowchart LR
     T["Physiological twin<br/>(hidden ground truth)"] --> R["Rev B forward models<br/>ADS1220 · MAX30102 · ICM-42688-P<br/>device clock · FIFO · DRDY capture"]
     R --> S["RawSession<br/>integer codes · sequences<br/>device timestamps · GAPs · events"]
     S --> P["Signal pipeline"]
-    S --> C["Closed-loop controller<br/>(data ≥ 1 s old only)"]
+    S --> C["Closed-loop controller<br/>(available at T, taken ≤ T − 1 s)"]
     C --> H["Haptic hardware model<br/>DRV2605L · TLV3201 · LRA"]
     H -->|cue at physical onset| T
     H -->|command / current-edge events| S
@@ -42,7 +46,7 @@ flowchart LR
     P --> V
 ```
 
-The pipeline and controller import nothing from the twin. Their only input is a `RawSession`: exactly what the firmware would have written. A causality guard fails the run if the controller could see any sample the device had not yet recorded at decision time.
+The pipeline and controller import nothing from the twin (a test parses their imports). Their only input is a `RawSession`: exactly what the firmware would have written. Every sample carries its sample time and its **availability time** (when firmware held it in memory); the controller is handed only samples available at the decision time, and uses only those taken before the input cutoff. See [closed-loop evidence](closed-loop-evidence.md).
 
 ## The twin
 
@@ -88,7 +92,7 @@ All randomness is drawn up front per grid step, per beat, and per stimulus. An a
 | PPG beats | IR, 0.5–8 Hz linear-phase band-pass; two event-related moving averages (Elgendi et al. 2013); fiducial refined on a 15 Hz low-pass; template-correlation quality; IBIs screened physiologically |
 | HR / HRV | Instantaneous HR from valid IBIs; RMSSD over successive valid pairs |
 | Breathing | Respiratory-induced intensity variation (IR baseline). Breaths by topographic prominence. Apnea is envelope collapse (< 25 % of median for ≥ 10 s), so slow paced breathing is never mistaken for apnea. Intervals never cross a sequence gap. |
-| SpO₂ | Ratio of ratios on 4 s windows with the uncalibrated curve 110 − 25 R. Gated on IMU motion, segment edges, perfusion, and red/IR correlation. The twin's tissue optics deliberately differ from that curve, so the score carries a realistic ~1-point calibration bias instead of rewarding an inverse crime. |
+| SpO₂ | Ratio of ratios on 4 s windows with the uncalibrated curve 110 − 25 R. Gated on IMU motion, segment edges, perfusion, red/IR correlation, DC stability across the filter support, and pulsatile amplitude above sensor noise. The twin's tissue optics deliberately differ from that curve, so the score carries a realistic ~1-point calibration bias instead of rewarding an inverse crime. |
 
 Every 10 s window becomes a `MODEL_RESULT` record whose `source_sequence_ranges` name the exact EDA, PPG, and IMU samples used. Ranges split around declared gaps.
 
@@ -97,8 +101,9 @@ Every 10 s window becomes a `MODEL_RESULT` record whose `source_sequence_ranges`
 Every 5 s (device clock) the controller reads samples from the 40 s window ending 1 s before the decision time:
 
 - **Arousal index** = 0.45 z(HR) + 0.35 z(SCL) + 0.20 z(SCR rate), with z-scores against the rest phase and conservative SD floors. It is an engineering trigger, not a psychological measure.
-- **Quality gate**: beat coverage ≥ 70 % and motion ≤ 20 % of the window; otherwise the evaluation is a `HOLD_QUALITY`.
-- **Policy**: armed at the recovery marker. Two consecutive indices ≥ 2.0 start paced breathing (one haptic cue every 10 s). After ≥ 60 s, two consecutive indices < 1.0 release it (hysteresis), otherwise it stops at 150 s. A 60 s refractory period follows.
+- **Quality gates** (explicit reasons, recorded on every evaluation): fresh data on every stream, no ADC saturation, electrode contact, stable optical coupling, beat coverage ≥ 70 %, motion ≤ 20 % of the window and none in the final 3 s, all features present. A failure while armed is a `HOLD_QUALITY`.
+- **Agreement**: cardiovascular (HR z ≥ 2) and electrodermal (SCL z ≥ 2) systems must both agree to trigger; otherwise `HOLD_SIGNALS_DISAGREE`. A hold breaks the trigger streak.
+- **Policy**: armed at the recovery marker. Two consecutive indices ≥ 2.0 start paced breathing (one haptic cue every 10 s). After ≥ 60 s, two consecutive indices < 1.0 release it (hysteresis), otherwise it stops at 150 s; three consecutive gate failures stop it early (`STOP_QUALITY_LOST`). A 60 s refractory period follows.
 
 Each evaluation is a pure function of recorded samples, protocol markers logged before it, and the controller's own earlier state. `controller.replay()` re-derives every decision from the exported bundle. The audit requires bit-identical agreement, and a test shows that rewriting samples newer than the decision margin cannot change a decision.
 
@@ -113,7 +118,9 @@ A run directory is self-auditing:
 | `analysis.json` | Every pipeline output, re-derivable from `raw/` |
 | `truth.json`, `scorecard.json` | Hidden ground truth and the scores; never pipeline input |
 | `counterfactual.json` | The matched opposite arm's truth and decisions |
-| `report.html` | Self-contained interactive polygraph |
+| `closed_loop_ledger.json` | Every evaluation (formula, cutoff, gates, exact ranges), every decision's "why", every cue's execution chain; rebuilt exactly by the audit |
+| `passport.txt` | Compact session identity and evidence status |
+| `report.html` | Self-contained interactive polygraph, passport, decision ledger, and execution table |
 | `manifest.json` | SHA-256 of every artifact, configuration, versions, replay result. No wall-clock time: two runs produce byte-identical directories. |
 
 Every record carries `SIMULATED`, `DERIVED`, `MODEL_INFERRED`, or `INTERVENTION` provenance, never `RAW_MEASURED`. Each `INTERVENTION` names its `decision_id` and lists the command events, TLV3201 current-edge events, and IMU physical-observation records as `actuation_evidence_ids`. Together they satisfy the timing document's requirement that command, electrical onset, physical observation, and completion be distinct, measured events.
@@ -127,7 +134,11 @@ Every record carries `SIMULATED`, `DERIVED`, `MODEL_INFERRED`, or `INTERVENTION`
 5. The full pipeline re-run on `raw/` reproduces `analysis.json` exactly.
 6. Replaying the controller reproduces every evaluation record and cue command.
 7. Every source range lies on recorded samples and never spans a gap.
-8. Every intervention's evidence ids resolve to recorded events, and its decision to a recorded `MODEL_RESULT`.
+8. Every decision cites only samples taken before its input cutoff and available at its decision time.
+9. Every intervention's execution chain resolves to events of the right kind, in causal order, with an IMU-derived physical observation, one link per command, and a recorded decision.
+10. The closed-loop ledger rebuilds exactly from the session records.
+
+The audit reports one explicit replay status (`REPLAY_MATCH`, `REPLAY_DIVERGENCE`, `TIMING_VIOLATION`, `VERSION_MISMATCH`, `EVIDENCE_INTEGRITY_FAILURE`, `MISSING_SOURCE`, `INSUFFICIENT_EVIDENCE`) and never reconciles a divergence.
 
 Tests confirm that changing one raw sample, or rewriting a decision's payload with a freshly computed valid CRC, makes the audit fail. CRC-32C and SHA-256 detect accidental or inconsistent change; they are not authentication.
 
@@ -147,7 +158,7 @@ Seeds 100–149 were not used while developing the methods. Reproduce with `pyth
 | SYNC clock-rate error | ≤ 0.1 ppm | 0.0001 | 0.0002 | 100 % |
 | EDA/IMU edge timestamp P99.9 (spec) | ≤ 10 µs | 9.54 | 9.73 | 100 % |
 | EDA/IMU edge timestamp max (spec) | ≤ 25 µs | 16.1 | 21.6 | 100 % |
-| PPG FIFO timestamp max (spec) | ≤ 1000 µs | 553 | 557 | 100 % |
+| PPG FIFO timestamp max (spec) | ≤ 1000 µs | 31.6 | 39.2 | 100 % |
 | Declared GAP equals true loss (spec) | exact | yes | yes | 100 % |
 | PPG beat F1, motion-free | ≥ 0.99 | 0.9999 | 0.9988 | 100 % |
 | PPG beat F1, all | ≥ 0.95 | 0.976 | 0.965 | 100 % |
@@ -172,10 +183,13 @@ Seeds 100–149 were not used while developing the methods. Reproduce with `pyth
 The twin surfaced issues that matter for real firmware:
 
 1. **ADS1220 has no 64 SPS mode.** Its continuous data rates are 20/45/90/175… SPS (normal mode). The 64 SPS in the [firmware guide](firmware-pinmap-and-init.md) needs timer-triggered single-shot conversions (as modeled here, 11.2 ms at the 90 SPS setting) or a native rate. A single-shot sample's timestamp is its DRDY edge, about half a conversion (5.6 ms) after the sample's effective center; the stream descriptor records this offset and the pipeline removes it.
-2. **PPG timestamps must anchor on the FIFO interrupt, not the read.** After an overflow the buffered samples are older than the read by the number of lost samples times the period (230 ms in this session). Stamping by read time would shift a whole batch of beats. Anchoring on the captured almost-full edge and tracking the sensor's period keeps every sample within 0.56 ms here, inside the 1 ms bound.
+2. **PPG timestamps must anchor on the FIFO interrupt, not the read.** After an overflow the buffered samples are older than the read by the number of lost samples times the period (230 ms in this session). Stamping by read time would shift a whole batch of beats. Anchoring on the captured almost-full edge and tracking the sensor's period keeps every sample well inside the 1 ms bound.
 3. **FIFO stalls have an observability limit.** `OVF_COUNTER` saturates at 31. With a 16-sample threshold at 100 SPS, a stall longer than about 0.46 s loses a number of samples the firmware cannot know, and exact `GAP` records become impossible. The rig refuses such configurations; firmware should service the FIFO well within that budget.
 4. **The wrist IMU can measure haptic physical onset.** At 400 SPS it resolves command-to-vibration latency to within about ±3 ms of truth with no extra sensor. That offers a practical route to the "measured command-to-physical latency" the timing document requires.
 5. **Motion gating is not optional for SpO₂.** Motion changes red and IR intensity by the same fraction, pushing the ratio toward 1. Naive SpO₂ falls to about 87 % during hand movement, which would trigger false desaturation alarms. IMU gating removes all of them in every benchmark seed.
+
+6. **Hold the first FIFO batch until the period is measured.** Before a second almost-full interrupt, firmware knows only the nominal period, so the first batch is stamped with the sensor's oscillator error accumulated over 15 samples. That artifact was the worst timestamp error in every session (0.55 ms at −3500 ppm, 1.39 ms at −9000 ppm, beyond the 1 ms bound). Holding the first batch until the second interrupt measures the period brings the worst case to 39 µs across the held-out seeds (earlier documentation reported 0.56 ms; that number was this startup artifact).
+7. **Light steps look like desaturation.** A change in optical coupling scales both channels together and drives R toward 1, like motion. SpO₂ is now also gated on DC stability across the band-pass filter's support and on pulsatile amplitude well above sensor noise; under a 90 % coupling collapse this removed all 16 false desaturation windows.
 
 ## Limitations
 

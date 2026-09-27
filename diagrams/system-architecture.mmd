@@ -1,11 +1,12 @@
 flowchart LR
-    Human[Human] --> CIRCLE[CIRCLE]
-    CIRCLE --> VitalSync[VitalSync]
-    VitalSync --> DRR[DRR]
-    DRR --> AdaptiveDecision[AdaptiveDecision]
-    AdaptiveDecision --> Feedback[Feedback]
-    Feedback --> Human
-    Human -->|measurement| CIRCLE
+    Human[Human] -->|signals| Sense[Sense]
+    Sense -->|raw + availability| Preserve[Preserve]
+    Preserve -->|lawful window| Infer[Infer: input cutoff]
+    Infer -->|evaluate| Decide[Decide + Quality Gates]
+    Decide -->|command| Intervene[Intervene]
+    Intervene -->|cue| Human
+    Intervene -->|IMU observes actuation| Sense
+    Preserve --> Verify[Verify: replay, temporal check, execution chain]
 
     Sensors[Sensors] --> Capture[Deterministic Capture]
     Capture --> SRAM[SRAM Ring]
@@ -14,6 +15,6 @@ flowchart LR
     Capture --> RecordAssembly[Record Assembly]
     RecordAssembly --> Telemetry[BLE / Wi-Fi / USB Telemetry]
     DeviceClock[Authoritative Device Monotonic Clock] --> Capture
-    DeviceClock --> Feedback
+    DeviceClock --> Intervene
     DeviceClock --> RecordAssembly
     RecordAssembly --> Evidence[Raw + Timing + Sequence + Quality + Provenance Evidence]

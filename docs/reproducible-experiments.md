@@ -115,4 +115,4 @@ python tools/verify_release.py --software-only
 python tools/verify_release.py
 ```
 
-Software-only success reports `SOFTWARE_VERIFIED`, `software_verified: true`, and `verified: false`. A full run without KiCad reports `INCOMPLETE` and exits nonzero. Full verification checks the executable version, writes new ERC/DRC reports into an empty temporary directory, and evaluates their structure, source, version, and allowlists before publishing them. An old checked-in report cannot satisfy a failed fresh run.
+Every summary lists named scopes (see [verification scopes](verification-scopes.md)); no scope implies another. Software-only success reports `SOFTWARE_VERIFIED`, `software_verified: true`, and `verified: false`. Full success reports `REPOSITORY_VERIFIED`, which still says nothing about bench, safety, EMC, measurement, or human use. A full run without KiCad reports `INCOMPLETE` and exits nonzero. Full verification checks the executable version, writes new ERC/DRC reports into an empty temporary directory, and evaluates their structure, source, version, and allowlists before publishing them. An old checked-in report cannot satisfy a failed fresh run.

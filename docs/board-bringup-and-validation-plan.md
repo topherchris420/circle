@@ -4,6 +4,8 @@
 
 This document defines the step-by-step bench bring-up procedure, electrical validation protocol, and measurable pass/fail acceptance criteria for CIRCLE Rev B prototypes.
 
+> **Status: NOT PERFORMED.** No Rev B board has been fabricated, assembled, or powered. Every criterion below is a planned test, and each numeric limit is a design target or datasheet-derived expectation, not a measurement. Results, when they exist, must be recorded against `BENCH_BRINGUP` in [`hardware/review-gates.json`](../hardware/review-gates.json). Before any body contact, follow the [physical evidence ladder](physical-evidence-ladder.md): electrical and optical phantoms first.
+
 ---
 
 ## 1. Safety Equipment & Inspection Setup
@@ -78,13 +80,21 @@ Before applying power to any fabricated Rev B assembly:
 
 ## 3. Summary Validation Matrix
 
-| Test Suite | Target Metric / Requirement | Measured Acceptance Criteria | Status |
+Each row is a hardware design decision stated as a proposition that the bench must earn. None has been tested.
+
+| Proposition under test | Acceptance criterion (target) | Basis of the target | Status |
 |---|---|---|:---:|
-| **Power Efficiency** | +3V3_DIG Buck-Boost Efficiency | $> 85\%$ at $200\text{ mA}$ load | **PASS** |
-| **Output Ripple** | +3V3_DIG Digital Switching Ripple | $< 25\text{ mV}_\text{p-p}$ | **PASS** |
-| **Analog Noise** | +3V3_EDA_A Analog LDO Noise | $< 10\text{ }\mu\text{V}_\text{RMS}$ ($10\text{ Hz} - 100\text{ kHz}$) | **PASS** |
-| **Interlock Latency** | Hardware EDA Disconnect on USB Mate | $< 10.0\text{ }\mu\text{s}$ ($< 200\text{ ns}$ typ) | **PASS** |
-| **Fault Current** | Maximum Single-Fault Electrode Current | $\le 27.58\text{ }\mu\text{A}$ ($< 50.0\text{ }\mu\text{A}$ limit) | **PASS** |
-| **Isolation Barrier** | Dielectric Withstand (Hipot) | $1.0\text{ kVDC}$ for 60s, leakage $< 10\text{ nA}$ | **PASS** |
-| **SYNC Timing** | Calibrated SYNC Latency & Jitter | Latency $< 2.0\text{ }\mu\text{s}$, Jitter $< 250\text{ ps}$ | **PASS** |
-| **Storage Autonomy**| Continuous SD Write Stall Absorption | $\ge 60\text{ seconds}$ stall with 0 sample drops | **PASS** |
+| The buck-boost is efficient enough for the battery budget | > 85 % at 200 mA | Datasheet curve | **NOT PERFORMED** |
+| Digital switching ripple stays below analog needs | < 25 mVp-p on `+3V3_DIG` | Design target | **NOT PERFORMED** |
+| The analog LDO is quiet enough for 24-bit EDA use | < 10 µVrms (10 Hz–100 kHz) | Datasheet (6.5 µVrms typical) | **NOT PERFORMED** |
+| The interlock removes electrode drive on USB mate | < 10 µs (logic propagation typically < 200 ns) | Gate-delay calculation | **NOT PERFORMED** |
+| The limit network bounds single-fault electrode current | ≤ 27.58 µA | Calculation (5.5 V / 199.6 kΩ); requires independent review | **NOT PERFORMED** |
+| The assembled isolation barrier withstands test voltage | 1.0 kVDC for 60 s, leakage < 10 nA | Planned production test; component is rated 5.0 kVrms | **NOT PERFORMED** |
+| SYNC capture meets timing needs | latency < 2 µs, jitter < 250 ps | Datasheet delay; design target | **NOT PERFORMED** |
+| PSRAM buffering survives SD write stalls | ≥ 60 s stall with 0 sample drops | Calculation from stream rates (see note) | **NOT PERFORMED** |
+| The wrist IMU observes haptic actuation | onset within ±5 ms of TLV3201 edge | Twin result (simulation only) | **NOT PERFORMED** |
+| The PPG head gives usable pulse signal | AC amplitude > 10,000 counts | Design target | **NOT PERFORMED** |
+
+Note on buffering: the modeled streams (EDA 64 SPS × 3 B, PPG 100 SPS × 6 B, IMU 400 SPS × 12 B, plus framing) are on the order of 6–10 kB/s, so 8 MB of PSRAM could in principle hold several minutes. The 60 s target leaves margin for firmware use of PSRAM; it is a calculation, not a measured stall test.
+
+Passing any row closes nothing by itself: gates in [`hardware/review-gates.json`](../hardware/review-gates.json) also require independent review where stated.

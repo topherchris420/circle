@@ -2,6 +2,8 @@
 
 > **ENGINEERING REVIEW ONLY — NOT FOR FABRICATION OR HUMAN CONNECTION.**
 
+The authoritative, machine-readable gate list is [`hardware/review-gates.json`](../hardware/review-gates.json) (contract: [`contracts/review-gates.schema.json`](../contracts/review-gates.schema.json)). It adds gates this table never listed: firmware implementation, bench bring-up, electronic phantom validation, independent electrical-safety review, EMC, biocompatibility, and human-research approval. `python tools/check_review_gates.py` validates it and derives authorizations; with any blocking gate open, fabrication and human use are `NOT_AUTHORIZED`. Software can record that evidence is missing; it cannot close a gate that requires measurement or independent review. See [verification scopes](verification-scopes.md).
+
 | Gate | Blocking evidence | Affected area | Verification | Release consequence |
 |---|---|---|---|---|
 | EDA_LIMIT_NETWORK | Reviewed value/part/footprint plus measured evidence | Manifest and named schematic sheets | Independent calculation, CAD review, and bench test | Fabrication remains blocked until closed |

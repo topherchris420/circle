@@ -121,6 +121,8 @@ V1 BACKEND: STRICTLY SIMULATED
 
 ## 8. CLI Usage & Reproducibility
 
+> The `launcher/rain_lab.py` commands below belong to the external R.A.I.N. repository (`james_library`); this repository holds only the contracts (status `CONTRACT_ONLY` in [`capabilities.json`](../capabilities.json)). CIRCLE's own deterministic boundary for proposed experiments is `tools/run_protocol.py` (validate → human authorization bound to the protocol hash → simulation-only execution); see [closed-loop evidence](closed-loop-evidence.md#ai-may-propose-circle-executes-the-contract).
+
 ### Run Standard Experiment
 ```powershell
 python launcher/rain_lab.py experiment `

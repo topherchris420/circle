@@ -37,7 +37,7 @@ This document records the operational assumptions, residual risks, and non-certi
 > [!WARNING]
 > **Formal Regulatory Non-Compliance Notice**:
 > CIRCLE Rev B has **not** undergone formal third-party laboratory certification for the following standards:
-> 1. **Medical Electrical Equipment Safety (IEC 60601-1 / EN 60601-1)**: While Rev B implements patient leakage current limiting ($< 27.5\text{ }\mu\text{A}$), fail-open relays, and $5\text{ kVrms}$ galvanic isolation, it is not certified as a Type BF or Type CF medical device.
+> 1. **Medical Electrical Equipment Safety (IEC 60601-1 / EN 60601-1)**: The Rev B *design* includes a calculated electrode fault-current limit ($\le 27.5\text{ }\mu\text{A}$), fail-open relays, and an isolator rated $5\text{ kVrms}$; none of these has been built, measured, or independently reviewed, and it is not certified as a Type BF or Type CF medical device.
 > 2. **Electromagnetic Compatibility (FCC Part 15B / CISPR 32 / EN 55032)**: Radiated and conducted emissions tests have not been executed in an anechoic chamber.
 > 3. **Radio Equipment Directive (RED / FCC Part 15C)**: Wi-Fi and Bluetooth wireless features utilize the pre-certified Espressif ESP32-S3 module (FCC ID: 2AC7Z-ESPS3WROOM1), but full end-product intentional radiator testing is not certified.
 > 4. **Biocompatibility (ISO 10993-1)**: Electrode contacts and optical sensor window materials must be independently evaluated if custom skin-contact enclosures are fabricated.

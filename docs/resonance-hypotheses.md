@@ -28,7 +28,14 @@ where:
 * $\beta_{GC}$: Synergistic interaction effect unique to the combination $(\phi \text{ cavity} \times \text{Merkaba core})$.
 * $\beta_f, \beta_A$: Main effects of drive frequency and voltage amplitude.
 
-## 4. Epistemological Grounding: Evidence Before Inference
+## 4. Multiplicity, Search, and Null Results
+
+- Every compared configuration (geometry, core, drive, modulation) belongs to one comparison family. `ResonanceAnalyzer.evaluate_trial(..., family_size=k)` judges status on a Bonferroni-adjusted p-value; `ResonanceAnalyzer.holm_adjust()` applies Holm's step-down across a completed family and can only downgrade statuses.
+- Adaptive search (GP-UCB) is exploratory by construction. A configuration found by search must be confirmed in a fresh, preregistered, blinded block with identical measurement logic before any claim.
+- A status describes one record under this analysis. In simulated data it describes the simulator's equations, not physical field behavior. A rendering of the chamber shows intended geometry only.
+- Null results are results and are reported with the same completeness as differences.
+
+## 5. Epistemological Grounding: Evidence Before Inference
 
 * Metaphysical terms (such as "prana", "subtle body", "orgone", "sacred geometry") are recorded strictly as qualitative `HYPOTHESIS_LABEL` strings for cultural/historical indexing.
 * Under no circumstances may a hypothesis label be converted into a physical unit, measurement variable, or clinical claim.

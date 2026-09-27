@@ -77,12 +77,24 @@ The `CircleTelemetryBridge` maps physical CIRCLE data streams to the standard AT
 | :--- | :--- | :--- | :--- |
 | **Channel 0: EM/RF / Motion** | `imu_accel`, `imu_gyro`, `rf_noise` | ICM-42688 6-axis IMU / RF Pickup | Inertial motion artifacts and radiated EMI field monitoring. |
 | **Channel 1: Optical / PPG** | `ppg_red`, `ppg_ir` | MAX30102 Optical Sensor | Raw red (660 nm) and infrared (880 nm) optical absorption. |
-| **Channel 2: Electrodermal / REG** | `eda_conductance`, `reg_variance` | ADS1220 24-bit ADC / Resonance Proxy | Skin conductance admittance and resonance field response. |
-| **Channel 3: Control Baseline** | `control_baseline`, `sham_control` | Synthesized Null Noise / Sham Load | Uncorrelated Gaussian baseline channel for false-positive calibration. |
+| **Channel 2: `eda_or_entropy`** | `eda_conductance`, `reg_variance` | ADS1220 EDA or an entropy/RNG variance | Whatever scalar is supplied. Formerly named `consciousness_proxy`; renamed for its observables. Nothing here measures consciousness. |
+| **Channel 3: Control Baseline** | `control_baseline`, `sham_control` | Synthesized null noise / sham load | False-positive gauge. In **synthetic** mode the generator deliberately mixes ch2 into ch3 during coherence windows (a known injected coupling), so ch3 is not a clean null there. |
 
 ---
 
-## 3. Data Provenance & Invariants
+## 3. Null-Model Backbone
+
+An agent "discovering" a correlation is not evidence until it is compared with what the identical procedure finds by chance. Operators sample smooth, autocorrelated fields with overlapping windows, so raw counts are large even between unrelated channels.
+
+`models/emergence/null_model.py` re-runs the exact discovery rule on **circular-shift surrogates** of every agent's observation series (autocorrelation preserved, cross-channel alignment destroyed) and reports:
+
+- total discoveries against the surrogate distribution (Monte Carlo p-value, never zero);
+- each channel pair against the surrogate maximum over pairs (family-wise error control);
+- in synthetic mode, a **known-truth score**: the generator injects ch0 ← ch1 and ch3 ← ch2 couplings, so the engine should find those pairs and only those.
+
+A 300-frame synthetic run (`python tools/run_emergence_lab.py --quick --headless --frames 300`) produced 26,545 discoveries against a null mean of about 2,020. The two injected pairs were distinguishable from chance (FWER p = 0.01); the four independent pairs, roughly 2,000 discoveries between them, were not (FWER p ≥ 0.21). Runs shorter than 2 × window + 1 frames report `INSUFFICIENT_LENGTH` instead of a p-value. Exported records are flagged `EXPLORATORY_NOT_CONFIRMATORY` and carry the null summary.
+
+## 4. Data Provenance & Invariants
 
 All discoveries emitted by the Emergence Research Module strictly adhere to the CIRCLE session schema:
 - **Provenance Category:** `MODEL_INFERRED` (or `SIMULATED` in synthetic mode).
