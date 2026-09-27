@@ -37,14 +37,15 @@ CIRCLE_STREAM_MAPPINGS: Mapping[str, str] = {
     "optical_ir": "optical_ir",
     "optical_raw": "optical_ir",
     "pixel_variance": "optical_ir",
-    # Channel 2: EDA / Consciousness Proxy / Resonance Response
-    "eda_raw": "consciousness_proxy",
-    "eda_conductance": "consciousness_proxy",
-    "eda_admittance": "consciousness_proxy",
-    "reg_variance": "consciousness_proxy",
-    "consciousness_proxy": "consciousness_proxy",
-    "resonance_amplitude": "consciousness_proxy",
-    "resonance_score": "consciousness_proxy",
+    # Channel 2: EDA or entropy/RNG variance (named for its observables; not a consciousness measure)
+    "eda_raw": "eda_or_entropy",
+    "eda_conductance": "eda_or_entropy",
+    "eda_admittance": "eda_or_entropy",
+    "reg_variance": "eda_or_entropy",
+    "consciousness_proxy": "eda_or_entropy",  # legacy input column name only
+    "eda_or_entropy": "eda_or_entropy",
+    "resonance_amplitude": "eda_or_entropy",
+    "resonance_score": "eda_or_entropy",
     # Channel 3: Control Baseline / Sham
     "control_baseline": "control_baseline",
     "sham_control": "control_baseline",
@@ -169,6 +170,7 @@ class CircleSessionRecordAdapter:
         source_sequence_ranges: Sequence[Mapping[str, Any]] | None = None,
         status_flags: Sequence[str] | None = None,
         artifact_id: str | None = None,
+        payload: Mapping[str, float] | None = None,
     ) -> dict[str, Any]:
         """Create a schema-compliant MODEL_INFERRED session record adhering to session-record.schema.json."""
         if run_result.frames < 1:
@@ -177,7 +179,8 @@ class CircleSessionRecordAdapter:
             source_stream_ids = ["SIMULATED_ATOM_FIELDS" if run_result.preset != "empirical" else "INPUT_TELEMETRY"]
 
         if status_flags is None:
-            status_flags = ["OK", "SIMULATED_INPUT" if run_result.preset != "empirical" else "TELEMETRY_INPUT"]
+            status_flags = ["EXPLORATORY_NOT_CONFIRMATORY",
+                            "SIMULATED_INPUT" if run_result.preset != "empirical" else "TELEMETRY_INPUT"]
             if metrics.coherence_frames:
                 status_flags.append("COHERENCE_EVENTS_OBSERVED")
 
@@ -202,5 +205,7 @@ class CircleSessionRecordAdapter:
                 "artifact_id": artifact_id or str(run_result.output_path.name),
             },
         }
+        if payload:
+            record["payload"] = dict(payload)
 
         return seal_record(record)

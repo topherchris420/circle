@@ -15,7 +15,7 @@
         "channel_names": [
           "em_rf",
           "optical_ir",
-          "consciousness_proxy",
+          "eda_or_entropy",
           "control_baseline"
         ]
       },
@@ -81,7 +81,7 @@
         "channel_names": [
           "em_rf",
           "optical_ir",
-          "consciousness_proxy",
+          "eda_or_entropy",
           "control_baseline"
         ]
       },

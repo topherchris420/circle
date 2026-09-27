@@ -9,6 +9,13 @@ Implements:
    Monte Carlo p-values use (b + 1) / (m + 1) (Phipson & Smyth 2010), so a
    finite permutation sample can never report an impossible p = 0.
 6. Baseline-subtracted phantom delta evaluation (Delta_phantom = active - base) to eliminate DC false alarms.
+7. Multiplicity control. A trial evaluated as one of `family_size` compared
+   configurations uses a Bonferroni-adjusted p-value; holm_adjust() applies
+   Holm's step-down across a completed family. Searching many geometries and
+   reporting the best one without paying for the search is not allowed.
+
+Statuses describe one record under this analysis. None of them is physical
+proof; a difference in simulated data describes the simulator's equations.
 """
 
 from __future__ import annotations
@@ -69,6 +76,8 @@ class ResponseEvaluation:
     repeatability_score: float
     evidence_status: str  # EXPLORATORY, INCONCLUSIVE, ARTIFACT_LIKELY, REPEATABLE_DIFFERENCE
     interpretation_notes: str
+    family_size: int = 1
+    p_value_adjusted: float | None = None
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -77,6 +86,8 @@ class ResponseEvaluation:
             "resonance_response_index": round(self.observed_rri, 4),
             "effect_size_cohens_d": round(self.effect_size_d, 3),
             "permutation_p_value": round(self.permutation_p_value, 4),
+            "comparison_family_size": self.family_size,
+            "p_value_adjusted": round(self.p_value_adjusted if self.p_value_adjusted is not None else self.permutation_p_value, 4),
             "bootstrap_95ci": [round(self.bootstrap_95ci[0], 4), round(self.bootstrap_95ci[1], 4)],
             "autocorrelation_tau": self.autocorrelation_tau,
             "artifact_risk_score": round(self.artifact_report.em_pickup_risk_score, 3),
@@ -284,8 +295,15 @@ class ResonanceAnalyzer:
         rf_field_strength_v_m: float = 0.5,
         temp_delta_c: float = 0.1,
         prior_trial_scores: Optional[List[float]] = None,
+        family_size: int = 1,
     ) -> ResponseEvaluation:
-        """Evaluate trial using double-difference contiguous block permutation and moving block bootstrap."""
+        """Evaluate trial using double-difference contiguous block permutation and moving block bootstrap.
+
+        family_size is the number of configurations compared in the same analysis
+        (every geometry, core, and drive searched); the status uses p * family_size.
+        """
+        if family_size < 1:
+            raise ValueError("family_size must be at least 1")
         if not baseline_signal or not intervention_signal or not washout_signal:
             raise ValueError("All trial phases must contain data.")
 
@@ -369,30 +387,55 @@ class ResonanceAnalyzer:
         else:
             repeatability = 0.5
 
-        # 6. Strict Evidence Status Assignment
+        # 6. Strict Evidence Status Assignment (on the multiplicity-adjusted p-value)
+        p_raw = p_val
+        p_val = min(1.0, p_raw * family_size)
         if not artifact_rep.is_valid_signal:
             status = "ARTIFACT_LIKELY"
             notes = "Observed variation matches electronic phantom delta or thermal shift (instrumentation pickup)."
         elif p_val < 0.01 and ci_low > 0.20 and repeatability > 0.75 and abs(cohens_d) > 0.80:
             status = "REPEATABLE_DIFFERENCE"
-            notes = f"Repeatable contrast verified beyond sham (block permutation p={p_val:.4f}, moving-block bootstrap CI=[{ci_low:.3f}, {ci_high:.3f}], tau={tau})."
+            notes = (f"Contrast beyond sham repeated across prior trials in this record (adjusted block permutation p={p_val:.4f} "
+                     f"over {family_size} compared configuration(s), moving-block bootstrap CI=[{ci_low:.3f}, {ci_high:.3f}], tau={tau}). "
+                     "Requires independent, preregistered replication before any physical claim.")
         elif p_val < 0.05 and abs(cohens_d) >= 0.20:
             status = "EXPLORATORY"
-            notes = f"Initial exploratory contrast (block permutation p={p_val:.4f}); requires multi-trial replication."
+            notes = f"Exploratory contrast (adjusted block permutation p={p_val:.4f}); requires preregistered replication."
         else:
             status = "INCONCLUSIVE"
-            notes = f"No statistically significant difference from sham or baseline (block permutation p={p_val:.4f})."
+            notes = (f"No difference from sham or baseline detected (adjusted block permutation p={p_val:.4f}). "
+                     "A null result is a result; absence of detection is not proof of absence.")
 
         return ResponseEvaluation(
             configuration_id=config_id,
             blinded_token=blinded_token,
             observed_rri=rri,
             effect_size_d=cohens_d,
-            permutation_p_value=p_val,
+            permutation_p_value=p_raw,
             bootstrap_95ci=(ci_low, ci_high),
             autocorrelation_tau=tau,
             artifact_report=artifact_rep,
             repeatability_score=repeatability,
             evidence_status=status,
             interpretation_notes=notes,
+            family_size=family_size,
+            p_value_adjusted=p_val,
         )
+
+    @staticmethod
+    def holm_adjust(evaluations: List["ResponseEvaluation"]) -> List["ResponseEvaluation"]:
+        """Holm step-down across a completed family of configurations; statuses can only be downgraded."""
+        from dataclasses import replace as _replace
+        order = sorted(range(len(evaluations)), key=lambda i: evaluations[i].permutation_p_value)
+        adjusted: List[Optional[ResponseEvaluation]] = [None] * len(evaluations)
+        running = 0.0
+        for rank, i in enumerate(order):
+            ev = evaluations[i]
+            running = max(running, min(1.0, (len(evaluations) - rank) * ev.permutation_p_value))
+            status = ev.evidence_status
+            if status == "REPEATABLE_DIFFERENCE" and running >= 0.01:
+                status = "EXPLORATORY" if running < 0.05 else "INCONCLUSIVE"
+            elif status == "EXPLORATORY" and running >= 0.05:
+                status = "INCONCLUSIVE"
+            adjusted[i] = _replace(ev, family_size=len(evaluations), p_value_adjusted=running, evidence_status=status)
+        return [a for a in adjusted if a is not None]

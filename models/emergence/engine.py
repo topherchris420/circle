@@ -153,13 +153,15 @@ DEFAULT_OUTPUT = Path('outputs/latest.html')
 DEFAULT_METRICS_DIR = Path('outputs')
 DEFAULT_GIF_FPS = 20
 
-CHANNEL_NAMES = ('em_rf', 'optical_ir', 'consciousness_proxy', 'control_baseline')
+# Channel 2 carries whatever scalar is supplied: electrodermal conductance or an entropy/RNG
+# variance. It is named for those observables; it is not a measure of consciousness.
+CHANNEL_NAMES = ('em_rf', 'optical_ir', 'eda_or_entropy', 'control_baseline')
 COVARIATE_NAMES = ('kp_index', 'lunar_phase', 'sidereal_time', 'xray_flux')
 
 SENSOR_ALIASES: Mapping[str, tuple[str, ...]] = {
     'em_rf': ('em_rf', 'electromagnetic_rf', 'magnetometer', 'magnetometer_noise', 'rf_noise', 'rf_spectrum_noise', 'channel_0'),
     'optical_ir': ('optical_ir', 'optical_ir_anomaly', 'pixel_variance', 'sky_pixel_variance', 'ir_anomaly', 'channel_1'),
-    'consciousness_proxy': ('consciousness_proxy', 'reg_variance', 'reg_entropy', 'egg_variance', 'raw_entropy', 'entropy', 'channel_2'),
+    'eda_or_entropy': ('eda_or_entropy', 'consciousness_proxy', 'reg_variance', 'reg_entropy', 'egg_variance', 'raw_entropy', 'entropy', 'channel_2'),
 }
 
 COVARIATE_ALIASES: Mapping[str, tuple[str, ...]] = {
@@ -554,7 +556,7 @@ class TelemetryTargetField:
     def reg_variance_deviation(self, frame: int, window: int = 50) -> float:
         index = min(max(frame, 0), self.frame_count - 1)
         start = max(0, index - window + 1)
-        series = self.raw_values['consciousness_proxy'].iloc[start : index + 1]
+        series = self.raw_values['eda_or_entropy'].iloc[start : index + 1]
         std = float(series.std(ddof=0))
         if std < 1e-12:
             return 0.0
@@ -578,6 +580,10 @@ class PerformanceMetrics:
         self.env_history: list[float] = []
         self.discovery_rate_history: list[int] = []
         self.coherence_frames: list[int] = []
+        # Every agent observation and the threshold in force, per frame: the
+        # material a null model needs to re-run the identical discovery rule.
+        self.observation_history: list[np.ndarray] = []
+        self.threshold_history: list[float] = []
 
     def log_discovery(self, agent_type: str) -> None:
         self.type_counts[agent_type] += 1
@@ -925,9 +931,11 @@ def run_simulation(
             sensor_ratios = target_field.sensor_anomaly_ratios(frame)
 
         frame_discoveries: list[dict[str, Any]] = []
+        frame_observations = []
         for agent in agents:
             agent.pos = (agent.pos + random_state.randint(-cfg.STEP_SIZE, cfg.STEP_SIZE + 1, 2)) % cfg.FIELD_RES
             values = tuple(float(v) for v in F_cpu[:, agent.pos[0], agent.pos[1]])
+            frame_observations.append(values)
             agent.observe(Observation(values=values, env_factor=modulation))
             for discovery in agent.discover(threshold=threshold, config=cfg):
                 u, v = discovery['edge']
@@ -946,6 +954,8 @@ def run_simulation(
                 del conf_map[key]
 
         metrics.log_frame(frame, len(frame_discoveries), modulation, env_mod.is_coherence_active(frame))
+        metrics.observation_history.append(np.array(frame_observations, dtype=np.float64))
+        metrics.threshold_history.append(float(threshold))
         operator_density = len(agents) / float(cfg.FIELD_RES * cfg.FIELD_RES)
         if recorder is not None:
             recorder.log_frame(
