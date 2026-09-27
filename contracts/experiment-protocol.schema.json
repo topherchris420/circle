@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/contracts/experiment-protocol.schema.json",
+  "title": "CIRCLE Experiment Protocol",
+  "description": "A structured, preregistered closed-loop experiment. A human or an AI model may propose one; deterministic validation, then a separate human authorization bound to the protocol's hash, must pass before anything executes. From this repository a protocol can only target the simulation twin.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "protocol_id", "proposed_by", "hypothesis", "target", "scenario", "arms", "intervention",
+               "decision_rule", "quality_gates", "outcomes", "seeds", "stopping_rule", "analysis_plan"],
+  "properties": {
+    "schema": {"const": "circle-experiment-protocol/1"},
+    "protocol_id": {"type": "string", "pattern": "^PROTO-[0-9A-F]{8,}$"},
+    "proposed_by": {
+      "type": "object", "additionalProperties": false, "required": ["kind", "name"],
+      "properties": {
+        "kind": {"enum": ["HUMAN", "AI_MODEL"]},
+        "name": {"type": "string", "minLength": 1},
+        "model_version": {"type": "string"}
+      }
+    },
+    "hypothesis": {"type": "string", "minLength": 20},
+    "rationale": {"type": "string"},
+    "target": {"enum": ["SIMULATION", "ELECTRONIC_PHANTOM", "HARDWARE_BENCH", "HUMAN_PARTICIPANT"]},
+    "scenario": {"type": "string", "minLength": 1},
+    "arms": {
+      "type": "array", "minItems": 2, "maxItems": 2,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["id", "actuate"],
+        "properties": {"id": {"enum": ["ACTIVE", "SHAM"]}, "actuate": {"type": "boolean"}}
+      }
+    },
+    "intervention": {
+      "type": "object", "additionalProperties": false, "required": ["kind"],
+      "properties": {
+        "kind": {"enum": ["HAPTIC_PACED_BREATHING"]},
+        "cue_period_s": {"type": "number", "minimum": 4, "maximum": 20}
+      }
+    },
+    "decision_rule": {
+      "type": "object", "additionalProperties": false, "required": ["controller"],
+      "properties": {
+        "controller": {"const": "CIRCLE_CLOSED_LOOP_CONTROLLER"},
+        "overrides": {"type": "object", "additionalProperties": {"type": "number"}}
+      }
+    },
+    "quality_gates": {
+      "description": "Gate settings. Validation accepts only settings at least as strict as the controller defaults.",
+      "type": "object", "additionalProperties": {"type": "number"}
+    },
+    "outcomes": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["id", "metric", "role", "direction"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+          "metric": {"type": "string"},
+          "role": {"enum": ["PRIMARY", "SECONDARY", "SAFETY"]},
+          "direction": {"enum": ["DECREASE", "INCREASE", "NO_INCREASE", "TWO_SIDED"]}
+        }
+      }
+    },
+    "seeds": {"type": "array", "minItems": 2, "maxItems": 200, "uniqueItems": true, "items": {"type": "integer", "minimum": 0}},
+    "stopping_rule": {
+      "type": "object", "additionalProperties": false, "required": ["kind"],
+      "properties": {"kind": {"const": "FIXED_SAMPLE"}, "note": {"type": "string"}}
+    },
+    "analysis_plan": {
+      "type": "object", "additionalProperties": false, "required": ["test", "alpha", "correction", "exclusions"],
+      "properties": {
+        "test": {"const": "PAIRED_SIGN_FLIP_PERMUTATION"},
+        "alpha": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.05},
+        "correction": {"enum": ["HOLM", "NONE"]},
+        "permutations": {"type": "integer", "minimum": 999, "maximum": 100000},
+        "exclusions": {"type": "string"}
+      }
+    }
+  }
+}
