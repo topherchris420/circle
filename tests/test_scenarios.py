@@ -10,7 +10,7 @@ from pathlib import Path
 import unittest
 
 from models.physiology.experiment import run_session
-from models.physiology.scenarios import SCENARIOS, system_checks
+from models.physiology.scenarios import SCENARIOS, UNWARRANTED_AROUSAL, system_checks
 from tools.run_physiology_twin import corpus
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -52,6 +52,38 @@ class ScenarioCorpusTest(unittest.TestCase):
         gaps = next(c for c in result["checks"] if c["id"] == "gaps_exact")
         self.assertTrue(gaps["passed"])
         self.assertEqual(len(gaps["detail"]["declared"]), 2)
+
+    def test_interrupted_state_is_still_acted_on_in_time(self):
+        """The suite is two-sided: the clean-window hold must not make the loop timid."""
+        result = self.results["interrupted"]
+        timely = next(c for c in result["checks"] if c["id"] == "timely_response")
+        self.assertTrue(timely["passed"], timely["detail"])
+        self.assertEqual([a for _, a in result["decisions"]][0], "START_PACED_BREATHING")
+        self.assertGreater(result["holds_by_reason"].get("EVIDENCE_GAP", 0), 0,
+                           "the loop held while the window was still partly impaired, then acted")
+
+
+class LaggingProxyTest(unittest.TestCase):
+    """The defect retained in the 1.1.0 evaluation (seeds 500-529): guidance started at 305 s in motion_heavy,
+    after 45 s of corrupted evidence, on an index that was the lagging tail of a state that had already resolved."""
+
+    def test_motion_heavy_seed_503_holds_instead_of_starting(self):
+        scenario = SCENARIOS["motion_heavy"]
+        run = run_session(scenario.configure(503))
+        result = system_checks(run, scenario)
+        self.assertTrue(result["passed"], [c for c in result["checks"] if not c["passed"]])
+        self.assertFalse(any(action == "START_PACED_BREATHING" for _, action in result["decisions"]))
+        holds = [e for e in run.evaluations if e.action == "HOLD_EVIDENCE_GAP"]
+        self.assertTrue(holds)
+        trigger = run.config.controller.trigger_index
+        for ev in holds:
+            # Each hold was taken on an index that would otherwise have triggered, over a window not yet fully clean.
+            self.assertGreaterEqual(ev.features["arousal_index"], trigger)
+            self.assertLess(ev.features["clean_since_s"], run.config.controller.feature_window_s)
+        clock = run.rig.clock
+        latent = [float(run.twin.arousal[min(run.twin._n - 1, int(round(clock.to_true_s(e.input_cutoff_us) / 0.01)))])
+                  for e in holds]
+        self.assertTrue(all(a < UNWARRANTED_AROUSAL for a in latent), latent)
 
 
 if __name__ == "__main__":

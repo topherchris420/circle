@@ -14,6 +14,12 @@ to grade its own homework.
     feedback_artifact  the haptic actuator contaminates the optical and EDA channels
     ambiguous          a heart-rate rise with no electrodermal change: one system
                        mimics arousal through a different pathway
+    interrupted        a warranted, sustained state is briefly obscured by motion;
+                       the loop must still act once a full evidence window is clean
+
+The suite is two-sided. Most scenarios try to make the loop act when it should
+not; `interrupted` tries to make it fail to act when it should. A controller
+that passes only by holding would fail there.
 
 This module is scoring-side: it reads twin truth and must never be imported by
 the pipeline, controller, evidence, audit, or ledger modules.
@@ -26,7 +32,7 @@ from typing import Any, Callable
 
 import numpy as np
 
-from .controller import replay
+from .controller import ControllerConfig, replay
 from .experiment import SessionConfig, SessionRun
 from .sensors import RigConfig
 from .twin import CardiacDrive, MotionEpisode, ProtocolPhase, TwinConfig, DEFAULT_MOTION
@@ -90,6 +96,13 @@ def _ambiguous(seed: int) -> SessionConfig:
     return SessionConfig(twin=_twin(seed, phases=phases, cardiac_drive=drive), scenario="ambiguous")
 
 
+def _interrupted(seed: int) -> SessionConfig:
+    """Guidance armed during the stressor (a sustained state), obscured by 10 s of motion as it builds."""
+    motion = (DEFAULT_MOTION[0], MotionEpisode("OBSCURED", 118.0, 10.0, 0.40), DEFAULT_MOTION[2])
+    return SessionConfig(twin=_twin(seed, motion=motion), controller=ControllerConfig(arm_phase="STRESSOR"),
+                         scenario="interrupted")
+
+
 SCENARIOS: dict[str, Scenario] = {s.name: s for s in (
     Scenario("clean", "The loop acts on a warranted, well-observed state and releases on its own.", _clean),
     Scenario("motion_heavy", "Motion gating: no decision may rest on motion-corrupted PPG.", _motion_heavy,
@@ -105,6 +118,9 @@ SCENARIOS: dict[str, Scenario] = {s.name: s for s in (
              _feedback_artifact),
     Scenario("ambiguous", "One physiological system alone cannot trigger an intervention.", _ambiguous,
              expect_intervention=False, expected_actions=("HOLD_SIGNALS_DISAGREE",)),
+    Scenario("interrupted", "A warranted state briefly obscured by motion is still acted on in time once a full evidence "
+             "window is clean: caution must not become timidity.", _interrupted, (("MOTION", 118.0, 128.0),),
+             expected_gate_reasons=("MOTION_EXCESSIVE",), expected_actions=("HOLD_EVIDENCE_GAP",)),
 )}
 
 

@@ -190,6 +190,94 @@ class ClosedLoopEvidenceTest(unittest.TestCase):
         (run_dir / "session.ndjson").unlink()
         self.assertEqual(audit_run(run_dir)["replay_status"], "MISSING_SOURCE")
 
+    # ------------------------------------------------- whole-session rederivation
+    def test_clean_run_rebuilds_every_record_from_device_records(self):
+        detail = audit_run(self.out)["checks"]["session_rederived"]["detail"]
+        self.assertIsNone(detail["first_mismatch"])
+        self.assertEqual(detail["records"], detail["rebuilt"])
+        self.assertGreater(detail["compared_outside_controller"], 50)
+
+    def test_consistent_forgery_of_a_window_is_an_integrity_failure(self):
+        """A heart rate nobody measured: analysis.json, the ledger, and the manifest all stay consistent."""
+        run_dir = self.copy("forged-window")
+
+        def edit(records):
+            for r in records:
+                if r["record_type"] == "MODEL_RESULT" and "PHYSIOLOGY_WINDOW" in r["status_flags"] and "hr_bpm" in r["payload"]:
+                    r["payload"]["hr_bpm"] += 25.0
+                    return records
+            raise AssertionError("no window carries a heart rate")
+        forge(run_dir, edit)
+        result = audit_run(run_dir)
+        self.assertEqual(result["replay_status"], "EVIDENCE_INTEGRITY_FAILURE")
+        mismatch = result["checks"]["session_rederived"]["detail"]["first_mismatch"]
+        self.assertEqual((mismatch["record_type"], mismatch["stream_id"], mismatch["fields"]),
+                         ("MODEL_RESULT", "physiology_windows", ["payload"]))
+        self.assertTrue(result["checks"]["decisions_replayed"]["passed"], "the controller never read this record")
+
+    def test_consistent_forgery_of_a_physical_observation_is_an_integrity_failure(self):
+        run_dir = self.copy("forged-observation")
+
+        def edit(records):
+            for r in records:
+                if r["record_type"] == "EVENT" and "EVENT_KIND:HAPTIC_PHYSICAL_OBSERVATION" in r["status_flags"]:
+                    r["payload"]["latency_from_command_us"] = 1.0  # physically impossible
+                    return records
+            raise AssertionError("no physical observation recorded")
+        forge(run_dir, edit)
+        result = audit_run(run_dir)
+        self.assertEqual(result["replay_status"], "EVIDENCE_INTEGRITY_FAILURE")
+        self.assertEqual(result["checks"]["session_rederived"]["detail"]["first_mismatch"]["stream_id"], "haptic_observations")
+
+    def test_execution_stage_downgraded_behind_an_unchanged_flag_is_caught(self):
+        """The chain says ELECTRICAL_ONSET_OBSERVED for one cue while the record still claims every cue was observed."""
+        run_dir = self.copy("forged-execution-flag")
+
+        def edit(records):
+            for r in records:
+                if r["record_type"] == "INTERVENTION":
+                    link = r["execution_chain"][0]
+                    link.pop("physical_observation_id")
+                    link["stage"] = "ELECTRICAL_ONSET_OBSERVED"
+                    r["payload"]["cues_physically_observed"] -= 1
+                    return records
+            raise AssertionError("no intervention recorded")
+        forge(run_dir, edit)
+        result = audit_run(run_dir)
+        self.assertEqual(result["replay_status"], "EVIDENCE_INTEGRITY_FAILURE")
+        self.assertTrue(result["checks"]["execution_chains"]["passed"], "each link is internally consistent")
+        self.assertEqual(result["checks"]["session_rederived"]["detail"]["first_mismatch"]["record_type"], "INTERVENTION")
+
+    def test_consistent_forgery_of_the_clock_mapping_is_an_integrity_failure(self):
+        run_dir = self.copy("forged-clock")
+
+        def edit(records):
+            for r in records:
+                if r["record_type"] == "CLOCK_MAPPING":
+                    r["payload"]["ppm"] += 500.0
+                    return records
+            raise AssertionError("no clock mapping recorded")
+        forge(run_dir, edit)
+        result = audit_run(run_dir)
+        self.assertEqual(result["replay_status"], "EVIDENCE_INTEGRITY_FAILURE")
+        self.assertEqual(result["checks"]["session_rederived"]["detail"]["first_mismatch"]["record_type"], "CLOCK_MAPPING")
+
+    def test_consistent_forgery_of_the_baseline_is_a_divergence(self):
+        """The baseline is a controller decision: rewriting it is judged by replay, not by record rebuild."""
+        run_dir = self.copy("forged-baseline")
+
+        def edit(records):
+            for r in records:
+                if "CONTROLLER_BASELINE" in r["status_flags"]:
+                    r["payload"]["hr_bpm"] += 3.0
+                    return records
+            raise AssertionError("no baseline recorded")
+        forge(run_dir, edit)
+        result = audit_run(run_dir)
+        self.assertEqual(result["replay_status"], "REPLAY_DIVERGENCE")
+        self.assertTrue(result["checks"]["session_rederived"]["passed"])
+        self.assertEqual(result["checks"]["decisions_replayed"]["detail"]["first_divergence"]["index"], 0)
+
     def test_source_range_spanning_a_gap_fails_lineage(self):
         run_dir = self.copy("gap-span")
         gap = next(g for g in self.sr.raw.gaps)

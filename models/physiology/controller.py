@@ -21,6 +21,18 @@ window are too sparse to count as agreement; they contribute to the index only. 
 recorded decision (HOLD_*), with explicit reasons. During guidance, repeated
 gate failures stop the program: a loop that cannot observe its effect is no
 longer closed.
+
+Sustained means observed. Starting guidance claims that arousal has been
+elevated over the evidence window the index depends on. After an impairment
+(motion, lost electrode contact, a changed optical coupling, saturation, or
+missing data) the first adequate evaluations cannot tell a sustained state
+from the tail of one that resolved while the controller could not see: tonic
+skin conductance in particular lags the state it reports. The controller
+therefore records how long the full feature window has been clean
+(clean_since_s) and holds (HOLD_EVIDENCE_GAP) until a whole window of
+unimpaired evidence has been observed. Continuing a program needs only that
+the loop can still observe (the gates above); starting one needs the full
+window.
 """
 
 from __future__ import annotations
@@ -35,10 +47,11 @@ from .dsp import contiguous_runs
 from .pipeline import analyze_eda, analyze_motion, detect_beats
 from .streams import RawSession
 
-CONTROLLER_VERSION = "1.1.0"
+CONTROLLER_VERSION = "1.2.0"
 
-HOLD_REASONS = ("DATA_STALE", "SATURATION", "EDA_CONTACT_LOST", "PPG_COUPLING_CHANGED", "BEAT_COVERAGE_LOW", "MOTION_EXCESSIVE",
+GATE_REASONS = ("DATA_STALE", "SATURATION", "EDA_CONTACT_LOST", "PPG_COUPLING_CHANGED", "BEAT_COVERAGE_LOW", "MOTION_EXCESSIVE",
                 "MOTION_AT_CUTOFF", "FEATURE_MISSING")
+HOLD_ACTIONS = ("HOLD_QUALITY", "HOLD_EVIDENCE_GAP", "HOLD_SIGNALS_DISAGREE")
 
 
 @dataclass(frozen=True)
@@ -142,24 +155,64 @@ def _window_ranges(session: RawSession, t0: int, t1: int) -> list[dict[str, Any]
     return ranges
 
 
-def window_features(session: RawSession, t0_us: int, t1_us: int, config: ControllerConfig) -> dict[str, float]:
-    """Physiological features from raw samples inside [t0_us, t1_us] only."""
+def window_features(session: RawSession, t0_us: int, t1_us: int, config: ControllerConfig,
+                    baseline: dict[str, float] | None = None) -> dict[str, float]:
+    """Physiological features from raw samples inside [t0_us, t1_us] only.
+
+    `baseline` is the controller's own recorded baseline (itself derived from
+    recorded samples); it supplies the optical reference for the coupling
+    ratio, so the function stays a pure function of the record.
+
+    Besides the features the index is built from, the result names how long the
+    window has been free of impairment: `clean_since_s` is the time from the
+    latest impaired instant inside the window (motion, lost electrode contact,
+    optical coupling outside the baseline band, ADC saturation, or a stale gap
+    in any stream) to the cutoff, equal to the window length when nothing in
+    the window was impaired.
+    """
     d = session.descriptors
-    end_s = t1_us / 1e6
+    start_s, end_s = t0_us / 1e6, t1_us / 1e6
     imu = session.streams["imu"].window(t0_us, t1_us)
     motion = analyze_motion(imu, d["imu"])
     episodes = motion["episodes"]
     beats = detect_beats(session.streams["ppg"].window(t0_us, t1_us), d["ppg"], episodes)
     eda = analyze_eda(session.streams["eda"].window(t0_us, t1_us), d["eda"], episodes)
     out: dict[str, float] = {}
-    # Freshness: age of each stream's newest usable sample at the input cutoff.
+    impaired_until_s = -math.inf  # latest instant inside the window at which the evidence was impaired
+    # Freshness: age of each stream's newest usable sample at the input cutoff, and
+    # stale gaps anywhere inside the window (a missing stretch is an impairment too).
+    stale_us = int(config.stale_after_s * 1e6)
     for name in ("eda", "ppg", "imu"):
         w = session.streams[name].window(t0_us, t1_us)
-        out[f"{name}_age_s"] = round((t1_us - int(w.device_time_us[-1])) / 1e6, 6) if len(w) else round(config.feature_window_s, 6)
-    out["saturated_samples"] = float(_saturated(session, t0_us, t1_us))
+        if len(w):
+            t = w.device_time_us
+            out[f"{name}_age_s"] = round((t1_us - int(t[-1])) / 1e6, 6)
+            if int(t[0]) - t0_us > stale_us:
+                impaired_until_s = max(impaired_until_s, int(t[0]) / 1e6)
+            for k in np.flatnonzero(np.diff(t) > stale_us):
+                impaired_until_s = max(impaired_until_s, int(t[k + 1]) / 1e6)
+        else:
+            out[f"{name}_age_s"] = round(config.feature_window_s, 6)
+            impaired_until_s = end_s
+    saturated, saturated_until_s = _saturated(session, t0_us, t1_us)
+    out["saturated_samples"] = float(saturated)
+    if saturated_until_s is not None:
+        impaired_until_s = max(impaired_until_s, saturated_until_s)
     recent_ppg = session.streams["ppg"].window(t1_us - int(config.recent_clean_s * 1e6), t1_us)
     if len(recent_ppg):
         out["ppg_ir_dc_counts"] = round(float(np.median(recent_ppg.columns["ir_counts"])), 3)
+    reference = (baseline or {}).get("ppg_ir_dc_counts")
+    if reference and "ppg_ir_dc_counts" in out:
+        out["ppg_dc_ratio"] = round(out["ppg_ir_dc_counts"] / reference, 6)
+    ppg = session.streams["ppg"].window(t0_us, t1_us)
+    if reference and len(ppg):
+        # Received light, second by second across the window, against the baseline's optical geometry.
+        low, high = config.ppg_coupling_band, 1 / config.ppg_coupling_band
+        second = (ppg.device_time_us - t0_us) // 1_000_000
+        for s in np.unique(second):
+            ir = ppg.columns["ir_counts"][second == s]
+            if len(ir) >= 10 and not low <= float(np.median(ir)) / reference <= high:
+                impaired_until_s = max(impaired_until_s, start_s + float(s) + 1.0)
     hr_from = end_s - config.hr_window_s
     valid = beats["ibi_valid"] & (beats["ibi_end_s"] >= hr_from) & (beats["ibi_start_s"] >= t0_us / 1e6)
     covered = float(np.sum(beats["ibi_s"][valid])) if valid.any() else 0.0
@@ -176,40 +229,50 @@ def window_features(session: RawSession, t0_us: int, t1_us: int, config: Control
             out["scl_us"] = round(float(np.mean(eda["tonic_us"][recent])), 6)
         scr = [s for s in eda["scrs"] if s["onset_s"] >= end_s - config.scr_window_s and not s["motion_confounded"]]
         out["scr_rate_per_min"] = round(len(scr) * 60.0 / config.scr_window_s, 6)
+        lost = eda["t_s"][eda["conductance_us"] < config.eda_contact_floor_us]
+        if len(lost):
+            impaired_until_s = max(impaired_until_s, float(lost[-1]))
     if len(motion["t_s"]):
         recent = motion["t_s"] >= hr_from
         out["motion_fraction"] = round(float(np.mean(motion["flag"][recent])) if recent.any() else 0.0, 6)
         latest = motion["t_s"] >= end_s - config.recent_clean_s
         out["motion_at_cutoff"] = 1.0 if latest.any() and bool(np.any(motion["flag"][latest])) else 0.0
+        if episodes:
+            impaired_until_s = max(impaired_until_s, min(end_s, max(b for _, b in episodes)))
     else:
         out["motion_fraction"] = 1.0
+        impaired_until_s = end_s
+    clean = config.feature_window_s if impaired_until_s == -math.inf else min(config.feature_window_s, max(0.0, end_s - impaired_until_s))
+    out["clean_since_s"] = round(clean, 6)
     return out
 
 
-def _saturated(session: RawSession, t0_us: int, t1_us: int) -> int:
-    """Samples at an ADC rail inside the window (clipped codes carry no amplitude evidence)."""
+def _saturated(session: RawSession, t0_us: int, t1_us: int) -> tuple[int, float | None]:
+    """Samples at an ADC rail inside the window (clipped codes carry no amplitude evidence), and the latest such instant."""
     d = session.descriptors
-    count = 0
-    eda = session.streams["eda"].window(t0_us, t1_us).columns["code"]
+    count, latest_us = 0, None
+    eda = session.streams["eda"].window(t0_us, t1_us)
     full = 2 ** (int(d["eda"]["adc_bits"]) - 1)
-    count += int(np.sum((eda <= -full) | (eda >= full - 1)))
+    hit = (eda.columns["code"] <= -full) | (eda.columns["code"] >= full - 1)
+    count += int(np.sum(hit))
+    if hit.any():
+        latest_us = int(eda.device_time_us[hit][-1])
     ppg = session.streams["ppg"].window(t0_us, t1_us)
     top = int(d["ppg"]["full_scale_counts"])
     for column in ("red_counts", "ir_counts"):
-        count += int(np.sum((ppg.columns[column] <= 0) | (ppg.columns[column] >= top)))
-    return count
+        hit = (ppg.columns[column] <= 0) | (ppg.columns[column] >= top)
+        count += int(np.sum(hit))
+        if hit.any():
+            latest_us = max(latest_us or 0, int(ppg.device_time_us[hit][-1]))
+    return count, (latest_us / 1e6 if latest_us is not None else None)
 
 
-def quality_gate(features: dict[str, float], config: ControllerConfig, baseline: dict[str, float] | None = None) -> list[str]:
+def quality_gate(features: dict[str, float], config: ControllerConfig) -> list[str]:
     """Explicit reasons the evidence is inadequate for a decision (empty list: adequate)."""
     reasons = []
-    reference = (baseline or {}).get("ppg_ir_dc_counts")
-    if reference and "ppg_ir_dc_counts" in features:
-        ratio = features["ppg_ir_dc_counts"] / reference
-        features["ppg_dc_ratio"] = round(ratio, 6)
-        if not config.ppg_coupling_band <= ratio <= 1 / config.ppg_coupling_band:
-            # Received light changed several-fold: the optical geometry is no longer the baseline's.
-            reasons.append("PPG_COUPLING_CHANGED")
+    if "ppg_dc_ratio" in features and not config.ppg_coupling_band <= features["ppg_dc_ratio"] <= 1 / config.ppg_coupling_band:
+        # Received light changed several-fold: the optical geometry is no longer the baseline's.
+        reasons.append("PPG_COUPLING_CHANGED")
     if any(features.get(f"{name}_age_s", math.inf) > config.stale_after_s for name in ("eda", "ppg", "imu")):
         reasons.append("DATA_STALE")
     if features.get("saturated_samples", 0.0) > 0:
@@ -323,9 +386,9 @@ class ClosedLoopController:
             self._compute_baseline(session, (ordered[i][1], ordered[i + 1][1]))
             self.baseline_decided_us = t_us
         start_us = end_us - int(c.feature_window_s * 1e6)
-        features = window_features(session, start_us, end_us, c)
         b = self.baseline
         assert b is not None
+        features = window_features(session, start_us, end_us, c, b)
         z_hr = (features["hr_bpm"] - b["hr_bpm"]) / b["hr_sd_bpm"] if "hr_bpm" in features else float("nan")
         z_scl = (features["scl_us"] - b["scl_us"]) / b["scl_sd_us"] if "scl_us" in features else float("nan")
         scr_den = max(b["scr_rate_per_min"], c.scr_rate_floor_per_min)
@@ -344,7 +407,7 @@ class ClosedLoopController:
                              "systems_agreeing": float(agreeing)})
         else:
             index = float("nan")
-        reasons = quality_gate(features, c, self.baseline)
+        reasons = quality_gate(features, c)
         quality_ok = not reasons
         features["quality_ok"] = 1.0 if quality_ok else 0.0
         armed = c.arm_phase in markers
@@ -367,6 +430,12 @@ class ClosedLoopController:
                 # A hold breaks the streak: "consecutive" means adjacent, adequately observed evaluations.
                 self.trigger_count = 0
                 ev.action = "HOLD_QUALITY"
+            elif index >= c.trigger_index and ev.features.get("clean_since_s", 0.0) < c.feature_window_s:
+                # The index is elevated, but part of the window it rests on was impaired. A sustained
+                # state and the lagging tail of one that resolved unseen look alike here; only a full
+                # window of unimpaired observation separates them.
+                self.trigger_count = 0
+                ev.action = "HOLD_EVIDENCE_GAP"
             elif index >= c.trigger_index and agreeing < 2:
                 # One physiological system alone cannot trigger an intervention.
                 self.trigger_count = 0
@@ -423,11 +492,13 @@ def evaluation_times(session: RawSession, config: ControllerConfig, end_us: int)
     return list(range(markers[0] + period, end_us + 1, period))
 
 
-def replay(session: RawSession, config: ControllerConfig, end_us: int) -> list[Evaluation]:
-    """Re-derive every decision from a recorded raw session.
+def replay_controller(session: RawSession, config: ControllerConfig, end_us: int) -> tuple[ClosedLoopController, list[Evaluation]]:
+    """Re-derive every decision from a recorded raw session; return the final controller too.
 
     end_us is the recorded last evaluation time; the schedule itself is
-    re-derived from the first protocol marker and the evaluation period.
+    re-derived from the first protocol marker and the evaluation period. The
+    controller is returned so that its baseline (a recorded decision in its own
+    right) can be re-derived alongside the evaluations.
     """
     controller = ClosedLoopController(config)
     out = []
@@ -435,4 +506,9 @@ def replay(session: RawSession, config: ControllerConfig, end_us: int) -> list[E
         ev = controller.evaluate(session.until(t), t)
         if ev is not None:
             out.append(ev)
-    return out
+    return controller, out
+
+
+def replay(session: RawSession, config: ControllerConfig, end_us: int) -> list[Evaluation]:
+    """Re-derive every decision from a recorded raw session (see replay_controller)."""
+    return replay_controller(session, config, end_us)[1]

@@ -77,7 +77,7 @@
       "id": "closed_loop_controller",
       "layer": "CLOSED_LOOP",
       "status": "SIMULATION_VALIDATED",
-      "summary": "Temporally lawful controller with explicit quality gates, multi-system agreement, hysteresis, stop-on-lost-observation, and snapshot/restore.",
+      "summary": "Temporally lawful controller with explicit quality gates, multi-system agreement, a clean-window precondition for starting (sustained means observed), hysteresis, stop-on-lost-observation, and snapshot/restore.",
       "paths": [
         "models/physiology/controller.py"
       ],
@@ -95,7 +95,7 @@
       "id": "evidence_audit_and_replay",
       "layer": "CLOSED_LOOP",
       "status": "IMPLEMENTED",
-      "summary": "Independent audit: re-derives analysis, replays every decision, checks temporal lawfulness and execution chains, rebuilds the ledger, reports an explicit replay status.",
+      "summary": "Independent audit: re-derives the analysis and every derived session record from the raw bundle and device events, replays every decision, checks temporal lawfulness and execution chains, rebuilds the ledger, reports an explicit replay status.",
       "paths": [
         "models/physiology/audit.py",
         "models/physiology/evidence.py",
@@ -114,7 +114,7 @@
       "id": "adversarial_scenarios",
       "layer": "CLOSED_LOOP",
       "status": "IMPLEMENTED",
-      "summary": "Scenario families that try to break the loop (motion, contact loss, timing faults, sensor loss, feedback artifact, ambiguous physiology), judged against hidden truth.",
+      "summary": "Two-sided scenario families judged against hidden truth: most try to make the loop act when it should not (motion, contact loss, timing faults, sensor loss, feedback artifact, ambiguous physiology); one tries to make it fail to act when it should (a warranted state briefly obscured by motion).",
       "paths": [
         "models/physiology/scenarios.py"
       ],

@@ -30,7 +30,8 @@ from typing import Any
 import numpy as np
 from jsonschema import Draft202012Validator
 
-from models.physiology.controller import ControllerConfig, replay
+from models.physiology.controller import CONTROLLER_VERSION, ControllerConfig, replay
+from models.physiology.evidence import source_digest
 from models.physiology.experiment import SessionRun, run_session
 from models.physiology.scenarios import SCENARIOS
 
@@ -120,14 +121,15 @@ def validate(protocol: dict[str, Any]) -> dict[str, Any]:
             "protocol_sha256": canonical_sha256(protocol)}
 
 
-def controller_config(protocol: dict[str, Any]) -> ControllerConfig:
+def controller_config(protocol: dict[str, Any], base: ControllerConfig = DEFAULTS) -> ControllerConfig:
+    """The protocol's controller: its overrides and gates applied to `base` (the scenario's controller at execution)."""
     kinds = {f.name: f.type for f in fields(ControllerConfig)}
     values: dict[str, Any] = {}
     for key, value in {**protocol["decision_rule"].get("overrides", {}), **protocol["quality_gates"]}.items():
         values[key] = int(value) if str(kinds.get(key)) == "int" else float(value)
     if "cue_period_s" in protocol["intervention"]:
         values["cue_period_s"] = float(protocol["intervention"]["cue_period_s"])
-    return replace(DEFAULTS, **values)
+    return replace(base, **values)
 
 
 def authorize(protocol: dict[str, Any], reviewer: str, date: str) -> dict[str, Any]:
@@ -211,10 +213,11 @@ def execute(protocol: dict[str, Any], authorization: dict[str, Any]) -> dict[str
     if authorization.get("target") != "SIMULATION" or not authorization.get("authorized_by"):
         raise ProtocolError("authorization must name a human reviewer and target SIMULATION")
     scenario = SCENARIOS[protocol["scenario"]]
-    config = controller_config(protocol)
     per_seed, replays_match = [], True
     for seed in protocol["seeds"]:
-        base = replace(scenario.configure(seed), controller=config)
+        scenario_config = scenario.configure(seed)
+        # The scenario fixes where guidance is armed; the protocol may only tighten gates and set decision rules.
+        base = replace(scenario_config, controller=controller_config(protocol, scenario_config.controller))
         runs = {arm["id"]: run_session(replace(base, actuate=arm["actuate"])) for arm in protocol["arms"]}
         for run in runs.values():
             again = replay(run.raw, run.config.controller, run.evaluation_end_us)
@@ -249,6 +252,7 @@ def execute(protocol: dict[str, Any], authorization: dict[str, Any]) -> dict[str
     return {"schema": "circle-protocol-result/1", "provenance": "SIMULATED", "protocol_id": protocol["protocol_id"],
             "protocol_sha256": result["protocol_sha256"], "authorized_by": authorization["authorized_by"],
             "scenario": protocol["scenario"], "seeds": protocol["seeds"], "replays_match": replays_match,
+            "controller_version": CONTROLLER_VERSION, "pipeline_source": source_digest(),
             "tests": tests, "per_seed": per_seed,
             "interpretation": ("Results hold only under the twin's assumed response model. TWIN_TRUTH outcomes are the "
                                "model's own latent variables. A supported simulation hypothesis validates the analytical "

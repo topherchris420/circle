@@ -2,22 +2,39 @@
 
 The auditor trusts nothing it did not recompute. It verifies artifact hashes,
 the session contract, raw-content bindings, re-runs the full pipeline from the
-raw bundle, replays every closed-loop decision, checks that no decision used
-evidence from its future, walks each intervention's execution chain, and
-rebuilds the closed-loop ledger.
+raw bundle, replays every closed-loop decision, rebuilds every derived session
+record from the raw bundle and the device-recorded events, checks that no
+decision used evidence from its future, walks each intervention's execution
+chain, and rebuilds the closed-loop ledger.
+
+A session record is either a device record (header, stream descriptors,
+controller configuration, device events, declared gaps, trailer) or a derived
+one (clock mapping, physiology windows, controller baseline and evaluations,
+IMU-observed physical onsets, interventions). Every derived record is a pure
+function of the device records and the raw bundle, so the auditor rebuilds the
+whole session and requires each record to match bit for bit. A forged window,
+observation, intervention stage, or clock mapping therefore fails even when
+its CRC, the ledger, and the manifest were all rewritten consistently.
 
 The result names one explicit replay status. A divergence is surfaced, never
 reconciled:
 
-  REPLAY_MATCH                every decision and command re-derived exactly
-  REPLAY_DIVERGENCE           replay disagrees with the record (first divergence reported)
+  REPLAY_MATCH                every record and command re-derived exactly
+  REPLAY_DIVERGENCE           the controller's replay disagrees with its recorded
+                              baseline, evaluations, or commands (first divergence reported)
   TIMING_VIOLATION            a decision cites evidence taken after its cutoff or
                               not yet available at its decision time
   VERSION_MISMATCH            the recorded analysis code differs from the code auditing it
-  EVIDENCE_INTEGRITY_FAILURE  hashes, CRCs, contract, or raw bindings do not hold
+  EVIDENCE_INTEGRITY_FAILURE  hashes, CRCs, contract, raw bindings, lineage, execution
+                              chains, or a re-derived record, analysis, or ledger do not hold
   MISSING_SOURCE              an artifact the replay needs is absent or unreadable
   INSUFFICIENT_EVIDENCE       the session lacks what replay needs (no controller
-                              configuration or no recorded evaluations)
+                              configuration, no baseline, or no recorded evaluations)
+
+Precedence: a structural failure (hashes, contract, bindings, lineage, chains)
+is reported first; then a code-version mismatch, because re-derivation under
+different code is not a finding; then a re-derivation mismatch; then timing;
+then controller divergence.
 """
 
 from __future__ import annotations
@@ -25,16 +42,17 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import numpy as np
 
 from models.session_records import SessionRecordError, load_session
-from .controller import replay
-from .evidence import (EVENT_KIND_FLAG, analysis_document, controller_config_from_records, evaluation_record,
+from .controller import ControllerConfig, replay_controller
+from .evidence import (EVENT_KIND_FLAG, analysis_document, build_session_records, controller_config_from_records,
                        raw_session_from_bundle, source_digest)
 from .ledger import build_ledger
-from .pipeline import analyze
+from .pipeline import Analysis, analyze
 from .streams import RawSession
 
 REPLAY_STATUSES = ("REPLAY_MATCH", "REPLAY_DIVERGENCE", "TIMING_VIOLATION", "VERSION_MISMATCH",
@@ -131,6 +149,55 @@ def execution_chain_problems(records: list[dict[str, Any]]) -> tuple[list[dict[s
     return chains, problems
 
 
+def rederive_session(records: list[dict[str, Any]], raw: RawSession, content_hashes: dict[str, str], analysis: Analysis,
+                     config: ControllerConfig, end_us: int) -> tuple[list[dict[str, Any]], list[Any]]:
+    """Rebuild every session record from the raw bundle, the device events, and the controller configuration.
+
+    Only device records are read: the header's identity flags and payload, the
+    controller configuration, and the raw bundle with its events and gaps. The
+    controller is replayed to re-derive its baseline and evaluations; the
+    pipeline output supplies windows, clock mapping, and physical observations.
+    Returns the rebuilt records (sealed) and the replayed evaluations.
+    """
+    header = next(r for r in records if r["record_type"] == "SESSION_HEADER")
+    flags = {f.split(":", 1)[0]: f.split(":", 1)[1] for f in header["status_flags"] if ":" in f}
+    controller, evaluations = replay_controller(raw, config, end_us)
+    if controller.baseline is None or controller.baseline_window_us is None:
+        raise ValueError("replay established no controller baseline")
+    payload = header.get("payload", {})
+    twin = SimpleNamespace(seed=int(payload["seed"]), duration_s=payload["duration_s"])
+    session_config = SimpleNamespace(twin=twin, controller=config, actuate="ARM_ACTIVE" in header["status_flags"],
+                                     scenario=flags.get("SCENARIO", ""), session_id=flags.get("SESSION_ID", ""))
+    stand_in = SimpleNamespace(config=session_config, raw=raw, evaluations=evaluations, evaluation_end_us=end_us,
+                               controller_baseline=dict(controller.baseline),
+                               controller_baseline_window_us=controller.baseline_window_us,
+                               controller_baseline_ranges=list(controller.baseline_ranges),
+                               controller_baseline_decided_us=int(controller.baseline_decided_us or 0))
+    raw_entries = {f"raw/{name}.csv.gz": {"content_sha256": content_hashes[name], "rows": len(raw.streams[name])}
+                   for name in raw.streams}
+    return build_session_records(stand_in, raw_entries, analysis), evaluations
+
+
+def _split_controller_results(records: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """(every other record, the controller's own MODEL_RESULTs: baseline and evaluations)."""
+    controller = [r for r in records if r["record_type"] == "MODEL_RESULT" and r.get("stream_id") == "controller"]
+    others = [r for r in records if not (r["record_type"] == "MODEL_RESULT" and r.get("stream_id") == "controller")]
+    return others, controller
+
+
+def _first_mismatch(recorded: list[dict[str, Any]], rebuilt: list[dict[str, Any]]) -> dict[str, Any] | None:
+    for i in range(max(len(recorded), len(rebuilt))):
+        a = _strip_crc(recorded[i]) if i < len(recorded) else None
+        b = _strip_crc(rebuilt[i]) if i < len(rebuilt) else None
+        if a != b:
+            ref = a or b or {}
+            return {"index": i, "record_type": ref.get("record_type"), "stream_id": ref.get("stream_id"),
+                    "device_time_start_us": ref.get("device_time_start_us"), "decision_time_us": ref.get("decision_time_us"),
+                    "recorded": a is not None, "rebuilt": b is not None,
+                    "fields": sorted(k for k in set(a or {}) | set(b or {}) if (a or {}).get(k) != (b or {}).get(k))}
+    return None
+
+
 def audit_run(directory: Path) -> dict[str, Any]:
     directory = Path(directory)
     checks: dict[str, dict[str, Any]] = {}
@@ -198,44 +265,47 @@ def audit_run(directory: Path) -> dict[str, Any]:
 
     chains, chain_problems = execution_chain_problems(records)
     check("execution_chains", not chain_problems, {"interventions": chains, "problems": chain_problems[:5]})
+    structural_ok = integrity_ok and not lineage_errors and not chain_problems
 
-    ledger_path = directory / "closed_loop_ledger.json"
-    if ledger_path.is_file():
-        rebuilt = json.loads(json.dumps(build_ledger(records), sort_keys=True, allow_nan=False))
-        check("ledger_rederived", rebuilt == json.loads(ledger_path.read_text(encoding="utf-8")))
-
-    # ---------------------------------------------------------------- replay
+    # -------------------------------------------------------- rebuild session
     try:
         config, end_us = controller_config_from_records(records)
+        rebuilt, replayed = rederive_session(records, raw, content_hashes, analysis, config, end_us)
     except (StopIteration, KeyError, ValueError, TypeError) as exc:
-        check("decisions_replayed", False, f"controller configuration unusable: {exc}")
+        check("session_rederived", False, f"session cannot be rebuilt from its device records: {exc}")
+        check("decisions_replayed", False, f"controller configuration or baseline unusable: {exc}")
         return _result("INSUFFICIENT_EVIDENCE", checks)
-    recorded_evals = sorted((_strip_crc(r) for r in records
-                             if r["record_type"] == "MODEL_RESULT" and "CONTROLLER_EVALUATION" in r["status_flags"]),
-                            key=lambda r: r["device_time_end_us"])
-    replayed = replay(raw, config, end_us)
-    rederived = [_strip_crc(evaluation_record(ev, current)) for ev in replayed]
+    recorded_other, recorded_controller = _split_controller_results(records)
+    rebuilt_other, rebuilt_controller = _split_controller_results(rebuilt)
+    mismatch = _first_mismatch(recorded_other, rebuilt_other)
+    check("session_rederived", mismatch is None,
+          {"records": len(records), "rebuilt": len(rebuilt), "compared_outside_controller": len(rebuilt_other),
+           "first_mismatch": mismatch})
+
+    ledger_ok = True
+    ledger_path = directory / "closed_loop_ledger.json"
+    if ledger_path.is_file():
+        rebuilt_ledger = json.loads(json.dumps(build_ledger(records), sort_keys=True, allow_nan=False))
+        ledger_ok = rebuilt_ledger == json.loads(ledger_path.read_text(encoding="utf-8"))
+        check("ledger_rederived", ledger_ok)
+
+    # ---------------------------------------------------------------- replay
+    recorded_evals = [r for r in recorded_controller if "CONTROLLER_EVALUATION" in r["status_flags"]]
+    divergence = _first_mismatch(recorded_controller, rebuilt_controller)
     commands = sorted(r["device_time_start_us"] for r in records if r["record_type"] == "EVENT"
                       and any(f in (EVENT_KIND_FLAG + "HAPTIC_COMMAND", EVENT_KIND_FLAG + "HAPTIC_COMMAND_SHAM") for f in r["status_flags"]))
     replay_cues = sorted(t for ev in replayed for t in ev.cues_device_us)
-    divergence = None
-    for i in range(max(len(recorded_evals), len(rederived))):
-        a = recorded_evals[i] if i < len(recorded_evals) else None
-        b = rederived[i] if i < len(rederived) else None
-        if a != b:
-            divergence = {"index": i, "decision_time_us": (a or b or {}).get("decision_time_us"),
-                          "fields": sorted(k for k in set(a or {}) | set(b or {}) if (a or {}).get(k) != (b or {}).get(k))}
-            break
     commands_match = commands == replay_cues
     check("decisions_replayed", divergence is None and commands_match,
-          {"evaluations": len(rederived), "decisions": [r["decision_id"] for r in rederived if "decision_id" in r],
+          {"evaluations": len(replayed), "decisions": [ev.decision_id for ev in replayed if ev.decision_id],
            "cue_commands": len(replay_cues), "commands_match": commands_match, "first_divergence": divergence})
 
-    if not integrity_ok or not checks["analysis_rederived"]["passed"] or not checks["lineage_on_recorded_samples"]["passed"] \
-            or not checks["execution_chains"]["passed"] or not checks.get("ledger_rederived", {"passed": True})["passed"]:
+    if not structural_ok:
         status = "EVIDENCE_INTEGRITY_FAILURE"
     elif not checks["pipeline_source_matches"]["passed"]:
         status = "VERSION_MISMATCH"
+    elif not checks["analysis_rederived"]["passed"] or mismatch is not None or not ledger_ok:
+        status = "EVIDENCE_INTEGRITY_FAILURE"
     elif violations:
         status = "TIMING_VIOLATION"
     elif divergence is not None or not commands_match:

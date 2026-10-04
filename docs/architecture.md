@@ -120,7 +120,8 @@ infer      windows and controller features with lineage        DERIVED, MODEL_IN
 decide     evaluation with gate results and decision time      MODEL_RESULT (decision_id)
 intervene  firmware command                                    EVENT: HAPTIC_COMMAND
 observe    electrical onset; independent IMU observation       EVENT (TLV3201 edge); EVENT, DERIVED from IMU
-verify     replay from raw, temporal check, execution chain    audit replay status
+verify     every derived record rebuilt from raw, decisions     audit replay status
+           replayed, temporal check, execution chain
 ```
 
 A decision, a command, a physical actuation, an observed effect, and an interpretation are different things and are recorded as different things. A command is not evidence that a motor moved; an electrical edge is not evidence the vibration reached the body; nothing in a session asserts that physiology changed. Effect claims require matched controls. See [closed-loop evidence](closed-loop-evidence.md).

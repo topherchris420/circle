@@ -42,6 +42,26 @@
    "holds_by_reason": {},
    "passed": true
   },
+  "interrupted@7": {
+   "decisions": [
+    [
+     175.0,
+     "START_PACED_BREATHING"
+    ],
+    [
+     295.0,
+     "STOP_RELEASED"
+    ]
+   ],
+   "failed_checks": [],
+   "holds_by_reason": {
+    "BEAT_COVERAGE_LOW": 5,
+    "EVIDENCE_GAP": 4,
+    "MOTION_AT_CUTOFF": 3,
+    "MOTION_EXCESSIVE": 5
+   },
+   "passed": true
+  },
   "motion_heavy@7": {
    "decisions": [],
    "failed_checks": [],

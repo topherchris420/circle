@@ -143,8 +143,12 @@ def _why(evaluations: list[dict[str, Any]], i: int, config: dict[str, Any]) -> s
         parts = [f"arousal index {', '.join(f'{x:.2f}' for x in run)} >= trigger {config['trigger_index']:.2f} "
                  f"for {needed} consecutive evaluations",
                  _agreement(ev, config),
-                 "all quality gates passed",
-                 f"inputs taken <= {ev['input_cutoff_us']} us, decided at {ev['decision_time_us']} us"]
+                 "all quality gates passed"]
+        clean = ev["features"].get("clean_since_s")
+        if clean is not None:
+            parts.append(f"the full {config['feature_window_s']:.0f} s evidence window was free of impairment "
+                         f"(clean for {clean:.1f} s)")
+        parts.append(f"inputs taken <= {ev['input_cutoff_us']} us, decided at {ev['decision_time_us']} us")
         return "; ".join(parts)
     if action == "STOP_RELEASED":
         return (f"after >= {config['min_program_s']:.0f} s of guidance, arousal index fell below release "

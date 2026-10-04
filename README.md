@@ -40,7 +40,7 @@ About ten seconds later you have a six-minute closed-loop session (rest, breath 
 SESSION:          TWIN-CLEAN-S7-ACTIVE
 MODE:             SIMULATED
 HARDWARE:         Rev B forward model (no hardware built)
-CONTROLLER:       1.1.0
+CONTROLLER:       1.2.0
 INPUT:            4 streams (imu, ppg, eda, sync)
 GAPS:             1 declared
 EVALUATIONS:      59 (2 decisions, 9 failed a quality gate, 0 held an action)
@@ -68,7 +68,7 @@ Under known simulated truth, the software's measurement, timing, decision, and e
 | PPG timestamps across a FIFO overflow | worst 39 µs (spec ≤ 1 ms); loss declared exactly |
 | Haptic command → IMU-observed vibration | within 3 ms of truth |
 
-999 of 1000 checks pass; the failure (seed 147, SCR sensitivity) is retained and explained in [the pipeline methods](docs/physiology-pipeline.md). Adversarial scenarios on never-examined seeds 500–529: **199/210 runs pass**; all 11 failures are one documented limitation (after long motion, the controller acts on a lagging proxy of a resolving state). See [closed-loop evidence](docs/closed-loop-evidence.md).
+999 of 1000 checks pass; the failure (seed 147, SCR sensitivity) is retained and explained in [the pipeline methods](docs/physiology-pipeline.md). The adversarial suite is evaluated on seeds never examined during development; each held-out round so far has exposed a controller defect, fixed on principle and re-evaluated on fresh seeds. The last one (controller 1.1.0, seeds 500–529, 199/210) was the loop starting guidance on the lagging tail of a state that had resolved during 45 s of motion; controller 1.2.0 holds instead until a full evidence window has been observed clean. See [closed-loop evidence](docs/closed-loop-evidence.md) and [`scenario-benchmark.json`](docs/scenario-benchmark.json) for the current confirmatory round.
 
 ### What it does not prove
 
@@ -80,9 +80,11 @@ Hardware safety, electrical performance, physiological accuracy, or any effect o
 
 - **Decision ≠ command ≠ actuation ≠ effect ≠ interpretation.** Each is a different record. Every cue earns an execution stage (`COMMAND_ONLY` → `ELECTRICAL_ONSET_OBSERVED` → `PHYSICALLY_OBSERVED`) only from its own evidence; the contract rejects a stage the evidence does not earn. No record asserts that physiology changed.
 - **Every decision obeys time.** Each sample carries when it was taken and when firmware held it in memory. Decisions record `decision_time_us` and `input_cutoff_us`; the audit fails any decision that used evidence from its future, whatever produced it.
+- **The auditor rebuilds the whole session.** Every record that is not a device record (clock mapping, physiology windows, baseline, evaluations, IMU-observed onsets, interventions) is a pure function of the raw bundle and the device events, so the auditor re-derives all of them and requires a bit-for-bit match. A forged window, observation, intervention stage, or clock mapping fails even when its CRC, the ledger, and the manifest were rewritten consistently.
 - **Replay has an explicit status:** `REPLAY_MATCH`, `REPLAY_DIVERGENCE`, `TIMING_VIOLATION`, `VERSION_MISMATCH`, `EVIDENCE_INTEGRITY_FAILURE`, `MISSING_SOURCE`, or `INSUFFICIENT_EVIDENCE`. Divergence is surfaced, never reconciled.
 - **Quality gates have teeth.** Stale data, saturation, electrode contact loss, optical coupling change, low beat coverage, motion (including at the cutoff), and single-system signals all produce recorded holds. A loop that cannot observe its effect stops.
-- **The twin tries to break the loop:** motion, poor contact, timing faults, sensor loss, feedback artifact, and ambiguous physiology, judged against hidden truth rather than the controller's own gates.
+- **Sustained means observed.** After any impairment, the controller must see a full 40 s evidence window clean before it may call a state sustained and start guidance (`HOLD_EVIDENCE_GAP`). The first adequate evaluations after a blind spell cannot tell a sustained state from the lagging tail of one that resolved unseen.
+- **The twin tries to break the loop both ways:** motion, poor contact, timing faults, sensor loss, feedback artifact, and ambiguous physiology try to make it act when it should not; a warranted state briefly obscured by motion tries to make it fail to act when it should. All are judged against hidden truth rather than the controller's own gates.
 - **Provenance classes** stay distinct: `RAW_MEASURED`, `DERIVED`, `MODEL_INFERRED`, `SIMULATED`, `TEST`, `INTERVENTION` ([`contracts/session-record.schema.json`](contracts/session-record.schema.json)). CRC-32C and SHA-256 detect accidental change; they are not authentication.
 
 ```bash

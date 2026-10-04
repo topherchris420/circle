@@ -21,7 +21,7 @@ python tools/run_physiology_twin.py --benchmark 50
 # Matched arms: decisions logged, cues never actuated
 python tools/run_physiology_twin.py --sham --output outputs/physiology-sham
 
-# Adversarial scenarios judged against hidden truth (seven families)
+# Adversarial scenarios judged against hidden truth (eight families, two-sided)
 python tools/run_physiology_twin.py --scenarios
 python tools/run_physiology_twin.py --scenario poor_contact --output outputs/poor-contact --audit
 ```
@@ -102,7 +102,8 @@ Every 5 s (device clock) the controller reads samples from the 40 s window endin
 
 - **Arousal index** = 0.45 z(HR) + 0.35 z(SCL) + 0.20 z(SCR rate), with z-scores against the rest phase and conservative SD floors. It is an engineering trigger, not a psychological measure.
 - **Quality gates** (explicit reasons, recorded on every evaluation): fresh data on every stream, no ADC saturation, electrode contact, stable optical coupling, beat coverage ≥ 70 %, motion ≤ 20 % of the window and none in the final 3 s, all features present. A failure while armed is a `HOLD_QUALITY`.
-- **Agreement**: cardiovascular (HR z ≥ 2) and electrodermal (SCL z ≥ 2) systems must both agree to trigger; otherwise `HOLD_SIGNALS_DISAGREE`. A hold breaks the trigger streak.
+- **Sustained means observed**: every evaluation records `clean_since_s`, the time since the latest impaired instant inside the full 40 s window (motion, contact below the floor, received light outside the baseline band, saturation, or a stale gap). An index above the trigger over a window that has not been clean for its full length is a `HOLD_EVIDENCE_GAP`, not a start: after a blind spell, the lagging tonic level of a state that already resolved looks like a sustained one. The rule governs starting only; continuing a program needs only the gates.
+- **Agreement**: cardiovascular (HR z ≥ 2) and electrodermal (SCL z ≥ 2) systems must both agree to trigger; otherwise `HOLD_SIGNALS_DISAGREE`. Every hold breaks the trigger streak.
 - **Policy**: armed at the recovery marker. Two consecutive indices ≥ 2.0 start paced breathing (one haptic cue every 10 s). After ≥ 60 s, two consecutive indices < 1.0 release it (hysteresis), otherwise it stops at 150 s; three consecutive gate failures stop it early (`STOP_QUALITY_LOST`). A 60 s refractory period follows.
 
 Each evaluation is a pure function of recorded samples, protocol markers logged before it, and the controller's own earlier state. `controller.replay()` re-derives every decision from the exported bundle. The audit requires bit-identical agreement, and a test shows that rewriting samples newer than the decision margin cannot change a decision.
@@ -132,15 +133,16 @@ Every record carries `SIMULATED`, `DERIVED`, `MODEL_INFERRED`, or `INTERVENTION`
 3. Raw file contents match the hashes bound in the stream descriptors.
 4. Recorded model artifact ids match the current analysis source code.
 5. The full pipeline re-run on `raw/` reproduces `analysis.json` exactly.
-6. Replaying the controller reproduces every evaluation record and cue command.
-7. Every source range lies on recorded samples and never spans a gap.
-8. Every decision cites only samples taken before its input cutoff and available at its decision time.
-9. Every intervention's execution chain resolves to events of the right kind, in causal order, with an IMU-derived physical observation, one link per command, and a recorded decision.
-10. The closed-loop ledger rebuilds exactly from the session records.
+6. Replaying the controller reproduces its baseline record, every evaluation record, and every cue command.
+7. Every other derived record (clock mapping, physiology windows, IMU-observed physical onsets, interventions) rebuilds bit for bit from the raw bundle and the device-recorded events; the whole `session.ndjson` is re-derived and compared record by record.
+8. Every source range lies on recorded samples and never spans a gap.
+9. Every decision cites only samples taken before its input cutoff and available at its decision time.
+10. Every intervention's execution chain resolves to events of the right kind, in causal order, with an IMU-derived physical observation, one link per command, and a recorded decision.
+11. The closed-loop ledger rebuilds exactly from the session records.
 
 The audit reports one explicit replay status (`REPLAY_MATCH`, `REPLAY_DIVERGENCE`, `TIMING_VIOLATION`, `VERSION_MISMATCH`, `EVIDENCE_INTEGRITY_FAILURE`, `MISSING_SOURCE`, `INSUFFICIENT_EVIDENCE`) and never reconciles a divergence.
 
-Tests confirm that changing one raw sample, or rewriting a decision's payload with a freshly computed valid CRC, makes the audit fail. CRC-32C and SHA-256 detect accidental or inconsistent change; they are not authentication.
+Tests confirm that changing one raw sample, rewriting a decision's payload with a freshly computed valid CRC, or consistently forging a window, a physical observation, an intervention's execution stage, or the clock mapping (CRC resealed, ledger rebuilt, manifest rehashed) makes the audit fail and name the record. CRC-32C and SHA-256 detect accidental or inconsistent change; they are not authentication.
 
 ## Scoring conventions
 
@@ -190,6 +192,7 @@ The twin surfaced issues that matter for real firmware:
 
 6. **Hold the first FIFO batch until the period is measured.** Before a second almost-full interrupt, firmware knows only the nominal period, so the first batch is stamped with the sensor's oscillator error accumulated over 15 samples. That artifact was the worst timestamp error in every session (0.55 ms at −3500 ppm, 1.39 ms at −9000 ppm, beyond the 1 ms bound). Holding the first batch until the second interrupt measures the period brings the worst case to 39 µs across the held-out seeds (earlier documentation reported 0.56 ms; that number was this startup artifact).
 7. **Light steps look like desaturation.** A change in optical coupling scales both channels together and drives R toward 1, like motion. SpO₂ is now also gated on DC stability across the band-pass filter's support and on pulsatile amplitude well above sensor noise; under a 90 % coupling collapse this removed all 16 false desaturation windows.
+8. **A blind spell poisons the next window.** Gates that judge only the newest evidence pass as soon as the newest evidence is clean, but the slowest feature in the index (tonic skin conductance, ~25 s recovery) still reports the state from before the gap. On 11 of 30 held-out seeds the controller started guidance 45 s after a motion episode, on a state that had resolved during it. Any closed-loop firmware needs a memory of impairment that is as long as the window its features depend on, not just a check on the latest samples. The controller now records `clean_since_s` and will not start until the whole window has been observed clean.
 
 ## Limitations
 

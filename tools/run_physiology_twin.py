@@ -161,7 +161,24 @@ def scenario_suite(names: list[str], seeds: list[int]) -> dict:
                   f"decisions {result['decisions'] or 'none'}  holds {result['holds_by_reason'] or 'none'}", flush=True)
     return {"provenance": "SIMULATED", "note": "System-level checks judged against twin truth; not evidence of hardware "
             "or human behavior.", "scenarios": {n: SCENARIOS[n].tests for n in names}, "seeds": seeds,
+            "controller_version": CONTROLLER_VERSION, "pipeline_source": source_digest(),
+            "runs": len(results), "runs_passed": sum(r["passed"] for r in results),
+            "by_scenario": scenario_summary(results),
             "results": results, "all_passed": all(r["passed"] for r in results)}
+
+
+def scenario_summary(results: list[dict]) -> dict:
+    """Per-scenario pass counts with every failure retained: seed, failed checks, their details, and the decisions."""
+    summary: dict[str, dict] = {}
+    for r in results:
+        entry = summary.setdefault(r["scenario"], {"runs": 0, "passed": 0, "failures": []})
+        entry["runs"] += 1
+        entry["passed"] += int(r["passed"])
+        if not r["passed"]:
+            entry["failures"].append({"seed": r["seed"], "failed_checks": [c["id"] for c in r["checks"] if not c["passed"]],
+                                      "details": {c["id"]: c["detail"] for c in r["checks"] if not c["passed"]},
+                                      "decisions": [list(d) for d in r["decisions"]]})
+    return dict(sorted(summary.items()))
 
 
 def corpus(result: dict) -> dict:
@@ -191,6 +208,9 @@ def main(argv: list[str] | None = None) -> int:
                         help="Run the adversarial scenario suite (all scenarios if no names) and write scenarios.json")
     parser.add_argument("--scenario-seeds", type=int, nargs="+", default=[7], help="Seeds for --scenarios")
     parser.add_argument("--corpus", type=Path, help="With --scenarios: also write the compact regression corpus here")
+    parser.add_argument("--summary", type=Path,
+                        help="With --scenarios: also write the per-scenario summary (failures retained) here, e.g. for docs/")
+    parser.add_argument("--summary-note", default="", help="With --summary: a note recording what the seeds are and why")
     args = parser.parse_args(argv)
     started = time.perf_counter()
     try:
@@ -205,6 +225,17 @@ def main(argv: list[str] | None = None) -> int:
             if args.corpus:
                 args.corpus.parent.mkdir(parents=True, exist_ok=True)
                 args.corpus.write_bytes(dumps(corpus(result)))
+            if args.summary:
+                seeds = args.scenario_seeds
+                compact = (f"{seeds[0]}..{seeds[-1]}" if seeds == list(range(seeds[0], seeds[-1] + 1)) else
+                           " ".join(map(str, seeds)))
+                args.summary.parent.mkdir(parents=True, exist_ok=True)
+                args.summary.write_bytes(dumps({
+                    "provenance": "SIMULATED",
+                    "generated_by": f"python tools/run_physiology_twin.py --scenarios --scenario-seeds {compact}",
+                    "controller_version": result["controller_version"], "pipeline_source": result["pipeline_source"],
+                    "note": args.summary_note, "seeds": result["seeds"], "runs": result["runs"],
+                    "runs_passed": result["runs_passed"], "by_scenario": result["by_scenario"]}))
             passed = sum(r["passed"] for r in result["results"])
             print(f"Scenario suite: {passed}/{len(result['results'])} runs passed every system check")
             return 0 if result["all_passed"] else 1

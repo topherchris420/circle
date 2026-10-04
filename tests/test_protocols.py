@@ -7,7 +7,8 @@ import unittest
 
 import numpy as np
 
-from models.protocols import ProtocolError, authorize, execute, holm, sign_flip_p, validate
+from models.physiology.controller import CONTROLLER_VERSION, ControllerConfig
+from models.protocols import ProtocolError, authorize, controller_config, execute, holm, sign_flip_p, validate
 
 ROOT = Path(__file__).resolve().parents[1]
 EXAMPLE = json.loads((ROOT / "experiments/protocols/paced-breathing-arousal.json").read_text(encoding="utf-8"))
@@ -84,6 +85,13 @@ class AuthorizationBoundaryTest(unittest.TestCase):
         self.assertEqual(test["n_pairs"], 2)
         self.assertGreaterEqual(test["p_value"], 0.25, "two pairs can never reach significance")
         self.assertIn("assumed response model", result["interpretation"])
+        self.assertEqual(result["controller_version"], CONTROLLER_VERSION)
+        self.assertTrue(result["pipeline_source"].startswith("sha256:"))
+
+    def test_protocol_keeps_the_scenario_arming_but_tightens_its_gates(self):
+        config = controller_config(variant(quality_gates={"max_motion_fraction": 0.1}), ControllerConfig(arm_phase="STRESSOR"))
+        self.assertEqual(config.arm_phase, "STRESSOR")
+        self.assertEqual(config.max_motion_fraction, 0.1)
 
 
 class StatisticsTest(unittest.TestCase):
