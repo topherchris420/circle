@@ -57,5 +57,10 @@ class DiagramTests(unittest.TestCase):
         self.assertTrue(html_path.exists())
         self.assertIn("ENGINEERING REVIEW ONLY", html_path.read_text(encoding="utf-8"))
 
+    def test_hardware_animation_exists_and_warns(self):
+        text = (ROOT / "diagrams" / "circle-hardware-animation.html").read_text(encoding="utf-8")
+        for term in ("ENGINEERING REVIEW ONLY", "Designed, not built.", "BAT_HUMAN", "LAB_ISO", "ISOW7742", "no chamber exists"):
+            self.assertIn(term, text)
+
 if __name__ == "__main__":
     unittest.main()

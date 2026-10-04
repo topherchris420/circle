@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIRCLE Rev B Hardware Animation</title>
+<meta name="description" content="ENGINEERING REVIEW ONLY. 24 s animation of CIRCLE Rev B intended hardware: board placement, closed loop, isolation boundary, resonance architecture. Designed, not built.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caprasimo:wght@400&family=Figtree:wght@400;600;700&display=swap">
+<style>
+  /* Organic design-system tokens (cream ground, terracotta + sage accents). */
+  :root {
+    --bg: #f5ead8; --text: #201e1d; --accent: #c67139; --accent-600: #b2622d; --accent-700: #8c491a;
+    --n100: #f9f4ed; --n300: #dcd3c4; --n400: #c0b6a5; --n700: #645c50;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font-family: "Figtree", system-ui, sans-serif; }
+  #app { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; }
+  #viewport { flex: 1; width: 100%; min-height: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  #stage {
+    position: relative; width: 1920px; height: 1080px; flex-shrink: 0; overflow: hidden;
+    background: var(--bg); border-radius: 28px; box-shadow: 0 12px 32px rgba(46,43,37,0.22);
+    transform-origin: center;
+  }
+  #bar { width: 100%; max-width: 960px; height: 64px; padding: 0 16px; display: flex; align-items: center; gap: 14px; }
+  #bar button {
+    width: 40px; height: 40px; flex-shrink: 0; border: 0; border-radius: 999px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; background: var(--accent); color: var(--n100);
+  }
+  #bar button:hover { background: var(--accent-600); }
+  #bar button:active { background: var(--accent-700); }
+  #bar button.ghost { background: transparent; color: var(--n700); }
+  #bar button.ghost:hover { background: var(--n300); }
+  #bar button:focus-visible, #track:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  #track { position: relative; flex: 1; height: 28px; cursor: pointer; touch-action: none; border-radius: 999px; }
+  #track::before { content: ""; position: absolute; left: 0; right: 0; top: 11px; height: 6px; border-radius: 999px; background: var(--n300); }
+  #fill { position: absolute; left: 0; top: 11px; height: 6px; border-radius: 999px; background: var(--accent); }
+  #knob { position: absolute; top: 5px; width: 18px; height: 18px; margin-left: -9px; border-radius: 999px; background: var(--n100); border: 3px solid var(--accent); }
+  #clock { font: 600 14px "Figtree", system-ui, sans-serif; font-variant-numeric: tabular-nums; color: var(--n700); min-width: 92px; text-align: right; }
+</style>
+</head>
+<body>
+<!--
+  ENGINEERING REVIEW ONLY. Shows intended geometry and concepts; displays no telemetry and nothing simulated or measured.
+  Geometry from hardware/reports/pos/circle-main-pos.csv and circle-ppg-pos.csv (KiCad 10.0.5) and
+  diagrams/circle-3d-viewer.html (board split 0-67.5 / slot / 74.5-85 mm). Resonance chapter follows
+  docs/resonance-architecture.md and diagrams/resonance-architecture.svg.
+  URL parameters: ?labels=0 hides part labels, ?trail=0 hides the evidence trail, ?explode=60..220 sets the
+  layer spread (px), ?t=12 starts at a time in seconds, ?paused=1 starts paused.
+  Keys: space play/pause, left/right seek 0.1 s (shift: 1 s), 0 or Home restart.
+-->
+<div id="app">
+  <div id="viewport"><div id="stage" role="img" aria-label="CIRCLE Rev B hardware animation: the board assembles, a pulse walks the closed loop, the board explodes into isolated domains, and the resonance architecture is drawn. Designed, not built."></div></div>
+  <div id="bar">
+    <button id="play" type="button" aria-label="Pause"></button>
+    <button id="restart" class="ghost" type="button" aria-label="Restart">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+    </button>
+    <div id="track" tabindex="0" role="slider" aria-label="Playhead" aria-valuemin="0" aria-valuemax="24"><div id="fill"></div><div id="knob"></div></div>
+    <div id="clock">0.0 / 24.0 s</div>
+  </div>
+</div>
+<script>
+(() => {
+'use strict';
+
+// ── Tiny element builder + patcher ──────────────────────────────────────────
+// The scene is described every frame as a tree of h() nodes and patched onto
+// the live DOM, so the choreography reads as plain functions of time T.
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const SVG_TAGS = new Set(['svg', 'g', 'circle', 'path', 'line', 'polygon', 'text']);
+const UNITLESS = new Set(['opacity', 'zIndex', 'lineHeight', 'fontWeight', 'flex']);
+const CAMEL_ATTRS = new Set(['pathLength', 'viewBox']);
+
+function h(tag, props, ...children) {
+  const kids = [];
+  const add = c => { if (Array.isArray(c)) c.forEach(add); else if (c != null && c !== false) kids.push(c); };
+  add(children);
+  return { tag, props: props || {}, kids };
+}
+
+function styleText(st) {
+  let out = '';
+  for (const k in st) {
+    const v = st[k];
+    if (v == null) continue;
+    const name = k.replace(/[A-Z]/g, m => '-' + m.toLowerCase());
+    out += name + ':' + (typeof v === 'number' && !UNITLESS.has(k) ? v + 'px' : v) + ';';
+  }
+  return out;
+}
+
+function attrName(k, svg) {
+  if (!svg || CAMEL_ATTRS.has(k) || k.startsWith('data-')) return k;
+  return k.replace(/[A-Z]/g, m => '-' + m.toLowerCase());
+}
+
+function create(v) {
+  if (typeof v !== 'object') return document.createTextNode(String(v));
+  const el = SVG_TAGS.has(v.tag) ? document.createElementNS(SVG_NS, v.tag) : document.createElement(v.tag);
+  el.__props = {};
+  patchProps(el, v.props);
+  v.kids.forEach(k => el.appendChild(create(k)));
+  return el;
+}
+
+function patchProps(el, props) {
+  const svg = el.namespaceURI === SVG_NS, old = el.__props;
+  for (const k in old) if (!(k in props) || props[k] == null) el.removeAttribute(k === 'style' ? 'style' : attrName(k, svg));
+  const next = {};
+  for (const k in props) {
+    let v = props[k];
+    if (v == null) continue;
+    if (k === 'style') v = styleText(v);
+    v = String(v);
+    next[k] = v;
+    if (old[k] !== v) el.setAttribute(k === 'style' ? 'style' : attrName(k, svg), v);
+  }
+  el.__props = next;
+}
+
+function patch(parent, el, v) {
+  const isText = typeof v !== 'object';
+  if (!el || (isText ? el.nodeType !== 3 : (el.nodeType !== 1 || el.localName !== v.tag))) {
+    const fresh = create(v);
+    if (el) parent.replaceChild(fresh, el); else parent.appendChild(fresh);
+    return;
+  }
+  if (isText) { if (el.data !== String(v)) el.data = String(v); return; }
+  patchProps(el, v.props);
+  const kids = el.childNodes;
+  v.kids.forEach((k, i) => patch(el, kids[i], k));
+  while (kids.length > v.kids.length) el.removeChild(el.lastChild);
+}
+
+// ── Motion helpers ──────────────────────────────────────────────────────────
+const Easing = {
+  linear: t => t,
+  easeOutCubic: t => (--t) * t * t + 1,
+  easeInOutCubic: t => (t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1),
+  easeOutBack: t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); },
+};
+const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+const MOTION = { enter: Easing.easeOutCubic, draw: Easing.easeInOutCubic, pop: Easing.easeOutBack };
+function tw(T, a, b, from, to, e) {
+  const u = clamp((T - a) / Math.max(b - a, 1e-4), 0, 1);
+  return from + (to - from) * (e || MOTION.draw)(u);
+}
+function bump(T, a, b, f) { f = f || 0.18; return tw(T, a - f, a, 0, 1) * (1 - tw(T, b, b + f, 0, 1)); }
+
+// ── Timeline: six chapters, 24 s ────────────────────────────────────────────
+const SCENES = [
+  ['Opening', 2.5],   // title card: CIRCLE Rev B, designed not built
+  ['Board', 4.5],     // circle-main and circle-ppg assemble from KiCad placement data
+  ['Loop', 5],        // a pulse walks sense to verify across the real parts
+  ['Safety', 4],      // board tilts into an exploded stack showing the isolated domains
+  ['Resonance', 6],   // isolated sync to controller, 5-channel drive, chamber, sensed-only subject
+  ['Closing', 2],     // limitations card, then fade to the ground
+];
+const CUES = {};
+let END = 0;
+SCENES.forEach(([name, dur]) => { CUES[name] = END; END += dur; });
+
+// ── Palette: Organic styles.css tokens ──────────────────────────────────────
+const C = {
+  bg: '#f5ead8', surface: '#ebddc5', text: '#201e1d',
+  n100: '#f9f4ed', n200: '#eee7db', n300: '#dcd3c4', n400: '#c0b6a5', n500: '#a19786', n600: '#82796a', n700: '#645c50', n800: '#474238', n900: '#2e2b25',
+  a100: '#fff2eb', a200: '#ffe1d0', a300: '#ffc6a5', a400: '#f6a06b', a500: '#d67f48', a600: '#b2622d', a700: '#8c491a', a800: '#643312', accent: '#c67139',
+  s100: '#f0fae1', s200: '#e1eecc', s300: '#ccdbb2', s400: '#aebf92', s500: '#8fa073', s600: '#728157', s700: '#56633f', s800: '#3d472b', s900: '#272e1b', sage: '#7a8a5e',
+};
+const FH = '"Caprasimo", system-ui, sans-serif';
+const FB = '"Figtree", system-ui, sans-serif';
+const SH = { sm: '0 1px 2px rgba(46,43,37,0.14)', md: '0 3px 10px rgba(46,43,37,0.16)', lg: '0 12px 32px rgba(46,43,37,0.22)' };
+
+// ── Board geometry ──────────────────────────────────────────────────────────
+const S = 9; // px per mm
+const BW = 85, BH = 55, CX = BW * S / 2, CY = BH * S / 2;
+const PX0 = -36, PY0 = 16; // circle-ppg origin in circle-main mm (shown beside the main board)
+
+// [ref, x_mm, y_mm, w_mm, h_mm, kind] — positions from circle-main-pos.csv (in × 25.4).
+// A few placeholder packages are drawn at plausible real sizes so parts don't overlap.
+const MAIN = [
+  ['D1', 10, 16, 3, 3, 'ic'], ['D20', 47, 42, 3, 3, 'ic'], ['D21', 59, 42, 3, 3, 'ic'], ['D30', 78, 48, 3, 2.5, 'ic'],
+  ['F1', 14, 20, 2, 1.3, 'pass'], ['J1', 5, 27.5, 7.4, 9, 'metal'], ['J2', 12, 7, 8, 4.5, 'conn'], ['J10', 6, 46, 4.5, 10, 'conn'],
+  ['J11', 11, 40, 5, 2.5, 'conn'], ['J20', 45, 48, 13, 4.5, 'conn'], ['J21', 60, 48, 20, 2.5, 'conn'],
+  ['J30', 80, 14, 14, 12, 'metal'], ['J31', 80, 41, 14, 12, 'metal'],
+  ['J40', 36, 7, 7.6, 2.5, 'conn'], ['J41', 44, 7, 10, 2.5, 'conn'], ['J42', 53, 7, 12.7, 2.5, 'conn'],
+  ...[11.2, 14.4, 17.6, 20.8, 24, 27.2].map((x, i) => ['JP' + (i + 1), x, 38, 1.6, 0.8, 'pass']),
+  ...[11.2, 14.4, 17.6, 20.8, 24, 27.2].map((x, i) => ['RSH' + (i + 1), x, 34, 1.6, 0.8, 'pass']),
+  ['K1', 16, 44, 4.4, 4, 'ic'], ['K2', 22, 44, 4.4, 4, 'ic'], ['L1', 24, 28, 4, 4, 'ind'],
+  ['Q1', 20, 8, 3, 3, 'ic'], ['Q2', 25, 8, 3, 3, 'ic'], ['Q3', 30, 8, 3, 3, 'ic'], ['Q4', 20, 13, 3, 3, 'ic'], ['Q5', 30, 13, 3, 3, 'ic'], ['Q7', 30, 18, 3, 3, 'ic'],
+  ['Q30', 78, 32, 3, 2.5, 'ic'],
+  ...[24.2, 26.4, 28.6, 30.8].map((y, i) => ['R' + (i + 1), 10, y, 1.6, 0.8, 'pass']),
+  ...[8.4, 10.8, 13.2, 15.6, 18, 20.4].map((y, i) => ['RSD' + (i + 1), 64, y, 1.6, 0.8, 'pass']),
+  ['R_EDA_A1', 13.5, 49, 1.6, 0.8, 'pass'], ['R_EDA_A2', 17.5, 49, 1.6, 0.8, 'pass'], ['R_EDA_B1', 21.5, 49, 1.6, 0.8, 'pass'], ['R_EDA_B2', 25.5, 49, 1.6, 0.8, 'pass'],
+  ['S1', 35, 14, 1.6, 0.8, 'pass'], ['S2', 35, 18, 1.6, 0.8, 'pass'], ['S20', 58, 36, 1.6, 0.8, 'pass'],
+  ...[8, 11.6, 15.2, 18.8, 22.4, 26, 29.6, 33.2].map((x, i) => ['TP' + (i + 1), x, 3.5, 1.5, 1.5, 'tp']),
+  ...[44, 46.6, 49.2, 51.8, 54.4, 57, 59.6, 62.2].map((x, i) => ['TP' + (i + 9), x, 52.5, 1.5, 1.5, 'tp']),
+  ['U2', 18, 18, 3, 3, 'ic'], ['U3', 18, 28, 3, 2.5, 'ic'], ['U4', 25, 14, 3, 3, 'ic'], ['U5', 25, 20, 3, 3, 'ic'],
+  ['U6', 35, 32, 5.5, 17.9, 'ic'], ['U1', 46, 24, 18, 25.5, 'module'],
+  ['U10', 29, 44, 3.9, 9.9, 'ic'], ['U11', 35, 44, 3.9, 4.9, 'ic'], ['U12', 41, 44, 3.9, 4.9, 'ic'],
+  ['U13', 29.5, 50, 3, 3, 'ic'], ['U14', 34.5, 50, 3, 3, 'ic'], ['U15', 39, 50, 3, 3, 'ic'],
+  ['U20', 58, 14, 4, 4, 'ic'], ['U30', 71, 27.5, 7.5, 10.3, 'ic'], ['U31', 78, 22, 3, 3, 'ic'],
+  ['U40', 58, 22, 3.9, 4.9, 'ic'], ['U41', 58, 28, 3, 3, 'ic'],
+];
+// circle-ppg-pos.csv, local mm on the 25 × 18 mm head
+const PPG = [
+  ['D101', 5.5, 3.5, 1.4, 0.8, 'pass'], ['C101', 9, 3.5, 1.4, 0.8, 'pass'], ['C102', 12, 3.5, 1.4, 0.8, 'pass'], ['R101', 17.5, 3.5, 1.4, 0.8, 'pass'], ['R102', 20.5, 3.5, 1.4, 0.8, 'pass'],
+  ['U102', 5.5, 8, 3, 3, 'ic'], ['U101', 12.5, 8, 5.6, 3.3, 'optic'], ['U103', 19.5, 8, 2, 3, 'ic'],
+  ['U105', 5.5, 12.5, 2, 2, 'ic'], ['U104', 19.5, 12.5, 3, 3, 'ic'], ['J101', 12.5, 14.5, 13, 4.5, 'conn'],
+];
+const byRef = {}; MAIN.forEach(p => { byRef[p[0]] = p; });
+const ppgRef = {}; PPG.forEach(p => { ppgRef[p[0]] = p; });
+
+const LOOP_STEPS = ['sense', 'preserve', 'infer', 'decide', 'intervene', 'observe', 'verify'];
+const STEP_T = [0, 0.7, 1.4, 2.1, 2.8, 3.5, 4.3, 5.0];
+const STEP_PARTS = {
+  0: ['U101', 'J20', 'U10', 'J10', 'U20'], 1: ['J21'], 2: ['U1'], 3: ['U1'], 4: ['U40'], 5: ['U41', 'U20'], 6: ['J21', 'U1'],
+};
+
+// ── Building blocks ─────────────────────────────────────────────────────────
+function partStyle(kind, w, h, hl) {
+  const base = { position: 'absolute', boxSizing: 'border-box' };
+  const r = Math.min(w, h) * S;
+  const ring = hl > 0.01 ? `0 0 0 ${3 + 7 * hl}px rgba(198,113,57,${0.6 * hl}), 0 0 ${30 * hl}px rgba(246,160,107,${0.8 * hl})` : 'none';
+  const k = {
+    module: { background: C.n300, border: `3px solid ${C.n400}`, borderRadius: 16 },
+    ic: { background: C.n900, borderRadius: Math.min(8, r * 0.28) },
+    optic: { background: C.n900, borderRadius: 8 },
+    conn: { background: C.n100, border: `2px solid ${C.n400}`, borderRadius: Math.min(10, r * 0.4) },
+    metal: { background: C.n400, border: `2px solid ${C.n500}`, borderRadius: 14 },
+    pass: { background: C.a600, borderRadius: 999 },
+    tp: { background: C.a400, borderRadius: 999 },
+    ind: { background: C.n700, borderRadius: 10 },
+  }[kind];
+  return Object.assign(base, k, { boxShadow: ring });
+}
+
+function Part(p, T, d, hl) {
+  const [ref, x, y, w, ht, kind] = p;
+  const sc = tw(T, d, d + 0.45, 0, 1, MOTION.pop);
+  const op = tw(T, d, d + 0.12, 0, 1);
+  const st = partStyle(kind, w, ht, hl);
+  st.left = (x - w / 2) * S; st.top = (y - ht / 2) * S; st.width = w * S; st.height = ht * S;
+  st.opacity = op; st.transform = `scale(${sc})`;
+  return h('div', { 'data-ref': ref, style: st },
+    kind === 'module' && h('div', { style: { position: 'absolute', left: '12%', right: '12%', top: '30%', bottom: '8%', borderRadius: 10, background: C.n200 } }),
+    kind === 'optic' && h('div', { style: { position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-around' } },
+      h('div', { style: { width: 11, height: 11, borderRadius: 999, background: C.a400 } }),
+      h('div', { style: { width: 13, height: 13, borderRadius: 999, background: C.s400 } })));
+}
+
+function Layer({ lift, tilt, bx, by, w, ht, opacity }, ...children) {
+  return h('div', { style: {
+    position: 'absolute', left: bx - CX, top: by - CY, width: w, height: ht,
+    transformOrigin: `${CX}px ${CY}px`, opacity,
+    transform: `translateY(${-lift}px) scaleY(${1 - 0.45 * tilt}) rotate(${-30 * tilt}deg)`,
+  } }, children);
+}
+
+const PILL_TONES = {
+  light: { background: C.n100, color: C.text, boxShadow: SH.md },
+  sage: { background: C.s700, color: C.n100, boxShadow: SH.md },
+  terra: { background: C.a700, color: C.n100, boxShadow: SH.md },
+  soft: { background: C.s200, color: C.s800, boxShadow: SH.sm },
+};
+function Pill({ x, y, text, tone, op, size }) {
+  return h('div', { style: Object.assign({
+    position: 'absolute', left: x, top: y, transform: `translate(-50%,-50%) scale(${0.9 + 0.1 * op})`, opacity: op,
+    padding: '8px 18px', borderRadius: 999, font: `600 ${size || 24}px ${FB}`, whiteSpace: 'nowrap', letterSpacing: '0.01em',
+  }, PILL_TONES[tone || 'light']) }, text);
+}
+
+const CAPTION_FADE = 0.18;
+function Captions(T, style, items) {
+  let active = null, end = Infinity;
+  for (let i = 0; i < items.length; i++) {
+    if (T < items[i].at) break;
+    active = items[i];
+    end = active.until;
+  }
+  if (!active || T >= end) return null;
+  const o = clamp(Math.min((T - active.at) / CAPTION_FADE, (end - T) / CAPTION_FADE), 0, 1);
+  return h('div', { style: Object.assign({ position: 'absolute', opacity: o, pointerEvents: 'none' }, style) }, active.text);
+}
+
+// ── The piece: everything is a function of T (seconds) ─────────────────────
+function Piece(T, tweaks) {
+  const B = CUES.Board, L = CUES.Loop, Sf = CUES.Safety, R = CUES.Resonance, Cl = CUES.Closing;
+  const explodePx = tweaks.explode;
+
+  // camera
+  const s = 1 + tw(T, B, L, 0, 0.04, Easing.linear) + tw(T, L, L + 1.2, 0, 0.08) + tw(T, L + 1.2, Sf, 0, 0.03, Easing.linear)
+    - tw(T, Sf, Sf + 1.4, 0, 0.2) - tw(T, R - 0.2, R + 1.0, 0, 0.35) + tw(T, R + 1.0, Cl + 0.5, 0, 0.02, Easing.linear);
+  const tx = tw(T, L, L + 1.2, 0, -60) + tw(T, Sf, Sf + 1.4, 0, 60) + tw(T, R - 0.2, R + 1.0, 0, -500);
+  const ty = tw(T, L, L + 1.2, 0, 20) + tw(T, Sf, Sf + 1.4, 0, 10) + tw(T, R - 0.2, R + 1.0, 0, -10);
+
+  const tilt = tw(T, Sf + 0.1, Sf + 1.4, 0, 1);
+  const ex = tw(T, Sf + 0.9, Sf + 2.0, 0, 1) - tw(T, R - 0.1, R + 0.8, 0, 1);
+  const dom = tw(T, Sf + 1.4, Sf + 2.2, 0, 1) * (1 - tw(T, R, R + 0.5, 0, 1));
+  const liftC = ex * explodePx, liftP = ex * explodePx * 1.7, liftBase = -10 * tilt;
+  const BX = 1130, BY = 540 + tw(T, Sf, Sf + 1.4, 0, 60);
+
+  const boardIn = tw(T, B - 0.3, B + 0.7, 0, 1, MOTION.enter);
+  const boardOut = tw(T, Cl - 0.1, Cl + 0.5, 0, 1);
+  const boardOp = boardIn * (1 - boardOut);
+
+  const proj = (xm, ym, lift) => {
+    const dx = xm * S - CX, dy = ym * S - CY, r = -30 * tilt * Math.PI / 180;
+    const rx = dx * Math.cos(r) - dy * Math.sin(r), ry = dx * Math.sin(r) + dy * Math.cos(r);
+    return [BX + rx, BY + ry * (1 - 0.45 * tilt) - lift];
+  };
+  const pm = ref => { const p = byRef[ref]; return proj(p[1], p[2], liftC); };
+  const pp = ref => { const p = ppgRef[ref]; return proj(PX0 + p[1], PY0 + p[2], liftP); };
+
+  // loop highlight per ref
+  const u = T - L;
+  const hlMain = {}, hlPpg = {};
+  Object.keys(STEP_PARTS).forEach(k => {
+    const a = STEP_T[k], b = STEP_T[+k + 1];
+    const v = bump(u, a + 0.05, b - 0.05, 0.15);
+    STEP_PARTS[k].forEach(ref => {
+      if (ref === 'U101') hlPpg[ref] = Math.max(hlPpg[ref] || 0, v);
+      else hlMain[ref] = Math.max(hlMain[ref] || 0, v);
+    });
+  });
+  const activeStep = u < 0 || u >= 5 ? -1 : STEP_T.findIndex((t0, i) => u >= t0 && u < STEP_T[i + 1]);
+  const loopUi = tw(T, L - 0.2, L + 0.3, 0, 1) * (1 - tw(T, Sf - 0.1, Sf + 0.4, 0, 1));
+
+  const delayMain = p => B + 0.45 + (p[1] / 85) * 1.5;
+  const delayPpg = p => B + 0.25 + (p[1] / 25) * 0.5;
+
+  // PCB outline (circle-main): human 0–67.5, slot 67.5–74.5 bridged at both ends, LAB_ISO 74.5–85
+  const pcb = fill => [
+    h('div', { style: { position: 'absolute', left: 0, top: 0, width: 67.5 * S, height: BH * S, background: fill, borderRadius: '28px 0 0 28px' } }),
+    h('div', { style: { position: 'absolute', left: 67.5 * S - 1, top: 0, width: 7 * S + 2, height: 4 * S, background: fill } }),
+    h('div', { style: { position: 'absolute', left: 67.5 * S - 1, top: 51 * S, width: 7 * S + 2, height: 4 * S, background: fill } }),
+    h('div', { style: { position: 'absolute', left: 74.5 * S, top: 0, width: 10.5 * S, height: BH * S, background: fill, borderRadius: '0 28px 28px 0' } }),
+  ];
+  const ppgPcb = fill => h('div', { style: { position: 'absolute', left: PX0 * S, top: PY0 * S, width: 25 * S, height: 18 * S, background: fill, borderRadius: 22 } });
+
+  // labels (Board chapter)
+  const lab = tweaks.labels;
+  const labelOp = i => (lab ? 1 : 0) * tw(T, B + 2.0 + i * 0.16, B + 2.4 + i * 0.16, 0, 1) * (1 - tw(T, L - 0.2, L + 0.2, 0, 1));
+  const LABELS = [
+    { at: () => pp('U101'), off: [0, -150], text: 'MAX30102 · PPG' },
+    { at: () => pm('U2'), off: [-110, -195], text: 'BQ24074 + TPS63070 · power' },
+    { at: () => pm('U1'), off: [40, -260], text: 'ESP32-S3' },
+    { at: () => pm('U20'), off: [210, -170], text: 'ICM-42688-P · IMU' },
+    { at: () => pm('U40'), off: [330, -10], text: 'DRV2605L · haptics' },
+    { at: () => pm('U10'), off: [-80, 165], text: 'ADS1220 · EDA' },
+    { at: () => pm('J21'), off: [150, 130], text: 'microSD' },
+  ];
+
+  // loop dots and evidence trails
+  const trailOn = tweaks.trail;
+  const trailFade = 1 - tw(T, Sf - 0.1, Sf + 0.5, 0, 1);
+  const segs = [
+    [pp('U101'), pp('J101'), 0.05, 0.3], [pm('J20'), pm('U1'), 0.3, 0.62],
+    [pm('U10'), pm('U1'), 0.1, 0.6], [pm('U20'), pm('U1'), 0.15, 0.6],
+    [pm('U1'), pm('J21'), 0.78, 1.3],
+    [pm('U1'), pm('U40'), 2.85, 3.3], [pm('U40'), pm('U41'), 3.55, 3.95],
+    [pm('J21'), pm('U1'), 4.35, 4.8],
+  ];
+  const cableA = pp('J101'), cableB = pm('J20');
+  const cableD = `M${cableA[0]},${cableA[1] + 20} C${cableA[0]},${cableA[1] + 150} ${cableB[0]},${cableB[1] + 140} ${cableB[0]},${cableB[1] + 20}`;
+  const cableDraw = tw(T, B + 1.5, B + 2.3, 0, 1);
+
+  const ripples = (c, a, b, n, max) => {
+    const out = [];
+    for (let i = 0; i < n; i++) {
+      const t0 = a + i * (b - a) / n, k = clamp((u - t0) / ((b - a) / n * 1.6), 0, 1);
+      if (k > 0 && k < 1) out.push(h('circle', { cx: c[0], cy: c[1], r: 20 + max * k, fill: 'none', stroke: C.accent, strokeWidth: 5, opacity: (1 - k) * 0.8 }));
+    }
+    return out;
+  };
+
+  const tag = (c, off, text, a, b, tone) => Pill({ x: c[0] + off[0], y: c[1] + off[1], text, tone: tone || 'soft', op: bump(u, a, b, 0.2), size: 24 });
+
+  // safety labels
+  const sl = i => dom * tw(T, Sf + 1.6 + i * 0.25, Sf + 2.0 + i * 0.25, 0, 1);
+  const slotTop = proj(71, 0, 0), slotLab = [slotTop[0] + 30, slotTop[1] - 70];
+  const isoP = pm('U30'), isoLab = [isoP[0] - 60, isoP[1] - 170];
+
+  // resonance
+  const resIn = tw(T, R - 0.1, R + 0.4, 0, 1) * (1 - tw(T, Cl - 0.1, Cl + 0.4, 0, 1));
+  const r = T - R, PHI = 1.618034;
+  const RC = [1560, 660], RAD = [180, 180 / PHI, 180 / PHI / PHI];
+  const toScr = p => [960 + (p[0] - 960) * s + tx, 540 + (p[1] - 540) * s + ty + 40 * (1 - boardIn)];
+  const bnc = toScr(pm('J31')), ppgS = toScr(pp('U101'));
+  const CTRL = [1180, 330], DDS = [1640, 330], SUBJ = [1100, 900], NOC = [1150, 640];
+  const qb = (p0, c, p1, k) => [0, 1].map(j => (1 - k) * (1 - k) * p0[j] + 2 * (1 - k) * k * c[j] + k * k * p1[j]);
+  const FLOWS = [
+    { p0: [bnc[0] + 30, bnc[1] - 10], c: [bnc[0] + 60, CTRL[1]], p1: [CTRL[0] - 225, CTRL[1]], a: 0.6, b: 1.3, label: 'isolated SYNC (BNC)', lo: [10, -20] },
+    { p0: [CTRL[0] + 225, CTRL[1]], c: [1445, CTRL[1]], p1: [DDS[0] - 155, DDS[1]], a: 1.4, b: 1.8, label: 'trigger sync', lo: [0, -48] },
+    { p0: [RC[0] - RAD[0] * 0.8, RC[1] + RAD[0] * 0.6], c: [1380, SUBJ[1]], p1: [SUBJ[0] + 225, SUBJ[1]], a: 3.4, b: 3.9, label: 'radiated field', lo: [30, -40], dashed: true },
+    { p0: [SUBJ[0] - 225, SUBJ[1]], c: [(SUBJ[0] + ppgS[0]) / 2, 1020], p1: [ppgS[0], ppgS[1] + 60], a: 4.0, b: 4.8, label: 'sense response', lo: [0, 30] },
+  ];
+  const CH = [[RAD[0], -112, C.accent], [RAD[1], -98, C.sage], [RAD[2], -84, C.n700], [40, -66, C.a500], [40, -40, C.s500]];
+  const chEnd = i => { const [rr, ang] = CH[i]; const a = ang * Math.PI / 180; return [RC[0] + rr * Math.cos(a), RC[1] + rr * Math.sin(a)]; };
+  const tri = (rot, up) => [0, 1, 2].map(k => { const a = ((up ? -90 : 90) + k * 120 + rot) * Math.PI / 180; return `${RC[0] + 50 * Math.cos(a)},${RC[1] + 50 * Math.sin(a)}`; }).join(' ');
+  const merk = tw(r, 2.9, 3.4, 0, 1, MOTION.pop);
+  const rdot = p => { const o = p[2]; return h('g', null,
+    h('circle', { cx: p[0], cy: p[1], r: 18, fill: C.a300, opacity: 0.6 * o }),
+    h('circle', { cx: p[0], cy: p[1], r: 8, fill: C.a700, opacity: o })); };
+
+  const chapters = [
+    { a: B + 0.3, b: L, k: '01', t: 'The board' }, { a: L, b: Sf, k: '02', t: 'The loop' },
+    { a: Sf, b: R, k: '03', t: 'The boundary' }, { a: R, b: Cl, k: '04', t: 'Resonance architecture' },
+  ];
+  const openOp = tw(T, 0.1, 0.7, 0, 1, MOTION.enter) * (1 - tw(T, B - 0.35, B + 0.15, 0, 1));
+  const openY = 30 * (1 - tw(T, 0.1, 0.7, 0, 1, MOTION.enter)) - 30 * tw(T, B - 0.35, B + 0.15, 0, 1);
+  const closeIn = tw(T, Cl + 0.3, Cl + 0.9, 0, 1, MOTION.enter), closeOut = tw(T, END - 0.45, END - 0.05, 0, 1);
+  const blobOp = tw(T, 0, 0.6, 0, 1) * (1 - closeOut);
+
+  const layer = (lift, opacity, ...kids) => Layer({ lift, tilt, bx: BX, by: BY, w: BW * S, ht: BH * S, opacity }, ...kids);
+
+  return h('div', { style: { position: 'absolute', inset: 0, background: C.bg, overflow: 'hidden', fontFamily: FB, color: C.text } },
+    h('div', { style: { position: 'absolute', width: 900, height: 900, borderRadius: 999, background: C.s200, left: 1260 - T * 4, top: 560 + T * 2, opacity: blobOp * (0.9 - 0.5 * tw(T, B, B + 1, 0, 1) + 0.5 * tw(T, Cl, Cl + 0.6, 0, 1)) } }),
+    h('div', { style: { position: 'absolute', width: 260, height: 260, borderRadius: 999, background: C.a200, left: 1560 + T * 3, top: 110, opacity: blobOp * (0.9 - 0.6 * tw(T, B, B + 1, 0, 1) + 0.6 * tw(T, Cl, Cl + 0.6, 0, 1)) } }),
+
+    // camera
+    h('div', { style: { position: 'absolute', inset: 0, transformOrigin: '960px 540px', transform: `translate(${tx}px,${ty + 40 * (1 - boardIn)}px) scale(${s})`, opacity: boardOp } },
+      layer(liftBase, tilt, pcb(C.s900)),
+      layer(liftP + liftBase, tilt, ppgPcb(C.s900)),
+      layer(0, 1,
+        pcb(C.s800),
+        h('div', { style: { position: 'absolute', left: 0, top: 0, width: 67.5 * S, height: BH * S, borderRadius: '28px 0 0 28px', background: C.s500, opacity: 0.55 * dom } }),
+        h('div', { style: { position: 'absolute', left: 74.5 * S, top: 0, width: 10.5 * S, height: BH * S, borderRadius: '0 28px 28px 0', background: C.a500, opacity: 0.75 * dom } }),
+        h('div', { style: { position: 'absolute', left: 67.5 * S + 6, top: 4 * S + 6, width: 7 * S - 12, height: 47 * S - 12, borderRadius: 999, border: `4px dashed ${C.a300}`, opacity: dom } })),
+      layer(liftC, 1,
+        h('div', { style: { position: 'absolute', left: -10, top: -10, width: BW * S + 20, height: BH * S + 20, borderRadius: 34, border: `3px dashed ${C.n500}`, background: 'rgba(249,244,237,0.18)', opacity: ex } }),
+        MAIN.map(p => Part(p, T, delayMain(p), hlMain[p[0]] || 0))),
+      layer(liftP, 1,
+        h('div', { style: { position: 'absolute', left: PX0 * S, top: PY0 * S, width: 25 * S, height: 18 * S, borderRadius: 22, background: C.s800, opacity: tw(T, B + 0.1, B + 0.5, 0, 1), transform: `scale(${tw(T, B + 0.1, B + 0.6, 0.8, 1, MOTION.pop)})` } }),
+        PPG.map(p => Part([p[0], PX0 + p[1], PY0 + p[2], p[3], p[4], p[5]], T, delayPpg(p), hlPpg[p[0]] || 0))),
+
+      h('svg', { width: 1920, height: 1080, style: { position: 'absolute', left: 0, top: 0, overflow: 'visible' } },
+        h('path', { d: cableD, fill: 'none', stroke: C.n700, strokeWidth: 7, strokeLinecap: 'round', pathLength: 1, strokeDasharray: 1, strokeDashoffset: 1 - cableDraw }),
+        LABELS.map((l, i) => { const c = l.at(); const o = labelOp(i); return o > 0 ? h('line', { x1: c[0], y1: c[1], x2: c[0] + l.off[0] * (0.3 + 0.7 * o), y2: c[1] + l.off[1] * (0.3 + 0.7 * o), stroke: C.n700, strokeWidth: 3, strokeLinecap: 'round', opacity: o }) : null; }),
+        segs.map(([p, q, a, b]) => {
+          const k = tw(u, a, b, 0, 1); if (u < a) return null;
+          const x = p[0] + (q[0] - p[0]) * k, y = p[1] + (q[1] - p[1]) * k;
+          const dotOp = bump(u, a, b, 0.08);
+          return h('g', null,
+            trailOn && h('line', { x1: p[0], y1: p[1], x2: x, y2: y, stroke: C.a400, strokeWidth: 6, strokeLinecap: 'round', strokeDasharray: '2 12', opacity: 0.85 * trailFade }),
+            h('circle', { cx: x, cy: y, r: 20, fill: C.a300, opacity: 0.6 * dotOp }),
+            h('circle', { cx: x, cy: y, r: 9, fill: C.a700, opacity: dotOp }));
+        }),
+        ripples(pm('U1'), 1.4, 2.1, 3, 150),
+        ripples(pm('U40'), 3.3, 4.2, 3, 120),
+        [[slotTop, slotLab, 1], [isoP, isoLab, 2]].map(([a, b, i]) => h('line', { x1: a[0], y1: a[1], x2: b[0], y2: b[1], stroke: C.n800, strokeWidth: 3, strokeLinecap: 'round', opacity: sl(i) }))),
+
+      LABELS.map((l, i) => { const c = l.at(); return Pill({ x: c[0] + l.off[0], y: c[1] + l.off[1], text: l.text, op: labelOp(i) }); }),
+      tag(pm('U1'), [0, -175], 'decision logged · input cutoff recorded', 2.1, 2.8, 'light'),
+      tag(pm('U20'), [150, -90], 'vibration observed by IMU', 3.65, 4.3, 'soft'),
+      tag(pm('J21'), [120, 90], 'REPLAY_MATCH', 4.5, 5.6, 'sage'),
+      Pill({ x: proj(20, 64, 0)[0], y: proj(20, 64, 0)[1], text: 'BAT_HUMAN · human-connected', tone: 'sage', op: sl(0) }),
+      Pill({ x: proj(84, 66, 0)[0] + 40, y: proj(84, 66, 0)[1], text: 'LAB_ISO · isolated', tone: 'terra', op: sl(1) }),
+      Pill({ x: slotLab[0], y: slotLab[1], text: '8.0 mm slot', op: sl(1) }),
+      Pill({ x: isoLab[0], y: isoLab[1], text: 'ISOW7742 · 5.0 kVrms rated, barrier untested', op: sl(2) })),
+
+    // resonance concept
+    h('svg', { width: 1920, height: 1080, style: { position: 'absolute', left: 0, top: 0, opacity: resIn, overflow: 'visible' } },
+      h('circle', { cx: RC[0], cy: RC[1], r: RAD[0], fill: C.s100, opacity: 0.7 * tw(r, 2.2, 2.8, 0, 1) }),
+      [0, 1, 2].map(i => { const k = ((r - 3.4 - i * 0.6) % 1.8) / 1.8; return r > 3.4 + i * 0.6 && k >= 0 ? h('circle', { cx: RC[0], cy: RC[1], r: RAD[0] + 120 * k, fill: 'none', stroke: C.s400, strokeWidth: 5, opacity: (1 - k) * 0.7 }) : null; }),
+      RAD.map((rr, i) => {
+        const d = tw(r, 2.35 + i * 0.12, 3.05 + i * 0.12, 0, 1);
+        return h('circle', { cx: RC[0], cy: RC[1], r: rr, fill: 'none', stroke: CH[i][2], strokeWidth: 8, strokeLinecap: 'round',
+          pathLength: 1, strokeDasharray: 1, strokeDashoffset: 1 - d, transform: `rotate(${-90 + r * (i % 2 ? -18 : 14)} ${RC[0]} ${RC[1]})` });
+      }),
+      h('g', { opacity: merk > 0 ? 1 : 0, transform: `translate(${RC[0]} ${RC[1]}) scale(${merk}) translate(${-RC[0]} ${-RC[1]})` },
+        h('polygon', { points: tri(r * 26, true), fill: C.a400, stroke: C.a400, strokeWidth: 10, strokeLinejoin: 'round', opacity: 0.9 }),
+        h('polygon', { points: tri(-r * 26, false), fill: C.s400, stroke: C.s400, strokeWidth: 10, strokeLinejoin: 'round', opacity: 0.85 })),
+      CH.map((ch, i) => {
+        const a = 1.95 + i * 0.12, b = a + 0.5, p0 = [DDS[0] - 60 + i * 30, DDS[1] + 24], p1 = chEnd(i), c = [p0[0], (p0[1] + p1[1]) / 2];
+        const k = tw(r, a, b, 0, 1);
+        return h('g', null,
+          h('path', { d: `M${p0[0]},${p0[1]} Q${c[0]},${c[1]} ${p1[0]},${p1[1]}`, fill: 'none', stroke: ch[2], strokeWidth: 4, strokeLinecap: 'round', pathLength: 1, strokeDasharray: 1, strokeDashoffset: 1 - k }),
+          r > a && rdot([...qb(p0, c, p1, k), bump(r, a, b, 0.08)]));
+      }),
+      h('line', { x1: NOC[0] - 230, y1: NOC[1], x2: NOC[0] + 210, y2: NOC[1], stroke: C.n500, strokeWidth: 4, strokeDasharray: '4 12', strokeLinecap: 'round', opacity: tw(r, 4.3, 4.7, 0, 1) }),
+      FLOWS.map(f => {
+        const k = tw(r, f.a, f.b, 0, 1), m = qb(f.p0, f.c, f.p1, 0.5);
+        const stroke = f.dashed ? { strokeDasharray: '3 12', opacity: k } : { pathLength: 1, strokeDasharray: 1, strokeDashoffset: 1 - k, opacity: 1 };
+        return h('g', null,
+          h('path', Object.assign({ d: `M${f.p0[0]},${f.p0[1]} Q${f.c[0]},${f.c[1]} ${f.p1[0]},${f.p1[1]}`, fill: 'none', stroke: C.n700, strokeWidth: 5, strokeLinecap: 'round' }, stroke)),
+          r > f.a && rdot([...qb(f.p0, f.c, f.p1, k), bump(r, f.a, f.b, 0.08)]),
+          h('text', { x: m[0] + f.lo[0], y: m[1] + f.lo[1], textAnchor: 'middle', style: { font: `600 22px ${FB}` }, fill: C.n700, opacity: tw(r, f.a + 0.2, f.a + 0.5, 0, 1) }, f.label));
+      }),
+      r > 4.9 && rdot([...qb(FLOWS[0].p0, FLOWS[0].c, FLOWS[0].p1, 1 - tw(r, 4.9, 5.5, 0, 1)), bump(r, 4.9, 5.5, 0.08)]),
+      h('text', { x: 1720, y: 440, textAnchor: 'start', style: { font: `600 22px ${FB}` }, fill: C.n700, opacity: tw(r, 2.3, 2.7, 0, 1) }, '5 independent channels')),
+    h('div', { style: { opacity: resIn } },
+      Pill({ x: CTRL[0], y: CTRL[1], text: 'Resonance experiment controller', tone: 'light', op: tw(r, 1.1, 1.4, 0, 1) }),
+      Pill({ x: DDS[0], y: DDS[1], text: '5-channel DDS drive', tone: 'terra', op: tw(r, 1.7, 2.0, 0, 1) }),
+      Pill({ x: SUBJ[0], y: SUBJ[1], text: 'Subject / phantom · sensing only', tone: 'sage', op: tw(r, 3.7, 4.0, 0, 1) }),
+      Pill({ x: NOC[0], y: NOC[1], text: '✕  no conductive connection', tone: 'light', op: tw(r, 4.4, 4.7, 0, 1) }),
+      Pill({ x: CTRL[0], y: CTRL[1] + 64, text: 'intervention record → microSD', tone: 'soft', size: 22, op: bump(r, 5.0, 7, 0.2) })),
+    h('div', { style: { position: 'absolute', left: RC[0] - 200, top: 860, width: 400, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: resIn * tw(T, R + 3.0, R + 3.4, 0, 1) } },
+      h('div', { style: { font: `600 28px ${FB}`, color: C.n800, textAlign: 'center', lineHeight: 1.25 } }, '3-sphere φ chamber', h('br'), '300 / 185 / 115 mm'),
+      h('div', { style: { padding: '6px 16px', borderRadius: 999, background: C.a200, color: C.a800, font: `700 22px ${FB}` } }, 'concept, not built')),
+
+    // chapter titles
+    chapters.map(c => {
+      const o = bump(T, c.a + 0.25, c.b - 0.25, 0.25);
+      return o > 0 ? h('div', { style: { position: 'absolute', left: 120, top: 92, display: 'flex', alignItems: 'baseline', gap: 22, opacity: o, transform: `translateY(${12 * (1 - o)}px)` } },
+        h('span', { style: { font: `400 34px ${FH}`, color: C.accent } }, c.k),
+        h('span', { style: { font: `400 64px ${FH}`, color: C.text, letterSpacing: '-0.015em' } }, c.t)) : null;
+    }),
+    Captions(T, { left: 120, top: 186, maxWidth: 1000, textAlign: 'left', font: `500 30px ${FB}`, color: C.n800, lineHeight: 1.35 }, [
+      { at: B + 0.6, until: L - 0.1, text: 'circle-main · 85 × 55 mm, 4-layer. circle-ppg · 25 × 18 mm.' },
+      { at: L + 0.2, until: Sf - 0.1, text: 'Decision, command, actuation and effect are each a separate record.' },
+      { at: Sf + 0.3, until: R - 0.1, text: 'Hardware interlocks are designed to remove electrode drive when USB, debug, or expansion cables are attached.' },
+      { at: R + 0.2, until: R + 2.4, text: 'Resonance chamber driven strictly through isolated LAB_ISO sync interface.' },
+      { at: R + 2.5, until: R + 4.3, text: 'Five independent subsystems: three φ-spaced spheres and a dual-tetrahedron core.' },
+      { at: R + 4.4, until: Cl - 0.1, text: 'The subject is sensed only. Simulation only; no chamber exists.' },
+    ]),
+
+    // loop steps
+    h('div', { style: { position: 'absolute', left: 120, top: 950, display: 'flex', alignItems: 'center', gap: 12, opacity: loopUi } },
+      LOOP_STEPS.map((w, i) => {
+        const st = i === activeStep ? { background: C.a700, color: C.n100, border: `2px solid ${C.a700}` }
+          : (activeStep > i || u >= 5) ? { background: C.s200, color: C.s800, border: `2px solid ${C.s200}` }
+            : { background: 'transparent', color: C.n700, border: `2px solid ${C.n400}` };
+        return [
+          i > 0 && h('span', { style: { font: `600 26px ${FB}`, color: C.n600 } }, '→'),
+          h('span', { style: Object.assign({ padding: '8px 22px', borderRadius: 999, font: `600 26px ${FB}` }, st) }, w),
+        ];
+      })),
+
+    // opening card
+    h('div', { style: { position: 'absolute', left: 120, top: 330, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 22, opacity: openOp, transform: `translateY(${openY}px)` } },
+      h('span', { style: { padding: '8px 20px', borderRadius: 999, background: C.a200, color: C.a800, font: `700 24px ${FB}`, letterSpacing: '0.04em', textTransform: 'uppercase' } }, 'Engineering review only'),
+      h('div', { style: { font: `400 150px ${FH}`, lineHeight: 1.0, letterSpacing: '-0.02em' } }, 'CIRCLE Rev B'),
+      h('div', { style: { font: `500 38px ${FB}`, color: C.n800, maxWidth: 1100 } }, 'An open-source closed-loop biosignal research instrument. Designed, not built.')),
+
+    // closing card
+    h('div', { style: { position: 'absolute', left: 120, top: 330, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 22, maxWidth: 1240, opacity: closeIn * (1 - closeOut), transform: `translateY(${20 * (1 - closeIn)}px)` } },
+      h('div', { style: { font: `400 96px ${FH}`, lineHeight: 1.05, letterSpacing: '-0.02em' } }, 'Designed, not built.'),
+      h('div', { style: { font: `500 34px ${FB}`, color: C.n800, lineHeight: 1.4 } }, 'No hardware has been fabricated, powered, or measured; PCBs are unrouted; no firmware exists. All physiological data in this repository are simulated.'),
+      h('div', { style: { font: `600 28px ${FB}`, color: C.s700, marginTop: 12 } }, 'CIRCLE · Vers3Dynamics')));
+}
+
+// ── Player: fit-to-viewport stage, looping clock, scrub bar ────────────────
+const params = new URLSearchParams(location.search);
+const num = (k, d) => { const v = parseFloat(params.get(k)); return isFinite(v) ? v : d; };
+const tweaks = {
+  labels: params.get('labels') !== '0',
+  trail: params.get('trail') !== '0',
+  explode: clamp(num('explode', 140), 60, 220),
+};
+const reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const stage = document.getElementById('stage');
+const viewport = document.getElementById('viewport');
+const playBtn = document.getElementById('play');
+const track = document.getElementById('track');
+const fill = document.getElementById('fill');
+const knob = document.getElementById('knob');
+const clock = document.getElementById('clock');
+const ICON_PLAY = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2.75" stroke-linejoin="round"><path d="M7 4.5v15l12-7.5z"/></svg>';
+const ICON_PAUSE = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><path d="M8 5v14M16 5v14"/></svg>';
+
+let time = clamp(num('t', 0), 0, END);
+let playing = params.get('paused') !== '1' && !reduceMotion;
+let last = null, dirty = true;
+
+function fit() {
+  const s = Math.min(viewport.clientWidth / 1920, viewport.clientHeight / 1080) * 0.96;
+  stage.style.transform = `scale(${Math.max(0.05, s)})`;
+}
+new ResizeObserver(fit).observe(viewport);
+fit();
+
+function render() {
+  patch(stage, stage.firstChild, Piece(time, tweaks));
+  const pct = (time / END) * 100;
+  fill.style.width = pct + '%';
+  knob.style.left = pct + '%';
+  clock.textContent = `${time.toFixed(1)} / ${END.toFixed(1)} s`;
+  track.setAttribute('aria-valuenow', time.toFixed(1));
+}
+function setPlaying(p) {
+  playing = p;
+  playBtn.innerHTML = p ? ICON_PAUSE : ICON_PLAY;
+  playBtn.setAttribute('aria-label', p ? 'Pause' : 'Play');
+  last = null;
+}
+function seek(t) { time = clamp(t, 0, END); dirty = true; }
+
+function frame(ts) {
+  if (playing) {
+    if (last != null) { time += (ts - last) / 1000; if (time >= END) time %= END; }
+    last = ts;
+    dirty = true;
+  }
+  if (dirty) { render(); dirty = false; }
+  requestAnimationFrame(frame);
+}
+
+playBtn.addEventListener('click', () => setPlaying(!playing));
+document.getElementById('restart').addEventListener('click', () => seek(0));
+const fromPointer = e => { const b = track.getBoundingClientRect(); return ((e.clientX - b.left) / b.width) * END; };
+track.addEventListener('pointerdown', e => { track.setPointerCapture(e.pointerId); setPlaying(false); seek(fromPointer(e)); });
+track.addEventListener('pointermove', e => { if (track.hasPointerCapture(e.pointerId)) seek(fromPointer(e)); });
+window.addEventListener('keydown', e => {
+  if (e.code === 'Space') { if (e.target.closest && e.target.closest('button')) return; e.preventDefault(); setPlaying(!playing); }
+  else if (e.code === 'ArrowLeft') seek(time - (e.shiftKey ? 1 : 0.1));
+  else if (e.code === 'ArrowRight') seek(time + (e.shiftKey ? 1 : 0.1));
+  else if (e.key === '0' || e.code === 'Home') seek(0);
+});
+
+setPlaying(playing);
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
