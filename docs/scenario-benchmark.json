@@ -15,274 +15,14 @@
    "passed": 30,
    "runs": 30
   },
+  "interrupted": {
+   "failures": [],
+   "passed": 30,
+   "runs": 30
+  },
   "motion_heavy": {
-   "failures": [
-    {
-     "decisions": [
-      [
-       305.0,
-       "START_PACED_BREATHING"
-      ],
-      [
-       330.0,
-       "STOP_QUALITY_LOST"
-      ]
-     ],
-     "details": {
-      "no_unwarranted_intervention": [
-       {
-        "latent_arousal": 0.218,
-        "t_s": 304.99
-       }
-      ]
-     },
-     "failed_checks": [
-      "no_unwarranted_intervention"
-     ],
-     "seed": 503
-    },
-    {
-     "decisions": [
-      [
-       305.0,
-       "START_PACED_BREATHING"
-      ],
-      [
-       330.0,
-       "STOP_QUALITY_LOST"
-      ]
-     ],
-     "details": {
-      "no_unwarranted_intervention": [
-       {
-        "latent_arousal": 0.327,
-        "t_s": 304.99
-       }
-      ]
-     },
-     "failed_checks": [
-      "no_unwarranted_intervention"
-     ],
-     "seed": 506
-    },
-    {
-     "decisions": [
-      [
-       305.0,
-       "START_PACED_BREATHING"
-      ],
-      [
-       330.0,
-       "STOP_QUALITY_LOST"
-      ]
-     ],
-     "details": {
-      "no_unwarranted_intervention": [
-       {
-        "latent_arousal": 0.287,
-        "t_s": 304.99
-       }
-      ]
-     },
-     "failed_checks": [
-      "no_unwarranted_intervention"
-     ],
-     "seed": 513
-    },
-    {
-     "decisions": [
-      [
-       305.0,
-       "START_PACED_BREATHING"
-      ],
-      [
-       330.0,
-       "STOP_QUALITY_LOST"
-      ]
-     ],
-     "details": {
-      "no_unwarranted_intervention": [
-       {
-        "latent_arousal": 0.301,
-        "t_s": 304.99
-       }
-      ]
-     },
-     "failed_checks": [
-      "no_unwarranted_intervention"
-     ],
-     "seed": 514
-    },
-    {
-     "decisions": [
-      [
-       305.0,
-       "START_PACED_BREATHING"
-      ],
-      [
-       330.0,
-       "STOP_QUALITY_LOST"
-      ]
-     ],
-     "details": {
-      "no_unwarranted_intervention": [
-       {
-        "latent_arousal": 0.302,
-        "t_s": 304.99
-       }
-      ]
-     },
-     "failed_checks": [
-      "no_unwarranted_intervention"
-     ],
-     "seed": 515
-    },
-    {
-     "decisions": [
-      [
-       305.0,
-       "START_PACED_BREATHING"
-      ],
-      [
-       330.0,
-       "STOP_QUALITY_LOST"
-      ]
-     ],
-     "details": {
-      "no_unwarranted_intervention": [
-       {
-        "latent_arousal": 0.221,
-        "t_s": 304.99
-       }
-      ]
-     },
-     "failed_checks": [
-      "no_unwarranted_intervention"
-     ],
-     "seed": 517
-    },
-    {
-     "decisions": [
-      [
-       305.0,
-       "START_PACED_BREATHING"
-      ],
-      [
-       330.0,
-       "STOP_QUALITY_LOST"
-      ]
-     ],
-     "details": {
-      "no_unwarranted_intervention": [
-       {
-        "latent_arousal": 0.261,
-        "t_s": 304.99
-       }
-      ]
-     },
-     "failed_checks": [
-      "no_unwarranted_intervention"
-     ],
-     "seed": 519
-    },
-    {
-     "decisions": [
-      [
-       305.0,
-       "START_PACED_BREATHING"
-      ],
-      [
-       330.0,
-       "STOP_QUALITY_LOST"
-      ]
-     ],
-     "details": {
-      "no_unwarranted_intervention": [
-       {
-        "latent_arousal": 0.265,
-        "t_s": 304.99
-       }
-      ]
-     },
-     "failed_checks": [
-      "no_unwarranted_intervention"
-     ],
-     "seed": 521
-    },
-    {
-     "decisions": [
-      [
-       305.0,
-       "START_PACED_BREATHING"
-      ],
-      [
-       330.0,
-       "STOP_QUALITY_LOST"
-      ]
-     ],
-     "details": {
-      "no_unwarranted_intervention": [
-       {
-        "latent_arousal": 0.317,
-        "t_s": 304.99
-       }
-      ]
-     },
-     "failed_checks": [
-      "no_unwarranted_intervention"
-     ],
-     "seed": 523
-    },
-    {
-     "decisions": [
-      [
-       305.0,
-       "START_PACED_BREATHING"
-      ],
-      [
-       330.0,
-       "STOP_QUALITY_LOST"
-      ]
-     ],
-     "details": {
-      "no_unwarranted_intervention": [
-       {
-        "latent_arousal": 0.254,
-        "t_s": 304.99
-       }
-      ]
-     },
-     "failed_checks": [
-      "no_unwarranted_intervention"
-     ],
-     "seed": 525
-    },
-    {
-     "decisions": [
-      [
-       305.0,
-       "START_PACED_BREATHING"
-      ],
-      [
-       330.0,
-       "STOP_QUALITY_LOST"
-      ]
-     ],
-     "details": {
-      "no_unwarranted_intervention": [
-       {
-        "latent_arousal": 0.232,
-        "t_s": 304.99
-       }
-      ]
-     },
-     "failed_checks": [
-      "no_unwarranted_intervention"
-     ],
-     "seed": 527
-    }
-   ],
-   "passed": 19,
+   "failures": [],
+   "passed": 30,
    "runs": 30
   },
   "poor_contact": {
@@ -301,41 +41,43 @@
    "runs": 30
   }
  },
- "generated_by": "python tools/run_physiology_twin.py --scenarios --scenario-seeds 500..529",
- "note": "Final evaluation on seeds never examined during development. Earlier held-out rounds (seeds 100-109, 200-219) exposed three controller defects that were fixed before this run; see docs/closed-loop-evidence.md. Failures are retained, not tuned away.",
+ "controller_version": "1.2.0",
+ "generated_by": "python tools/run_physiology_twin.py --scenarios --scenario-seeds 600..629",
+ "note": "Confirmatory evaluation on seeds never examined during development. Seeds 500-529 were the held-out set for controller 1.1.0 (199/210); examining its 11 motion_heavy failures produced the 1.2.0 clean-window precondition, so those seeds are no longer held out and were re-run only as a diagnostic (see docs/closed-loop-evidence.md). Failures are retained, not tuned away.",
+ "pipeline_source": "sha256:4db280164ff520997648204d37671ef450c3a8a552c937794619a749a9a9032a",
  "provenance": "SIMULATED",
- "runs": 210,
- "runs_passed": 199,
+ "runs": 240,
+ "runs_passed": 240,
  "seeds": [
-  500,
-  501,
-  502,
-  503,
-  504,
-  505,
-  506,
-  507,
-  508,
-  509,
-  510,
-  511,
-  512,
-  513,
-  514,
-  515,
-  516,
-  517,
-  518,
-  519,
-  520,
-  521,
-  522,
-  523,
-  524,
-  525,
-  526,
-  527,
-  528,
-  529
+  600,
+  601,
+  602,
+  603,
+  604,
+  605,
+  606,
+  607,
+  608,
+  609,
+  610,
+  611,
+  612,
+  613,
+  614,
+  615,
+  616,
+  617,
+  618,
+  619,
+  620,
+  621,
+  622,
+  623,
+  624,
+  625,
+  626,
+  627,
+  628,
+  629
  ]
 }
