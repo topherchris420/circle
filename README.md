@@ -114,11 +114,11 @@ python tools/run_protocol.py run experiments/protocols/paced-breathing-arousal.j
 
 Numbers above are datasheet ratings, calculations, or design targets unless stated otherwise ([where numbers come from](docs/verification-scopes.md#where-numbers-come-from)). Before any body contact, evidence must climb the [physical evidence ladder](docs/physical-evidence-ladder.md): electronic and optical phantoms, bench sensors, isolated system tests, hardware loopback, and only then, after independent safety review and ethics approval, any human-connected session.
 
-Review artifacts: [architecture](docs/architecture.md) · [system diagram](diagrams/system-architecture.svg) · [safety analysis](docs/safety-analysis.md) · [safety boundaries](diagrams/safety-boundaries.svg) · [main schematic](hardware/reports/pdf/circle-main.pdf) · [optical schematic](hardware/reports/pdf/circle-ppg.pdf) · [bring-up plan](docs/board-bringup-and-validation-plan.md) · [3D viewer](diagrams/circle-3d-viewer.html)
+Review artifacts: [architecture](docs/architecture.md) · [system diagram](diagrams/system-architecture.svg) · [safety analysis](docs/safety-analysis.md) · [safety boundaries](diagrams/safety-boundaries.svg) · [main schematic](hardware/reports/pdf/circle-main.pdf) · [optical schematic](hardware/reports/pdf/circle-ppg.pdf) · [bring-up plan](docs/board-bringup-and-validation-plan.md) · [3D viewer](diagrams/circle-3d-viewer.html) · [hardware animation](diagrams/circle-hardware-animation.html)
 
 ![CIRCLE Rev B 3D visualization of intended geometry](diagrams/circle-3d-animation.gif)
 
-The 3D viewer and animation show **intended geometry**. They display no telemetry; nothing in them is simulated or measured.
+The 3D viewer and animations show **intended geometry**. They display no telemetry; nothing in them is simulated or measured.
 
 ---
 
@@ -173,7 +173,7 @@ circle/
 ├── docs/                    # closed-loop evidence, verification scopes, evidence ladder, hardware and safety docs
 ├── experiments/             # research protocols and example experiment protocols
 ├── hardware/                # KiCad sources, design manifest, interfaces, review gates, generated reports
-└── diagrams/                # rendered diagrams, session report example, 3D viewer
+└── diagrams/                # rendered diagrams, session report example, 3D viewer, hardware animation
 ```
 
 ## Limitations
