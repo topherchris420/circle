@@ -64,6 +64,14 @@ jobs:
       - name: Adversarial scenario suite judged against hidden truth
         run: python tools/run_physiology_twin.py --scenarios --output outputs/scenarios
 
+      - name: Acquisition boundary (damaged link, independent audit, recorded replay, Muse gadget refusal)
+        run: python tools/run_acquisition_demo.py --output outputs/acquisition-demo --no-report
+
+      - name: Muse gadget adapter against the simulated SDK service (no gadget, token, or network)
+        run: |
+          python tools/muse_gadget.py capabilities --simulate
+          python tools/muse_gadget.py check --simulate --output outputs/muse-gadget-attempt
+
       - name: Verify diagrams rendering
         run: python tools/render_diagrams.py
 

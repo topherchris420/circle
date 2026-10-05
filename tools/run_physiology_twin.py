@@ -25,8 +25,8 @@ import numpy as np
 
 from models.physiology.audit import audit_run
 from models.physiology.controller import CONTROLLER_VERSION, replay
-from models.physiology.evidence import (analysis_document, build_session_records, dumps, source_digest,
-                                        write_raw_bundle)
+from models.physiology.evidence import (analysis_document, build_session_records, dumps, software_revision,
+                                        source_digest, write_raw_bundle)
 from models.physiology.experiment import SessionConfig, SessionRun, run_session
 from models.physiology.ledger import build_ledger, passport, passport_text
 from models.physiology.pipeline import PIPELINE_VERSION
@@ -40,7 +40,9 @@ def _sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def export_run(run: SessionRun, output: Path, counterfactual: SessionRun | None, with_report: bool = True) -> dict:
+def export_run(run: SessionRun, output: Path, counterfactual: SessionRun | None, with_report: bool = True,
+               extra_documents: dict[str, bytes] | None = None) -> dict:
+    """Write the self-auditing run directory; extra_documents join it and its manifest (hashed like the rest)."""
     output.mkdir(parents=True, exist_ok=True)
     raw_entries = write_raw_bundle(run.raw, output / "raw")
     analysis = run.analysis
@@ -74,12 +76,16 @@ def export_run(run: SessionRun, output: Path, counterfactual: SessionRun | None,
         })
     if with_report:
         documents["report.html"] = build_report(run, truth, scorecard, counterfactual, records, replay_identical).encode("utf-8")
+    documents.update(extra_documents or {})
     for name, data in documents.items():
         (output / name).write_bytes(data)
     artifacts = {path: {"sha256": entry["sha256"], "bytes": entry["bytes"], "content_sha256": entry["content_sha256"],
                         "rows": entry["rows"]} for path, entry in raw_entries.items()}
     artifacts.update({name: {"sha256": _sha(data), "bytes": len(data)} for name, data in documents.items()})
     config = run.config
+    run_config = {"arm": "ACTIVE" if config.actuate else "SHAM", "twin": asdict(config.twin),
+                  "rig": asdict(config.rig), "controller": asdict(config.controller),
+                  **({"acquisition": list(config.acquisition)} if config.acquisition else {})}
     manifest = {
         "schema": "circle-physiology-run/1",
         "release_class": "ENGINEERING_REVIEW_ONLY",
@@ -88,9 +94,10 @@ def export_run(run: SessionRun, output: Path, counterfactual: SessionRun | None,
         "pipeline_version": PIPELINE_VERSION,
         "controller_version": CONTROLLER_VERSION,
         "pipeline_source": source_digest(),
+        "software_revision": software_revision(),
+        "config_sha256": _sha(json.dumps(run_config, sort_keys=True, separators=(",", ":")).encode("utf-8")),
         "environment": {"python": platform.python_version(), "numpy": np.__version__},
-        "config": {"arm": "ACTIVE" if config.actuate else "SHAM", "twin": asdict(config.twin),
-                   "rig": asdict(config.rig), "controller": asdict(config.controller)},
+        "config": run_config,
         "session_id": config.session_id,
         "scenario": config.scenario,
         "passport": session_passport,

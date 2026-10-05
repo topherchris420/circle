@@ -54,6 +54,10 @@ Adversarial tests (`tests/test_closed_loop_evidence.py`) show that:
 - a consistently forged cutoff (CRCs resealed, ledger rebuilt, manifest rehashed) is caught as `TIMING_VIOLATION`;
 - a source range silently spanning a declared gap is caught by lineage checks.
 
+### Every source faces the same contract
+
+The loop that runs the twin is the loop for every source (`models/physiology/loop.py`). Before the first evaluation a source must supply every stream the pipeline reads; one that cannot (the Muse Gadget SDK, which carries no physiological signal) is refused with its reasons, and the refusal is recorded as a session. A live device's records reach the controller through the ingestion boundary (`models/acquisition`), where malformed pieces are refused, losses become exact `GAP`s, silence becomes recorded link states, and availability is stamped at host receipt, so that a host-side decision and its replay see the same record. A session delivered over a corrupting, stalling, and dropping link still audits as `REPLAY_MATCH`. See [hardware sources](hardware-sources.md).
+
 ## Replay has an explicit status
 
 `tools/audit_physiology_run.py` never reconciles silently. It reports exactly one status:
@@ -160,6 +164,8 @@ Models are expected to get much better at multimodal signal reasoning. They belo
 5. **Measurement**: paired sign-flip permutation tests, Holm-adjusted, with each outcome's evidence class (`CONTROLLER_DERIVED`, `PIPELINE_DERIVED`, `CONTROLLER_RECORD`, `TWIN_TRUTH`). Safety outcomes report `NO_INCREASE_DETECTED (not a demonstration of equivalence)`.
 
 The example in `experiments/protocols/paced-breathing-arousal.json` compiles the request "test whether paced haptic breathing reduces this arousal proxy without increasing motion artifacts". Its result is supported **in simulation**, which validates the analytical machinery under the twin's assumed response model and nothing else.
+
+CIRCLE's command set for a Muse gadget (`models/muse_gadget/commands.py`) applies this rule to a real AI channel. Through it, Meta's Muse assistant may read the capability registry and submit a protocol for validation, which must declare itself `AI_MODEL`; the reply states that nothing was authorized or executed. There is no command to authorize, execute, actuate, read session data, or write files. The command set is wire-compatible with the Muse Gadget SDK's `LinkSession` (tested against the SDK's own code); running it from a paired gadget is not implemented.
 
 An AI system may summarize sessions, find intervals, compare arms, propose thresholds, describe contradictions, and suggest controls. It may not invent readings, interpolate gaps into evidence, change timestamps, rewrite provenance, mark a hypothesis as measured, bypass quality gates, or authorize anything. A future typed critic (for example, a controller critic reading the ledger's evidence for one decision) would return typed judgments, would keep model confidence separate from physiological confidence, and could never override a failed deterministic check.
 

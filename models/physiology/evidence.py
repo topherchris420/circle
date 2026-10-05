@@ -25,12 +25,14 @@ import io
 import json
 import math
 from pathlib import Path
+import subprocess
 from typing import Any
 
 import numpy as np
 
 from models.session_records import seal_record
 from .controller import CONTROLLER_VERSION, ControllerConfig, Evaluation
+from .dsp import contiguous_runs
 from .pipeline import PIPELINE_VERSION, Analysis
 from .streams import STREAM_COLUMNS, DeviceEvent, Gap, RawSession, Stream
 
@@ -49,6 +51,23 @@ def source_digest(names: tuple[str, ...] = PIPELINE_SOURCES) -> str:
         digest.update((PACKAGE_DIR / name).read_bytes().replace(b"\r\n", b"\n"))
         digest.update(b"\0")
     return "sha256:" + digest.hexdigest()
+
+
+def software_revision(root: Path = PACKAGE_DIR.parents[1]) -> dict[str, Any]:
+    """The repository commit that produced a record, and whether tracked files matched it.
+
+    Complements source_digest(), which pins the analysis code even when the
+    worktree is not committed. Outside a git checkout the commit is UNAVAILABLE.
+    """
+    def git(*args: str) -> str:
+        return subprocess.run(["git", *args], cwd=root, capture_output=True, text=True, timeout=20,
+                              check=True).stdout.strip()
+
+    try:
+        return {"git_commit": git("rev-parse", "HEAD"),
+                "worktree_clean": not git("status", "--porcelain", "--untracked-files=no")}
+    except (OSError, subprocess.SubprocessError):
+        return {"git_commit": "UNAVAILABLE", "worktree_clean": None}
 
 
 def _finite(payload: dict[str, Any]) -> dict[str, float]:
@@ -135,7 +154,8 @@ def build_session_records(run: Any, raw_entries: dict[str, dict[str, Any]], anal
 
     add(0, _record("SESSION_HEADER", "SIMULATED", start_us, start_us,
                    [*sim, arm, f"SESSION_ID:{config.session_id}", f"SCENARIO:{config.scenario}",
-                    f"PIPELINE_VERSION:{PIPELINE_VERSION}", "HARDWARE_MODEL:REV_B_FORWARD_MODEL"],
+                    f"PIPELINE_VERSION:{PIPELINE_VERSION}", "HARDWARE_MODEL:REV_B_FORWARD_MODEL",
+                    *getattr(config, "acquisition", ())],
                    stream_id="session", payload={"seed": config.twin.seed, "duration_s": config.twin.duration_s}))
     for name, stream in raw.streams.items():
         entry = raw_entries[f"raw/{name}.csv.gz"]
@@ -148,13 +168,18 @@ def build_session_records(run: Any, raw_entries: dict[str, dict[str, Any]], anal
                     f"EVALUATION_END_US:{run.evaluation_end_us}", arm],
                    stream_id="controller", payload=config.controller.numeric_payload()))
     sync = raw.streams["sync"]
+    # One range per contiguous run: a lost pulse is a gap the lineage must not span.
+    sync_ranges = [{"stream_id": "sync", "first_sequence": int(sync.sequence[a]), "last_sequence": int(sync.sequence[b - 1])}
+                   for a, b in contiguous_runs(sync.sequence)]
     add(3, _record("CLOCK_MAPPING", "DERIVED", int(sync.device_time_us[0]), int(sync.device_time_us[-1]),
                    ["DEVICE_TO_LAB_LINEAR_FIT", "LAB_REFERENCE_1PPS"], stream_id="sync",
                    payload=_finite(analysis.clock.to_dict()), source_stream_ids=["sync"],
-                   source_sequence_ranges=[{"stream_id": "sync", "first_sequence": int(sync.sequence[0]),
-                                            "last_sequence": int(sync.sequence[-1])}]))
+                   source_sequence_ranges=sync_ranges))
     for event in raw.events_of("PHASE_START:") + raw.events_of("STIMULUS"):
         add(4, _event_record(event, "SIMULATED", sim))
+    for event in raw.events_of("LINK:"):
+        # Link health observed by the host (models/acquisition): when delivery went quiet and came back.
+        add(4, _event_record(event, "SIMULATED", [*sim, "LINK_STATE", "NOT_PHYSIOLOGICAL"]))
     for gap in raw.gaps:
         add(5, _record("GAP", "SIMULATED", gap.device_time_us, gap.device_time_us, [*sim, "SAMPLE_LOSS_DECLARED"],
                        stream_id=gap.stream_id, dropped_first_sequence=gap.first_sequence,

@@ -178,20 +178,21 @@ def passport(records: list[dict[str, Any]], extra: dict[str, str] | None = None)
     sham_commands = sum(1 for r in records if r["record_type"] == "EVENT" and "EVENT_KIND:HAPTIC_COMMAND_SHAM" in r["status_flags"])
     out = {
         "SESSION": _flag(header, "SESSION_ID:") or "unnamed",
-        "MODE": "SIMULATED" if "SIMULATED_DATA" in flags else "RECORDED",
+        "MODE": "SIMULATED" if "SIMULATED_DATA" in flags else "LIVE" if "LIVE_ACQUISITION" in flags else "RECORDED",
         "ARM": "ACTIVE" if "ARM_ACTIVE" in flags else "SHAM" if "ARM_SHAM" in flags else "UNSPECIFIED",
         "SCENARIO": _flag(header, "SCENARIO:") or "unspecified",
-        "HARDWARE": "Rev B forward model (no hardware built)" if "PHYSIOLOGY_TWIN" in flags else "unspecified",
+        "HARDWARE": ("Rev B forward model (no hardware built)" if "PHYSIOLOGY_TWIN" in flags
+                     else _flag(header, "SOURCE_HARDWARE:") or "unspecified"),
         "PIPELINE": _flag(header, "PIPELINE_VERSION:") or "unknown",
         "CONTROLLER": _flag(config_record, "CONTROLLER_VERSION:") or "unknown",
         "SEED": str(int(header["payload"]["seed"])) if "seed" in header.get("payload", {}) else "n/a",
-        "INPUT": f"{len(streams)} streams ({', '.join(r['stream_id'] for r in streams)})",
+        "INPUT": f"{len(streams)} streams ({', '.join(r['stream_id'] for r in streams)})" if streams else "no streams",
         "GAPS": f"{sum(1 for r in records if r['record_type'] == 'GAP')} declared",
         "EVALUATIONS": f"{len(evaluations)} ({decisions} decisions, {gate_failed} failed a quality gate, {holds} held an action)",
         "INTERVENTIONS": (f"{len(interventions)} program(s), {observed}/{cues} cues physically observed" if interventions
                           else f"none actuated ({sham_commands} sham commands logged)" if sham_commands else "none"),
         "HUMAN DATA": "NONE" if "NOT_HUMAN_DATA" in flags else "UNSPECIFIED",
-        "HARDWARE DRIVEN": "NONE" if "PHYSIOLOGY_TWIN" in flags else "UNSPECIFIED",
+        "HARDWARE DRIVEN": "NONE" if "PHYSIOLOGY_TWIN" in flags or "NO_HARDWARE_DRIVEN" in flags else "UNSPECIFIED",
     }
     out.update(extra or {})
     return out

@@ -122,20 +122,32 @@ def seal_record(record: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def validate_session(records: Sequence[Mapping[str, Any]]) -> None:
-    """Validate records and per-stream snapshot ordering, including explicit gaps."""
+    """Validate records and per-stream snapshot ordering, including explicit gaps.
+
+    A stream carried as SAMPLE_CHUNK snapshots must account for every sequence:
+    each snapshot or GAP continues exactly where the last one ended. A stream
+    whose samples live in a hashed raw bundle has no snapshots between its GAPs,
+    so there its GAPs need only never overlap (records are ordered by the time a
+    loss was declared, which need not follow the order of the lost sequences).
+    """
     if not records:
         raise SessionRecordError("Session contains no records")
     next_sequence: dict[str, int] = {}
     last_time: dict[str, int] = {}
+    snapshot_streams: set[str] = set()
+    gap_ranges: dict[str, list[tuple[int, int]]] = {}
     for index, record in enumerate(records, 1):
         try:
             validate_record(record)
             stream = record.get("stream_id")
             if record["record_type"] == "GAP" and stream is not None:
-                first = record["dropped_first_sequence"]
-                if first != next_sequence.get(stream, first):
+                first, last = record["dropped_first_sequence"], record["dropped_last_sequence"]
+                if stream in snapshot_streams and first != next_sequence[stream]:
                     raise SessionRecordError(f"GAP does not follow stream {stream}'s last sequence")
-                next_sequence[stream] = record["dropped_last_sequence"] + 1
+                if any(first <= b and last >= a for a, b in gap_ranges.get(stream, [])):
+                    raise SessionRecordError(f"GAP overlaps an earlier GAP on stream {stream}")
+                gap_ranges.setdefault(stream, []).append((first, last))
+                next_sequence[stream] = max(next_sequence.get(stream, 0), last + 1)
             if record["record_type"] == "SAMPLE_CHUNK":
                 sequence = record["sequence"]
                 if sequence != next_sequence.get(stream, sequence):
@@ -145,6 +157,7 @@ def validate_session(records: Sequence[Mapping[str, Any]]) -> None:
                     raise SessionRecordError(f"Stream {stream} timestamps must increase strictly")
                 next_sequence[stream] = sequence + 1
                 last_time[stream] = timestamp
+                snapshot_streams.add(stream)
         except SessionRecordError as exc:
             raise SessionRecordError(f"Record {index}: {exc}") from exc
 

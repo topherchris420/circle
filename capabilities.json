@@ -13,7 +13,8 @@
   "layers": {
     "INSTRUMENT_CORE": "Sensing, timing, provenance, and evidence.",
     "CLOSED_LOOP": "Decisions, interventions, and their verification.",
-    "RESEARCH_EXTENSION": "Bounded modules that attach through contracts and can be removed without breaking the core."
+    "RESEARCH_EXTENSION": "Bounded modules that attach through contracts and can be removed without breaking the core.",
+    "HARDWARE_ADAPTER": "Optional bridges to external hardware or services. Removable; never imported by the core; never required to run CIRCLE."
   },
   "modules": [
     {
@@ -107,6 +108,27 @@
       ],
       "not_claimed": [
         "Audit success shows internal consistency of a record, not that the record reflects the physical world."
+      ],
+      "removable": false
+    },
+    {
+      "id": "acquisition_boundary",
+      "layer": "INSTRUMENT_CORE",
+      "status": "IMPLEMENTED",
+      "summary": "One closed loop for every source of device records: the input contract and actuation-target gate, live ingestion with exact declared losses, link-state events and host-receipt availability, a deterministic link-fault simulator, recorded replay, and session records for sources the contract refuses.",
+      "paths": [
+        "models/physiology/loop.py",
+        "models/acquisition"
+      ],
+      "evidence": [
+        "tests/test_closed_loop_boundary.py",
+        "tests/test_acquisition_ingest.py",
+        "python tools/run_acquisition_demo.py"
+      ],
+      "not_claimed": [
+        "No live device has been connected; the boundary is exercised with the twin over a simulated link and with recorded bundles.",
+        "Host-receipt availability on real hardware needs a host-to-device clock mapping, which has not been built or measured.",
+        "Link faults are scripted simulations; real transports will fail in ways not modeled here."
       ],
       "removable": false
     },
@@ -307,6 +329,29 @@
       ],
       "not_claimed": [
         "The R.A.I.N. launcher and executor live outside this repository."
+      ],
+      "removable": true
+    },
+    {
+      "id": "muse_gadget_adapter",
+      "layer": "HARDWARE_ADAPTER",
+      "status": "IMPLEMENTED",
+      "summary": "Meta's Muse Gadget SDK as it actually is: capability discovery, a versioned mapping with no physiological signal, the gadget refused by the closed loop's input contract with the refusal recorded, templated operator notifications outside the loop, and a command set that limits the Muse to reading capabilities and validating AI-proposed protocols.",
+      "paths": [
+        "models/muse_gadget",
+        "tools/muse_gadget.py",
+        "docs/hardware-sources.md"
+      ],
+      "evidence": [
+        "tests/test_muse_gadget.py",
+        "tests/test_muse_gadget_sdk_conformance.py",
+        "python tools/muse_gadget.py"
+      ],
+      "not_claimed": [
+        "The Muse Gadget SDK measures no physiological signal; nothing from it is treated as a measurement.",
+        "Never exercised against a paired gadget or Meta's Muse service; checked against a deterministic simulator and, where installed, the SDK's own local service and LinkSession code.",
+        "Serving CIRCLE's command set from a paired gadget is not implemented.",
+        "An acknowledged notification shows the Muse service accepted a chat turn, not that a person read it."
       ],
       "removable": true
     }

@@ -20,6 +20,8 @@ The evidence chain is the product. Point at any closed-loop event and ask **why 
 |---|---|
 | Signal pipeline, closed-loop controller, evidence export, audit and replay | **Implemented**, validated only against a simulated physiology twin |
 | Adversarial scenario suite and experiment-protocol boundary | **Implemented**, simulation only |
+| Acquisition boundary: one closed loop for simulated, recorded, and live sources | **Implemented**, exercised with the twin over a simulated link and with recorded bundles; no live device connected |
+| Muse Gadget SDK adapter | **Implemented** within what the SDK supports, which is no physiological sensing; tested against a simulator and the SDK's own code, never a paired gadget |
 | Rev B hardware (`circle-main`, `circle-ppg`) | **Designed, not built.** Schematics pass ERC; PCBs are **not routed** (DRC passes only with an open allowlist) |
 | Firmware | **Not implemented.** The twin encodes the timing behavior firmware must meet |
 | Bench, phantom, electrical-safety, EMC, physiological, or human validation | **None performed** |
@@ -106,6 +108,61 @@ python tools/run_protocol.py run experiments/protocols/paced-breathing-arousal.j
 
 ---
 
+## Hardware sources: one loop for simulation, recordings, and live devices
+
+CIRCLE owns the experiment; hardware provides observations and executes bounded interventions. Every source of device records reaches the controller through one boundary ([`models/physiology/loop.py`](models/physiology/loop.py)). It refuses a source that cannot supply what the pipeline reads, listing every reason, and refuses any actuator aimed at hardware, a person, or an operator channel before anything is acquired.
+
+```
+                          CIRCLE
+                             │
+           ┌─────────────────┼──────────────────┐
+           │                 │                  │
+      Simulation         Recording         Live hardware
+      twin through       hash-verified     ingestion boundary:
+      the Rev B          raw bundle        declared losses, link
+      forward model           │            state, host receipt
+           │                  │                 │   Muse Gadget SDK:
+           │                  │                 │   no physiological
+           └─────────────────┼──────────────────┘   stream, so refused
+                             ↓                      by the contract
+                 Input contract · RawSession
+                             ↓
+                    Physiology pipeline
+                             ↓
+               State estimate (arousal index)
+                             ↓
+           Controller (quality gates, agreement)
+                             ↓
+            Actuation gate (SIMULATED or NONE)
+                             ↓
+           Intervention → independently observed
+                             ↓
+                   Response measurement
+                             ↓
+              Provenance · audit · replay
+```
+
+Rendered: [`diagrams/acquisition-boundary.svg`](diagrams/acquisition-boundary.svg). The twin now runs through this same loop, and its exported evidence is byte-identical to before. Delivered chunk by chunk over a link that corrupts, repeats, stalls, and drops, the twin's session still audits as `REPLAY_MATCH`: losses become exact `GAP`s, silence becomes recorded link states and stale-data holds (never a calm subject), and availability is stamped at host receipt so the recording replays exactly what the controller could see.
+
+**The Muse Gadget SDK, as it is.** [Meta's Muse Gadget SDK](https://github.com/facebookincubator/muse-gadget-sdk) connects ESP32 boards and Linux computers to Muse, Meta's AI assistant; control flows from the assistant to the device. It carries no physiological signal, no sample clock, and no timestamps, so it cannot be a biosignal source and CIRCLE does not treat it as one. What it adds:
+
+- **Capability discovery** that reports what a gadget environment actually offers: `signals: []`, always.
+- **A recorded refusal.** Offered to the closed loop, the gadget is refused by the input contract, and the refusal is written as an ordinary session.
+- **An operator channel outside the loop.** A templated end-of-session status, built only from whitelisted passport fields, posted to a Muse side chat. Never a cue: the loop refuses it as an actuator.
+- **AI proposals without authority.** A command set that lets the assistant read CIRCLE's capabilities and validate a proposed protocol, and nothing else. A named human still authorizes. The stock Linux gadget's shell access must never reach a CIRCLE host.
+
+What Muse does not replace: CIRCLE's simulation, physiology models, experiment contracts, provenance, replay, safety architecture, or controller. The adapter is removable, and no core module imports it (`tools/check_module_registry.py`). Setup, privacy, mapping, and limitations: [hardware sources](docs/hardware-sources.md).
+
+```bash
+python tools/run_acquisition_demo.py                  # damaged link → audit → recorded replay → Muse refusal → notification
+python tools/muse_gadget.py capabilities --simulate    # discovery against a simulated gadget service
+python tools/muse_gadget.py check --simulate           # the loop refuses the gadget; the refusal is a session
+```
+
+Building this boundary surfaced two latent evidence defects, both fixed and now tested: a session with two separate losses on one stream failed its own audit (the `sensor_loss` scenario's export did), and the clock-mapping record's lineage would have spanned lost sync pulses.
+
+---
+
 ## Hardware architecture (Rev B, designed, not built)
 
 - **`circle-main`** (85 × 55 mm, 4-layer): ESP32-S3-WROOM-1-N16R8; ADS1220 EDA front end with REF5020 and OPA2192; ICM-42688-P IMU; 4-bit SDMMC with PSRAM buffering; DRV2605L haptics with a TLV3201 current-edge detector so actuation leaves electrical evidence; BQ24074 + TPS63070 power; MCP23017 observability.
@@ -164,7 +221,9 @@ circle/
 ├── capabilities.json        # every module's status and what it does not claim
 ├── contracts/               # session records, experiment protocols, review gates, research-module schemas
 ├── models/
-│   ├── physiology/          # twin, Rev B sensor models, pipeline, controller, evidence, audit, ledger, scenarios
+│   ├── physiology/          # twin, Rev B sensor models, pipeline, controller, closed-loop boundary, evidence, audit, ledger
+│   ├── acquisition/         # live ingestion, link-fault simulator, recorded replay, refused-source sessions
+│   ├── muse_gadget/         # Muse Gadget SDK adapter (removable; the SDK has no physiological signal)
 │   ├── protocols.py         # proposal → validation → authorization → simulated execution
 │   ├── session_records.py   # contract validation, lineage, CRC-32C
 │   └── resonance_response/, emergence/, pnt/   # research extensions
