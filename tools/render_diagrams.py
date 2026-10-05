@@ -135,6 +135,22 @@ QUANTUM_PNT_ARCH_EDGES = [
     (8, 9, "navigation fix"),
 ]
 
+ACQUISITION_NODES = [
+    ("Twin (Rev B model)", 50, 170, "software"), ("Recorded bundle", 50, 290, "storage"),
+    ("Live device link", 50, 410, "device"), ("Muse Gadget SDK", 50, 580, "lab"),
+    ("Ingestion boundary", 300, 410, "gate"), ("Input contract", 300, 230, "gate"),
+    ("Refused: session record", 300, 580, "unsafe"), ("RawSession", 560, 170, "evidence"),
+    ("Pipeline + state estimate", 560, 290, "model"), ("Controller + gates", 560, 410, "model"),
+    ("Actuation gate", 560, 580, "gate"), ("Simulated haptic", 860, 500, "feedback"),
+    ("Session record + audit", 860, 170, "evidence"), ("Operator chat (outside)", 1010, 320, "human"),
+]
+ACQUISITION_EDGES = [
+    (0, 5, "device records"), (1, 5, "hash-verified"), (2, 4, "deliveries"),
+    (4, 5, "GAPs, link states"), (3, 6, "no streams"), (5, 7, "lawful view"),
+    (7, 8, "available at T"), (8, 9, "arousal index"), (9, 10, "cue"), (10, 11, "SIMULATED only"),
+    (11, 12, "execution evidence"), (7, 12, "preserve"), (12, 13, "templated status"),
+]
+
 COLORS = {
     "human": "#f3e8d1", "device": "#b9d8f2", "software": "#c9e6cf",
     "model": "#d7c6f2", "feedback": "#f2c2b8", "sensor": "#cfe8e8",
@@ -223,7 +239,14 @@ def main():
         domains=(("MULTIMODAL_SENSORS", 25, 120, 260, 540, "#dcebdc"), ("BRIDGE_AND_ESTIMATOR", 300, 120, 480, 540, "#d9dde3"), ("VERIFIED_OUTPUTS", 800, 120, 370, 540, "#dde5f5")),
         footer="Cold-atom light-pulse atom interferometry and relativistic quantum clock fusion.",
     )
-    print("rendered 7 diagrams")
+    render(
+        OUT / "acquisition-boundary.svg", "CIRCLE Acquisition Boundary: One Loop for Every Source",
+        ACQUISITION_NODES, ACQUISITION_EDGES,
+        domains=(("SOURCES", 25, 120, 245, 540, "#dcebdc"), ("BOUNDARY AND CLOSED LOOP", 280, 120, 545, 540, "#d9dde3"),
+                 ("EVIDENCE / OUTSIDE THE LOOP", 840, 120, 335, 540, "#dde5f5")),
+        footer="Cues reach only SIMULATED or NONE targets; hardware, human, and operator-channel targets are refused.",
+    )
+    print("rendered 8 diagrams")
 
 
 if __name__ == "__main__":

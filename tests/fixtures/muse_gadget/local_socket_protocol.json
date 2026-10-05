@@ -1,0 +1,65 @@
+{
+  "description": "Request and reply lines of the musegadget local socket, as the SDK's service writes them. Replayed against SimulatedGadgetService always, and against the SDK's own Service when musegadget is importable. No credentials, no physiological data, nothing from any person.",
+  "source": {
+    "repository": "https://github.com/facebookincubator/muse-gadget-sdk",
+    "commit": "1d2cb5af1cc3c412eedf8b08b49d3876a1eba956",
+    "files": [
+      "linux/src/musegadget/service.py",
+      "linux/tests/test_service.py"
+    ],
+    "license": "Apache-2.0"
+  },
+  "socket": {
+    "default_path": "/run/musegadget/musegadget.sock",
+    "environment_override": "MUSEGADGET_SOCKET",
+    "mode": "0660",
+    "max_request_bytes": 65536
+  },
+  "transcripts": [
+    {
+      "name": "probe_with_an_empty_object",
+      "link": "connected",
+      "request": "{}\n",
+      "reply": {"ok": false, "error": "expected {\"message\": \"...\"}"},
+      "probe_outcome": "SERVICE_RESPONDING"
+    },
+    {
+      "name": "message_while_the_muse_session_is_down",
+      "link": "disconnected",
+      "request": "{\"message\": \"hi\"}\n",
+      "reply": {"ok": false, "error": "not connected to the Muse"},
+      "send_outcome": "NOT_CONNECTED"
+    },
+    {
+      "name": "empty_message",
+      "link": "connected",
+      "request": "{\"message\": \"\"}\n",
+      "reply": {"ok": false, "error": "expected {\"message\": \"...\"}"}
+    },
+    {
+      "name": "wrong_key",
+      "link": "connected",
+      "request": "{\"text\": \"hi\"}\n",
+      "reply": {"ok": false, "error": "expected {\"message\": \"...\"}"}
+    },
+    {
+      "name": "not_an_object",
+      "link": "connected",
+      "request": "[1]\n",
+      "reply": {"ok": false, "error": "expected {\"message\": \"...\"}"}
+    },
+    {
+      "name": "side_chat_id_with_a_path",
+      "link": "connected",
+      "request": "{\"message\": \"ring\", \"session_id\": \"../x\"}\n",
+      "reply": {"ok": false, "error": "session_id must be letters, digits and dashes"}
+    },
+    {
+      "name": "accepted_into_a_side_chat",
+      "link": "connected",
+      "request": "{\"message\": \"ring\", \"session_id\": \"4f6c7ff7-3406-4a35-8ec9-907f61fc43f3\"}\n",
+      "reply_ok": true,
+      "send_outcome": "DELIVERED_ACK"
+    }
+  ]
+}

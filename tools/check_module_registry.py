@@ -1,8 +1,8 @@
-"""Validate capabilities.json: every module has an honest status, real paths, and removable research modules.
+"""Validate capabilities.json: every module has an honest status, real paths, and removable extensions.
 
 Architectural test: no instrument-core or closed-loop Python module may import a
-research extension. A research module must be removable without breaking the
-instrument.
+research extension or a hardware adapter. Both must be removable without
+breaking the instrument: CIRCLE runs with neither.
 """
 
 from __future__ import annotations
@@ -15,6 +15,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "capabilities.json"
 CORE_LAYERS = {"INSTRUMENT_CORE", "CLOSED_LOOP"}
+REMOVABLE_LAYERS = {"RESEARCH_EXTENSION", "HARDWARE_ADAPTER"}
 
 
 def _python_files(path: Path) -> list[Path]:
@@ -35,7 +36,7 @@ def registry_errors(doc: dict) -> list[str]:
     ids = [m["id"] for m in doc["modules"]]
     if len(ids) != len(set(ids)):
         errors.append("Module ids must be unique")
-    research_packages = set()
+    removable_packages = set()
     for module in doc["modules"]:
         name = module["id"]
         if module["status"] not in statuses:
@@ -50,12 +51,12 @@ def registry_errors(doc: dict) -> list[str]:
         for item in module["evidence"]:
             if not _evidence_exists(item):
                 errors.append(f"{name}: evidence {item} does not exist")
-        if module["layer"] == "RESEARCH_EXTENSION":
+        if module["layer"] in REMOVABLE_LAYERS:
             if not module["removable"]:
-                errors.append(f"{name}: research extensions must be removable")
+                errors.append(f"{name}: {module['layer'].lower().replace('_', ' ')} modules must be removable")
             for path in module["paths"]:
                 if path.startswith("models/") and (ROOT / path).is_dir():
-                    research_packages.add(path.replace("/", "."))
+                    removable_packages.add(path.replace("/", "."))
     for module in doc["modules"]:
         if module["layer"] not in CORE_LAYERS:
             continue
@@ -66,8 +67,8 @@ def registry_errors(doc: dict) -> list[str]:
                     names = [node.module or ""] if isinstance(node, ast.ImportFrom) else \
                         [a.name for a in node.names] if isinstance(node, ast.Import) else []
                     for imported in names:
-                        if any(imported == pkg or imported.startswith(pkg + ".") for pkg in research_packages):
-                            errors.append(f"{file.relative_to(ROOT)} (core) imports research module {imported}")
+                        if any(imported == pkg or imported.startswith(pkg + ".") for pkg in removable_packages):
+                            errors.append(f"{file.relative_to(ROOT)} (core) imports removable module {imported}")
     return errors
 
 

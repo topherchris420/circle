@@ -167,7 +167,9 @@ def rederive_session(records: list[dict[str, Any]], raw: RawSession, content_has
     payload = header.get("payload", {})
     twin = SimpleNamespace(seed=int(payload["seed"]), duration_s=payload["duration_s"])
     session_config = SimpleNamespace(twin=twin, controller=config, actuate="ARM_ACTIVE" in header["status_flags"],
-                                     scenario=flags.get("SCENARIO", ""), session_id=flags.get("SESSION_ID", ""))
+                                     scenario=flags.get("SCENARIO", ""), session_id=flags.get("SESSION_ID", ""),
+                                     acquisition=tuple(f for f in header["status_flags"]
+                                                       if f.startswith(("ACQUISITION:", "AVAILABILITY:"))))
     stand_in = SimpleNamespace(config=session_config, raw=raw, evaluations=evaluations, evaluation_end_us=end_us,
                                controller_baseline=dict(controller.baseline),
                                controller_baseline_window_us=controller.baseline_window_us,

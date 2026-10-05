@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-label="CIRCLE Acquisition Boundary: One Loop for Every Source">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#30343b" />
+    </marker>
+  </defs>
+  <rect width="1200" height="720" fill="#fbfaf6" />
+  <text x="600" y="34" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#a32622">ENGINEERING REVIEW ONLY ? NOT FOR HUMAN CONNECTION</text>
+  <text x="600" y="70" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#161b22">CIRCLE Acquisition Boundary: One Loop for Every Source</text>
+  <rect x="25" y="120" width="245" height="540" rx="18" fill="#dcebdc" fill-opacity="0.25" stroke="#59636e" stroke-width="2" />
+  <text x="43" y="148" font-family="Arial, sans-serif" font-size="17" font-weight="bold" fill="#252b31">SOURCES</text>
+  <rect x="280" y="120" width="545" height="540" rx="18" fill="#d9dde3" fill-opacity="0.25" stroke="#59636e" stroke-width="2" />
+  <text x="298" y="148" font-family="Arial, sans-serif" font-size="17" font-weight="bold" fill="#252b31">BOUNDARY AND CLOSED LOOP</text>
+  <rect x="840" y="120" width="335" height="540" rx="18" fill="#dde5f5" fill-opacity="0.25" stroke="#59636e" stroke-width="2" />
+  <text x="858" y="148" font-family="Arial, sans-serif" font-size="17" font-weight="bold" fill="#252b31">EVIDENCE / OUTSIDE THE LOOP</text>
+  <line x1="130.0" y1="201.0" x2="380.0" y2="261.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="255.0" y="225.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">device records</text>
+  <line x1="130.0" y1="321.0" x2="380.0" y2="261.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="255.0" y="285.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">hash-verified</text>
+  <line x1="130.0" y1="441.0" x2="380.0" y2="441.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="255.0" y="435.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">deliveries</text>
+  <line x1="380.0" y1="441.0" x2="380.0" y2="261.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="380.0" y="345.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">GAPs, link states</text>
+  <line x1="130.0" y1="611.0" x2="380.0" y2="611.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="255.0" y="605.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">no streams</text>
+  <line x1="380.0" y1="261.0" x2="640.0" y2="201.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="510.0" y="225.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">lawful view</text>
+  <line x1="640.0" y1="201.0" x2="640.0" y2="321.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="640.0" y="255.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">available at T</text>
+  <line x1="640.0" y1="321.0" x2="640.0" y2="441.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="640.0" y="375.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">arousal index</text>
+  <line x1="640.0" y1="441.0" x2="640.0" y2="611.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="640.0" y="520.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">cue</text>
+  <line x1="640.0" y1="611.0" x2="940.0" y2="531.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="790.0" y="565.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">SIMULATED only</text>
+  <line x1="940.0" y1="531.0" x2="940.0" y2="201.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="940.0" y="360.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">execution evidence</text>
+  <line x1="640.0" y1="201.0" x2="940.0" y2="201.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="790.0" y="195.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">preserve</text>
+  <line x1="940.0" y1="201.0" x2="1090.0" y2="351.0" stroke="#30343b" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="1015.0" y="270.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#39424c">templated status</text>
+  <rect x="50" y="170" width="160" height="62" rx="10" fill="#c9e6cf" stroke="#30343b" stroke-width="2" />
+  <text x="130.0" y="206" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Twin (Rev B model)</text>
+  <rect x="50" y="290" width="160" height="62" rx="10" fill="#d9dde3" stroke="#30343b" stroke-width="2" />
+  <text x="130.0" y="326" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Recorded bundle</text>
+  <rect x="50" y="410" width="160" height="62" rx="10" fill="#b9d8f2" stroke="#30343b" stroke-width="2" />
+  <text x="130.0" y="446" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Live device link</text>
+  <rect x="50" y="580" width="160" height="62" rx="10" fill="#c9d7f0" stroke="#30343b" stroke-width="2" />
+  <text x="130.0" y="616" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Muse Gadget SDK</text>
+  <rect x="300" y="410" width="160" height="62" rx="10" fill="#f4b860" stroke="#30343b" stroke-width="2" />
+  <text x="380.0" y="446" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Ingestion boundary</text>
+  <rect x="300" y="230" width="160" height="62" rx="10" fill="#f4b860" stroke="#30343b" stroke-width="2" />
+  <text x="380.0" y="266" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Input contract</text>
+  <rect x="300" y="580" width="160" height="62" rx="10" fill="#f3b0aa" stroke="#30343b" stroke-width="2" />
+  <text x="380.0" y="616" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Refused: session record</text>
+  <rect x="560" y="170" width="160" height="62" rx="10" fill="#fff1bf" stroke="#30343b" stroke-width="2" />
+  <text x="640.0" y="206" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">RawSession</text>
+  <rect x="560" y="290" width="160" height="62" rx="10" fill="#d7c6f2" stroke="#30343b" stroke-width="2" />
+  <text x="640.0" y="326" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Pipeline + state estimate</text>
+  <rect x="560" y="410" width="160" height="62" rx="10" fill="#d7c6f2" stroke="#30343b" stroke-width="2" />
+  <text x="640.0" y="446" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Controller + gates</text>
+  <rect x="560" y="580" width="160" height="62" rx="10" fill="#f4b860" stroke="#30343b" stroke-width="2" />
+  <text x="640.0" y="616" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Actuation gate</text>
+  <rect x="860" y="500" width="160" height="62" rx="10" fill="#f2c2b8" stroke="#30343b" stroke-width="2" />
+  <text x="940.0" y="536" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Simulated haptic</text>
+  <rect x="860" y="170" width="160" height="62" rx="10" fill="#fff1bf" stroke="#30343b" stroke-width="2" />
+  <text x="940.0" y="206" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Session record + audit</text>
+  <rect x="1010" y="320" width="160" height="62" rx="10" fill="#f3e8d1" stroke="#30343b" stroke-width="2" />
+  <text x="1090.0" y="356" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#161b22">Operator chat (outside)</text>
+  <text x="600" y="695" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#7a231f">Cues reach only SIMULATED or NONE targets; hardware, human, and operator-channel targets are refused.</text>
+</svg>

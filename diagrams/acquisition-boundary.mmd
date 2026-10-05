@@ -1,0 +1,34 @@
+flowchart LR
+    subgraph Sources
+        Twin[Twin through the Rev B forward model]
+        Recording[Recorded bundle]
+        Live[Live device link]
+        Muse[Muse Gadget SDK: no physiological stream]
+    end
+    subgraph Loop[CIRCLE boundary and closed loop]
+        Ingest[Ingestion boundary: declared losses, link states, host receipt]
+        Contract[Input contract: eda, ppg, imu, sync]
+        Refused[Refused: recorded as a session]
+        Raw[RawSession]
+        Pipeline[Pipeline + state estimate]
+        Controller[Controller + quality gates]
+        Gate[Actuation gate: SIMULATED or NONE]
+    end
+    subgraph Evidence[Evidence and outside the loop]
+        Haptic[Simulated haptic]
+        Record[Session record + independent audit]
+        Chat[Operator chat, outside the loop]
+    end
+    Twin -->|device records| Contract
+    Recording -->|hash-verified| Contract
+    Live -->|deliveries: chunks, events, losses| Ingest
+    Ingest -->|GAPs, link states| Contract
+    Muse -->|no streams| Refused
+    Contract -->|lawful view| Raw
+    Raw -->|available at T| Pipeline
+    Pipeline -->|arousal index| Controller
+    Controller -->|cue| Gate
+    Gate -->|SIMULATED only| Haptic
+    Haptic -->|execution evidence| Record
+    Raw -->|preserve| Record
+    Record -->|templated status| Chat

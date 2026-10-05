@@ -70,6 +70,8 @@ def software_commands(py: str) -> list[tuple[str, list[str]]]:
         ("PCB_DRC", [py, "tools/check_drc.py"]),
         ("SIMULATION_BENCHMARK", [py, "tools/run_physiology_twin.py", "--output", "outputs/physiology", "--audit"]),
         ("SIMULATION_BENCHMARK", [py, "tools/run_physiology_twin.py", "--scenarios", "--output", "outputs/scenarios"]),
+        ("SIMULATION_BENCHMARK", [py, "tools/run_acquisition_demo.py", "--output", "outputs/acquisition-demo",
+                                  "--no-report"]),
     ]
 
 
