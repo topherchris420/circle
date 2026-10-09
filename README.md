@@ -12,6 +12,24 @@ sense → preserve → infer → decide → intervene → observe → verify
 
 The evidence chain is the product. Point at any closed-loop event and ask **why did CIRCLE do that?** The record leads back to the exact samples that caused the decision, and forward to the independent observation of what actually occurred.
 
+## Follow one decision through the evidence
+
+Imagine the simulated system decides a feedback cue is warranted. **CIRCLE does not allow “we sent a command” to become “the person felt it.”** A run distinguishes:
+
+```text
+raw synthetic sensor codes
+   ↓ derived windows + quality checks
+bounded decision (with input cutoff)
+   ↓ proposed intervention
+simulated haptic command
+   ↓ simulated electrical onset + IMU observation
+independently re-derived audit + replay
+```
+
+The [interactive example report](diagrams/circle-physiology-session.html) lets you select a decision and follow its inputs and timestamps. Run the [digital twin](#run-the-digital-test-bench) first, then [audit it from the raw bundle](#closed-loop-evidence).
+
+**What the labels mean today:** the simulated IMU can independently detect a simulated vibration in the forward model. That is a strong *software-evidence contract*, not a physical vibration measured on fabricated hardware. No person, finished circuit board or medical treatment appears in this validation.
+
 ---
 
 ## What exists, and what does not
@@ -46,7 +64,7 @@ CONTROLLER:       1.2.0
 INPUT:            4 streams (imu, ppg, eda, sync)
 GAPS:             1 declared
 EVALUATIONS:      59 (2 decisions, 9 failed a quality gate, 0 held an action)
-INTERVENTIONS:    1 program(s), 7/7 cues physically observed
+INTERVENTIONS:    1 program(s), 7/7 cues physically observed (in twin)
 HUMAN DATA:       NONE
 HARDWARE DRIVEN:  NONE
 audit replay status: REPLAY_MATCH
@@ -55,6 +73,8 @@ audit replay status: REPLAY_MATCH
 Open `outputs/physiology/report.html` (an example is committed at [`diagrams/circle-physiology-session.html`](diagrams/circle-physiology-session.html)). Click any row of the decision ledger to follow it down the evidence stack: formula → components → input cutoff → quality gates → exact sample ranges. The execution table shows, per cue, whether the command was followed by an electrical onset and by vibration the wrist IMU independently observed.
 
 ![CIRCLE polygraph: every channel recovered from raw Rev B sensor codes, drawn over hidden ground truth](diagrams/physiology-polygraph.png)
+
+*The polygraph compares recovered values with hidden **simulated** physiology. The plot is an engineering test of reconstruction and timing, not a clinical recording.*
 
 ### What it proves
 
