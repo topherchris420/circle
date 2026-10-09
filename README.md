@@ -32,6 +32,10 @@ The [interactive example report](diagrams/circle-physiology-session.html) lets y
 
 ---
 
+### Mathematical research extension (not yet tested)
+
+**Can a recorded error envelope survive dropped, delayed and reordered synthetic sensor packets?** [Examine the proposed experiment, assumptions and negative control](docs/MATH_RESEARCH.md). Candidate `openai/math` references are available through the [shared R.A.I.N. portfolio scout](https://github.com/topherchris420/lop-nur-twin/blob/main/docs/MATH_PORTFOLIO.md), not installed or automatically applied to this runtime.
+
 ## What exists, and what does not
 
 | | Status |
