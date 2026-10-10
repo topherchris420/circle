@@ -130,6 +130,26 @@ python tools/run_protocol.py authorize experiments/protocols/paced-breathing-aro
 python tools/run_protocol.py run experiments/protocols/paced-breathing-arousal.json --authorization outputs/auth.json --output outputs/protocol-result.json
 ```
 
+### Consent-by-Design in the deterministic loop
+
+[`circle_authority.py`](circle_authority.py) adds a standalone frame-driven
+consent gate. Restricted mutations remain `PENDING_SIGNATURE` while telemetry
+continues; only a queued, matching `HumanConsentEvent` verified with a registered
+Ed25519 human master public key can discharge them. Execution records preserve
+the signature, immutable action envelope and exact execution frame as canonical,
+hash-linked JSON. Invalid consent is `REJECTED`, and duplicate consent cannot
+repeat execution within the engine's lifetime.
+
+```bash
+python tools/run_authority_demo.py
+```
+
+The [six-frame example and integration contract](docs/consent-by-design.md)
+cover waiting, signing, replay and durable UUID binding. Signatures cover the
+UUID's binary bytes; the host must preserve its binding to one action across
+sessions. This optional gate does not replace the existing controller or
+actuator restrictions, and its replay stream is separate from sensor records.
+
 ---
 
 ## Hardware sources: one loop for simulation, recordings, and live devices

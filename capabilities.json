@@ -316,6 +316,25 @@
       "removable": true
     },
     {
+      "id": "consent_authority",
+      "layer": "RESEARCH_EXTENSION",
+      "status": "IMPLEMENTED",
+      "summary": "Standalone frame-driven restricted-mutation gate with Ed25519 human consent, immutable UUID-envelope bindings, bounded FIFO dispatch, and canonical hash-linked replay payloads.",
+      "paths": [
+        "circle_authority.py",
+        "tools/run_authority_demo.py",
+        "docs/consent-by-design.md"
+      ],
+      "evidence": [
+        "tests/test_circle_authority.py"
+      ],
+      "not_claimed": [
+        "Signatures authenticate UUID bytes; durable envelope bindings and replay storage are the host's responsibility.",
+        "No durable exactly-once side effects or hardware/human actuation authorization; existing actuator and protocol paths are not automatically gated."
+      ],
+      "removable": true
+    },
+    {
       "id": "rain_protocol_contract",
       "layer": "RESEARCH_EXTENSION",
       "status": "CONTRACT_ONLY",
