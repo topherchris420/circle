@@ -1,6 +1,6 @@
-<div align="center">
-
 # CIRCLE
+
+<div align="center">
 
 ### An open research instrument for physiological signals, adaptive feedback, and human authority.
 
