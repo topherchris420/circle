@@ -153,13 +153,26 @@ python tools/muse_gadget.py check --simulate
 
 The gadget simulator uses local Unix-domain sockets. See [hardware sources](docs/hardware-sources.md) for setup, adapter scope, and privacy boundaries.
 
+### A real biosignal board, and its own phantom
+
+The [OpenBCI Cyton bridge](docs/openbci-cyton.md) brings an 8- or 16-channel ADS1299 board through the same boundary. Its protocol is pinned to the Cyton firmware, the radio firmware, and TI's datasheet. The bridge configures the board and then reads the ADC's registers back, so every gain in the record is the gain the ADC holds. Its 8-bit sample counter makes most losses exact GAPs. A silence of several seconds, more than the counter can resolve, is counted from the sample clock. Because the board's internal oscillator is only within ±0.5 %, sample times come from a [host-to-device clock mapping](models/acquisition/clock.py) that measures it. Receipts bound that mapping from above, and marker probes bound it from below.
+
+**The board can be its own electronic phantom.** The ADS1299 can feed every channel an internal square wave, clocked from the same oscillator as the ADC. Its edges must recur every 256 samples, exactly, whatever the oscillator's error. `phantom` judges that and eight other checks against the datasheet with the accelerometer off. No person is needed, and no signal from a body can reach the record. A packet the counter counts but the ADC never took fails the check, and the self-test proves it.
+
+```bash
+python tools/openbci_cyton.py self-test                     # simulated board: damaged phantom, negative control, ECG, Daisy
+python tools/openbci_cyton.py phantom --port /dev/ttyUSB0   # a real board, with pyserial
+```
+
+The Cyton measures biopotentials, not skin conductance, PPG counts, rotation, or a sync pulse, so the closed loop refuses it and records why. Like the [Oura ring bridge](docs/hardware-sources.md#oura-ring-over-bluetooth-le-experimental-live-bridge), it has not yet been run against physical hardware here.
+
 ## From simulation to an instrument
 
 | Layer | Where it stands |
 |---|---|
 | Signal reconstruction, deterministic controller, evidence export, audit, replay | Implemented and exercised against the physiology twin |
 | Cryptographic consent | Implemented as a standalone event reducer with a deterministic example and tests |
-| Acquisition | Simulated-link and recorded-bundle paths exercised; no live biosignal device connected |
+| Acquisition | Simulated-link and recorded-bundle paths exercised; Oura ring and OpenBCI Cyton bridges built and exercised against a fake ring and a simulated board; clock mapping scored against simulated drift; no live biosignal device connected |
 | Rev B hardware | Designed, not built; main and optical boards remain unrouted |
 | Firmware | Not implemented; the twin models timing requirements firmware must eventually meet |
 | Bench, phantom, electrical-safety, EMC, or human validation | None performed |
@@ -218,7 +231,8 @@ Use [GitHub Actions](https://github.com/topherchris420/circle/actions) for curre
 |---|---|
 | [`models/physiology/`](models/physiology) | Twin, sensor models, pipeline, controller, evidence export, ledger, and independent audit |
 | [`circle_authority.py`](circle_authority.py) | Human-consent state machine and replay payloads |
-| [`models/acquisition/`](models/acquisition) | Ingestion, simulated link faults, and recorded replay |
+| [`models/acquisition/`](models/acquisition) | Ingestion, clock mapping, simulated link faults, and recorded replay |
+| [`models/openbci_cyton/`](models/openbci_cyton) · [`tools/openbci_cyton.py`](tools/openbci_cyton.py) | OpenBCI Cyton bridge, phantom scorecard, and simulated board |
 | [`models/protocols.py`](models/protocols.py) | Experiment validation, reviewer authorization, and simulation execution |
 | [`models/session_records.py`](models/session_records.py) · [`contracts/`](contracts) | Record validation, provenance, lineage, and experiment schemas |
 | [`tools/`](tools) · [`tests/`](tests) | Runnable experiments, auditors, verification tools, and regression tests |
@@ -232,7 +246,7 @@ Useful contributions start with a question the instrument can answer:
 
 - **Signal processing:** propose an estimator, compare it on fresh seeds, and retain the cases where it fails.
 - **Consent and replay:** connect the standalone authority gate to a bounded application path, with durable UUID bindings and crash-recovery evidence.
-- **Acquisition:** implement a source that satisfies the stream and timing contracts, then exercise loss, delay, and replay.
+- **Acquisition:** implement a source that satisfies the stream and timing contracts, then exercise loss, delay, and replay. If you own a Cyton, run `phantom` and share the session: it holds internal test signals only, so it can be published without exposing anyone's data.
 - **Hardware and firmware:** work through the documented review gates, timestamping requirements, and phantom-validation plans.
 - **Research methods:** make a hypothesis falsifiable, preregister the comparison, and preserve the null result.
 

@@ -1,6 +1,6 @@
 # Hardware Sources and the Muse Gadget SDK
 
-> **ENGINEERING REVIEW ONLY** — No live device has ever been connected to CIRCLE. Everything on this page was exercised against the simulated physiology twin, recorded bundles, a simulated Muse gadget service, and, where installed, the Muse Gadget SDK's own code with no network. It establishes nothing about hardware, physiology, or people.
+> **ENGINEERING REVIEW ONLY** — No live device has ever been connected to CIRCLE. Everything on this page was exercised against the simulated physiology twin, recorded bundles, a simulated Muse gadget service, and, where installed, the Muse Gadget SDK's own code with no network, a fake Oura ring, and a simulated OpenBCI Cyton. It establishes nothing about hardware, physiology, or people.
 
 **CIRCLE owns the experiment. Hardware provides observations and executes bounded interventions.**
 
@@ -270,10 +270,36 @@ python tools/oura_acquisition_bridge.py record --key-file ring.key --wearer-cons
 
 ---
 
+## OpenBCI Cyton over its radio dongle (experimental live bridge and phantom)
+
+[`tools/openbci_cyton.py`](../tools/openbci_cyton.py) and [`models/openbci_cyton/`](../models/openbci_cyton) bring an OpenBCI Cyton (ADS1299, 8 channels, or 16 with the Daisy) through the same boundary. The protocol is pinned to [OpenBCI_Cyton_Library](https://github.com/OpenBCI/OpenBCI_Cyton_Library) `24e1c42` (v3.1.5), [OpenBCI_Radios](https://github.com/OpenBCI/OpenBCI_Radios) `389a831`, and the ADS1299 datasheet (SBAS499C). [The Cyton page](openbci-cyton.md) has the details.
+
+| Board channel | Stream | What is kept |
+|---|---|---|
+| Eight 24-bit ADS1299 channels (and the Daisy's eight) | `cyton_exg`, `cyton_daisy` | Codes, `epoch`, unwrapped `sample_index`, raw 8-bit `counter`; gains read back from the ADC's registers |
+| LIS3DH, 25 Hz, zero-filled between readings | `cyton_accel` | x, y, z raw counts, the carrying packet's sample index |
+| Analog or digital pins | `cyton_aux` | 10-bit A5–A7, or D11, D12, D13, D17, D18 |
+| Marker mode | `cyton_markers` events | Host-sent markers seen in the data: clock probes |
+
+- **The sample clock is real, and it is measured.** Exact intervals come from the ADC's sample index; sample times come from a minimum-delay clock line over the receipts ([`models/acquisition/clock.py`](../models/acquisition/clock.py)), because the internal oscillator is only within ±0.5 % of 250 SPS. Marker probes bound the mapping from below; `CLOCK_MAPPING` records state the rate and the bounds.
+- **Losses are exact, even past a counter wrap.** The counter fixes short losses; the sample clock and the oscillator's tolerance fix a silence of several seconds. When neither resolves a loss, the bridge marks one discontinuity of unknown size and never chooses.
+- **It is its own phantom.** `phantom` puts every channel on the ADS1299's internal test signals or shorted inputs with the accelerometer off: a session that holds no signal from a body, judged against the datasheet.
+- **The closed loop does not run on it.** A biopotential board supplies no EDA, PPG counts, gyroscope, or sync stream in the input contract's form. The refusal is recorded as `FAULT` records, and nothing is actuated.
+
+```bash
+python tools/openbci_cyton.py self-test                                   # no board, no pyserial
+pip install pyserial
+python tools/openbci_cyton.py phantom --port /dev/ttyUSB0                 # no person needed
+python tools/openbci_cyton.py record --port /dev/ttyUSB0 --wearer-consents --battery-powered --seconds 300
+```
+
+---
+
 ## What this does not show
 
 - No live device, transport, or clock mapping has been built or measured. The ingestion boundary has seen only the twin over a scripted link and recorded bundles; real links fail in ways not modeled here.
 - The Oura bridge has not been run against a physical ring in this repository. It was checked against open_oura's test vectors, a scripted damaged session, and a fake bleak ring. The protocol is reverse-engineered and unofficial.
+- The Cyton bridge has not been run against a physical board in this repository. It was checked against vectors written from the firmware's packet layout and a simulated board that follows the pinned firmware, including a negative control the phantom must fail.
 - The Muse adapter has never talked to a paired gadget or to Meta's service. It was checked against the simulator and, where installed, against the SDK's own service and `LinkSession` code with no network.
 - Nothing here changes what CIRCLE claims about physiology: every signal is still simulated, the arousal index is still an engineering trigger, and no intervention effect is asserted without a matched control.
 

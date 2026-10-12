@@ -72,6 +72,7 @@ def software_commands(py: str) -> list[tuple[str, list[str]]]:
         ("SIMULATION_BENCHMARK", [py, "tools/run_physiology_twin.py", "--scenarios", "--output", "outputs/scenarios"]),
         ("SIMULATION_BENCHMARK", [py, "tools/run_acquisition_demo.py", "--output", "outputs/acquisition-demo",
                                   "--no-report"]),
+        ("SIMULATION_BENCHMARK", [py, "tools/openbci_cyton.py", "self-test"]),
     ]
 
 
