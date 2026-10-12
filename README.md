@@ -31,9 +31,9 @@
 
 A signal becomes a decision. A decision changes a system. CIRCLE preserves the evidence connecting them.
 
-CIRCLE turns simulated sensor records into bounded decisions, follows each intervention through its observable consequences, and lets another researcher reconstruct the session from the raw data. Every action stays inspectable, reproducible, and subject to meaningful consent.
+CIRCLE turns simulated sensor records into bounded decisions, follows each intervention through its observable consequences, and lets another researcher reconstruct the session from the raw data.
 
-Today that includes a runnable digital test bench, an independent evidence auditor, a cryptographic consent module, live-source bridges, and a hardware design awaiting physical validation.
+The ambition is a closed-loop human-state platform whose actions remain inspectable, reproducible, and subject to meaningful consent. Today, that ambition has a runnable digital test bench, an independent evidence auditor, a standalone cryptographic consent module not yet wired into the controller, and a hardware design awaiting physical validation.
 
 > [!WARNING]
 > **ENGINEERING REVIEW ONLY.** Experimental research hardware. This repository is not approved for fabrication or human connection and does not establish medical-device, electrical-safety, EMC, or measurement-performance claims. All physiological results shown here come from simulation.
