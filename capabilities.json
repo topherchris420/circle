@@ -373,6 +373,26 @@
         "An acknowledged notification shows the Muse service accepted a chat turn, not that a person read it."
       ],
       "removable": true
+    },
+    {
+      "id": "oura_ble_bridge",
+      "layer": "HARDWARE_ADAPTER",
+      "status": "EXPERIMENTAL",
+      "summary": "Live acquisition from an Oura ring over Bluetooth LE with bleak, using open_oura's reverse-engineered protocol: app authentication, per-beat live IBI and time-boxed accelerometer frames, delivered through pump() into the Ingestor with host-receipt availability, exact GAPs from the ring's frame counter and marked link discontinuities, RMSSD windows with lineage, and a contract-valid session that records why the closed loop cannot run on it.",
+      "paths": [
+        "tools/oura_acquisition_bridge.py"
+      ],
+      "evidence": [
+        "tests/test_oura_acquisition_bridge.py",
+        "python tools/oura_acquisition_bridge.py"
+      ],
+      "not_claimed": [
+        "Never run against a physical ring in this repository; exercised with open_oura's own test vectors, a scripted damaged session, and a fake bleak ring.",
+        "The ring's live frames carry no clock; sample times are host-receipt estimates, and beats lost with the link are marked, not counted.",
+        "The ring supplies no EDA, PPG counts, gyroscope, or sync stream, so it cannot drive the closed loop; nothing physiological is imputed.",
+        "RMSSD from ring-screened beats is not a clinical HRV measurement; the protocol is reverse-engineered and unofficial."
+      ],
+      "removable": true
     }
   ]
 }
