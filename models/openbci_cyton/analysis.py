@@ -408,7 +408,11 @@ def ecg_beats(raw: RawSession, channel: str, clocks: list[MinimumDelayClock]) ->
     see: the sample index is exact across a declared loss, so one lost packet need not cost a beat. A peak
     within HOLE_GUARD_S of a filled sample is dropped, never reported from invented data.
     """
-    stream = next(s for s in _exg_streams(raw) if channel in s.columns)
+    stream = next((s for s in _exg_streams(raw) if channel in s.columns), None)
+    if stream is None:
+        declared = any(channel in s.columns for s in raw.streams.values())
+        return {"stream": None, "channel": channel, "beats": [], "detections": [],
+                "unavailable": "the channel holds no samples" if declared else "the board has no such channel"}
     desc = raw.descriptors[stream.name]
     fs = desc["nominal_rate_hz"]
     step = 2 if _daisy(stream) else 1

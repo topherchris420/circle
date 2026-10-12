@@ -339,10 +339,20 @@ class Session:
             expected = {"input_type": signal.input_type, "gains": (p.DEFAULT_GAIN,) * n,
                         "test": (signal.amplitude_k, signal.frequency) if signal.input_type == "TESTSIG" else None}
         dump = p.parse_register_dump(self.exchange(p.QUERY_REGISTERS, 4.0))
-        config = {"label": label, "read_back": bool(dump), "channels": []}
         problems: list[str] = []
-        if not dump:
-            problems.append(f"{label}: the register dump could not be read; gains are assumed, not verified")
+        # Text crosses the radio in pages; a lost page drops lines. Only a complete dump verifies anything.
+        sections = ("board", "daisy") if self.setup.daisy else ("board",)
+        for name in sections:
+            if name not in dump:
+                problems.append(f"{label}: the {name} ADS1299's registers are missing from the dump; its gains are "
+                                "assumed, not verified")
+                continue
+            absent = [r for r in p.VERIFIED_REGISTERS if r not in dump[name].values]
+            if absent:
+                problems.append(f"{label}: the {name} register dump lacks {', '.join(absent)}; those settings are "
+                                "assumed, not verified")
+        config = {"label": label, "read_back": not problems and bool(dump), "partial": bool(dump) and bool(problems),
+                  "channels": []}
         for name, regs in dump.items():
             self.setup.registers[f"{label}:{name}"] = regs.values
             offset = 0 if name == "board" else 8
@@ -420,15 +430,22 @@ class Session:
                 self.status(self.status_line(label, received - sent))
             await asyncio.sleep(0)
         if self.terminated != "LINK_LOST":
-            for gap in core.streams.end_segment(self.now(), int(self.plan.stale_after_s * 1e6)):
-                core.emit(self.now(), gap)
+            stop_sent = self.now()
             self.send(p.STOP_STREAMING)
-            stop_deadline = self.now() + 0.25e6
+            stop_deadline = stop_sent + 0.25e6
             while self.now() < stop_deadline:
                 data = await self.read()
                 if data:
                     core.feed(data, self.now())
                 await asyncio.sleep(0)
+            # Only after the drain: packets delayed in the dongle or USB have arrived by now, or never will.
+            marks = core.streams.end_segment(stop_sent, int(self.plan.stale_after_s * 1e6), self.now())
+            for gap in marks:
+                core.emit(self.now(), gap)
+            if any(g.cause.startswith("SEGMENT_NOTHING_ARRIVED") for g in marks):
+                core.control("SEGMENT_DELIVERED_NOTHING", self.now(), segment=len(self.segments))
+                if self.terminated == "COMPLETED":
+                    self.terminated = "SEGMENT_DELIVERED_NOTHING"
         core.control("SEGMENT_END", self.now(), segment=len(self.segments))
         self.segments.append({"label": label, "seconds": seconds, "started_us": sent,
                               "epochs": list(range(epochs_before, core.streams.epochs))})
@@ -462,7 +479,12 @@ async def run(port: Port, clock: Callable[[], int], plan: Plan, blocking_reads: 
     session.configure_board()
     first_label = plan.segments[0][0]
     session.configure_segment(first_label)
-    core = CytonCore(session.layout(), plan, inbox_limit=plan.queue * 64)
+    layout = session.layout()
+    if plan.ecg_channel and not any(plan.ecg_channel in cols for cols in layout.columns().values()):
+        session.restore()
+        raise CytonError(f"ECG on {plan.ecg_channel} needs that channel, but this board reports "
+                         f"{16 if layout.daisy else 8} channels")
+    core = CytonCore(layout, plan, inbox_limit=plan.queue * 64)
     session.core = core
     for kind, at, attributes in session.setup.events:
         core.control(kind, at, **attributes)
@@ -597,13 +619,16 @@ def build_records(raw: RawSession, core: CytonCore, session: Session, info: Sess
                     *[f"BOARD_COMMAND:{c}" for c in dict.fromkeys(session.setup.commands) if not c.startswith("`")]],
                    stream_id="session", payload={"streams": len(raw.streams), "duration_s": info.end_us / 1e6,
                                                  "segments": len(session.segments)}))
+    verified = bool(session.setup.configuration) and all(c["read_back"] for c in session.setup.configuration)
     for name, stream in raw.streams.items():
         entry = raw_entries[f"raw/{name}.csv.gz"]
         t0, t1 = (int(stream.device_time_us[0]), int(stream.device_time_us[-1])) if len(stream) else (0, 0)
+        flags = [f if verified or f != "SCALE:GAIN_READ_BACK_FROM_REGISTERS" else "SCALE:GAIN_NOT_FULLY_READ_BACK"
+                 for f in DESCRIPTOR_FLAGS[name]]
         add(1, _record("STREAM_DESCRIPTOR", info.provenance, t0, t1,
                        [f"RAW_ARTIFACT:raw/{name}.csv.gz", f"CONTENT_SHA256:{entry['content_sha256']}",
                         f"ROWS:{entry['rows']}", f"COLUMNS:{','.join(core.streams.columns[name])}",
-                        *DESCRIPTOR_FLAGS[name]], stream_id=name, payload=dict(raw.descriptors[name])))
+                        *flags], stream_id=name, payload=dict(raw.descriptors[name])))
     add(2, _record("CONFIG_CHANGE", info.provenance, 0, 0,
                    ["CONTROLLER_CONFIG", f"CONTROLLER_VERSION:{CONTROLLER_VERSION}",
                     f"BASELINE_PHASE:{ControllerConfig().baseline_phase}", f"ARM_PHASE:{ControllerConfig().arm_phase}",
@@ -622,7 +647,8 @@ def build_records(raw: RawSession, core: CytonCore, session: Session, info: Sess
                                 "data_rate_hz": config.get("data_rate_hz") or 0}))
         add(2, _record("CONFIG_CHANGE", info.provenance, at, at,
                        ["BOARD_CONFIGURATION", f"SEGMENT_CONDITION:{config['label']}",
-                        "READ_BACK_FROM_ADS_REGISTERS" if config["read_back"] else "ASSUMED_NOT_READ_BACK"],
+                        "READ_BACK_FROM_ADS_REGISTERS" if config["read_back"] else
+                        "PARTLY_READ_BACK_REST_ASSUMED" if config.get("partial") else "ASSUMED_NOT_READ_BACK"],
                        stream_id="board_configuration", sequence=i, payload=payload))
     for i, problem in enumerate(capability_problems(caps)):
         add(3, _record("FAULT", "DERIVED", 0, 0, ["INPUT_CONTRACT_UNMET", "CLOSED_LOOP_NOT_ELIGIBLE"],
@@ -708,16 +734,7 @@ def analyze(raw: RawSession, core: CytonCore, session: Session) -> dict[str, Any
     """Every result computed from the raw records (and the clocks built from their receipts)."""
     clocks = core.streams.clocks
     observed = [e for e in raw.events if e.stream_id == MARKER_STREAM]
-    probes: list[tuple[int, int, int]] = []
-    sent = {code: [t for c, t in core.probes_sent if c == code] for code in PROBE_CODES}
-    for event in observed:
-        code = int(event.attribute("code") or 0)
-        epoch, index = int(event.attribute("epoch") or 0), int(event.attribute("sample_index") or 0)
-        queue = [t for t in sent.get(code, []) if t <= event.device_time_us + LATENCY_BOUND_US]
-        if queue:
-            t = queue[0]
-            sent[code].remove(t)
-            probes.append((epoch, index, t))
+    probes = pair_probes(observed, core.probes_sent)
     results: dict[str, Any] = {"clock": an.clock_bounds(clocks, probes), "probes_paired": len(probes),
                                "probes_sent": len(core.probes_sent), "markers_observed": len(observed)}
     if session.plan.mode == "PHANTOM":
@@ -730,9 +747,32 @@ def analyze(raw: RawSession, core: CytonCore, session: Session) -> dict[str, Any
             results["ecg"] = {"channel": ecg["channel"], "beats": len(ecg["beats"]),
                               "beat_sample_index": [round(b["sample_index"], 3) for b in ecg["beats"]],
                               "beat_epoch": [b["epoch"] for b in ecg["beats"]]}
-            results["hrv"] = an.hrv_windows(raw, ecg)
+            if ecg["stream"] is None:
+                results["ecg"]["unavailable"] = ecg["unavailable"]
+            results["hrv"] = an.hrv_windows(raw, ecg) if ecg["stream"] is not None else []
             results["_beats_us"] = [b["time_us"] for b in ecg["beats"]]
     return results
+
+
+def pair_probes(observed: list[DeviceEvent], sent: list[tuple[int, int]]) -> list[tuple[int, int, int]]:
+    """(epoch, sample_index, sent_us) for each marker seen in the data, paired with its own send.
+
+    Codes cycle, so a code recurs about every 26 s. A marker pairs with the latest send of its code that could
+    precede it; earlier sends of that code that never appeared were lost on the way, and can no longer pair.
+    """
+    pending: dict[int, list[int]] = {}
+    for code, t in sorted(sent, key=lambda item: item[1]):
+        pending.setdefault(code, []).append(t)
+    probes = []
+    for event in sorted(observed, key=lambda e: e.device_time_us):
+        code = int(event.attribute("code") or 0)
+        before = [t for t in pending.get(code, []) if t <= event.device_time_us + LATENCY_BOUND_US]
+        if not before:
+            continue
+        t = max(before)
+        pending[code] = [x for x in pending[code] if x > t]
+        probes.append((int(event.attribute("epoch") or 0), int(event.attribute("sample_index") or 0), t))
+    return probes
 
 
 def _private(path: Path, mode: int) -> None:

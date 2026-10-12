@@ -325,6 +325,7 @@ def parse_banner(text: str) -> Banner | None:
 REGISTER_NAMES = ("ADS_ID", "CONFIG1", "CONFIG2", "CONFIG3", "LOFF", *[f"CH{i}SET" for i in range(1, 9)], "BIAS_SENSP",
                   "BIAS_SENSN", "LOFF_SENSP", "LOFF_SENSN", "LOFF_FLIP", "LOFF_STATP", "LOFF_STATN", "GPIO", "MISC1",
                   "MISC2", "CONFIG4")
+VERIFIED_REGISTERS = ("ADS_ID", "CONFIG1", "CONFIG2", *[f"CH{i}SET" for i in range(1, 9)])   # each ADC, every segment
 _GAIN_BY_CODE = {0: 1, 1: 2, 2: 4, 3: 6, 4: 8, 5: 12, 6: 24}
 _INPUT_BY_CODE = {int(code): name for name, code in INPUT_TYPES.items()}
 _DATA_RATE_BY_CODE = {code: rate for code, rate in SAMPLE_RATE_CODES.items()}

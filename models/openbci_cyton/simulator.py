@@ -54,6 +54,7 @@ class Scenario:
     phantom_packets: tuple[int, ...] = ()         # after these ordinals, a packet the counter counts but the ADC never
                                                   # took (a firmware fault): a negative control for the phantom
     ignore_channel_commands: bool = False         # replies "Success" but leaves CHnSET alone (a fault read-back catches)
+    drop_register_lines: tuple[str, ...] = ()     # register names (or "DAISY_SECTION") lost from the "?" reply
     stray_bytes: tuple[tuple[float, bytes], ...] = ()      # bytes the USB stream carries at a time
     power_off_s: float | None = None              # the board stops answering and streaming
     usb_transfer_bytes: int = 62
@@ -308,9 +309,9 @@ class SimulatedCyton:
                       "CONFIG3": 0xEC, "LOFF": 0x02}
             for i, s in enumerate(settings[:8]):
                 values[f"CH{i + 1}SET"] = p.channel_register_value(s["power_down"], s["gain"], s["input_type"], s["srb2"])
-            return p.register_dump_lines(values)
+            return p.register_dump_lines({k: v for k, v in values.items() if k not in self.s.drop_register_lines})
         text = "\nBoard ADS Registers\n" + ads(self.settings[:8])
-        if self.daisy_present:
+        if self.daisy_present and "DAISY_SECTION" not in self.s.drop_register_lines:
             text += "\nDaisy ADS Registers\n" + ads(self.settings[8:])
         return text + "\nLIS3DH Registers\n0x07 00\n0x0F 33\n$$$"
 

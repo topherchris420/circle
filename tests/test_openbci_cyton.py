@@ -29,7 +29,7 @@ from models.openbci_cyton.simulator import Scenario, SimulatedCyton, SimulatedPo
 from models.openbci_cyton.streams import (ACCEL_STREAM, DAISY_STREAM, EXG_STREAM, MARKER_STREAM, CytonStreams,
                                           StreamLayout)
 from models.acquisition.ingest import StreamChunk
-from models.physiology.streams import DeviceEvent, Gap
+from models.physiology.streams import DeviceEvent, Gap, RawSession
 from models.session_records import load_session
 from tools import openbci_cyton as tool
 
@@ -221,11 +221,18 @@ class StreamsTest(unittest.TestCase):
         s = CytonStreams(StreamLayout())
         s.start_segment(990_000)
         self.feed(s, list(range(10)))
-        self.assertEqual(s.end_segment(1_100_000, 250_000), [])
+        self.assertEqual(s.end_segment(1_100_000, 250_000, 1_350_000), [])
         s.start_segment(1_200_000)
         s.packets([packet(0)], 1_220_000)
-        (mark,) = s.end_segment(2_000_000, 250_000)
+        (mark,) = s.end_segment(2_000_000, 250_000, 2_250_000)
         self.assertTrue(mark.cause.startswith("SEGMENT_TAIL_LOST"))
+
+    def test_a_segment_with_no_packet_marks_every_stream(self):
+        s = CytonStreams(StreamLayout())
+        s.start_segment(990_000)
+        marks = s.end_segment(5_000_000, 250_000, 5_250_000)
+        self.assertEqual({m.stream_id for m in marks}, {EXG_STREAM, ACCEL_STREAM})
+        self.assertTrue(all(m.cause.startswith("SEGMENT_NOTHING_ARRIVED") for m in marks))
 
 
 def simulate(scenario: Scenario, plan: b.Plan, output: Path, human: bool = False):
@@ -297,6 +304,53 @@ class SessionTest(unittest.TestCase):
         records = load_session(self.out / "mismatch" / "session.ndjson")
         self.assertEqual(sum("BOARD_CONFIGURATION_MISMATCH" in r["status_flags"] for r in records), 8)
 
+    def test_an_incomplete_register_dump_verifies_nothing_it_lacks(self):
+        _, raw, results, _, _ = simulate(Scenario(seed=26, drop_register_lines=("CH3SET",)), b.phantom_plan(0.3),
+                                         self.out / "partial")
+        read_back = next(c for c in results["phantom"]["checks"] if c["id"] == "REGISTERS_READ_BACK")
+        self.assertEqual(read_back["status"], "FAIL")
+        records = load_session(self.out / "partial" / "session.ndjson")
+        self.assertTrue(any("PARTLY_READ_BACK_REST_ASSUMED" in r["status_flags"] for r in records))
+        self.assertTrue(any("CH3SET" in r.get("cause", "") for r in records if r["record_type"] == "FAULT"))
+        exg = next(r for r in records if r["record_type"] == "STREAM_DESCRIPTOR")
+        self.assertIn("SCALE:GAIN_NOT_FULLY_READ_BACK", exg["status_flags"])
+
+    def test_a_missing_daisy_section_is_a_mismatch(self):
+        plan = b.Plan("RECORD", (("electrodes", 2.0),), "default")
+        session, _, _, _, _ = simulate(Scenario(seed=27, daisy=True, drop_register_lines=("DAISY_SECTION",)), plan,
+                                       self.out / "no-daisy-dump")
+        self.assertTrue(any("daisy ADS1299's registers are missing" in x for x in session.setup.register_problems))
+
+    def test_an_ecg_channel_the_board_lacks_is_refused_before_acquisition(self):
+        clock = VirtualClock()
+        board = SimulatedCyton(Scenario(seed=28))
+        plan = b.Plan("RECORD", (("electrodes", 5.0),), "default", ecg_channel="ch12")
+        with self.assertRaises(b.CytonError) as caught:
+            run(b.run(SimulatedPort(board, clock), clock, plan))
+        self.assertIn("8 channels", str(caught.exception))
+        self.assertEqual(board.truth.segments, [])                       # nothing was streamed
+        empty = an.ecg_beats(RawSession({}, {}), "ch12", [])
+        self.assertEqual((empty["beats"], empty["unavailable"]), ([], "the board has no such channel"))
+
+    def test_a_segment_that_delivers_nothing_is_marked_and_not_completed(self):
+        plan = b.Plan("RECORD", (("electrodes", 3.0),), "default")
+        session, raw, _, _, _ = simulate(Scenario(seed=29, dropouts_s=((0.0, 1e4),)), plan, self.out / "silent")
+        self.assertEqual(session.terminated, "SEGMENT_DELIVERED_NOTHING")
+        self.assertEqual(len(raw.streams[EXG_STREAM]), 0)
+        marks = [g for g in raw.gaps if g.cause.startswith("SEGMENT_NOTHING_ARRIVED")]
+        self.assertEqual({g.stream_id for g in marks}, {EXG_STREAM, ACCEL_STREAM})
+        load_session(self.out / "silent" / "session.ndjson")
+
+    def test_packets_held_in_usb_past_the_stop_are_drained_not_declared_lost(self):
+        plan = b.Plan("RECORD", (("electrodes", 4.0),), "default")
+        session, _, _, _, _ = simulate(Scenario(seed=30), plan, self.out / "dry-run")
+        stop_world_s = (session.t0 + session.segments[0]["started_us"]) / 1e6 + 4.0
+        stall = ((stop_world_s - 0.35, stop_world_s + 0.05),)
+        session, raw, _, _, _ = simulate(Scenario(seed=30, usb_stalls_s=stall), plan, self.out / "stalled")
+        self.assertEqual(raw.gaps, [])
+        self.assertEqual(session.core.streams.epochs, 1)
+        self.assertEqual(session.terminated, "COMPLETED")
+
     def test_an_ecg_recording_is_human_data_with_lawful_hrv_windows(self):
         plan = b.Plan("RECORD", (("electrodes", 65.0),), "default", ecg_channel="ch2")
         session, raw, results, _, board = simulate(Scenario(seed=24, radio_loss=0.001), plan, self.out / "ecg",
@@ -351,6 +405,16 @@ class SessionTest(unittest.TestCase):
             b.Plan("PHANTOM", (("electrodes", 1.0),), "marker")
         with self.assertRaises(ValueError):
             b.Plan("PHANTOM", (("shorted", 1.0),), "default")
+
+
+class ProbePairingTest(unittest.TestCase):
+    def test_a_marker_pairs_with_its_own_send_not_an_earlier_lost_one(self):
+        def seen(at_us, index):
+            return DeviceEvent(MARKER_STREAM, index, "MARKER_IN_DATA", at_us,
+                               (("code", 65.0), ("epoch", 0.0), ("sample_index", float(index))))
+        sent = [(65, 1_000_000), (66, 1_500_000), (65, 27_000_000), (65, 53_000_000)]
+        probes = b.pair_probes([seen(27_010_000, 6_500), seen(53_012_000, 13_000)], sent)
+        self.assertEqual(probes, [(0, 6_500, 27_000_000), (0, 13_000, 53_000_000)])
 
 
 class CommandLineTest(unittest.TestCase):

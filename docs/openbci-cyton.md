@@ -48,7 +48,7 @@ The first Daisy half after every ADC start averages a value left from before the
 
 ## How a session keeps CIRCLE's evidence rules
 
-**Configured, then verified.** Setup stops any stream left running, asks the dongle whether the board answers (`0xF0 0x07`), soft-resets and parses the banner (ADS1299 and LIS3DH identities, the Daisy), reads the firmware version, turns time stamps off, and sets the board mode. It then configures the channels and **reads the ADC's registers back** over `?`. Every stream descriptor's gain is the gain read back, not the one requested. A board that acknowledges a command without applying it is caught here and recorded as `BOARD_CONFIGURATION_MISMATCH`.
+**Configured, then verified.** Setup stops any stream left running, asks the dongle whether the board answers (`0xF0 0x07`), soft-resets and parses the banner (ADS1299 and LIS3DH identities, the Daisy), reads the firmware version, turns time stamps off, and sets the board mode. It then configures the channels and **reads the ADC's registers back** over `?`. Every stream descriptor's gain is the gain read back, not the one requested. A board that acknowledges a command without applying it is caught here and recorded as `BOARD_CONFIGURATION_MISMATCH`. Text crosses the radio in pages, so a reply can lose lines. Only a complete dump counts as read back: every ADC's identity, `CONFIG1`, `CONFIG2`, and all eight `CHnSET` registers. Anything missing is a mismatch, flagged `PARTLY_READ_BACK_REST_ASSUMED`. An ECG channel the board does not have is refused before anything streams.
 
 **Only commands whose effect is recorded.** [`command_refusal`](../models/openbci_cyton/protocol.py) refuses SD-card logging (data CIRCLE would not hold or hash), the WiFi shield, debug and BLE board modes, sample rates above 250 SPS, and dongle radio settings. Every command sent is listed in the session header.
 
@@ -62,7 +62,8 @@ The first Daisy half after every ADC start averages a value left from before the
 | `CYTON_SEGMENT_START_LOST` | The counter restarts at 0 on `b`; the first packets never arrived |
 | …`full counter wrap(s) resolved by the sample clock` | A silence longer than 256 samples, counted exactly (below) |
 | `COUNTER_AMBIGUOUS` | One marked discontinuity: more than one count, or none, fits the receipt time |
-| `SEGMENT_TAIL_LOST` | The link was silent before the stop; samples taken then were never delivered |
+| `SEGMENT_TAIL_LOST` | After the stop and a drain of what was in flight, the last delivered sample (on the clock line) was taken well before the stop |
+| `SEGMENT_NOTHING_ARRIVED` | Not one packet arrived between `b` and the end of the drain; the session does not end `COMPLETED` |
 | `LINK_LOST` | The serial port failed |
 | `ACCEL_LOSS_UNKNOWN` | Packets were lost; the accelerometer readings they may have carried cannot be counted |
 

@@ -21,6 +21,9 @@ discontinuity whose cause says its size is unknown, and a new epoch begins.
   CYTON_SEGMENT_START_LOST      the counter restarts at 0 on 'b'; the first
                                 packets of the segment never arrived
   COUNTER_AMBIGUOUS / LINK_LOST one marked discontinuity of unknown size
+  SEGMENT_TAIL_LOST /           after the stop and a drain, the segment's tail,
+  SEGMENT_NOTHING_ARRIVED       or all of it, was never delivered: marked, size
+                                unknown
   ACCEL_LOSS_UNKNOWN            packets were lost; the accelerometer readings
                                 they may have carried (about one in ten) are
                                 not countable, so one slot is marked
@@ -219,20 +222,30 @@ class CytonStreams:
                 out.append(self._mark(stream, at_us, cause))
         return out
 
-    def end_segment(self, stop_sent_us: int, silence_limit_us: int) -> list[Gap]:
-        """The host sent 's'. Samples taken after the last packet that arrived are revealed by no later packet:
-        when the link had been silent longer than silence_limit_us before the stop, mark them, size unknown."""
-        epoch = self.epoch
+    def end_segment(self, stop_sent_us: int, silence_limit_us: int, now_us: int) -> list[Gap]:
+        """The host sent 's' at stop_sent_us and has drained what was in flight. No later packet can reveal what
+        the segment never delivered, so mark it, size unknown: a whole segment with no packet, or a tail whose
+        last delivered sample was taken more than silence_limit_us before the stop (judged on the clock line,
+        not on receipt, so a delivery delayed in the dongle or USB is not mistaken for a loss)."""
+        pending, epoch = self._pending_start, self.epoch
         self._pending_start = None
-        if epoch is None or epoch.last_received is None or epoch.last_index < 0:
+        if epoch is None and pending is not None:
+            return [self._mark(stream, now_us,
+                               f"SEGMENT_NOTHING_ARRIVED: no packet arrived in the {(stop_sent_us - pending) / 1e6:.3f} s "
+                               "between 'b' and the stop, or in the drain after it; the number of samples taken "
+                               "(possibly none) is unknown")
+                    for stream in self.columns]
+        if epoch is None or epoch.last_index is None or epoch.last_index < 0:
             return []
-        silence = stop_sent_us - epoch.last_received
-        if silence <= silence_limit_us:
+        line = epoch.clock.line()
+        gap_us = stop_sent_us - float(line.at(epoch.last_index))
+        if gap_us <= silence_limit_us:
             return []
         self.epoch = None
-        return self._mark_all(stop_sent_us,
-                              f"SEGMENT_TAIL_LOST: nothing arrived for {silence / 1e6:.3f} s before the stop was sent; "
-                              "samples taken in that time were never delivered and their number is unknown")
+        return self._mark_all(now_us,
+                              f"SEGMENT_TAIL_LOST: the last packet that arrived was sampled about {gap_us / 1e6:.3f} s "
+                              "before the stop was sent and nothing later arrived in the drain; samples taken in that "
+                              "time were never delivered and their number is unknown")
 
     def link_lost(self, now_us: int, detail: str) -> list[Gap]:
         """The serial link failed: one marked discontinuity per stream that has delivered, and a new epoch later."""
