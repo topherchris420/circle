@@ -11,6 +11,7 @@
 [![Results: simulation only](https://img.shields.io/badge/results-simulation_only-8a2be2?style=flat-square)](#results-you-can-inspect)
 [![Hardware: engineering review only](https://img.shields.io/badge/hardware-engineering_review_only-d9534f?style=flat-square)](#from-simulation-to-an-instrument)
 [![Capability registry](https://img.shields.io/badge/capability-registry-2e8b57?style=flat-square)](capabilities.json)
+[![MIT license](https://img.shields.io/badge/license-MIT-f4c430?style=flat-square)](LICENSE)
 
 [Quick start](#quick-start) · [How CIRCLE works](#how-circle-works) · [Human authority](#human-authority-in-the-loop) · [Results](#results-you-can-inspect) · [What you can examine](#what-you-can-examine) · [FAQ](#faq) · [Documentation](#documentation)
 
@@ -330,6 +331,12 @@ Useful contributions start with a question the instrument can answer:
 ## Disclaimer
 
 CIRCLE is experimental research hardware and software for **engineering review only**. It is not approved for fabrication or human connection and makes no medical-device, electrical-safety, EMC, or measurement-performance claims. All physiological results come from simulation.
+
+## License
+
+[MIT](LICENSE)
+
+The license grants no approval to fabricate the hardware or connect it to a person; see the [disclaimer](#disclaimer) and [review gates](hardware/review-gates.json).
 
 ## The premise
 
