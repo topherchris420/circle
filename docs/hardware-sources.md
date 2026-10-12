@@ -244,9 +244,36 @@ python -m unittest tests.test_muse_gadget_sdk_conformance
 
 ---
 
+## Oura ring over Bluetooth LE (experimental live bridge)
+
+[`tools/oura_acquisition_bridge.py`](../tools/oura_acquisition_bridge.py) connects to an Oura ring (Ring 3/4/5) with [bleak](https://github.com/hbldh/bleak) and sends what the ring streams live through the same boundary the twin uses: `pump()` into an `Ingestor` with host-receipt availability, with a `LinkMonitor` watching delivery. It never contacts Oura's servers. The protocol comes from [open_oura](https://github.com/Th0rgal/open_oura) (commit `e57c43c`, MIT), and the decoders are checked against that project's own test vectors.
+
+| Ring channel | Stream | What is kept |
+|---|---|---|
+| Live heart rate (`2f 03 22 02 03`, one `2f … 28` frame per beat) | `oura_ibi` | IBI in ms, the ring's validity nibble, its raw `time_since` word |
+| Time-boxed accelerometer (`06 07 20000000 …`, `33` frames) | `oura_acm` | x, y, z raw counts and the ring's 8-bit frame counter |
+| HRV | `MODEL_RESULT` `HRV_WINDOW` | RMSSD over successive valid beats, with exact source sequence ranges |
+
+- **Losses are exact GAPs.** Frames missing from the ring's frame counter are declared slot by slot. A beat frame that cannot be decoded gets its own slot. A dropped link, a counter re-arm, or a silence the 8-bit counter cannot resolve each get one marked discontinuity. The GAP's cause says how many samples were lost, or says the number is unknown; it never makes one up.
+- **Timing is honest.** Live frames carry no ring clock, so times use `TIMEBASE:HOST_MONOTONIC`. A sample's time is its receipt minus the ring's stated sample period, it always increases, and a sample is never available before it was taken.
+- **Data are minimized.** Only beats and accelerometer frames are stored. Every other notification is counted by type and then discarded. Serial number, MAC address, and auth key are never stored. The output directory is owner-only, and the session is flagged `HUMAN_DATA`. `record` refuses to run without `--wearer-consents`.
+- **The closed loop does not run on it.** The ring provides no EDA, PPG counts, gyroscope, or sync stream. The session records the input-contract refusal as `FAULT` records (`CLOSED_LOOP_NOT_ELIGIBLE`), and nothing is actuated.
+
+```bash
+python tools/oura_acquisition_bridge.py self-test                     # no ring, no bleak: vectors plus a damaged scripted session
+pip install bleak
+python tools/oura_acquisition_bridge.py scan
+python tools/oura_acquisition_bridge.py record --key-file ring.key --wearer-consents --seconds 300
+```
+
+`ring.key` holds the 16-byte auth key the Oura app installed when it onboarded the ring, written as 32 hex characters. open_oura documents how to recover it. Close the Oura app first, because the ring accepts only one connection at a time.
+
+---
+
 ## What this does not show
 
 - No live device, transport, or clock mapping has been built or measured. The ingestion boundary has seen only the twin over a scripted link and recorded bundles; real links fail in ways not modeled here.
+- The Oura bridge has not been run against a physical ring in this repository. It was checked against open_oura's test vectors, a scripted damaged session, and a fake bleak ring. The protocol is reverse-engineered and unofficial.
 - The Muse adapter has never talked to a paired gadget or to Meta's service. It was checked against the simulator and, where installed, against the SDK's own service and `LinkSession` code with no network.
 - Nothing here changes what CIRCLE claims about physiology: every signal is still simulated, the arousal index is still an engineering trigger, and no intervention effect is asserted without a matched control.
 
