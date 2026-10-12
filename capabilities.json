@@ -115,7 +115,7 @@
       "id": "acquisition_boundary",
       "layer": "INSTRUMENT_CORE",
       "status": "IMPLEMENTED",
-      "summary": "One closed loop for every source of device records: the input contract and actuation-target gate, live ingestion with exact declared losses, link-state events and host-receipt availability, a deterministic link-fault simulator, recorded replay, and session records for sources the contract refuses.",
+      "summary": "One closed loop for every source of device records: the input contract and actuation-target gate, live ingestion with exact declared losses, link-state events and host-receipt availability, a host-to-device clock mapping (minimum-delay line from receipts, two-sided bounds from host probes), a deterministic link-fault simulator, recorded replay, and session records for sources the contract refuses.",
       "paths": [
         "models/physiology/loop.py",
         "models/acquisition"
@@ -123,11 +123,12 @@
       "evidence": [
         "tests/test_closed_loop_boundary.py",
         "tests/test_acquisition_ingest.py",
+        "tests/test_acquisition_clock.py",
         "python tools/run_acquisition_demo.py"
       ],
       "not_claimed": [
-        "No live device has been connected; the boundary is exercised with the twin over a simulated link and with recorded bundles.",
-        "Host-receipt availability on real hardware needs a host-to-device clock mapping, which has not been built or measured.",
+        "No live device has been connected; the boundary is exercised with the twin over a simulated link, with recorded bundles, and with simulated Oura and Cyton bridges.",
+        "The host-to-device clock mapping is scored against simulated oscillator offsets and delivery latencies; it has not been measured on hardware, and its bounds hold only under its stated latency and slack assumptions.",
         "Link faults are scripted simulations; real transports will fail in ways not modeled here."
       ],
       "removable": false
@@ -391,6 +392,28 @@
         "The ring's live frames carry no clock; sample times are host-receipt estimates, and beats lost with the link are marked, not counted.",
         "The ring supplies no EDA, PPG counts, gyroscope, or sync stream, so it cannot drive the closed loop; nothing physiological is imputed.",
         "RMSSD from ring-screened beats is not a clinical HRV measurement; the protocol is reverse-engineered and unofficial."
+      ],
+      "removable": true
+    },
+    {
+      "id": "openbci_cyton_bridge",
+      "layer": "HARDWARE_ADAPTER",
+      "status": "EXPERIMENTAL",
+      "summary": "An OpenBCI Cyton (ADS1299, 8 or 16 channels) over its radio dongle, pinned to OpenBCI_Cyton_Library 24e1c42 and OpenBCI_Radios 389a831: configuration verified by reading the ADC's registers back, every packet through pump() into the Ingestor, exact GAPs from the 8-bit counter and past counter wraps from the sample clock, probe-bounded clock mappings, and the board as its own electronic phantom judged against the ADS1299 datasheet; recordings of people need attested consent and battery power.",
+      "paths": [
+        "models/openbci_cyton",
+        "tools/openbci_cyton.py",
+        "docs/openbci-cyton.md"
+      ],
+      "evidence": [
+        "tests/test_openbci_cyton.py",
+        "python tools/openbci_cyton.py"
+      ],
+      "not_claimed": [
+        "Never run against a physical Cyton in this repository; exercised with protocol vectors written from the firmware's layout and a simulated board that follows the pinned firmware.",
+        "A phantom PASS validates the Cyton's own signal chain and CIRCLE's ingestion of it, not CIRCLE Rev B; the test signal's absolute amplitude is reported, not judged, because the datasheet states it two ways.",
+        "The Cyton measures biopotentials only; it supplies no EDA, PPG counts, gyroscope, or sync stream in the input contract's form, so it cannot drive the closed loop and nothing physiological is imputed.",
+        "ECG R peaks and RMSSD are scored only against the simulator's known beats; they are not clinical measurements, and the board is not a medical device."
       ],
       "removable": true
     }

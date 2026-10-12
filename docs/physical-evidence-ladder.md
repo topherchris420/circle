@@ -28,6 +28,8 @@ Every layer keeps the same evidence architecture: the same session contract, ava
 | SYNC generator | Laboratory 1 PPS and pulse trains | Clock fit, capture latency, jitter |
 | Disconnected / shielded / dummy-load channels | No physiology at all | Instrumentation pickup: a "response" that appears here is an artifact |
 
+An off-the-shelf board can rehearse the first rung before Rev B exists. [The OpenBCI Cyton phantom](openbci-cyton.md#the-board-as-its-own-phantom) runs the ADS1299's internal test signals and shorted inputs through CIRCLE's ingestion boundary, the same session contract, and declared gaps. It is judged against the datasheet. A PASS there is evidence about the Cyton's chain and CIRCLE's acquisition software on real bytes, not about Rev B, and it has not yet been run on a physical board in this repository.
+
 ## Hardware design decisions are propositions
 
 Each becomes a bring-up test before fabrication and is closed only by recorded evidence ([bring-up plan](board-bringup-and-validation-plan.md), [review gates](../hardware/review-gates.json)):

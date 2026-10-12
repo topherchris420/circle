@@ -67,6 +67,9 @@ jobs:
       - name: Acquisition boundary (damaged link, independent audit, recorded replay, Muse gadget refusal)
         run: python tools/run_acquisition_demo.py --output outputs/acquisition-demo --no-report
 
+      - name: OpenBCI Cyton bridge self-test (simulated board; damaged phantom, negative control, ECG, Daisy)
+        run: python tools/openbci_cyton.py self-test
+
       - name: Muse gadget adapter against the simulated SDK service (no gadget, token, or network)
         run: |
           python tools/muse_gadget.py capabilities --simulate
