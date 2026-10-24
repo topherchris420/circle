@@ -416,6 +416,27 @@
         "ECG R peaks and RMSSD are scored only against the simulator's known beats; they are not clinical measurements, and the board is not a medical device."
       ],
       "removable": true
+    },
+    {
+      "id": "local_workbench",
+      "layer": "CLOSED_LOOP",
+      "status": "IMPLEMENTED",
+      "summary": "Local browser interface for guided simulation runs, active/sham comparison, persistent history, cancellation, independent audit results, and evidence downloads.",
+      "paths": [
+        "models/workbench.py",
+        "models/workbench_assets",
+        "tools/run_workbench.py"
+      ],
+      "evidence": [
+        "tests/test_workbench.py",
+        "docs/workbench.md"
+      ],
+      "not_claimed": [
+        "Simulation only; no hardware control, human measurements, or physiological efficacy.",
+        "Local single-user interface, not a hosted service or integration of the standalone consent gate.",
+        "Audit results describe the export at completion; files modified later must be re-audited."
+      ],
+      "removable": true
     }
   ]
 }
