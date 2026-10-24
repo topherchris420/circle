@@ -35,9 +35,32 @@ The research ambition is a closed-loop human-state platform whose actions remain
 
 ## Quick start
 
+### Open the local workbench
+
+The easiest way to explore CIRCLE is its local browser workbench. Choose one of
+eight guided scenarios, run an active or sham session, and see the measurement
+checks alongside an independent audit. Your session history, interactive reports,
+and downloadable evidence stay on your computer.
+
+```bash
+git clone https://github.com/topherchris420/circle.git
+cd circle
+python -m pip install -r requirements.txt
+python tools/run_workbench.py
+```
+
+Requires **Python 3.11+**. The browser opens at **http://127.0.0.1:8765**. Keep the
+terminal running; you can close and reopen the browser tab without losing the
+session. Start with **A clear signal**, then try **A loose sensor** to explore why
+measurement quality and evidence integrity are separate results. No account,
+device, or API key is needed. All feedback is simulated.
+
+[Workbench guide, downloads, and troubleshooting](docs/workbench.md) ·
+Use `--port 8766` if the default port is busy, or `--no-browser` to open it manually.
+
 ### Run your first session
 
-You need **Python 3.11+**, Git, and the dependencies in [`requirements.txt`](requirements.txt). No device, account, API key, or model server is required for the simulation.
+Prefer the command line? You need **Python 3.11+**, Git, and the dependencies in [`requirements.txt`](requirements.txt). No device, account, API key, or model server is required for the simulation.
 
 ```bash
 git clone https://github.com/topherchris420/circle.git
@@ -207,6 +230,7 @@ The [capability registry](capabilities.json) records implemented code, evidence,
 
 | Area | Available now | Current boundary |
 | --- | --- | --- |
+| [Local workbench](docs/workbench.md) | Guided scenarios, active/sham controls, progress, cancellation, history, report viewing, and evidence downloads | Local simulation interface; no live hardware or hosted accounts |
 | [Physiology pipeline](docs/physiology-pipeline.md) | Sensor reconstruction, controller, interactive report, export, and audit | Exercised against the twin |
 | [Consent gate](docs/consent-by-design.md) | Ed25519 verification, immutable action envelopes, and hash-linked replay | Standalone simulation; integration remains open |
 | [Acquisition](docs/hardware-sources.md) | Ingestion, clock mapping, declared gaps, simulated link faults, and recorded replay | No live biosignal device connected here |
