@@ -1,0 +1,30 @@
+{
+ "audible_output": true,
+ "audio_visual_sync_offset_ms": 3,
+ "browser": "msedge.exe",
+ "completed_at": "2026-11-15T17:06:32.773Z",
+ "context_running": true,
+ "environment": {
+  "base_latency_s": 0.01,
+  "sample_rate": 48000,
+  "state": "running"
+ },
+ "note": "Headless render through the browser's null audio sink on one machine; describes the browser's audio-graph behavior, not audible quality on physical speakers, and not behavior on other devices.",
+ "peak_output_rms": 0.28774,
+ "schedule": {
+  "audible": 2,
+  "events": 3,
+  "max_level": 0.5,
+  "muted": 1,
+  "span_s": [
+   0,
+   8
+  ]
+ },
+ "schema": "circle-audio-rendering-benchmark/1",
+ "start_latency_ms": 52,
+ "stop_settle_ms": 953,
+ "stop_settled": true,
+ "underruns": 1,
+ "within_ceiling": true
+}

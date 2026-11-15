@@ -10,6 +10,7 @@
   <script src="/resonance/audio-engine.js" defer></script>
   <script src="/resonance/synth.js" defer></script>
   <script src="/resonance/visual.js" defer></script>
+  <script src="/resonance/phantom.js" defer></script>
   <script src="/resonance.js" defer></script>
 </head>
 <body data-reduced-motion="false">
@@ -26,6 +27,7 @@
         <button class="view-tab" type="button" data-view="studio">Feedback</button>
         <button class="view-tab" type="button" data-view="visual">Field</button>
         <button class="view-tab" type="button" data-view="evidence">Evidence</button>
+        <button class="view-tab" type="button" data-view="phantom">Phantom</button>
         <button class="view-tab" type="button" data-view="history">History</button>
       </nav>
       <div class="masthead-side">
@@ -170,6 +172,9 @@
             <h2 id="audio-ctl-title">Engine</h2>
             <label class="check consent-check"><input type="checkbox" id="audio-enable">
               <span><b>Audio enabled</b><small>Uses the consent recorded for this session.</small></span></label>
+            <p id="consent-state" class="quiet small" role="status"></p>
+            <button id="allow-audio" class="secondary" type="button" hidden>Allow audio for this session</button>
+            <button id="revoke-audio" class="secondary" type="button" hidden>Revoke audio consent</button>
             <label class="field"><span>Level <b id="level-out" class="mono">50%</b> <em class="quiet">(ceiling set at design)</em></span>
               <input type="range" id="level" min="0" max="100" step="5" value="50"></label>
             <label class="check"><input type="checkbox" id="breath-guide" checked>
@@ -224,7 +229,41 @@
         </div>
       </section>
 
-      <!-- ============ 6. HISTORY ============ -->
+      <!-- ============ 6. PHANTOM ============ -->
+      <section id="view-phantom" class="view" aria-labelledby="phantom-title" hidden>
+        <div class="view-head">
+          <div><p class="eyebrow">ELECTRONIC PHANTOM EVIDENCE</p>
+            <h1 id="phantom-title">A known input</h1>
+            <p class="lead">The board as its own electronic phantom: the ADS1299 test signal driven through the
+              acquisition bridge and judged against the datasheet. No person is measured.</p></div>
+          <div class="session-chips" id="phantom-chips"></div>
+        </div>
+        <div id="phantom-missing" class="empty-state" hidden>
+          <h2>No phantom attached</h2>
+          <p>Run <code>python tools/openbci_cyton.py simulate --mode phantom --output outputs/cyton-phantom</code>,
+            then start the workbench with <code>--phantom outputs/cyton-phantom</code>.</p>
+        </div>
+        <div id="phantom-body" hidden>
+          <div class="panel" style="margin-bottom:14px"><p id="phantom-note" class="lead"></p></div>
+          <div class="evidence-grid">
+            <section class="panel" aria-labelledby="ph-checks-title">
+              <h2 id="ph-checks-title">Phantom checks</h2>
+              <div class="table-wrap"><table><thead><tr><th scope="col">Check</th><th scope="col">Status</th>
+                <th scope="col">Criterion</th></tr></thead><tbody id="phantom-checks"></tbody></table></div>
+            </section>
+            <section class="panel" aria-labelledby="ph-clock-title">
+              <h2 id="ph-clock-title">Sample clock</h2>
+              <div class="table-wrap"><table><thead><tr><th scope="col">Segment</th><th scope="col">Rate</th>
+                <th scope="col">Drift</th></tr></thead><tbody id="phantom-clock"></tbody></table></div>
+              <h2 class="mt">Channels</h2>
+              <div class="table-wrap"><table><thead><tr><th scope="col">Channel</th><th scope="col">Status</th>
+                <th scope="col">Detail</th></tr></thead><tbody id="phantom-channels"></tbody></table></div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 7. HISTORY ============ -->
       <section id="view-history" class="view" aria-labelledby="history-title" hidden>
         <div class="view-head">
           <div><p class="eyebrow">SESSION HISTORY</p>
