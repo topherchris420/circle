@@ -2,36 +2,82 @@ name: Demo (GitHub Pages)
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
+# Pages is deployed as a first-class Actions artifact, not by pushing to
+# gh-pages with GITHUB_TOKEN (which does not trigger a Pages build).
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: circle-github-pages
+  cancel-in-progress: false
 
 jobs:
-  deploy:
+  build:
+    name: Build and verify offline workbench
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: pip
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
       - name: Build the offline demo
         run: python tools/build_demo.py --output demo
-      - name: Publish to the gh-pages branch
+
+      - name: Verify published entrypoint and assets
         run: |
-          cd demo
-          git init -b gh-pages .
-          git config user.name "circle-demo-ci"
-          git config user.email "circle-demo-ci@users.noreply.github.com"
-          git add -A
-          git commit -q -m "Offline demo build from $GITHUB_SHA"
-          git push -q --force "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          python - <<'PY'
+          from pathlib import Path
+
+          root = Path("demo")
+          required = {
+              "index.html", "resonance.css", "resonance.js",
+              "audio-engine.js", "synth.js", "visual.js", "phantom.js",
+              "demo-data.js", "demo-shim.js", "demo-guide.js",
+          }
+          missing = sorted(name for name in required if not (root / name).is_file() or (root / name).stat().st_size == 0)
+          if missing:
+              raise SystemExit("Missing or empty Pages assets: " + ", ".join(missing))
+          html = (root / "index.html").read_text(encoding="utf-8")
+          for asset in ("resonance.css", "resonance.js", "demo-data.js", "demo-shim.js", "demo-guide.js"):
+              if asset not in html:
+                  raise SystemExit("Missing asset reference in demo/index.html: " + asset)
+          if 'src="/resonance' in html or 'href="/resonance.css"' in html:
+              raise SystemExit("An absolute asset path would break the /circle/ project site")
+          print("Validated offline Pages entrypoint and required assets.")
+          PY
+          touch demo/.nojekyll
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload the Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: demo
+
+  deploy:
+    name: Publish CIRCLE website
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
