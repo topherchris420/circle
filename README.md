@@ -37,10 +37,14 @@ The research ambition is a closed-loop human-state platform whose actions remain
 
 ### Open the local workbench
 
-The easiest way to explore CIRCLE is its local browser workbench. Choose one of
-eight guided scenarios, run an active or sham session, and see the measurement
-checks alongside an independent audit. Your session history, interactive reports,
-and downloadable evidence stay on your computer.
+The easiest way to explore CIRCLE is its local browser workbench. The **Resonance
+Workbench** is the research interface: a synchronized physiological dashboard, an
+original consent-gated adaptive audio engine, a responsive visual feedback field,
+a guided session designer, and an evidence explorer that follows any feedback
+decision back to its measurements. Choose one of eight guided scenarios, run an
+active or sham session, and see the measurement checks alongside an independent
+audit. Your session history, interactive reports, and downloadable evidence stay
+on your computer.
 
 ```bash
 git clone https://github.com/topherchris420/circle.git
@@ -49,11 +53,30 @@ python -m pip install -r requirements.txt
 python tools/run_workbench.py
 ```
 
-Requires **Python 3.11+**. The browser opens at **http://127.0.0.1:8765**. Keep the
-terminal running; you can close and reopen the browser tab without losing the
-session. Start with **A clear signal**, then try **A loose sensor** to explore why
-measurement quality and evidence integrity are separate results. No account,
-device, or API key is needed. All feedback is simulated.
+Requires **Python 3.11+**. The browser opens at **http://127.0.0.1:8765** —
+the Resonance Workbench lives at **/resonance**, and the classic guided view at
+**/**. Keep the terminal running; you can close and reopen the browser tab
+without losing the session. Start with **A clear signal**, then try **A loose
+sensor** to explore why measurement quality and evidence integrity are separate
+results. No account, device, or API key is needed. All feedback is simulated.
+
+<div align="center">
+
+<img src="diagrams/resonance-workbench-dashboard.png" alt="Resonance Workbench dashboard: heart rate, RMSSD, respiration, electrodermal activity, motion, quality gates, and the feedback engine on one synchronized timeline from a simulated session" width="1000" />
+
+<sub>A genuine capture of the Resonance Workbench, replaying a recorded six-minute simulated session (seed 7).<br />Charts share one time axis; the playhead, decision markers, and cue ticks line up across views.</sub>
+
+</div>
+
+The dashboard's sibling views: the [session designer](diagrams/resonance-workbench-designer.png) with its
+consent-gated feedback settings, the [feedback studio](diagrams/resonance-workbench-studio.png) showing the
+live parameter mapping, the [visual field](diagrams/resonance-workbench-visual.png), and the
+[evidence explorer](diagrams/resonance-workbench-evidence.png). The
+[Resonance Workbench guide](docs/resonance-workbench.md) explains the architecture, the mapping table,
+benchmarks, and boundaries. It was designed after a lawful study of commercial
+neurotechnology products ([REA research](docs/rea-research/README.md)) — keeping
+their good patterns while adding what they rarely provide together: traceable
+measurements, explainable decisions, reproducible sessions, explicit consent.
 
 [Workbench guide, downloads, and troubleshooting](docs/workbench.md) ·
 Use `--port 8766` if the default port is busy, or `--no-browser` to open it manually.
@@ -230,6 +253,8 @@ The [capability registry](capabilities.json) records implemented code, evidence,
 
 | Area | Available now | Current boundary |
 | --- | --- | --- |
+| [Resonance Workbench](docs/resonance-workbench.md) | Synchronized physiological dashboard with playback, consent-gated adaptive audio, visual feedback field, session designer, evidence explorer, and deterministic timeline API | Simulation playback, not live measurement; no audio or visual effect on people is claimed |
+| [Adaptive feedback mapping](docs/resonance-workbench.md) | Quality-gated, bounded parameter events versioned and replayable from evidence | Presentation layer over recorded evidence; no frequency-effect claim |
 | [Local workbench](docs/workbench.md) | Guided scenarios, active/sham controls, progress, cancellation, history, report viewing, and evidence downloads | Local simulation interface; no live hardware or hosted accounts |
 | [Physiology pipeline](docs/physiology-pipeline.md) | Sensor reconstruction, controller, interactive report, export, and audit | Exercised against the twin |
 | [Consent gate](docs/consent-by-design.md) | Ed25519 verification, immutable action envelopes, and hash-linked replay | Standalone simulation; integration remains open |
