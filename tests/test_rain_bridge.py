@@ -58,6 +58,17 @@ class BridgeRunTest(unittest.TestCase):
         self.assertEqual(report["rejected"], [])
         self.assertIn("assumed response model", report["interpretation"])
 
+    def test_failure_driven_evaluation_compares_rash_and_corrected(self):
+        from tools.run_rain_bridge import failure_driven_evaluation
+        section = failure_driven_evaluation([420, 421])
+        for label in ("RASH_VARIANT", "CORRECTED_VARIANT"):
+            entry = section["variants"][label]
+            self.assertTrue(entry["validated"], entry.get("problems"))
+            self.assertTrue(entry["replays_match"])
+            self.assertIn(entry["primary"]["conclusion"],
+                          ("SUPPORTED_IN_SIMULATION", "NOT_SUPPORTED"))
+        self.assertIn("documented CIRCLE failure class", section["interpretation"])
+
     def test_bridge_report_is_deterministic(self):
         first = run_bridge(candidate_count=1, seeds=SEEDS)
         second = run_bridge(candidate_count=1, seeds=SEEDS)

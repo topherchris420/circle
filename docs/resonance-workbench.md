@@ -170,3 +170,16 @@ The name collision is acknowledged: the [resonance simulation](resonance-archite
 is a separate research extension studying coupled-cavity hypotheses. The
 Resonance *Workbench* is the feedback interface described here; it makes no
 geometry or cavity claims.
+
+## Milestones toward physical evidence
+
+| Milestone | Status | Boundary |
+| --- | --- | --- |
+| Phantom evidence view (`/api/phantom`, Phantom tab) | **Implemented** | Provenance-first: `SIMULATED_BOARD` rehearses the path until a physical Cyton phantom run drops into the same view |
+| Cryptographic consent in the loop (`models/consent_gate.py`) | **Implemented** | Presentation-only mutations (ENABLE_AUDIO/REVOKE_AUDIO); local operator key custody; no hardware/human actuation authorized |
+| Browser audio rendering benchmark | **Implemented** | Real headless-browser audio graph (null sink): start, underruns, level vs. ceiling, stop, clock offset — [results](audio-rendering-benchmark.json) |
+| R.A.I.N. bridge (`tools/run_rain_bridge.py`) | **Implemented** | Deterministic stand-in proposer, validated and executed beside human/fixed/random baselines; honest NOT_SUPPORTED outcomes |
+| Offline public demo (`tools/build_demo.py`, GitHub Pages) | **Implemented** | Prerecorded simulated session; zero network; self-verifying page |
+| One-command replication (`tools/verify_replication.py`) | **Implemented** | Verdicts REPLAY_MATCH / REPLAY_DIVERGENCE / INTEGRITY_FAILURE / INSUFFICIENT_EVIDENCE; ships inside every bundle.zip |
+| Hardware-agnostic adapters (BrainFlow, LSL) | **Implemented (fakes)** | Contract-checked through fakes; live boards need the optional packages and real hardware |
+| Calibrated physical experiment | **Open** | The next evidence milestone: a known input through a real board, recorded in the phantom view with failures published alongside successes |

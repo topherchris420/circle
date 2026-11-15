@@ -182,15 +182,76 @@ def fixed_default(seeds: list[int]) -> dict[str, Any]:
     return protocol
 
 
+def failure_driven_evaluation(seeds: list[int]) -> dict[str, Any]:
+    """Discover why CIRCLE fails, propose a correction, prove it on unseen seeds.
+
+    The failure: a rash controller (``trigger_consecutive=1`` — start guidance
+    on a single elevated evaluation) acts on evidence the disciplined controller
+    would wait out. On the interrupted scenario this is exactly the documented
+    failure class that once produced premature guidance. The correction: restore
+    the sustained-evidence requirement (``trigger_consecutive=2``). Both arms
+    run the same held-out seeds through the same validation and authorization;
+    the report keeps whichever conclusion the evidence supports, including a tie.
+    """
+    def variant(protocol_id: str, consecutive: int, hypothesis: str, by: dict) -> dict[str, Any]:
+        return {
+            "schema": "circle-experiment-protocol/1", "protocol_id": protocol_id,
+            "proposed_by": by, "hypothesis": hypothesis,
+            "rationale": "Failure-driven: the rash variant reproduces the premature-guidance failure class; "
+                         "the correction restores the sustained-evidence requirement.",
+            "target": "SIMULATION", "scenario": "interrupted",
+            "arms": [{"id": "ACTIVE", "actuate": True}, {"id": "SHAM", "actuate": False}],
+            "intervention": {"kind": "HAPTIC_PACED_BREATHING", "cue_period_s": 10},
+            "decision_rule": {"controller": "CIRCLE_CLOSED_LOOP_CONTROLLER",
+                             "overrides": {"trigger_consecutive": consecutive}},
+            "quality_gates": {},
+            "outcomes": [{"id": "arousal_proxy", "metric": "recovery_arousal_index_mean",
+                          "role": "PRIMARY", "direction": "DECREASE"},
+                         {"id": "holds", "metric": "quality_holds", "role": "SECONDARY",
+                          "direction": "DECREASE"}],
+            "seeds": list(seeds),
+            "stopping_rule": {"kind": "FIXED_SAMPLE", "note": "Held-out seeds, fixed before any run."},
+            "analysis_plan": {"test": "PAIRED_SIGN_FLIP_PERMUTATION", "alpha": 0.05, "correction": "HOLM",
+                              "exclusions": "None."},
+        }
+
+    rash = variant("PROTO-DEAD0001", 1, "A rash controller (single-evaluation trigger) still acts in time on "
+                                        "interrupted evidence.", {"kind": "AI_MODEL", "name": "R.A.I.N. failure "
+                                        "analysis (stand-in)", "model_version": "stand-in/1"})
+    corrected = variant("PROTO-C0DE0002", 2, "Restoring the sustained-evidence requirement (two consecutive "
+                                            "evaluations) keeps recovery timing without premature starts.",
+                        {"kind": "AI_MODEL", "name": "R.A.I.N. correction proposal (stand-in)",
+                         "model_version": "stand-in/1"})
+    results = {}
+    for label, protocol in (("RASH_VARIANT", rash), ("CORRECTED_VARIANT", corrected)):
+        verdict = validate(protocol)
+        if verdict["status"] != "VALID_FOR_SIMULATION":
+            results[label] = {"validated": False, "problems": verdict["problems"]}
+            continue
+        executed = execute(protocol, authorize(protocol, REVIEWER, "2026-11-15"))
+        results[label] = {"validated": True, "replays_match": executed["replays_match"],
+                         "primary": {k: _primary(executed)[k] for k in
+                                     ("mean_difference_active_minus_sham", "p_adjusted", "conclusion")}}
+    return {"seeds": seeds, "variants": results,
+            "interpretation": "The rash variant reproduces a documented CIRCLE failure class; the correction "
+                              "is evaluated on the same held-out seeds under identical validation. Whichever "
+                              "way the evidence points — including no difference at this sample size — is the "
+                              "result. The proposer never edits the gates; the twin and the validator judge."}
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--candidates", type=int, default=2, help="stand-in proposals to generate")
     parser.add_argument("--seeds", type=int, nargs="+", default=DEFAULT_SEEDS, help="shared held-out seeds")
+    parser.add_argument("--failure-driven", action="store_true",
+                        help="add the rash-vs-corrected failure-driven evaluation")
     parser.add_argument("--output", type=Path, default=ROOT / "outputs" / "rain-bridge" / "report.json")
     args = parser.parse_args(argv)
     if set(args.seeds) & set(range(0, 30)):
         parser.error("bridge seeds must be held out (development seeds 0-29 are reserved)")
     report = run_bridge(args.candidates, args.seeds)
+    if args.failure_driven:
+        report["failure_driven"] = failure_driven_evaluation(args.seeds)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=1, sort_keys=True) + "\n", encoding="utf-8")
     for item in report["executed"]:

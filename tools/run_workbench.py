@@ -146,6 +146,8 @@ def make_server(workbench, port: int = 8765, phantom: Path | None = None) -> Thr
                     if name == "bundle.zip":
                         manifest = workbench.artifact(run_id, "manifest.json")
                         names = list(json.loads(manifest.read_text())["artifacts"]) + ["manifest.json", "audit.json"]
+                        spool_extra = [("verify_replication.py", (ROOT / "tools" / "verify_replication.py")),
+                                       ("VERIFY-THIS-PACKAGE.txt", None)]
                         # Spool large bundles to disk instead of duplicating them in RAM.
                         with tempfile.SpooledTemporaryFile(max_size=1024 * 1024) as bundle:
                             with zipfile.ZipFile(bundle, "w", zipfile.ZIP_DEFLATED) as archive:
@@ -154,6 +156,16 @@ def make_server(workbench, port: int = 8765, phantom: Path | None = None) -> Thr
                                     # arcname is the contained relative path, never a manifest-supplied traversal.
                                     arcname = "audit.json" if item == "audit.json" else path.resolve().relative_to(manifest.parent.resolve()).as_posix()
                                     archive.write(path, arcname)
+                                for arcname, source in spool_extra:
+                                    if source is None:
+                                        archive.writestr(arcname,
+                                            "Verify this package on any machine with Python 3.11+:\n\n"
+                                            "  python verify_replication.py <directory-containing-manifest.json>\n\n"
+                                            f"Session {run_id}\nVerdicts: REPLAY_MATCH, REPLAY_DIVERGENCE, "
+                                            "INTEGRITY_FAILURE, INSUFFICIENT_EVIDENCE.\nA matching replay shows the "
+                                            "package reproduces from its inputs - not that it measured the world.\n")
+                                    else:
+                                        archive.write(source, arcname)
                             size = bundle.tell()
                             bundle.seek(0)
                             self.response_headers(200, "application/zip", size, f"circle-{run_id[:8]}.zip")
