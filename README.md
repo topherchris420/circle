@@ -98,6 +98,10 @@ Use `--port 8766` if the default port is busy, or `--no-browser` to open it manu
 
 ### Reproduce what you see
 
+- **The film** (90 seconds): [`marketing/circle-film-90s.mp4`](marketing/circle-film-90s.mp4)
+  replays one simulated session, a sensor loss injected on purpose, the recorded
+  R.A.I.N. run, and a verification. Every frame of data is labeled simulation;
+  [how it was made](marketing/README.md) lists the source of each claim.
 - **Offline demo** (nothing installed): the same workbench replaying a prerecorded
   simulated session runs at **https://topherchris420.github.io/circle/** (deployed
   from [`demo/`](demo) by [`tools/build_demo.py`](tools/build_demo.py); audio consented, clearly labeled simulation).
