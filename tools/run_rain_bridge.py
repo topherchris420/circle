@@ -245,11 +245,37 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--seeds", type=int, nargs="+", default=DEFAULT_SEEDS, help="shared held-out seeds")
     parser.add_argument("--failure-driven", action="store_true",
                         help="add the rash-vs-corrected failure-driven evaluation")
+    parser.add_argument("--rain-url", default=None,
+                        help="use the live R.A.I.N. proposer at this base URL instead of the stand-in")
     parser.add_argument("--output", type=Path, default=ROOT / "outputs" / "rain-bridge" / "report.json")
     args = parser.parse_args(argv)
     if set(args.seeds) & set(range(0, 30)):
         parser.error("bridge seeds must be held out (development seeds 0-29 are reserved)")
     report = run_bridge(args.candidates, args.seeds)
+    report["proposer"] = "deterministic stand-in (R.A.I.N. not requested for this run)"
+    if args.rain_url:
+        from models.rain_connector import ask_rain, build_rain_protocol
+        from models.protocols import validate as validate_protocol
+        try:
+            asked = ask_rain({}, args.rain_url)
+        except RuntimeError as exc:
+            report["rain_live"] = {"reachable": False, "error": str(exc)}
+            print(f"live R.A.I.N. unreachable ({exc}); stand-in results retained")
+        else:
+            report["proposer"] = "R.A.I.N. (lop-nur-twin live runtime)"
+            report["rain_live"] = {"reachable": True, "answers": asked["answers"],
+                                  "endpoint": asked["provenance"]["endpoint"]}
+            protocol = build_rain_protocol(asked["answers"], args.seeds, 0)
+            verdict = validate_protocol(protocol)
+            report["rain_live"]["protocol_validated"] = verdict["status"] == "VALID_FOR_SIMULATION"
+            if verdict["status"] == "VALID_FOR_SIMULATION":
+                from models.protocols import authorize, execute
+                executed = execute(protocol, authorize(protocol, REVIEWER, "2026-11-15"))
+                primary = _primary(executed)
+                report["rain_live"]["result"] = {
+                    "replays_match": executed["replays_match"],
+                    "mean_difference_active_minus_sham": primary["mean_difference_active_minus_sham"],
+                    "p_adjusted": primary.get("p_adjusted"), "conclusion": primary["conclusion"]}
     if args.failure_driven:
         report["failure_driven"] = failure_driven_evaluation(args.seeds)
     args.output.parent.mkdir(parents=True, exist_ok=True)
