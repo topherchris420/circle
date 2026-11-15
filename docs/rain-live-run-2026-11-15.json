@@ -1,0 +1,158 @@
+{
+ "executed": [
+  {
+   "intervention": {
+    "cue_period_s": 10,
+    "kind": "HAPTIC_PACED_BREATHING"
+   },
+   "label": "HUMAN_DESIGNED",
+   "primary": {
+    "conclusion": "NOT_SUPPORTED",
+    "direction": "DECREASE",
+    "mean_difference_active_minus_sham": -0.9469374600000003,
+    "metric": "recovery_arousal_index_mean",
+    "p_adjusted": 0.125
+   },
+   "proposed_by": "illustrative example (hand-written to show the proposal path)",
+   "protocol_id": "PROTO-5A1CE0B1",
+   "quality_gates": {
+    "max_motion_fraction": 0.2,
+    "min_beat_coverage": 0.7
+   },
+   "replays_match": true,
+   "safety": {
+    "motion": "NO_INCREASE_DETECTED (not a demonstration of equivalence)"
+   },
+   "scenario": "clean",
+   "versus_human_baseline": {
+    "delta_mean_difference": 0.0,
+    "note": "Negative delta means a larger active-minus-sham decrease than the human-designed baseline on these seeds, under the twin's assumed response model."
+   }
+  },
+  {
+   "intervention": {
+    "cue_period_s": 10,
+    "kind": "HAPTIC_PACED_BREATHING"
+   },
+   "label": "FIXED_DEFAULT",
+   "primary": {
+    "conclusion": "NOT_SUPPORTED",
+    "direction": "DECREASE",
+    "mean_difference_active_minus_sham": -0.9469374600000003,
+    "metric": "recovery_arousal_index_mean",
+    "p_adjusted": 0.125
+   },
+   "proposed_by": "fixed default-controller baseline",
+   "protocol_id": "PROTO-F1DE0000",
+   "quality_gates": {
+    "max_motion_fraction": 0.2,
+    "min_beat_coverage": 0.7
+   },
+   "replays_match": true,
+   "safety": {
+    "motion": "NO_INCREASE_DETECTED (not a demonstration of equivalence)"
+   },
+   "scenario": "clean",
+   "versus_human_baseline": {
+    "delta_mean_difference": 0.0,
+    "note": "Negative delta means a larger active-minus-sham decrease than the human-designed baseline on these seeds, under the twin's assumed response model."
+   }
+  },
+  {
+   "intervention": {
+    "cue_period_s": 10,
+    "kind": "HAPTIC_PACED_BREATHING"
+   },
+   "label": "RANDOM_BASELINE",
+   "primary": {
+    "conclusion": "NOT_SUPPORTED",
+    "direction": "DECREASE",
+    "mean_difference_active_minus_sham": -0.9469374600000003,
+    "metric": "recovery_arousal_index_mean",
+    "p_adjusted": 0.0625
+   },
+   "proposed_by": "seeded random baseline",
+   "protocol_id": "PROTO-BA5E004D",
+   "quality_gates": {},
+   "replays_match": true,
+   "safety": {
+    "motion": "NO_INCREASE_DETECTED (not a demonstration of equivalence)"
+   },
+   "scenario": "clean",
+   "versus_human_baseline": {
+    "delta_mean_difference": 0.0,
+    "note": "Negative delta means a larger active-minus-sham decrease than the human-designed baseline on these seeds, under the twin's assumed response model."
+   }
+  }
+ ],
+ "interpretation": "All comparisons run under the twin's assumed response model. They exercise the proposal path and its validation, not a physiological effect. A proposer can never relax gates, arms, or targets; those are validated, not trusted.",
+ "proposer": "R.A.I.N. (lop-nur-twin live runtime)",
+ "rain_live": {
+  "answers": {
+   "cue_period_s": 10,
+   "min_beat_coverage": 0.8,
+   "scenario": "interrupted"
+  },
+  "attempts": {
+   "cue_period_s": [
+    {
+     "confidence": 0.41,
+     "engine": "typesafe",
+     "model": "jev-1.14.0"
+    }
+   ],
+   "min_beat_coverage": [
+    {
+     "confidence": 0.11,
+     "engine": "typesafe",
+     "model": "jev-1.14.0"
+    }
+   ],
+   "scenario": [
+    {
+     "confidence": 0.26,
+     "engine": "typesafe",
+     "model": "jev-1.14.0"
+    }
+   ]
+  },
+  "endpoint": "http://localhost:5173/api/rain/proposal",
+  "protocol_validated": true,
+  "reachable": true,
+  "reasoning": {
+   "cue_period_s": {
+    "decision_id": "e3a31fed-d3a6-4aa2-8d95-2c0e3a760968",
+    "envelope_hash": "ab020547306aeb700a92fc7e9b99ee0516ddb5a27e5cc41becc4ff95f68b1c9e",
+    "reason": null,
+    "selected": "opt_cue_period_s_10"
+   },
+   "min_beat_coverage": {
+    "decision_id": "a62816e0-828a-4162-9d7f-072297ef6aa2",
+    "envelope_hash": "e0791566bc57ca74e3d3451f1f36e37a59bf14341c5bfdf6e83a2a104afd0cc6",
+    "reason": null,
+    "selected": "opt_min_beat_coverage_0_8"
+   },
+   "scenario": {
+    "decision_id": "9c598762-8e6d-4c94-9bd6-2ce07bca14e6",
+    "envelope_hash": "4659835247f559c3b72f4527b18d15829d3b50aad3f2b9ed2060e40b72f86b75",
+    "reason": null,
+    "selected": "opt_scenario_interrupted"
+   }
+  },
+  "result": {
+   "conclusion": "NOT_SUPPORTED",
+   "mean_difference_active_minus_sham": -0.9494021683673469,
+   "p_adjusted": 0.0625,
+   "replays_match": true
+  }
+ },
+ "rejected": [],
+ "reviewer": "R.A.I.N. bridge operator",
+ "schema": "circle-rain-bridge/1",
+ "seeds": [
+  460,
+  461,
+  462,
+  463
+ ]
+}

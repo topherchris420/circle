@@ -264,6 +264,7 @@ def main(argv: list[str] | None = None) -> int:
         else:
             report["proposer"] = "R.A.I.N. (lop-nur-twin live runtime)"
             report["rain_live"] = {"reachable": True, "answers": asked["answers"],
+                                  "reasoning": asked["reasoning"], "attempts": asked["attempts"],
                                   "endpoint": asked["provenance"]["endpoint"]}
             protocol = build_rain_protocol(asked["answers"], args.seeds, 0)
             verdict = validate_protocol(protocol)
