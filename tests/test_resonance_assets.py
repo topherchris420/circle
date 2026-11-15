@@ -57,6 +57,16 @@ class AssetStructureTest(unittest.TestCase):
         self.assertIn("/api/runs/${id}/timeline", text)
         self.assertIn("interpolateAt", text)
 
+    def test_render_loop_never_reads_inputs_off_the_interpolated_point(self):
+        """Regression: interpolateAt() returns parameters only, so `point.inputs.x` threw on
+        the first frame and halted playback. Inputs come from the recorded feedback event."""
+        engine = (ASSETS / "audio-engine.js").read_text(encoding="utf-8")
+        interpolate = engine[engine.index("function interpolateAt"):engine.index("function breathPhase")]
+        self.assertNotIn("inputs", interpolate)
+        text = (ASSETS / "resonance.js").read_text(encoding="utf-8")
+        self.assertNotIn("point.inputs", text)
+        self.assertIn("feedbackInputsAt", text)
+
 
 class AudioEngineNodeTest(unittest.TestCase):
     """Runs the node harness when node is available (CI images include it)."""

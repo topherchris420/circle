@@ -418,13 +418,21 @@
       return li;
     }));
   }
+  function feedbackInputsAt(t) {
+    // The interpolated point carries parameters only. The feature values the
+    // mapping read are recorded on the feedback event at or before the playhead.
+    let inputs = {};
+    for (const e of timeline.feedback.events) { if (e.time_us / 1e6 <= t) inputs = e.inputs || {}; else break; }
+    return inputs;
+  }
   function renderMapReadout(point) {
+    const inputs = point ? feedbackInputsAt(playback.t) : {};
     const rows = point ? [
       ["intensity", fmt(point.intensity, 3)], ["level (cap " + (timeline.feedback.config.max_gain).toFixed(2) + ")", fmt(point.level, 3)],
       ["brightness", fmt(point.brightness, 3)], ["tempo", fmt(point.tempo, 3)],
       ["spatial", fmt(point.spatial, 3)], ["breath period", fmt(point.breath_period_s, 1) + " s"],
-      ["inputs: HR", point.inputs ? (point.inputs.hr_bpm != null ? fmt(point.inputs.hr_bpm, 1) + " bpm" : "—") : "—"],
-      ["inputs: SCL", point ? (point.inputs.scl_us != null ? fmt(point.inputs.scl_us, 2) + " µS" : "—") : "—"],
+      ["inputs: HR", inputs.hr_bpm != null ? fmt(inputs.hr_bpm, 1) + " bpm" : "—"],
+      ["inputs: SCL", inputs.scl_us != null ? fmt(inputs.scl_us, 2) + " µS" : "—"],
       ["gate", point.gate_reasons.length ? point.gate_reasons.join(", ") : "pass"]
     ] : [["engine", "idle"]];
     const mapEl = $("map-readout") || $("visual-readout");
@@ -466,7 +474,6 @@
     el.replaceChildren();
     if (entry.decision) {
       const d = entry.decision;
-      el.append(node("p", undefined, "why"), ...[]);
       const why = node("p", d.why || "", "why");
       el.append(why);
       el.append(dl([["decision", d.decision_id || "—"], ["action", d.action],
