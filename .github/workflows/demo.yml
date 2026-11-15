@@ -3,6 +3,8 @@ name: Demo (GitHub Pages)
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 # Pages is deployed as a first-class Actions artifact, not by pushing to
@@ -63,9 +65,11 @@ jobs:
           touch demo/.nojekyll
 
       - name: Configure GitHub Pages
+        if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v5
 
       - name: Upload the Pages artifact
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v4
         with:
           path: demo
@@ -73,6 +77,7 @@ jobs:
   deploy:
     name: Publish CIRCLE website
     needs: build
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
