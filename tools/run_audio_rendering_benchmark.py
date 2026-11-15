@@ -62,6 +62,7 @@ def run_benchmark_page(browser: str, url: str, timeout_s: float = 90) -> dict:
     process = subprocess.Popen(
         [browser, "--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check",
          "--disable-extensions", "--autoplay-policy=no-user-gesture-required",
+         "--no-sandbox", "--disable-dev-shm-usage",  # CI containers require these.
          f"--remote-debugging-port={debug_port}", url],
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:

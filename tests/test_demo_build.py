@@ -115,6 +115,7 @@ class DemoBrowserTest(unittest.TestCase):
             debug_port = probe.bind(("127.0.0.1", 0)) or probe.getsockname()[1]
         process = subprocess.Popen(
             [self.browser, "--headless=new", "--disable-gpu", "--disable-extensions", "--no-first-run",
+             "--no-sandbox", "--disable-dev-shm-usage",  # CI containers require these.
              f"--remote-debugging-port={debug_port}", f"http://127.0.0.1:{self.port}/index.html"],
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         try:
