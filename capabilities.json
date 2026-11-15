@@ -212,6 +212,42 @@
       "removable": true
     },
     {
+      "id": "hardware_agnostic_adapters",
+      "layer": "HARDWARE_ADAPTER",
+      "status": "IMPLEMENTED",
+      "summary": "Documented adapter SDK for other teams' instruments: BrainFlow (any supported board) and Lab Streaming Layer inlets, mapped to CIRCLE's stream contract with capability discovery, contract-form frames, and named refusals when a board lacks EDA/PPG/IMU. Exercised against fakes; live use needs the optional brainflow/pylsl packages and real hardware.",
+      "paths": [
+        "models/hardware_adapters",
+        "docs/hardware-agnostic-acquisition.md"
+      ],
+      "evidence": [
+        "tests/test_hardware_adapters.py"
+      ],
+      "not_claimed": [
+        "Never run against physical BrainFlow boards or live LSL outlets in this repository; contract-checked through fakes.",
+        "Channel semantics are chosen by the integrator; adapters never impute a physiological stream a board does not provide.",
+        "A valid adapter session does not by itself authorize the closed loop; gates and consent still apply."
+      ],
+      "removable": true
+    },
+    {
+      "id": "replication_verifier",
+      "layer": "CLOSED_LOOP",
+      "status": "IMPLEMENTED",
+      "summary": "One-command independent replication of an exported experiment package: recomputes every artifact hash, rebuilds analysis and decisions from raw inputs, and names the verdict REPLAY_MATCH, REPLAY_DIVERGENCE, INTEGRITY_FAILURE, or INSUFFICIENT_EVIDENCE. Workbench bundles ship the verifier with the evidence.",
+      "paths": [
+        "tools/verify_replication.py"
+      ],
+      "evidence": [
+        "tests/test_replication_verifier.py"
+      ],
+      "not_claimed": [
+        "A matching replay establishes internal reproducibility of the package from its inputs, not physical truth, software correctness for a question, or any clinical claim.",
+        "Cryptographic integrity is a floor for replication, not proof of scientific accuracy."
+      ],
+      "removable": false
+    },
+    {
       "id": "rev_b_hardware",
       "layer": "INSTRUMENT_CORE",
       "status": "DESIGNED_NOT_BUILT",

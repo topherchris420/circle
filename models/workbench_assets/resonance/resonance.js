@@ -30,7 +30,7 @@
   function error(message) { $("error").textContent = message; $("error").hidden = !message; }
 
   /* ---------------- views ---------------- */
-  const views = ["designer", "dashboard", "studio", "visual", "evidence", "history"];
+  const views = ["designer", "dashboard", "studio", "visual", "evidence", "phantom", "history"];
   function showView(name) {
     views.forEach((v) => { $("view-" + v).hidden = v !== name; });
     document.querySelectorAll(".view-tab").forEach((b) => b.setAttribute("aria-current", b.dataset.view === name ? "page" : "false"));
@@ -279,13 +279,33 @@
       breathPeriodMaxS: timeline.feedback.config.breath_period_bounds_s[1]
     });
     synth.ceiling = timeline.feedback.config.max_gain;
-    const audioAllowed = timeline.session.feedback_consent.audio
-      && timeline.feedback.config.modalities.includes("audio");
+    const fc = timeline.session.feedback_consent || { audio: false, state: "NONE" };
+    const audioAllowed = fc.audio && timeline.feedback.config.modalities.includes("audio");
     $("audio-enable").checked = synth.enabled && audioAllowed;
     $("audio-enable").disabled = !audioAllowed;
     $("level").value = String(Math.round(synth.userLevel * 100));
     $("level-out").textContent = Math.round(synth.userLevel * 100) + "%";
+    const stateText = {
+      PENDING_SIGNATURE: "Audio consent is pending — the proposal is registered and waiting for your signature.",
+      EXECUTED: "Audio consent is executed and recorded in the consent log.",
+      REVOKED: "Audio consent was revoked for this session. Playback continues muted.",
+      REJECTED: "Audio consent was rejected or interrupted; this session stays silent.",
+      NONE: "This session proposed no audio feedback."
+    };
+    $("consent-state").textContent = fc.state ? (stateText[fc.state] || fc.state) : "";
+    $("allow-audio").hidden = fc.state !== "PENDING_SIGNATURE";
+    $("revoke-audio").hidden = fc.state !== "EXECUTED";
   }
+  $("allow-audio").addEventListener("click", async () => {
+    if (!selected) return;
+    try { await api(`/api/runs/${selected}/consent`, {}); await loadTimeline(selected); }
+    catch (exc) { error(exc.message); }
+  });
+  $("revoke-audio").addEventListener("click", async () => {
+    if (!selected) return;
+    try { await api(`/api/runs/${selected}/revoke`, {}); synth.enabled = false; $("audio-enable").checked = false; synth.stop(); await loadTimeline(selected); }
+    catch (exc) { error(exc.message); }
+  });
   $("audio-enable").addEventListener("change", () => {
     synth.enabled = $("audio-enable").checked;
     if (synth.enabled) { synth.ensureContext(); if (synth.ctx && synth.ctx.state === "suspended") synth.ctx.resume(); }

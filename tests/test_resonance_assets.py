@@ -11,7 +11,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "models" / "workbench_assets" / "resonance"
-FILES = ["resonance.html", "resonance.css", "resonance.js", "audio-engine.js", "synth.js", "visual.js"]
+FILES = ["resonance.html", "resonance.css", "resonance.js", "audio-engine.js", "synth.js", "visual.js", "phantom.js"]
 
 
 class AssetStructureTest(unittest.TestCase):
@@ -52,7 +52,7 @@ class AssetStructureTest(unittest.TestCase):
         text = (ASSETS / "resonance.js").read_text(encoding="utf-8")
         # Views are switched by name through the shared "view-" prefix.
         self.assertIn('"view-" + v', text)
-        for view in ("designer", "dashboard", "studio", "visual", "evidence", "history"):
+        for view in ("designer", "dashboard", "studio", "visual", "evidence", "phantom", "history"):
             self.assertIn(f'"{view}"', text)
         self.assertIn("/api/runs/${id}/timeline", text)
         self.assertIn("interpolateAt", text)

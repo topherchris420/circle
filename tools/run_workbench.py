@@ -49,7 +49,7 @@ def exclusive_directory(root: Path):
                 fcntl.flock(handle, fcntl.LOCK_UN)
 
 
-def make_server(workbench, port: int = 8765) -> ThreadingHTTPServer:
+def make_server(workbench, port: int = 8765, phantom: Path | None = None) -> ThreadingHTTPServer:
     from models.workbench import BusyError, scenarios
     token = secrets.token_urlsafe(32)
     RESONANCE_ASSETS = ASSETS / "resonance"
@@ -60,6 +60,9 @@ def make_server(workbench, port: int = 8765) -> ThreadingHTTPServer:
         "/resonance/audio-engine.js": ("audio-engine.js", "text/javascript; charset=utf-8"),
         "/resonance/synth.js": ("synth.js", "text/javascript; charset=utf-8"),
         "/resonance/visual.js": ("visual.js", "text/javascript; charset=utf-8"),
+        "/resonance/phantom.js": ("phantom.js", "text/javascript; charset=utf-8"),
+        "/resonance/bench.html": ("bench.html", "text/html; charset=utf-8"),
+        "/resonance/bench.js": ("bench.js", "text/javascript; charset=utf-8"),
     }
 
     class Handler(BaseHTTPRequestHandler):
@@ -128,6 +131,12 @@ def make_server(workbench, port: int = 8765) -> ThreadingHTTPServer:
                     self.send_file(RESONANCE_ASSETS / filename, mime)
                 elif route.startswith("/api/runs/") and route.endswith("/timeline"):
                     self.send_json(workbench.timeline(route.split("/")[3]))
+                elif route == "/api/phantom":
+                    if phantom is None:
+                        self.send_json({"error": "No phantom session is attached. Start with --phantom <directory>."}, 404)
+                    else:
+                        from models.phantom_view import PhantomView
+                        self.send_json(PhantomView(phantom).document())
                 elif route == "/example":
                     self.send_file(ROOT / "diagrams/circle-physiology-session.html", "text/html; charset=utf-8")
                 elif route.startswith("/api/runs/"):
@@ -137,6 +146,8 @@ def make_server(workbench, port: int = 8765) -> ThreadingHTTPServer:
                     if name == "bundle.zip":
                         manifest = workbench.artifact(run_id, "manifest.json")
                         names = list(json.loads(manifest.read_text())["artifacts"]) + ["manifest.json", "audit.json"]
+                        spool_extra = [("verify_replication.py", (ROOT / "tools" / "verify_replication.py")),
+                                       ("VERIFY-THIS-PACKAGE.txt", None)]
                         # Spool large bundles to disk instead of duplicating them in RAM.
                         with tempfile.SpooledTemporaryFile(max_size=1024 * 1024) as bundle:
                             with zipfile.ZipFile(bundle, "w", zipfile.ZIP_DEFLATED) as archive:
@@ -145,6 +156,16 @@ def make_server(workbench, port: int = 8765) -> ThreadingHTTPServer:
                                     # arcname is the contained relative path, never a manifest-supplied traversal.
                                     arcname = "audit.json" if item == "audit.json" else path.resolve().relative_to(manifest.parent.resolve()).as_posix()
                                     archive.write(path, arcname)
+                                for arcname, source in spool_extra:
+                                    if source is None:
+                                        archive.writestr(arcname,
+                                            "Verify this package on any machine with Python 3.11+:\n\n"
+                                            "  python verify_replication.py <directory-containing-manifest.json>\n\n"
+                                            f"Session {run_id}\nVerdicts: REPLAY_MATCH, REPLAY_DIVERGENCE, "
+                                            "INTEGRITY_FAILURE, INSUFFICIENT_EVIDENCE.\nA matching replay shows the "
+                                            "package reproduces from its inputs - not that it measured the world.\n")
+                                    else:
+                                        archive.write(source, arcname)
                             size = bundle.tell()
                             bundle.seek(0)
                             self.response_headers(200, "application/zip", size, f"circle-{run_id[:8]}.zip")
@@ -177,6 +198,10 @@ def make_server(workbench, port: int = 8765) -> ThreadingHTTPServer:
                     self.send_json(workbench.start(data), 202)
                 elif route.startswith("/api/runs/") and route.endswith("/cancel"):
                     self.send_json(workbench.cancel(route.split("/")[3]))
+                elif route.startswith("/api/runs/") and route.endswith("/consent"):
+                    self.send_json(workbench.consent_audio(route.split("/")[3]))
+                elif route.startswith("/api/runs/") and route.endswith("/revoke"):
+                    self.send_json(workbench.revoke_audio(route.split("/")[3]))
                 else:
                     self.send_json({"error": "Action not found."}, 404)
             except BusyError as exc:
@@ -196,6 +221,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, default=8765, help="Local port (default 8765)")
     parser.add_argument("--output", type=Path, default=ROOT / "outputs/workbench", help="Saved session directory")
+    parser.add_argument("--phantom", type=Path, default=None,
+                        help="Cyton phantom session directory to attach as phantom evidence "
+                             "(from tools/openbci_cyton.py simulate --mode phantom, or a physical phantom run)")
     parser.add_argument("--no-browser", action="store_true", help="Print the address without opening a browser")
     args = parser.parse_args(argv)
     if not 1 <= args.port <= 65535:
@@ -209,7 +237,7 @@ def main(argv: list[str] | None = None) -> int:
         with exclusive_directory(args.output):
             workbench = Workbench(args.output)
             try:
-                server = make_server(workbench, args.port)
+                server = make_server(workbench, args.port, args.phantom)
                 try:
                     url = f"http://127.0.0.1:{args.port}"
                     print(f"CIRCLE workbench: {url}\nSessions: {workbench.root}\nSimulation only. Press Ctrl+C to stop.", flush=True)

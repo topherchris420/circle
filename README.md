@@ -81,6 +81,27 @@ measurements, explainable decisions, reproducible sessions, explicit consent.
 [Workbench guide, downloads, and troubleshooting](docs/workbench.md) ·
 Use `--port 8766` if the default port is busy, or `--no-browser` to open it manually.
 
+### Reproduce what you see
+
+- **Offline demo** (nothing installed): the same workbench replaying a prerecorded
+  simulated session runs at **https://topherchris420.github.io/circle/** (deployed
+  from [`demo/`](demo) by [`tools/build_demo.py`](tools/build_demo.py); audio consented, clearly labeled simulation).
+- **One-command independent replication**: every downloaded evidence bundle ships
+  `verify_replication.py`. On any machine with Python 3.11+:
+  `python verify_replication.py <directory>` recomputes every hash, rebuilds the
+  analysis and every decision from the raw samples, and names the verdict —
+  `REPLAY_MATCH`, `REPLAY_DIVERGENCE`, `INTEGRITY_FAILURE`, or
+  `INSUFFICIENT_EVIDENCE`. A matching replay shows the package reproduces from
+  its inputs; it does not show it measured the world.
+- **Bring your own instrument**: a documented adapter SDK maps
+  [BrainFlow](docs/hardware-agnostic-acquisition.md) boards and Lab Streaming
+  Layer outlets onto CIRCLE's stream contract; sources lacking EDA/PPG/IMU are
+  refused with recorded reasons, never silently accepted.
+- **Cryptographic consent**: audio feedback is a restricted mutation through the
+  Ed25519 consent gate ([`models/consent_gate.py`](models/consent_gate.py)) —
+  proposed, signed, revocable, and hash-linked in a durable log a workbench
+  restart cannot quietly execute.
+
 ### Run your first session
 
 Prefer the command line? You need **Python 3.11+**, Git, and the dependencies in [`requirements.txt`](requirements.txt). No device, account, API key, or model server is required for the simulation.

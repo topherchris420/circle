@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 from datetime import datetime, timezone
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -21,6 +22,7 @@ from models.physiology.scenarios import SCENARIOS
 from tools.run_physiology_twin import export_run
 
 ACTIVE = {"running", "cancelling"}
+CONSENT_STATES = ("PENDING_SIGNATURE", "EXECUTED", "REJECTED", "REVOKED")
 LABELS = {
     "clean": ("A clear signal", "Start here", "Follow a complete session from rest to recovery, with a matched control for comparison."),
     "motion_heavy": ("Movement & noise", "Signal quality", "See how typing and gestures affect the evidence available to the controller."),
@@ -35,6 +37,11 @@ LABELS = {
 
 def now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def _record_hash(record: dict) -> str:
+    """A proposal's state-history snapshot: the run record as registered."""
+    return hashlib.sha256(json.dumps(record, sort_keys=True, default=str).encode("utf-8")).hexdigest()
 
 
 def write_json(path: Path, value: dict) -> None:
@@ -135,6 +142,69 @@ class Workbench:
             if record["status"] in ACTIVE:
                 self._update(record["id"], status="interrupted", stage="Session interrupted",
                              finished_at=now(), error="The workbench stopped before this session finished. Run it again to create a new session.")
+        # Cryptographic consent host: durable log in the output tree, executor
+        # bound to this workbench's run records.
+        from models.consent_gate import WorkbenchConsent
+        self.consent = WorkbenchConsent(self.root, self._execute_consented)
+        for record in self.history():
+            state = (record.get("consent_record") or {}).get("state")
+            if state == "PENDING_SIGNATURE":
+                # A crash between proposal and consent never silently executes.
+                self._update(record["id"], consent_record={**record["consent_record"], "state": "REJECTED",
+                                                           "reason": "WORKBENCH_RESTARTED_PENDING_NOT_EXECUTED"})
+
+    def _execute_consented(self, operation: str, run_id: str, parameters: dict) -> None:
+        """Apply a consented mutation to a run record; refusal rejects permanently."""
+        with self.lock:
+            record = self.get(run_id)
+            entry = dict(record.get("consent_record") or {})
+            if operation == "ENABLE_AUDIO":
+                expected = {"run_id": run_id, "modalities": record["settings"]["feedback"]["modalities"],
+                           "max_gain": record["settings"]["feedback"]["max_gain"]}
+                if any(parameters.get(k) != v for k, v in expected.items()):
+                    raise ValueError("envelope does not match this run's recorded feedback settings")
+                entry.update({"state": "EXECUTED", "operation": operation})
+                entry.pop("reason", None)
+            elif operation == "REVOKE_AUDIO":
+                entry.update({"state": "REVOKED", "revoked_by": parameters.get("_revoke_action_id") or operation})
+            else:
+                raise ValueError(f"unknown restricted operation {operation}")
+            self._update(run_id, consent_record=entry)
+
+    def consent_audio(self, run_id: str) -> dict:
+        """Deliver the recorded consent for a pending audio proposal."""
+        with self.lock:
+            record = self.get(run_id)
+            entry = record.get("consent_record") or {}
+            if "audio" not in record["settings"]["feedback"]["modalities"]:
+                raise ValueError("This session did not propose audio feedback.")
+            action_id = entry.get("action_id")
+            if not action_id:
+                raise ValueError("This session has no pending audio proposal.")
+        result = self.consent.consent(action_id)
+        # Rejections land in the run record too (execution refusals never retry).
+        if result.get("state") == "REJECTED":
+            with self.lock:
+                record = self.get(run_id)
+                entry = dict(record.get("consent_record") or {})
+                entry.update({"state": "REJECTED", "reason": "CONSENT_REJECTED_OR_EXECUTION_REFUSED"})
+                self._update(run_id, consent_record=entry)
+        return result
+
+    def revoke_audio(self, run_id: str) -> dict:
+        """Revoke audio consent through the same restricted-mutation gate."""
+        with self.lock:
+            record = self.get(run_id)
+            entry = record.get("consent_record") or {}
+            if entry.get("state") not in ("EXECUTED", "PENDING_SIGNATURE"):
+                raise ValueError("Nothing to revoke: audio was not consented for this session.")
+        state_history = _record_hash(record)
+        gate_result = self.consent.revoke_audio(run_id, {
+            "modalities": record["settings"]["feedback"]["modalities"],
+            "max_gain": record["settings"]["feedback"]["max_gain"]}, state_history)
+        # Report the run's authorization lifecycle, not the revoke mutation's own state.
+        state = (self.get(run_id).get("consent_record") or {}).get("state", gate_result.get("state"))
+        return {"state": state, "revoke_action_id": gate_result.get("revoke_action_id")}
 
     def directory(self, run_id: str) -> Path:
         if not re.fullmatch(r"[0-9a-f]{32}", run_id):
@@ -185,8 +255,16 @@ class Workbench:
             directory.mkdir()
             record = {"id": run_id, "settings": settings, "created_at": now(), "finished_at": None,
                       "status": "running", "stage": "Preparing the simulation", "step": 0,
-                      "error": None, "summary": None}
+                      "error": None, "summary": None, "consent_record": None}
             write_json(directory / "run.json", record)
+            # Audio is a restricted mutation: propose now, execute only on consent.
+            if "audio" in settings["feedback"]["modalities"] and settings["consent"]["audio"]:
+                action_id = self.consent.propose_enable_audio(
+                    run_id, {"modalities": settings["feedback"]["modalities"],
+                             "max_gain": settings["feedback"]["max_gain"]}, _record_hash(record))
+                self._update(run_id, consent_record={"action_id": action_id, "state": "PENDING_SIGNATURE",
+                                                     "operation": "ENABLE_AUDIO",
+                                                     "key_id": self.consent.keys.public_key.__class__.__name__})
             self.active = run_id
             self.cancel_requested.clear()
             self.worker = threading.Thread(target=self._run, args=(run_id, settings), name="circle-session")
@@ -252,8 +330,17 @@ class Workbench:
         if record["status"] != "completed":
             raise FileNotFoundError("Only completed sessions have a timeline.")
         directory = self.directory(run_id)
+        settings = validate_settings(record["settings"])  # normalize stored settings once more
         document = build_timeline(record, directory / "evidence", directory / "audit.json",
-                                  feedback_config(record["settings"]))
+                                  feedback_config(settings))
+        # Honest audio permission: intent at design time AND cryptographic execution.
+        consent_record = record.get("consent_record") or {}
+        document["session"]["feedback_consent"] = {
+            "audio": bool(settings["consent"]["audio"]) and consent_record.get("state") == "EXECUTED",
+            "state": consent_record.get("state") or ("NONE" if "audio" not in
+                                                     settings["feedback"]["modalities"] else "PENDING_SIGNATURE"),
+            "action_id": consent_record.get("action_id"),
+        }
         return document
 
     def artifact(self, run_id: str, name: str) -> Path:

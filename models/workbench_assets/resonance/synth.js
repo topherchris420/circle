@@ -29,6 +29,7 @@
     var AC = global.AudioContext || global.webkitAudioContext;
     if (!AC) { return null; }
     this.ctx = new AC();
+    this._build();
     return this.ctx;
   };
 
