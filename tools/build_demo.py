@@ -186,13 +186,13 @@ def build_demo(output: Path) -> dict:
                         '(clean · seed 7 · active). No server, no sensors, no live data. '
                         'Run <code>python tools/run_workbench.py</code> from the repository for live use.</div>\n'
                         '      <nav class="views" aria-label="Workbench views">')
+    html = html.replace('<script src="resonance.js" defer></script>',
+                       '<script src="demo-guide.js" defer></script>\n  <script src="resonance.js" defer></script>')
     (output / "index.html").write_text(html, encoding="utf-8")
     (output / "demo-data.js").write_text(
         "window.CIRCLE_DEMO = " + json.dumps(demo_data, allow_nan=False) + ";\n", encoding="utf-8")
     (output / "demo-shim.js").write_text(SHIM, encoding="utf-8")
     (output / "demo-guide.js").write_text(GUIDE, encoding="utf-8")
-    html = html.replace('<script src="resonance.js" defer></script>',
-                       '<script src="demo-guide.js" defer></script>\n  <script src="resonance.js" defer></script>')
     return {"output": str(output), "run_id": run_record["id"],
             "feedback_digest": timeline["feedback"]["digest"],
             "bytes": sum(path.stat().st_size for path in output.rglob("*") if path.is_file())}
