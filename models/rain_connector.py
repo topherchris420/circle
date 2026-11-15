@@ -64,9 +64,12 @@ def ask_rain(choices: dict[str, Any], base_url: str = RAIN_DEPLOYMENT,
     answers: dict[str, Any] = {}
     reasoning: dict[str, Any] = {}
     attempts: dict[str, Any] = {}
-    session_id = "c1c1e0000000000000000000000000f"  # this bridge's lab session, hex per contract
+    session_id = "c1c1e0000000000000000000000000f"  # hex per contract
     for key, spec in QUESTIONS.items():
         import hashlib
+        # One lab session per question: the server rate-limits repeat ops within
+        # a session, and each question is its own deliberation.
+        session_id = hashlib.md5(("circle-session-" + key).encode("utf-8")).hexdigest()
         request_id = hashlib.md5(("circle-" + key).encode("utf-8")).hexdigest()  # HEX32 per contract
         payload = json.dumps({
             "question": spec["question"],
