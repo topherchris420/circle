@@ -1,0 +1,995 @@
+{
+ "checks": [
+  {
+   "expectation": "Recomputing feedback events from the same evidence yields the identical digest.",
+   "expected": true,
+   "id": "feedback_mapping_determinism",
+   "results": [
+    {
+     "passed": true,
+     "scenario": "clean",
+     "seed": 7
+    },
+    {
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 7
+    },
+    {
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 7
+    },
+    {
+     "passed": true,
+     "scenario": "clean",
+     "seed": 21
+    },
+    {
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 21
+    },
+    {
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 21
+    },
+    {
+     "passed": true,
+     "scenario": "clean",
+     "seed": 900
+    },
+    {
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 900
+    },
+    {
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 900
+    },
+    {
+     "passed": true,
+     "scenario": "clean",
+     "seed": 901
+    },
+    {
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 901
+    },
+    {
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 901
+    },
+    {
+     "passed": true,
+     "scenario": "clean",
+     "seed": 902
+    },
+    {
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 902
+    },
+    {
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 902
+    },
+    {
+     "passed": true,
+     "scenario": "clean",
+     "seed": 903
+    },
+    {
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 903
+    },
+    {
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 903
+    }
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "expectation": "Rebuilding the browser timeline from the same bundle yields identical JSON.",
+   "expected": true,
+   "id": "timeline_determinism",
+   "results": [
+    {
+     "passed": true,
+     "scenario": "clean",
+     "seed": 7
+    },
+    {
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 7
+    },
+    {
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 7
+    },
+    {
+     "passed": true,
+     "scenario": "clean",
+     "seed": 21
+    },
+    {
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 21
+    },
+    {
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 21
+    },
+    {
+     "passed": true,
+     "scenario": "clean",
+     "seed": 900
+    },
+    {
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 900
+    },
+    {
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 900
+    },
+    {
+     "passed": true,
+     "scenario": "clean",
+     "seed": 901
+    },
+    {
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 901
+    },
+    {
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 901
+    },
+    {
+     "passed": true,
+     "scenario": "clean",
+     "seed": 902
+    },
+    {
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 902
+    },
+    {
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 902
+    },
+    {
+     "passed": true,
+     "scenario": "clean",
+     "seed": 903
+    },
+    {
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 903
+    },
+    {
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 903
+    }
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "expectation": "Feedback events inherit the controller's evidence horizon exactly (feature window + decision margin = 41 s) and add no latency of their own: each event's time equals its evaluation's decision time.",
+   "expected": true,
+   "id": "measurement_to_feedback_latency",
+   "results": [
+    {
+     "detail": {
+      "added_latency_s": 0.0,
+      "cadence_s": 5.0,
+      "max_age_s": 41.0,
+      "mean_age_s": 41.0
+     },
+     "passed": true,
+     "scenario": "clean",
+     "seed": 7
+    },
+    {
+     "detail": {
+      "added_latency_s": 0.0,
+      "cadence_s": 5.0,
+      "max_age_s": 41.0,
+      "mean_age_s": 41.0
+     },
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 7
+    },
+    {
+     "detail": {
+      "added_latency_s": 0.0,
+      "cadence_s": 5.0,
+      "max_age_s": 41.0,
+      "mean_age_s": 41.0
+     },
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 7
+    },
+    {
+     "detail": {
+      "added_latency_s": 0.0,
+      "cadence_s": 5.0,
+      "max_age_s": 41.0,
+      "mean_age_s": 41.0
+     },
+     "passed": true,
+     "scenario": "clean",
+     "seed": 21
+    },
+    {
+     "detail": {
+      "added_latency_s": 0.0,
+      "cadence_s": 5.0,
+      "max_age_s": 41.0,
+      "mean_age_s": 41.0
+     },
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 21
+    },
+    {
+     "detail": {
+      "added_latency_s": 0.0,
+      "cadence_s": 5.0,
+      "max_age_s": 41.0,
+      "mean_age_s": 41.0
+     },
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 21
+    },
+    {
+     "detail": {
+      "added_latency_s": 0.0,
+      "cadence_s": 5.0,
+      "max_age_s": 41.0,
+      "mean_age_s": 41.0
+     },
+     "passed": true,
+     "scenario": "clean",
+     "seed": 900
+    },
+    {
+     "detail": {
+      "added_latency_s": 0.0,
+      "cadence_s": 5.0,
+      "max_age_s": 41.0,
+      "mean_age_s": 41.0
+     },
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 900
+    },
+    {
+     "detail": {
+      "added_latency_s": 0.0,
+      "cadence_s": 5.0,
+      "max_age_s": 41.0,
+      "mean_age_s": 41.0
+     },
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 900
+    },
+    {
+     "detail": {
+      "added_latency_s": 0.0,
+      "cadence_s": 5.0,
+      "max_age_s": 41.0,
+      "mean_age_s": 41.0
+     },
+     "passed": true,
+     "scenario": "clean",
+     "seed": 901
+    },
+    {
+     "detail": {
+      "added_latency_s": 0.0,
+      "cadence_s": 5.0,
+      "max_age_s": 41.0,
+      "mean_age_s": 41.0
+     },
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 901
+    },
+    {
+     "detail": {
+      "added_latency_s": 0.0,
+      "cadence_s": 5.0,
+      "max_age_s": 41.0,
+      "mean_age_s": 41.0
+     },
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 901
+    },
+    {
+     "detail": {
+      "added_latency_s": 0.0,
+      "cadence_s": 5.0,
+      "max_age_s": 41.0,
+      "mean_age_s": 41.0
+     },
+     "passed": true,
+     "scenario": "clean",
+     "seed": 902
+    },
+    {
+     "detail": {
+      "added_latency_s": 0.0,
+      "cadence_s": 5.0,
+      "max_age_s": 41.0,
+      "mean_age_s": 41.0
+     },
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 902
+    },
+    {
+     "detail": {
+      "added_latency_s": 0.0,
+      "cadence_s": 5.0,
+      "max_age_s": 41.0,
+      "mean_age_s": 41.0
+     },
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 902
+    },
+    {
+     "detail": {
+      "added_latency_s": 0.0,
+      "cadence_s": 5.0,
+      "max_age_s": 41.0,
+      "mean_age_s": 41.0
+     },
+     "passed": true,
+     "scenario": "clean",
+     "seed": 903
+    },
+    {
+     "detail": {
+      "added_latency_s": 0.0,
+      "cadence_s": 5.0,
+      "max_age_s": 41.0,
+      "mean_age_s": 41.0
+     },
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 903
+    },
+    {
+     "detail": {
+      "added_latency_s": 0.0,
+      "cadence_s": 5.0,
+      "max_age_s": 41.0,
+      "mean_age_s": 41.0
+     },
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 903
+    }
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "expectation": "Audible levels never exceed the session ceiling; breathing periods stay in [6, 15] s.",
+   "expected": true,
+   "id": "audio_bounds",
+   "results": [
+    {
+     "detail": {
+      "max_level": 0.5
+     },
+     "passed": true,
+     "scenario": "clean",
+     "seed": 7
+    },
+    {
+     "detail": {
+      "max_level": 0.5
+     },
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 7
+    },
+    {
+     "detail": {
+      "max_level": 0.5
+     },
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 7
+    },
+    {
+     "detail": {
+      "max_level": 0.5
+     },
+     "passed": true,
+     "scenario": "clean",
+     "seed": 21
+    },
+    {
+     "detail": {
+      "max_level": 0.5
+     },
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 21
+    },
+    {
+     "detail": {
+      "max_level": 0.5
+     },
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 21
+    },
+    {
+     "detail": {
+      "max_level": 0.5
+     },
+     "passed": true,
+     "scenario": "clean",
+     "seed": 900
+    },
+    {
+     "detail": {
+      "max_level": 0.5
+     },
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 900
+    },
+    {
+     "detail": {
+      "max_level": 0.5
+     },
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 900
+    },
+    {
+     "detail": {
+      "max_level": 0.5
+     },
+     "passed": true,
+     "scenario": "clean",
+     "seed": 901
+    },
+    {
+     "detail": {
+      "max_level": 0.5
+     },
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 901
+    },
+    {
+     "detail": {
+      "max_level": 0.5
+     },
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 901
+    },
+    {
+     "detail": {
+      "max_level": 0.5
+     },
+     "passed": true,
+     "scenario": "clean",
+     "seed": 902
+    },
+    {
+     "detail": {
+      "max_level": 0.5
+     },
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 902
+    },
+    {
+     "detail": {
+      "max_level": 0.5
+     },
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 902
+    },
+    {
+     "detail": {
+      "max_level": 0.5
+     },
+     "passed": true,
+     "scenario": "clean",
+     "seed": 903
+    },
+    {
+     "detail": {
+      "max_level": 0.5
+     },
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 903
+    },
+    {
+     "detail": {
+      "max_level": 0.5
+     },
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 903
+    }
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "expectation": "In the poor-contact scenario at least one event is muted, every muted event names its reasons, and muted levels are zero.",
+   "expected": true,
+   "id": "quality_gated_muting",
+   "results": [
+    {
+     "detail": {
+      "muted": 24,
+      "total": 59
+     },
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 7
+    },
+    {
+     "detail": {
+      "muted": 24,
+      "total": 59
+     },
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 21
+    },
+    {
+     "detail": {
+      "muted": 24,
+      "total": 59
+     },
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 900
+    },
+    {
+     "detail": {
+      "muted": 24,
+      "total": 59
+     },
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 901
+    },
+    {
+     "detail": {
+      "muted": 24,
+      "total": 59
+     },
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 902
+    },
+    {
+     "detail": {
+      "muted": 24,
+      "total": 59
+     },
+     "passed": true,
+     "scenario": "poor_contact",
+     "seed": 903
+    }
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "expectation": "In the ambiguous scenario (heart rate alone elevated) no guidance decision starts.",
+   "expected": true,
+   "id": "withheld_intervention",
+   "results": [
+    {
+     "detail": {
+      "starts": 0
+     },
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 7
+    },
+    {
+     "detail": {
+      "starts": 0
+     },
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 21
+    },
+    {
+     "detail": {
+      "starts": 0
+     },
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 900
+    },
+    {
+     "detail": {
+      "starts": 0
+     },
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 901
+    },
+    {
+     "detail": {
+      "starts": 0
+     },
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 902
+    },
+    {
+     "detail": {
+      "starts": 0
+     },
+     "passed": true,
+     "scenario": "ambiguous",
+     "seed": 903
+    }
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "expectation": "In the clean scenario guidance does start (a loop that never acts cannot pass).",
+   "expected": true,
+   "id": "warranted_intervention",
+   "results": [
+    {
+     "detail": {
+      "starts": 1
+     },
+     "passed": true,
+     "scenario": "clean",
+     "seed": 7
+    },
+    {
+     "detail": {
+      "starts": 1
+     },
+     "passed": true,
+     "scenario": "clean",
+     "seed": 21
+    },
+    {
+     "detail": {
+      "starts": 1
+     },
+     "passed": true,
+     "scenario": "clean",
+     "seed": 900
+    },
+    {
+     "detail": {
+      "starts": 1
+     },
+     "passed": true,
+     "scenario": "clean",
+     "seed": 901
+    },
+    {
+     "detail": {
+      "starts": 1
+     },
+     "passed": true,
+     "scenario": "clean",
+     "seed": 902
+    },
+    {
+     "detail": {
+      "starts": 1
+     },
+     "passed": true,
+     "scenario": "clean",
+     "seed": 903
+    }
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "expectation": "Rerunning the same seed and arm reproduces the identical feedback digest.",
+   "expected": true,
+   "id": "active_sham_reproducibility",
+   "results": [
+    {
+     "detail": {
+      "digest": "sha256:91be2c267c41f49752026a2f12813afe7811eb7795aa6be1a13badf70d16cf49",
+      "original": "sha256:91be2c267c41f49752026a2f12813afe7811eb7795aa6be1a13badf70d16cf49"
+     },
+     "passed": true,
+     "scenario": "clean",
+     "seed": 7
+    },
+    {
+     "detail": {
+      "digest": "sha256:187c0b42c4e0a3e02fb9676daa6989ac3e5e33c4ebbcd901cb7d11baa5cdfe0b",
+      "original": "sha256:187c0b42c4e0a3e02fb9676daa6989ac3e5e33c4ebbcd901cb7d11baa5cdfe0b"
+     },
+     "passed": true,
+     "scenario": "clean",
+     "seed": 21
+    }
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "expectation": "An audio session without recorded consent is refused at validation.",
+   "expected": true,
+   "id": "consent_enforcement",
+   "results": [
+    {
+     "detail": "audio without consent",
+     "passed": true
+    }
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "expectation": "Every HRV window is either labeled RMSSD or explicitly withheld; withheld windows carry no value.",
+   "expected": true,
+   "id": "hrv_labeling",
+   "results": [
+    {
+     "passed": true,
+     "scenario": "clean",
+     "seed": 7
+    },
+    {
+     "passed": true,
+     "scenario": "clean",
+     "seed": 21
+    },
+    {
+     "passed": true,
+     "scenario": "clean",
+     "seed": 900
+    },
+    {
+     "passed": true,
+     "scenario": "clean",
+     "seed": 901
+    },
+    {
+     "passed": true,
+     "scenario": "clean",
+     "seed": 902
+    },
+    {
+     "passed": true,
+     "scenario": "clean",
+     "seed": 903
+    }
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "expectation": "The browser scheduling engine passes its node property harness when node is available.",
+   "expected": null,
+   "id": "node_schedule",
+   "results": [
+    {
+     "detail": "node harness exit code 0",
+     "passed": true
+    }
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "expectation": "Exported artifact hashes recorded in the manifest match the files on disk.",
+   "expected": true,
+   "id": "export_integrity",
+   "results": [
+    {
+     "passed": true,
+     "scenario": "clean",
+     "seed": 7
+    },
+    {
+     "passed": true,
+     "scenario": "clean",
+     "seed": 21
+    },
+    {
+     "passed": true,
+     "scenario": "clean",
+     "seed": 900
+    },
+    {
+     "passed": true,
+     "scenario": "clean",
+     "seed": 901
+    },
+    {
+     "passed": true,
+     "scenario": "clean",
+     "seed": 902
+    },
+    {
+     "passed": true,
+     "scenario": "clean",
+     "seed": 903
+    }
+   ],
+   "verdict": "PASS"
+  }
+ ],
+ "description": "Preregistered software-level checks of the Resonance Workbench feedback chain. Simulation only; no hardware, no person, no clinical claim.",
+ "interpretation": "These checks establish determinism, gating, bounds, and honesty of the software feedback chain under the twin's simulated physiology. They do not establish audio rendering quality on any specific device, perception, or any physiological effect in people.",
+ "provenance": "SIMULATED",
+ "release_class": "ENGINEERING_REVIEW_ONLY",
+ "runs": [
+  {
+   "arm": "active",
+   "evaluations": 59,
+   "scenario": "clean",
+   "seed": 7
+  },
+  {
+   "arm": "active",
+   "evaluations": 59,
+   "scenario": "poor_contact",
+   "seed": 7
+  },
+  {
+   "arm": "active",
+   "evaluations": 59,
+   "scenario": "ambiguous",
+   "seed": 7
+  },
+  {
+   "arm": "active",
+   "evaluations": 59,
+   "scenario": "clean",
+   "seed": 21
+  },
+  {
+   "arm": "active",
+   "evaluations": 59,
+   "scenario": "poor_contact",
+   "seed": 21
+  },
+  {
+   "arm": "active",
+   "evaluations": 59,
+   "scenario": "ambiguous",
+   "seed": 21
+  },
+  {
+   "arm": "active",
+   "evaluations": 59,
+   "scenario": "clean",
+   "seed": 900
+  },
+  {
+   "arm": "active",
+   "evaluations": 59,
+   "scenario": "poor_contact",
+   "seed": 900
+  },
+  {
+   "arm": "active",
+   "evaluations": 59,
+   "scenario": "ambiguous",
+   "seed": 900
+  },
+  {
+   "arm": "active",
+   "evaluations": 59,
+   "scenario": "clean",
+   "seed": 901
+  },
+  {
+   "arm": "active",
+   "evaluations": 59,
+   "scenario": "poor_contact",
+   "seed": 901
+  },
+  {
+   "arm": "active",
+   "evaluations": 59,
+   "scenario": "ambiguous",
+   "seed": 901
+  },
+  {
+   "arm": "active",
+   "evaluations": 59,
+   "scenario": "clean",
+   "seed": 902
+  },
+  {
+   "arm": "active",
+   "evaluations": 59,
+   "scenario": "poor_contact",
+   "seed": 902
+  },
+  {
+   "arm": "active",
+   "evaluations": 59,
+   "scenario": "ambiguous",
+   "seed": 902
+  },
+  {
+   "arm": "active",
+   "evaluations": 59,
+   "scenario": "clean",
+   "seed": 903
+  },
+  {
+   "arm": "active",
+   "evaluations": 59,
+   "scenario": "poor_contact",
+   "seed": 903
+  },
+  {
+   "arm": "active",
+   "evaluations": 59,
+   "scenario": "ambiguous",
+   "seed": 903
+  }
+ ],
+ "scenarios": [
+  "clean",
+  "poor_contact",
+  "ambiguous"
+ ],
+ "schema": "circle-resonance-benchmark/1",
+ "seeds": {
+  "development": [
+   7,
+   21
+  ],
+  "held_out": [
+   900,
+   901,
+   902,
+   903
+  ]
+ },
+ "summary": {
+  "failed": 0,
+  "passed": 12,
+  "total": 12
+ }
+}

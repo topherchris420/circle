@@ -52,6 +52,15 @@ def exclusive_directory(root: Path):
 def make_server(workbench, port: int = 8765) -> ThreadingHTTPServer:
     from models.workbench import BusyError, scenarios
     token = secrets.token_urlsafe(32)
+    RESONANCE_ASSETS = ASSETS / "resonance"
+    RESONANCE_ROUTES = {
+        "/resonance": ("resonance.html", "text/html; charset=utf-8"),
+        "/resonance.css": ("resonance.css", "text/css; charset=utf-8"),
+        "/resonance.js": ("resonance.js", "text/javascript; charset=utf-8"),
+        "/resonance/audio-engine.js": ("audio-engine.js", "text/javascript; charset=utf-8"),
+        "/resonance/synth.js": ("synth.js", "text/javascript; charset=utf-8"),
+        "/resonance/visual.js": ("visual.js", "text/javascript; charset=utf-8"),
+    }
 
     class Handler(BaseHTTPRequestHandler):
         server_version = "CIRCLE"
@@ -114,6 +123,11 @@ def make_server(workbench, port: int = 8765) -> ThreadingHTTPServer:
                     filename, mime = {"/": ("index.html", "text/html"), "/app.css": ("app.css", "text/css"),
                                       "/app.js": ("app.js", "text/javascript")}[route]
                     self.send_file(ASSETS / filename, mime + "; charset=utf-8")
+                elif route in RESONANCE_ROUTES:
+                    filename, mime = RESONANCE_ROUTES[route]
+                    self.send_file(RESONANCE_ASSETS / filename, mime)
+                elif route.startswith("/api/runs/") and route.endswith("/timeline"):
+                    self.send_json(workbench.timeline(route.split("/")[3]))
                 elif route == "/example":
                     self.send_file(ROOT / "diagrams/circle-physiology-session.html", "text/html; charset=utf-8")
                 elif route.startswith("/api/runs/"):

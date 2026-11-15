@@ -16,6 +16,7 @@ from uuid import uuid4
 
 from models.physiology.audit import audit_run
 from models.physiology.experiment import run_session
+from models.physiology.feedback import FeedbackConfig
 from models.physiology.scenarios import SCENARIOS
 from tools.run_physiology_twin import export_run
 
@@ -52,8 +53,45 @@ def scenarios() -> list[dict]:
             for key, scenario in SCENARIOS.items()]
 
 
+DEFAULT_FEEDBACK = {"modalities": ["visual"], "max_gain": 0.5, "breath_bpm": 6.0}
+DEFAULT_CONSENT = {"audio": False}
+
+
+def validate_feedback(data: object) -> dict:
+    """Bounded presentation settings for a session's feedback engines."""
+    if data is None:
+        return dict(DEFAULT_FEEDBACK)
+    if not isinstance(data, dict) or set(data) - {"modalities", "max_gain", "breath_bpm"}:
+        raise ValueError("Feedback settings may only set modalities, max_gain, and breath_bpm.")
+    modalities = data.get("modalities", DEFAULT_FEEDBACK["modalities"])
+    if (not isinstance(modalities, list) or not modalities
+            or any(m not in ("audio", "visual") for m in modalities) or len(set(modalities)) != len(modalities)):
+        raise ValueError("Feedback modalities must be a non-empty choice of audio and/or visual.")
+    gain = data.get("max_gain", DEFAULT_FEEDBACK["max_gain"])
+    if type(gain) not in (int, float) or isinstance(gain, bool) or not 0.0 < float(gain) <= 0.5:
+        raise ValueError("max_gain must be a number within (0, 0.5].")
+    breath = data.get("breath_bpm", DEFAULT_FEEDBACK["breath_bpm"])
+    if type(breath) not in (int, float) or isinstance(breath, bool) or not 4.0 <= float(breath) <= 10.0:
+        raise ValueError("breath_bpm must be between 4 and 10 breaths per minute.")
+    return {"modalities": list(modalities), "max_gain": float(gain), "breath_bpm": float(breath)}
+
+
+def validate_consent(data: object, feedback: dict) -> dict:
+    """Explicit permissions. Audio stays off until a person turns it on."""
+    if data is None:
+        consent = dict(DEFAULT_CONSENT)
+    elif isinstance(data, dict) and set(data) == {"audio"} and type(data["audio"]) is bool:
+        consent = dict(data)
+    else:
+        raise ValueError("Consent must record whether audio feedback is allowed.")
+    if "audio" in feedback["modalities"] and not consent["audio"]:
+        raise ValueError("Audio feedback requires explicit consent before the session starts.")
+    return consent
+
+
 def validate_settings(data: object) -> dict:
-    if not isinstance(data, dict) or set(data) != {"scenario", "seed", "arm", "compare"}:
+    if not isinstance(data, dict) or not set(data) <= {"scenario", "seed", "arm", "compare", "feedback", "consent"} \
+            or not {"scenario", "seed", "arm", "compare"} <= set(data):
         raise ValueError("Choose a scenario, seed, arm, and comparison setting.")
     if not isinstance(data["scenario"], str) or data["scenario"] not in SCENARIOS:
         raise ValueError("Choose one of the available scenarios.")
@@ -61,7 +99,17 @@ def validate_settings(data: object) -> dict:
         raise ValueError("Seed must be a whole number from 0 to 4294967295.")
     if data["arm"] not in ("active", "sham") or type(data["compare"]) is not bool:
         raise ValueError("Choose Active or Sham and whether to include a matched comparison.")
-    return dict(data)
+    feedback = validate_feedback(data.get("feedback"))
+    consent = validate_consent(data.get("consent"), feedback)
+    return {"scenario": data["scenario"], "seed": data["seed"], "arm": data["arm"], "compare": data["compare"],
+            "feedback": feedback, "consent": consent}
+
+
+def feedback_config(settings: dict) -> FeedbackConfig:
+    """The bounded FeedbackConfig a session's presentation engines must honor."""
+    feedback = validate_feedback(settings.get("feedback"))
+    return FeedbackConfig(modalities=tuple(feedback["modalities"]), max_gain=feedback["max_gain"],
+                          guide_breath_bpm=feedback["breath_bpm"])
 
 
 class BusyError(ValueError):
@@ -196,6 +244,17 @@ class Workbench:
         finally:
             with self.lock:
                 self.active = None
+
+    def timeline(self, run_id: str) -> dict:
+        """Browser timeline document for a completed session, rebuilt from its evidence."""
+        from models.workbench_timeline import build_timeline
+        record = self.get(run_id)
+        if record["status"] != "completed":
+            raise FileNotFoundError("Only completed sessions have a timeline.")
+        directory = self.directory(run_id)
+        document = build_timeline(record, directory / "evidence", directory / "audit.json",
+                                  feedback_config(record["settings"]))
+        return document
 
     def artifact(self, run_id: str, name: str) -> Path:
         record = self.get(run_id)

@@ -4,6 +4,15 @@ The local workbench is a browser interface to CIRCLE's existing physiology twin,
 report exporter, and independent auditor. It runs on your computer and needs no
 account, API key, or external service. All sessions are simulations.
 
+Two interfaces are served by the same command:
+
+- **The classic workbench** at `http://127.0.0.1:8765/` — the guided
+  scenario runner described on this page.
+- **The Resonance Workbench** at `http://127.0.0.1:8765/resonance` — the
+  research interface with the synchronized physiological dashboard, consent-gated
+  adaptive audio, visual feedback field, session designer, and evidence
+  explorer. See [the Resonance Workbench guide](resonance-workbench.md).
+
 ## Start
 
 Use Python 3.11 or newer. From the repository directory:

@@ -169,6 +169,49 @@
       "removable": false
     },
     {
+      "id": "adaptive_feedback",
+      "layer": "CLOSED_LOOP",
+      "status": "IMPLEMENTED",
+      "summary": "Deterministic, quality-gated mapping from controller evaluations to bounded audio/visual synthesis parameters: pure function of recorded evidence, versioned, with held parameters and named reasons when gates fail or features are missing.",
+      "paths": [
+        "models/physiology/feedback.py"
+      ],
+      "evidence": [
+        "tests/test_feedback_mapping.py",
+        "docs/resonance-benchmark.json"
+      ],
+      "not_claimed": [
+        "Parameter mapping is a presentation layer over recorded evidence; no frequency or sound is claimed to cause any physiological or cognitive state.",
+        "Breathing guidance periods are engineering bounds, not therapeutic dosing."
+      ],
+      "removable": false
+    },
+    {
+      "id": "resonance_workbench",
+      "layer": "CLOSED_LOOP",
+      "status": "IMPLEMENTED",
+      "summary": "The Resonance Workbench browser interface: a session designer with consent-gated audio, synchronized physiological timeline dashboard with playback, an original Web Audio synthesis engine, a cymatic-inspired feedback field, an evidence explorer over the exported ledger, and a timeline API rebuilt deterministically from a run's evidence bundle.",
+      "paths": [
+        "models/workbench_timeline.py",
+        "models/workbench_assets/resonance",
+        "tools/run_workbench.py"
+      ],
+      "evidence": [
+        "tests/test_workbench_timeline.py",
+        "tests/test_resonance_http.py",
+        "tests/test_resonance_assets.py",
+        "tests/js/audio_engine_harness.js",
+        "docs/resonance-benchmark.json"
+      ],
+      "not_claimed": [
+        "Playback renders recorded simulation evidence; it is not a live measurement of any person.",
+        "Audio rendering quality on a given device is not benchmarked here; the scheduling layer is.",
+        "No clinical, cognitive, or relaxation benefit is claimed from the audio or visuals.",
+        "The standalone Ed25519 consent gate remains unintegrated; workbench consent is a recorded user choice, not cryptographic authorization."
+      ],
+      "removable": true
+    },
+    {
       "id": "rev_b_hardware",
       "layer": "INSTRUMENT_CORE",
       "status": "DESIGNED_NOT_BUILT",
