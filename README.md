@@ -2,33 +2,48 @@
 
 <div align="center">
 
-### Close the loop. Keep the evidence.
+<sub>VERS3DYNAMICS &nbsp;/&nbsp; RESONANCE WORKBENCH</sub>
 
-**An open research test bench for physiological sensing, adaptive feedback, and human authority.**
+<h2>A human state is never one signal.</h2>
 
-[![CIRCLE CI](https://img.shields.io/github/actions/workflow/status/topherchris420/circle/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/topherchris420/circle/actions)
-[![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776ab?style=flat-square&logo=python&logoColor=white)](#quick-start)
-[![Evidence: simulation](https://img.shields.io/badge/evidence-simulation-0b5d63?style=flat-square)](#results-you-can-inspect)
-[![Hardware: designed, not built](https://img.shields.io/badge/hardware-designed_not_built-d9534f?style=flat-square)](#from-simulation-to-an-instrument)
-[![MIT license](https://img.shields.io/badge/license-MIT-f4c430?style=flat-square)](LICENSE)
+<p><strong>From signals to sound. From decisions to evidence.</strong></p>
 
-[Run a session](#quick-start) · [Follow the evidence](#how-circle-works) · [Test the limits](#test-the-failure-modes) · [Human authority](#human-authority-in-the-loop) · [Explore the project](#what-you-can-examine) · [Contribute](#contributing)
+<p>
+Explore how simulated physiological rhythms become adaptive audio, responsive visuals,<br />
+and decisions you can trace all the way back to their source.
+</p>
 
-<br />
+<p>
+<a href="https://topherchris420.github.io/circle/"><strong>Experience the demo</strong></a>
+&nbsp; · &nbsp;
+<a href="#quick-start"><strong>Run locally</strong></a>
+&nbsp; · &nbsp;
+<a href="#how-circle-works">Explore the science</a>
+</p>
 
-<img src="diagrams/physiology-polygraph.png" alt="Six-minute simulated CIRCLE session: recovered pulse, breathing, skin conductance, motion, and controller decisions plotted against hidden ground truth and a matched sham arm" width="1200" />
+<p><sub>OPEN SOURCE &nbsp; · &nbsp; SIMULATION-BASED &nbsp; · &nbsp; NOT A MEDICAL DEVICE</sub></p>
 
-<sub>One simulated session. Several physiological pathways. Every decision on the same timeline.<br />Ground truth is available to the evaluator; the controller works from device records alone.</sub>
+<img src="diagrams/resonance-workbench-dashboard.png" alt="CIRCLE Resonance Workbench: synchronized simulated heart rate, breathing, skin conductance, motion, quality gates, and adaptive-feedback timelines" width="1100" />
+
+<p><sub>Actual Resonance Workbench capture. A recorded six-minute simulation, not live human measurements.</sub></p>
+
+<p>
+<a href="https://github.com/topherchris420/circle/actions"><img alt="CIRCLE CI" src="https://img.shields.io/github/actions/workflow/status/topherchris420/circle/ci.yml?branch=main&style=flat-square&label=CI"></a>
+&nbsp;
+<a href="#quick-start"><img alt="Python 3.11+" src="https://img.shields.io/badge/Python-3.11%2B-3776ab?style=flat-square&logo=python&logoColor=white"></a>
+&nbsp;
+<a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-f4c430?style=flat-square"></a>
+</p>
 
 </div>
 
 ---
 
-**When a system senses a change and responds, what would let another researcher trust the record?**
+**What would make a system that responds to the body worthy of trust?**
 
-CIRCLE makes that question runnable. It reconstructs physiological signals from simulated sensor codes, decides when haptic guidance is warranted, and preserves the evidence from the original samples through the observed cue. An independent auditor then rebuilds the session from its raw bundle.
+CIRCLE makes that question testable. Start with simulated sensor records, follow quality-gated decisions into bounded adaptive feedback, and inspect the evidence behind each response or refusal. Replay a session, compare active and sham conditions, or independently reconstruct its results from the exported record.
 
-The research ambition is a closed-loop human-state platform whose actions remain inspectable, reproducible, and subject to meaningful consent. Today, you can run the digital test bench, challenge its controller, audit its decisions, and examine a standalone cryptographic consent gate. The hardware is a design awaiting physical validation.
+The Resonance Workbench is a public, self-guided introduction to the research. The underlying platform also includes an offline test bench, portable evidence verification, experimental device adapters, and a bounded R.A.I.N. proposal interface. These are research tools, not validated physiological measurements or evidence of a therapeutic effect.
 
 > [!WARNING]
 > **ENGINEERING REVIEW ONLY.** Experimental research hardware and software. This repository is not approved for fabrication or human connection and does not establish medical-device, electrical-safety, EMC, or measurement-performance claims. All physiological results shown here come from simulation.
