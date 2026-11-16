@@ -88,10 +88,7 @@ consent-gated feedback settings, the [feedback studio](diagrams/resonance-workbe
 live parameter mapping, the [visual field](diagrams/resonance-workbench-visual.png), and the
 [evidence explorer](diagrams/resonance-workbench-evidence.png). The
 [Resonance Workbench guide](docs/resonance-workbench.md) explains the architecture, the mapping table,
-benchmarks, and boundaries. It was designed after a lawful study of commercial
-neurotechnology products ([REA research](docs/rea-research/README.md)) — keeping
-their good patterns while adding what they rarely provide together: traceable
-measurements, explainable decisions, reproducible sessions, explicit consent.
+benchmarks, and boundaries. 
 
 [Workbench guide, downloads, and troubleshooting](docs/workbench.md) ·
 Use `--port 8766` if the default port is busy, or `--no-browser` to open it manually.
