@@ -467,7 +467,6 @@
     el.replaceChildren();
     if (entry.decision) {
       const d = entry.decision;
-      el.append(node("p", undefined, "why"), ...[]);
       const why = node("p", d.why || "", "why");
       el.append(why);
       el.append(dl([["decision", d.decision_id || "—"], ["action", d.action],

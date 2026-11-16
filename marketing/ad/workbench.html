@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>CIRCLE · Resonance Workbench</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%2367c6c3' stroke-width='5'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../../models/workbench_assets/resonance/resonance.css">
+  <script src="../../models/workbench_assets/resonance/audio-engine.js" defer></script>
+  <script src="../../models/workbench_assets/resonance/synth.js" defer></script>
+  <script src="../../models/workbench_assets/resonance/visual.js" defer></script>
+  <script src="../../models/workbench_assets/resonance/phantom.js" defer></script>
+  <script src="ad-data.js" defer></script>
+  <script src="workbench-shim.js" defer></script>
+  <script src="../../models/workbench_assets/resonance/resonance.js" defer></script>
+</head>
+<body data-reduced-motion="false">
+  <a class="skip" href="#main">Skip to workbench</a>
+  <div class="app" id="app">
+    <header class="masthead">
+      <a class="brand" href="#" aria-label="CIRCLE Resonance Workbench">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-text">CIRCLE <em>Resonance Workbench</em></span>
+      </a>
+      <nav class="views" aria-label="Workbench views">
+        <button class="view-tab" type="button" data-view="designer" aria-current="page">Design</button>
+        <button class="view-tab" type="button" data-view="dashboard">Dashboard</button>
+        <button class="view-tab" type="button" data-view="studio">Feedback</button>
+        <button class="view-tab" type="button" data-view="visual">Field</button>
+        <button class="view-tab" type="button" data-view="evidence">Evidence</button>
+        <button class="view-tab" type="button" data-view="phantom">Phantom</button>
+        <button class="view-tab" type="button" data-view="history">History</button>
+      </nav>
+      <div class="masthead-side">
+        <span class="badge" id="arm-badge">SIMULATION ONLY</span>
+        <a class="quiet-link" href="#">Classic view ↗</a>
+      </div>
+    </header>
+    <main id="main" tabindex="-1">
+      <div id="connection" class="notice" role="status" hidden></div>
+      <div id="error" class="notice error" role="alert" hidden></div>
+
+      <noscript><div class="notice">Enable JavaScript to use the Resonance Workbench, or run
+        <code>python tools/run_physiology_twin.py --audit</code> from a terminal.</div></noscript>
+
+      <!-- ============ 1. SESSION DESIGNER ============ -->
+      <section id="view-designer" class="view" aria-labelledby="designer-title">
+        <div class="view-head">
+          <div><p class="eyebrow">SESSION DESIGNER</p>
+            <h1 id="designer-title">Design a session</h1>
+            <p class="lead">Choose what to explore, what feedback to present, and what limits to hold. The loop stays
+              deterministic; every choice you make is recorded with the session.</p></div>
+          <ol class="steps" aria-label="Design steps">
+            <li class="done">Scenario</li><li class="done">Measurements</li><li class="done">Feedback</li>
+            <li class="done">Limits</li><li class="done">Consent</li><li>Run</li><li>Inspect</li><li>Export</li>
+          </ol>
+        </div>
+        <form id="designer-form">
+          <div class="designer-grid">
+            <section class="panel" aria-labelledby="d-scenario">
+              <h2 id="d-scenario"><span class="step-n">1</span> Scenario &amp; source</h2>
+              <p class="panel-note">Simulated sensor streams — PPG, EDA, IMU — seeded and reproducible.</p>
+              <div id="scenario-list" class="scenario-list" role="radiogroup" aria-label="Scenario"><p class="quiet">Loading scenarios…</p></div>
+            </section>
+            <section class="panel" aria-labelledby="d-arm">
+              <h2 id="d-arm"><span class="step-n">2</span> Arm &amp; comparison</h2>
+              <fieldset>
+                <legend class="sr-only">Feedback mode</legend>
+                <label class="choice"><input type="radio" name="arm" value="active" checked>
+                  <span><b>Active</b><small>Simulated haptic cues enabled; controller decides.</small></span></label>
+                <label class="choice"><input type="radio" name="arm" value="sham">
+                  <span><b>Sham</b><small>Decisions recorded, cues withheld. The honest control.</small></span></label>
+              </fieldset>
+              <label class="check"><input type="checkbox" id="compare" checked>
+                <span>Include matched comparison<small>Same seed, opposite arm.</small></span></label>
+              <label class="field"><span>Simulation seed</span>
+                <input type="number" id="seed" min="0" max="4294967295" step="1" value="7" required></label>
+            </section>
+            <section class="panel" aria-labelledby="d-feedback">
+              <h2 id="d-feedback"><span class="step-n">3</span> Feedback modalities</h2>
+              <fieldset>
+                <legend class="sr-only">Feedback modalities</legend>
+                <label class="check"><input type="checkbox" id="mod-visual" checked>
+                  <span><b>Visual field</b><small>Canvas visualization mapped from signal features.</small></span></label>
+                <label class="check"><input type="checkbox" id="mod-audio">
+                  <span><b>Adaptive audio</b><small>Procedural synthesis. Requires your consent below.</small></span></label>
+              </fieldset>
+              <h2 class="mt"><span class="step-n">4</span> Safe limits</h2>
+              <label class="field"><span>Master level ceiling <b id="gain-out" class="mono">50%</b></span>
+                <input type="range" id="max-gain" min="5" max="50" step="5" value="50"
+                  aria-describedby="gain-help"><span id="gain-help" class="field-help">Hard cap on synthesis amplitude. The engine also limits peaks.</span></label>
+              <label class="field"><span>Breathing guidance <b id="breath-out" class="mono">6.0 breaths/min</b></span>
+                <input type="range" id="breath-bpm" min="4" max="10" step="0.5" value="6"
+                  aria-describedby="breath-help"><span id="breath-help" class="field-help">Paced-breathing oscillator when no respiration estimate is available. 4–10 bpm.</span></label>
+            </section>
+            <section class="panel consent-panel" aria-labelledby="d-consent">
+              <h2 id="d-consent"><span class="step-n">5</span> Consent</h2>
+              <p class="panel-note">Everything stays on this computer. Nothing records, connects, or shares unless you allow it.</p>
+              <label class="check consent-check"><input type="checkbox" id="consent-audio">
+                <span><b>I allow audio playback for this session.</b><small>Audio stays muted until you allow it. You can stop or mute at any time; the session records this choice.</small></span></label>
+              <ul class="consent-facts quiet">
+                <li>Data stays local · no account, no network calls</li>
+                <li>Stop, mute, and revoke controls stay visible during playback</li>
+                <li>No electrical stimulation exists in this workbench</li>
+              </ul>
+              <p id="consent-warning" class="notice inline" hidden></p>
+            </section>
+          </div>
+          <div class="designer-actions">
+            <button id="start" class="primary" type="submit" disabled>Run session <span aria-hidden="true">↗</span></button>
+            <p class="quiet run-note">Six simulated minutes, generated as fast as your computer allows.</p>
+          </div>
+        </form>
+      </section>
+
+      <!-- ============ 2. DASHBOARD ============ -->
+      <section id="view-dashboard" class="view" aria-labelledby="dash-title" hidden>
+        <div class="view-head">
+          <div><p class="eyebrow">UNIFIED PHYSIOLOGICAL DASHBOARD</p>
+            <h1 id="dash-title">Follow the session</h1>
+            <p class="lead" id="dash-meta">Synchronized timelines from the session’s recorded evidence. Every trace names its source.</p></div>
+          <div class="session-chips" id="dash-chips"></div>
+        </div>
+        <div class="playback panel" aria-label="Playback controls">
+          <button id="play" class="primary" type="button" aria-keyshortcuts="k" disabled>▶ Play</button>
+          <button id="mute" class="secondary" type="button" aria-keyshortcuts="m" disabled>🔇 Mute</button>
+          <div class="speed" role="group" aria-label="Playback speed">
+            <button type="button" data-speed="1" class="on" aria-pressed="true">1×</button>
+            <button type="button" data-speed="2" aria-pressed="false">2×</button>
+            <button type="button" data-speed="4" aria-pressed="false">4×</button>
+            <button type="button" data-speed="8" aria-pressed="false">8×</button>
+          </div>
+          <label class="scrub-field"><span class="sr-only">Session position</span>
+            <input type="range" id="scrub" min="0" max="360" step="0.25" value="0" disabled>
+            <span id="clock" class="mono" aria-live="off">00:00 / 06:00</span></label>
+        </div>
+        <div id="dash-empty" class="empty-state"><h2>No session selected</h2>
+          <p>Run a session in <a href="#view-designer">Design</a> or open one from <a href="#view-history">History</a>.</p></div>
+        <div id="dash-body" hidden>
+          <div class="chart-grid" id="chart-grid">
+            <figure class="chart" data-chart="hr"><figcaption>Heart rate <span class="unit">bpm · 10 s windows</span></figcaption></figure>
+            <figure class="chart" data-chart="hrv"><figcaption>HRV · RMSSD <span class="unit">ms · 60 s windows, good beats only</span></figcaption></figure>
+            <figure class="chart" data-chart="resp"><figcaption>Respiration <span class="unit">breaths/min · 10 s windows</span></figcaption></figure>
+            <figure class="chart" data-chart="eda"><figcaption>Electrodermal activity <span class="unit">SCL µS · 10 s windows</span></figcaption></figure>
+            <figure class="chart" data-chart="motion"><figcaption>Motion &amp; artifacts <span class="unit">fraction · 10 s windows</span></figcaption></figure>
+            <figure class="chart" data-chart="quality"><figcaption>Sensor confidence <span class="unit">gate state · per evaluation</span></figcaption></figure>
+            <figure class="chart wide" data-chart="feedback"><figcaption>Feedback engine <span class="unit">level &amp; intensity · per evaluation</span></figcaption></figure>
+          </div>
+          <div class="dash-side">
+            <section class="panel" aria-labelledby="now-title">
+              <h2 id="now-title">Now</h2>
+              <dl id="now-readout" class="readout mono"></dl>
+            </section>
+            <section class="panel" aria-labelledby="events-title">
+              <h2 id="events-title">Session events</h2>
+              <ol id="event-feed" class="event-feed"></ol>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 3. FEEDBACK STUDIO ============ -->
+      <section id="view-studio" class="view" aria-labelledby="studio-title" hidden>
+        <div class="view-head">
+          <div><p class="eyebrow">ADAPTIVE AUDIO ENGINE</p>
+            <h1 id="studio-title">Feedback studio</h1>
+            <p class="lead">Original procedural synthesis mapped from validated signal features. Quality-gated: when the
+              evidence degrades, the sound holds and says why.</p></div>
+          <div class="session-chips" id="studio-chips"></div>
+        </div>
+        <div class="studio-grid">
+          <section class="panel" aria-labelledby="audio-ctl-title">
+            <h2 id="audio-ctl-title">Engine</h2>
+            <label class="check consent-check"><input type="checkbox" id="audio-enable">
+              <span><b>Audio enabled</b><small>Uses the consent recorded for this session.</small></span></label>
+            <p id="consent-state" class="quiet small" role="status"></p>
+            <button id="allow-audio" class="secondary" type="button" hidden>Allow audio for this session</button>
+            <button id="revoke-audio" class="secondary" type="button" hidden>Revoke audio consent</button>
+            <label class="field"><span>Level <b id="level-out" class="mono">50%</b> <em class="quiet">(ceiling set at design)</em></span>
+              <input type="range" id="level" min="0" max="100" step="5" value="50"></label>
+            <label class="check"><input type="checkbox" id="breath-guide" checked>
+              <span><b>Breathing guidance</b><small>Slow swell at the guided period.</small></span></label>
+            <div class="engine-state"><span id="engine-state" role="status">Idle</span>
+              <span id="engine-detail" class="quiet"></span></div>
+            <p class="quiet small">No claim is made that any frequency causes a state. Parameters are a presentation of
+              recorded evidence, not a treatment.</p>
+          </section>
+          <section class="panel" aria-labelledby="map-title">
+            <h2 id="map-title">Parameter mapping</h2>
+            <p class="panel-note">Exactly which signal features drive each parameter, at the current playback position:</p>
+            <dl id="map-readout" class="readout mono"></dl>
+          </section>
+        </div>
+      </section>
+
+      <!-- ============ 4. VISUAL FIELD ============ -->
+      <section id="view-visual" class="view" aria-labelledby="visual-title" hidden>
+        <div class="view-head">
+          <div><p class="eyebrow">RESPONSIVE VISUAL ENVIRONMENT</p>
+            <h1 id="visual-title">Field</h1>
+            <p class="lead">An algorithmically generated feedback field — restrained, cymatic-inspired geometry. It is a
+              rendering of signal features, not a measurement of an unseen phenomenon.</p></div>
+          <div class="session-chips" id="visual-chips"></div>
+        </div>
+        <div class="visual-wrap panel">
+          <canvas id="field-canvas" width="960" height="540" role="img"
+            aria-label="Feedback field visualization: concentric rings whose radius and texture follow feedback intensity, respiration phase, and signal quality"></canvas>
+          <div class="visual-readout"><dl id="visual-readout" class="readout mono"></dl></div>
+        </div>
+      </section>
+
+      <!-- ============ 5. EVIDENCE EXPLORER ============ -->
+      <section id="view-evidence" class="view" aria-labelledby="evidence-title" hidden>
+        <div class="view-head">
+          <div><p class="eyebrow">EVIDENCE EXPLORER</p>
+            <h1 id="evidence-title">Follow one decision</h1>
+            <p class="lead">Select any feedback or decision event. Inspect what was measured, what was known, which rule
+              authorized it, and whether replay reproduces it.</p></div>
+          <div class="session-chips" id="evidence-chips"></div>
+        </div>
+        <div class="evidence-grid">
+          <section class="panel" aria-labelledby="ev-list-title">
+            <h2 id="ev-list-title">Decisions &amp; evaluations</h2>
+            <ol id="evidence-list" class="evidence-list"></ol>
+          </section>
+          <section class="panel" id="evidence-detail-wrap" aria-labelledby="ev-detail-title" aria-live="polite">
+            <h2 id="ev-detail-title">Detail</h2>
+            <div id="evidence-detail"><p class="quiet">Choose an event on the left.</p></div>
+          </section>
+        </div>
+      </section>
+
+      <!-- ============ 6. PHANTOM ============ -->
+      <section id="view-phantom" class="view" aria-labelledby="phantom-title" hidden>
+        <div class="view-head">
+          <div><p class="eyebrow">ELECTRONIC PHANTOM EVIDENCE</p>
+            <h1 id="phantom-title">A known input</h1>
+            <p class="lead">The board as its own electronic phantom: the ADS1299 test signal driven through the
+              acquisition bridge and judged against the datasheet. No person is measured.</p></div>
+          <div class="session-chips" id="phantom-chips"></div>
+        </div>
+        <div id="phantom-missing" class="empty-state" hidden>
+          <h2>No phantom attached</h2>
+          <p>Run <code>python tools/openbci_cyton.py simulate --mode phantom --output outputs/cyton-phantom</code>,
+            then start the workbench with <code>--phantom outputs/cyton-phantom</code>.</p>
+        </div>
+        <div id="phantom-body" hidden>
+          <div class="panel" style="margin-bottom:14px"><p id="phantom-note" class="lead"></p></div>
+          <div class="evidence-grid">
+            <section class="panel" aria-labelledby="ph-checks-title">
+              <h2 id="ph-checks-title">Phantom checks</h2>
+              <div class="table-wrap"><table><thead><tr><th scope="col">Check</th><th scope="col">Status</th>
+                <th scope="col">Criterion</th></tr></thead><tbody id="phantom-checks"></tbody></table></div>
+            </section>
+            <section class="panel" aria-labelledby="ph-clock-title">
+              <h2 id="ph-clock-title">Sample clock</h2>
+              <div class="table-wrap"><table><thead><tr><th scope="col">Segment</th><th scope="col">Rate</th>
+                <th scope="col">Drift</th></tr></thead><tbody id="phantom-clock"></tbody></table></div>
+              <h2 class="mt">Channels</h2>
+              <div class="table-wrap"><table><thead><tr><th scope="col">Channel</th><th scope="col">Status</th>
+                <th scope="col">Detail</th></tr></thead><tbody id="phantom-channels"></tbody></table></div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 7. HISTORY ============ -->
+      <section id="view-history" class="view" aria-labelledby="history-title" hidden>
+        <div class="view-head">
+          <div><p class="eyebrow">SESSION HISTORY</p>
+            <h1 id="history-title">Past sessions</h1>
+            <p class="lead">Saved on this computer. Open one to load its timeline, or export its evidence.</p></div>
+        </div>
+        <ol id="history-list" class="history-list"></ol>
+        <p id="storage" class="quiet"></p>
+      </section>
+    </main>
+    <footer class="foot">
+      <span>CIRCLE · Resonance Workbench · a Vers3Dynamics research project</span>
+      <p>Engineering review only. All data and feedback are simulated. No hardware connected; no person measured;
+        no clinical claim. Audio is a presentation of recorded evidence, not a demonstrated physiological effect.</p>
+    </footer>
+  </div>
+</body>
+</html>

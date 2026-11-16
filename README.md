@@ -134,6 +134,10 @@ The [pipeline methods](docs/physiology-pipeline.md) explain how each channel and
 
 ### Reproduce what you see
 
+- **The film** (90 seconds): [`marketing/circle-film-90s.mp4`](marketing/circle-film-90s.mp4)
+  replays one simulated session, a sensor loss injected on purpose, the recorded
+  R.A.I.N. run, and a verification. Every frame of data is labeled simulation;
+  [how it was made](marketing/README.md) lists the source of each claim.
 - **One-command independent replication**: every downloaded evidence bundle ships
   `verify_replication.py`. On any machine with Python 3.11+:
   `python verify_replication.py <directory>` recomputes every hash, rebuilds the

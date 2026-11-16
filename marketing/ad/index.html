@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>CIRCLE — Close the loop. Keep the evidence.</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%2367c6c3' stroke-width='5'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="ad.css">
+</head>
+<body>
+<div id="viewport">
+  <div id="stage">
+    <div id="glow"></div>
+    <canvas id="traces" width="1920" height="1080"></canvas>
+
+    <!-- The product: the real Resonance Workbench page, operated through its own controls. -->
+    <div id="wb-shell">
+      <div class="wb-chrome"><i></i><i></i><i></i><span>Resonance Workbench · runs locally</span></div>
+      <iframe id="wb" src="workbench.html" width="1440" height="1000" tabindex="-1" title="CIRCLE Resonance Workbench"></iframe>
+    </div>
+    <div id="wb-dim"></div>
+    <div id="hl-layer"></div>
+
+    <!-- 0 · cold open -->
+    <section class="scene" id="s-open">
+      <p class="trace-label" style="top:186px" data-in="0.9" data-out="6.3">PPG <em>optical pulse</em></p>
+      <p class="trace-label" style="top:338px" data-in="2.3" data-out="6.3">EDA <em>skin conductance</em></p>
+      <p class="trace-label" style="top:452px" data-in="2.7" data-out="6.3">IMU <em>motion</em></p>
+      <h1 class="hero center" style="top:590px" data-in="3.1" data-out="6.4">A human state</h1>
+      <h1 class="hero center" style="top:716px" data-in="3.5" data-out="6.4">is never one signal.</h1>
+    </section>
+
+    <!-- 1 · title -->
+    <section class="scene" id="s-title">
+      <p class="eyebrow center" style="top:330px" data-in="8.2" data-out="9.5">VERS3DYNAMICS</p>
+      <div class="lockup" style="top:400px" data-in="7.9" data-out="9.5">
+        <span class="lockup-gap"></span><span class="wordmark">CIRCLE</span>
+      </div>
+      <p class="sub center" style="top:640px" data-in="8.5" data-out="9.5">Resonance Workbench</p>
+    </section>
+
+    <!-- 2 · sensing -->
+    <section class="scene" id="s-sensing">
+      <h1 class="hero center" style="top:386px" data-in="10.0" data-out="12.0">Start with a signal</h1>
+      <h1 class="hero center" style="top:512px" data-in="10.35" data-out="12.0">whose truth is known.</h1>
+      <p class="sub center" style="top:690px" data-in="10.9" data-out="12.0">A simulated body. Six recorded minutes. Seed 7.</p>
+      <p class="cap" data-in="13.4" data-out="16.9">Four signals. One clock.</p>
+      <p class="cap" data-in="17.55" data-out="19.7">Every trace names its source.</p>
+      <p class="cap" data-in="20.0" data-out="22.0">Every evaluation is graded.</p>
+    </section>
+
+    <!-- 3 · adaptation -->
+    <section class="scene" id="s-adapt">
+      <p class="cap" data-in="22.8" data-out="24.5">Sound, only by consent.</p>
+      <p class="cap" data-in="25.25" data-out="29.5">Feedback that follows the evidence.</p>
+      <p class="cap-data" id="adapt-data" data-in="25.9" data-out="29.5"></p>
+      <p class="cap" data-in="30.25" data-out="32.3">Two systems agree. The loop acts.</p>
+    </section>
+
+    <!-- 3b · break it -->
+    <section class="scene" id="s-break">
+      <h1 class="hero xl center" style="top:400px" data-in="32.5" data-out="34.1">Now break it.</h1>
+      <p class="sub center" style="top:590px" data-in="33.1" data-out="34.1">Pull the pulse sensor for fourteen seconds.</p>
+    </section>
+
+    <!-- 4 · uncertainty -->
+    <section class="scene" id="s-uncertain">
+      <p class="trace-label" id="drop-label" style="top:300px" data-in="34.5" data-out="39.75">PPG <em id="drop-state">optical pulse</em></p>
+      <p class="trace-label dim" style="top:662px" data-in="34.55" data-out="39.75">EDA <em>still answering</em></p>
+      <p class="trace-label dim" style="top:772px" data-in="34.6" data-out="39.75">IMU <em>still answering</em></p>
+      <p class="age" id="drop-age" data-in="35.6" data-out="39.75">ppg_age_s <b>0.000</b></p>
+      <p class="stamp amber" id="stale-stamp" style="top:150px" data-in="37.5" data-out="39.75" data-style="stamp">DATA_STALE</p>
+      <h1 class="hero center" style="top:880px" data-in="38.1" data-out="39.7">The audio mutes.</h1>
+      <p class="cap" data-in="40.3" data-out="42.0">No evidence. No feedback.</p>
+      <p class="cap" data-in="42.8" data-out="46.7">CIRCLE says why.</p>
+      <blockquote class="quote" data-in="47.5" data-out="49.5">
+        <span>“a loop that cannot observe</span>
+        <span>its effect was stopped”</span>
+      </blockquote>
+      <p class="quote-src" data-in="48.0" data-out="49.5">decision <b>PBR-1-STOP</b> · 04:27 · <span id="quote-ver">controller 1.2.0</span></p>
+    </section>
+
+    <!-- 5 · reasoning -->
+    <section class="scene" id="s-rain">
+      <h1 class="hero center" style="top:386px" data-in="50.0" data-out="52.0">Then ask a better question.</h1>
+      <p class="sub center" style="top:560px" data-in="50.6" data-out="52.0">R.A.I.N. proposes the next experiment.</p>
+
+      <div class="card" id="rain-proposal" style="left:170px;top:210px;width:760px" data-in="52.5" data-out="57.0">
+        <p class="card-eyebrow">PROPOSAL · R.A.I.N.</p>
+        <p class="card-meta" id="rain-meta"></p>
+        <div class="rows" id="rain-rows"></div>
+      </div>
+      <div class="card" id="rain-validation" style="left:990px;top:210px;width:760px" data-in="54.0" data-out="57.0">
+        <p class="card-eyebrow teal">VALIDATION · CIRCLE</p>
+        <p class="card-meta">Deterministic checks. Nothing a proposer writes can relax them.</p>
+        <ul class="checks" id="rain-checks"></ul>
+        <p class="status-chip" id="rain-status" data-in="56.25" data-out="57.0" data-style="stamp">VALID_FOR_SIMULATION</p>
+      </div>
+      <p class="cap center-cap" data-in="52.9" data-out="54.7">It may propose.</p>
+      <p class="cap center-cap" data-in="55.0" data-out="57.0">CIRCLE decides.</p>
+
+      <div class="card wide" id="rain-compare" style="left:260px;top:170px;width:1400px" data-in="57.5" data-out="62.0">
+        <p class="card-eyebrow">ACTIVE vs SHAM · RECOVERY AROUSAL INDEX</p>
+        <p class="card-meta" id="compare-meta"></p>
+        <div class="bars" id="compare-bars"></div>
+      </div>
+      <p class="cap center-cap" data-in="58.1" data-out="62.0">Run against the baselines.</p>
+
+      <h1 class="hero xl center amber-text" style="top:330px" data-in="62.5" data-out="67.0">Not supported.</h1>
+      <h1 class="hero center" style="top:540px" data-in="65.0" data-out="67.0">Published anyway.</h1>
+      <p class="path center" style="top:716px" data-in="65.6" data-out="67.0" id="rain-path"></p>
+    </section>
+
+    <!-- 6 · verification -->
+    <section class="scene" id="s-verify">
+      <h1 class="hero center" style="top:440px" data-in="67.5" data-out="69.5">Don’t take our word for it.</h1>
+
+      <div class="download" data-in="70.0" data-out="77.0">
+        <span class="dl-icon">↓</span><span id="dl-name"></span><em id="dl-meta"></em>
+      </div>
+      <div class="terminal" data-in="70.3" data-out="77.0">
+        <div class="term-bar"><i></i><i></i><i></i><span>~/circle — Python 3.11+</span></div>
+        <pre id="term"></pre>
+      </div>
+      <div class="card checks-card" data-in="71.6" data-out="77.0">
+        <p class="card-eyebrow">VERDICT.JSON · CHECKS</p>
+        <ul class="checks tight" id="verify-checks"></ul>
+      </div>
+      <p class="stamp green" id="match-stamp" data-in="75.0" data-out="77.0" data-style="stamp">REPLAY_MATCH</p>
+
+      <h1 class="hero center" style="top:386px" data-in="77.5" data-out="79.5">Download the evidence.</h1>
+      <h1 class="hero center" style="top:512px" data-in="77.85" data-out="79.5">Reproduce the verdict.</h1>
+    </section>
+
+    <!-- 7 · end card -->
+    <section class="scene" id="s-end">
+      <h1 class="hero xl center" style="top:470px" data-in="81.25" data-out="88.7">Close the loop.</h1>
+      <h1 class="hero xl center" style="top:616px" data-in="82.5" data-out="88.7">Keep the evidence.</h1>
+      <p class="endmark center" style="top:842px" data-in="85.0" data-out="88.7"><b>CIRCLE</b> <span>by Vers3Dynamics</span></p>
+      <p class="endurl center" style="top:902px" data-in="85.35" data-out="88.7">github.com/topherchris420/circle</p>
+      <p class="legal center" style="top:986px" data-in="85.7" data-out="88.7" id="legal"></p>
+    </section>
+
+    <!-- chapter ring + honest label -->
+    <svg id="ring" viewBox="-150 -150 300 300" width="300" height="300" aria-hidden="true">
+      <circle class="ring-base" r="110" />
+      <g id="ring-arcs"></g>
+    </svg>
+    <p id="chapter"><b id="chapter-n"></b><span id="chapter-name"></span></p>
+    <p id="sim-badge">SIMULATION ONLY</p>
+
+    <svg id="cursor" viewBox="0 0 28 28" width="28" height="28" aria-hidden="true">
+      <path d="M5 3 L5 22 L10.2 17.4 L13.6 25 L16.6 23.7 L13.3 16.2 L20 16 Z" fill="#fff" stroke="#0b1012" stroke-width="1.5" stroke-linejoin="round"/>
+    </svg>
+    <div id="click"></div>
+    <canvas id="grain" width="3840" height="2160" aria-hidden="true"></canvas>
+    <div id="fade"></div>
+  </div>
+</div>
+
+<div id="transport" hidden>
+  <button id="tp-play" type="button">Play</button>
+  <input id="tp-scrub" type="range" min="0" max="90" step="0.01" value="0" aria-label="Film position">
+  <span id="tp-clock">0.0 / 90.0</span>
+</div>
+<audio id="snd" preload="auto"></audio>
+
+<script src="ad-data.js"></script>
+<script src="ad.js"></script>
+</body>
+</html>
