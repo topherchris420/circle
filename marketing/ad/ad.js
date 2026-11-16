@@ -70,7 +70,6 @@
   const feedbackAt = (s) => { let out = events[0]; for (const e of events) { if (e.time_us / sToUs <= s) out = e; else break; } return out; };
   const staleEval = evaluations.find((e) => e.gate.includes("DATA_STALE"));
   const stopDecision = TL.decisions.find((d) => d.action === "STOP_QUALITY_LOST");
-  const startDecision = TL.decisions.find((d) => d.action === "START_PACED_BREATHING");
   const mmss = (us) => { const s = us / sToUs; return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(Math.floor(s % 60)).padStart(2, "0"); };
   const STALE_T = staleEval.decision_time_us / sToUs;        // device seconds at the DATA_STALE evaluation
   const GAP = AD.raw.ppg_gap_s;
@@ -473,7 +472,7 @@
   const dataTime = (t) => (t <= GATE_T ? STALE_T - (GATE_T - t) * 3.0 : STALE_T + (t - GATE_T) * 1.2);
   const LOSS_AT = GATE_T - (STALE_T - GAP.start) / 3.0;      // film time when the last pulse sample arrives
   function drawDropout(t) {
-    const alpha = prog(t, 34.1, 34.9) * (1 - prog(t, 39.4, 39.85));
+    const alpha = prog(t, 34.55, 35.0) * (1 - prog(t, 39.4, 39.85));
     if (alpha <= 0) return;
     const raw = RAW.dropout, now = dataTime(t), xNow = 1330, pps = 150;
     const xOf = (ts) => xNow - (now - ts) * pps;
@@ -680,7 +679,7 @@
   /* The product's own sound. Renders CIRCLE's adaptive audio engine — the synth.js and
    * audio-engine.js loaded by the workbench page — against the recorded feedback
    * schedule, following the same session playhead the picture shows. Master timeline. */
-  const audioSession = (t) => (t < 34.2 ? key(SESSION, t, ease.linear)[0] : dataTime(t));
+  const audioSession = (t) => (t < 34.55 ? key(SESSION, t, ease.linear)[0] : dataTime(t));
   window.__engineLayer = async function (sampleRate) {
     const cw = frameEl.contentWindow, engine = cw.CircleAudioEngine;
     const from = 23.0, to = 42.0, rate = 60;

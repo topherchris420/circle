@@ -93,7 +93,7 @@ class Mix:
 
 
 # ---------------------------------------------------------------- instruments
-def pluck(note: int, dur: float = 1.3, bright: float = 0.8) -> np.ndarray:
+def pluck(note: int, dur: float = 1.3, bright: float = 0.88) -> np.ndarray:
     """A soft mallet: a few harmonics, each decaying faster than the one below, and a felt strike."""
     n = int(dur * SR)
     t = seconds(n)
@@ -103,10 +103,11 @@ def pluck(note: int, dur: float = 1.3, bright: float = 0.8) -> np.ndarray:
         if f * k > 9000:
             break
         amp = bright ** (k - 1) / k ** 0.8
-        out += amp * np.sin(2 * np.pi * f * k * (1 + 0.0004 * k * k) * t) * np.exp(-t * (2.2 + 1.25 * k))
+        out += amp * np.sin(2 * np.pi * f * k * (1 + 0.0004 * k * k) * t) * np.exp(-t * (2.0 + 0.9 * k))
     strike = int(0.014 * SR)
     phase = 2 * np.pi * ((note * 0.61803) % 1.0)
-    out[:strike] += 0.22 * np.sin(2 * np.pi * 3100.0 * t[:strike] + phase) * np.exp(-t[:strike] * 330.0)
+    out[:strike] += 0.30 * np.sin(2 * np.pi * 3100.0 * t[:strike] + phase) * np.exp(-t[:strike] * 300.0)
+    out[:strike] += 0.16 * np.sin(2 * np.pi * 5400.0 * t[:strike] + 2 * phase) * np.exp(-t[:strike] * 420.0)
     return out * fade(n, 0.003, 0.05)
 
 
@@ -124,7 +125,7 @@ def bell(note: int, dur: float = 4.5, soft: float = 1.0) -> np.ndarray:
     return out * fade(n, 0.010, 0.30)
 
 
-def pad(notes: tuple[int, ...], dur: float, attack: float = 0.5, release: float = 0.6, bright: float = 0.66) -> np.ndarray:
+def pad(notes: tuple[int, ...], dur: float, attack: float = 0.5, release: float = 0.6, bright: float = 0.76) -> np.ndarray:
     """Three slightly detuned voices per note; returns stereo (2, n)."""
     n = int(dur * SR)
     t = seconds(n)
@@ -268,7 +269,7 @@ def render_bar(mix: Mix, master_bar: int, at_s: float, rng: np.random.Generator,
         dark = part.get("dark", False)
         dur = BAR + (2.6 if (long and last_bar) else 0.7)
         body = pad(voicing[:3] if dark else voicing, dur, attack=1.1 if dark else 0.55, release=2.4 if (long and last_bar) else 0.7,
-                   bright=0.40 if dark else 0.66)
+                   bright=0.44 if dark else 0.76)
         start = int(round((at_s - 0.25) * SR))
         start = max(0, start)
         stop = min(mix.n, start + body.shape[1])
@@ -280,16 +281,19 @@ def render_bar(mix: Mix, master_bar: int, at_s: float, rng: np.random.Generator,
         mix.add(at_s + beat * BEAT, kick(), 0.36 if beat in (0, 2) else 0.24)
     if part.get("hats"):
         for step in range(8):
-            mix.add(at_s + step * BEAT / 2, hat(rng), 0.105 if step % 2 else 0.05, pan=0.3 if step % 2 else -0.2, verb=0.08)
+            mix.add(at_s + step * BEAT / 2, hat(rng), 0.20 if step % 2 else 0.10, pan=0.3 if step % 2 else -0.2, verb=0.08)
     pattern = part.get("arp")
     if pattern:
         for step, index in enumerate(pattern):
             accent = 1.0 if step in (0, 4) else 0.72
             mix.add(at_s + step * BEAT / 2, pluck(pool[index]), 0.17 * accent * part["arp_gain"],
                     pan=0.45 * (1 if step % 2 else -1), verb=0.30, echo=0.34)
-            if step % 2 == 0:      # an octave above, quieter: the line's glint
-                mix.add(at_s + step * BEAT / 2, pluck(pool[index] + 12, 0.9), 0.06 * accent * part["arp_gain"],
-                        pan=0.6 * (-1 if step % 4 else 1), verb=0.40, echo=0.40)
+            # the same line an octave above, quieter, and a glint two octaves up on the accents
+            mix.add(at_s + step * BEAT / 2, pluck(pool[index] + 12, 0.9), 0.075 * accent * part["arp_gain"],
+                    pan=0.6 * (-1 if step % 2 else 1), verb=0.40, echo=0.40)
+            if step in (0, 4):
+                mix.add(at_s + step * BEAT / 2, pluck(pool[index] + 24, 0.7, 0.8), 0.04 * part["arp_gain"],
+                        pan=0.7 * (1 if step else -1), verb=0.55, echo=0.45)
     pulse = part.get("pulse")
     if pulse:
         for step in range(8):
@@ -338,12 +342,14 @@ def echo(send: np.ndarray) -> np.ndarray:
 
 
 def tilt(audio: np.ndarray) -> np.ndarray:
-    """Mastering EQ, zero-phase: ease the lowest octave, lift presence and air."""
+    """Mastering EQ, zero-phase: ease the lowest octave and the low mids, lift presence and air."""
     spectrum = np.fft.rfft(audio, axis=-1)
     freqs = np.fft.rfftfreq(audio.shape[-1], 1 / SR)
     low_shelf = 10 ** (-3.0 / 20 / (1.0 + (freqs / 95.0) ** 4))
-    presence = 10 ** (7.5 / 20 * (1.0 - 1.0 / (1.0 + (freqs / 1700.0) ** 2)))
-    presence *= 10 ** (3.0 / 20 * (1.0 - 1.0 / (1.0 + (freqs / 6500.0) ** 2)))
+    octaves = np.log2(np.maximum(freqs, 1.0) / 330.0)
+    low_shelf *= 10 ** (-4.0 / 20 * np.exp(-0.5 * (octaves / 0.75) ** 2))      # clear the low-mid wash
+    presence = 10 ** (9.0 / 20 * (1.0 - 1.0 / (1.0 + (freqs / 1700.0) ** 2)))
+    presence *= 10 ** (5.0 / 20 * (1.0 - 1.0 / (1.0 + (freqs / 6500.0) ** 2)))
     rumble = 1.0 / np.sqrt(1.0 + (28.0 / np.maximum(freqs, 1.0)) ** 8)
     return np.fft.irfft(spectrum * low_shelf * presence * rumble, audio.shape[-1], axis=-1)
 

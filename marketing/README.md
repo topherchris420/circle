@@ -79,7 +79,7 @@ traces are the film's own drawing of raw samples, not a workbench view.
 - **The silence** at 37.5 s is the point. The engine's level falls to zero
   because the recorded gate closed; the score is cut with it.
 
-The mix measures about −14 LUFS integrated with a −1 dBFS true peak. It was
+The mix measures about −14.5 LUFS integrated with a −1 dBFS true peak. It was
 balanced by measurement — levels per bar, spectrum per section — not by ear:
 it was produced in a headless environment. Listen before you publish it.
 
@@ -103,7 +103,9 @@ node marketing/ad/render.cjs --cut 30
 `build_ad.py` runs the session, verifies it, and writes `ad/ad-data.js` and
 `ad/workbench.html`. `render.cjs` renders the engine layer, synthesizes the
 score, steps the film clock frame by frame at 2× and encodes. Intermediate
-audio lands in `ad/out/` (ignored by git). A render of the same data is
+audio lands in `ad/out/` (ignored by git). To change only the sound, add
+`--sound-only`: it re-renders the engine layer and the score and replaces the
+soundtrack of the existing film without touching the picture. A render of the same data is
 frame-identical: the page is a pure function of film time, with no CSS
 transitions or timers.
 

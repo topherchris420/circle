@@ -1,7 +1,10 @@
 /* Render the CIRCLE film to MP4.
  *
  *   node marketing/ad/render.cjs [--cut 90|30] [--fps 30] [--scale 2] [--workers 3] [--crf 22]
- *                                [--python python3] [--stills 1,12.5,37.6]
+ *                                [--python python3] [--stills 1,12.5,37.6] [--sound-only]
+ *
+ * --sound-only re-renders the engine layer and the score and replaces the soundtrack of an
+ * existing film without touching its picture.
  *
  * Steps, all local:
  *   1. Serve the repository to a headless Chromium and open the film page.
@@ -30,6 +33,7 @@ const FPS = Number(option("fps", "30"));
 const SCALE = Number(option("scale", "2"));
 const PYTHON = option("python", "python3");
 const STILLS = option("stills", "");
+const SOUND_ONLY = args.includes("--sound-only");
 const WORKERS = Math.max(1, Number(option("workers", "3")));
 const CRF = Number(option("crf", "22"));
 const RANGE = option("range", "");               // "a,b" film seconds: picture only, for tests
@@ -100,6 +104,17 @@ function run(command, commandArgs) {
   // 3. score + mix
   const soundtrack = path.join(OUT, "circle-film-" + CUT + "s.wav");
   run(PYTHON, [path.join(__dirname, "soundtrack.py"), "--cut", CUT, "--engine", engineWav, "--output", soundtrack]);
+
+  if (SOUND_ONLY) {
+    await browser.close(); server.close();
+    const swapped = TARGET + ".sound.mp4";
+    run("ffmpeg", ["-y", "-loglevel", "error", "-i", TARGET, "-i", soundtrack, "-map", "0:v", "-map", "1:a", "-c:v", "copy",
+      "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", swapped]);
+    fs.renameSync(swapped, TARGET);
+    run("ffmpeg", ["-y", "-loglevel", "error", "-i", soundtrack, "-c:a", "aac", "-b:a", "192k", path.join(OUT, "circle-film-" + CUT + "s.m4a")]);
+    console.log("replaced the soundtrack of " + TARGET);
+    return;
+  }
 
   // 4. picture: contiguous chunks, one page each, joined losslessly
   await page.close();
