@@ -1,28 +1,42 @@
 /* CIRCLE demo guide: no instructions required.
- * Opens on the dashboard, starts silent playback, explains what each trace is,
- * and offers one click to hear the recorded adaptive audio. A first decision
- * is opened in the evidence explorer so "inspect a decision" is one tab away.
+ * Arrives on the dashboard with silent playback running (unless the visitor
+ * prefers reduced motion), offers one click to hear the recorded adaptive
+ * audio, and makes "inspect a decision" one click: it opens the Evidence view
+ * on the first recorded decision.
  */
 (function () {
   "use strict";
   const $ = (id) => document.getElementById(id);
   function ready(fn) { if (document.readyState !== "loading") fn(); else document.addEventListener("DOMContentLoaded", fn); }
+  function openView(name) {
+    const tab = document.querySelector('.view-tab[data-view="' + name + '"]');
+    if (tab) { tab.click(); }
+  }
+  function revealView(name) {
+    const view = $("view-" + name);
+    if (!view) { return; }
+    const masthead = document.querySelector(".masthead");
+    const sticky = masthead && getComputedStyle(masthead).position === "sticky" ? masthead.offsetHeight : 0;
+    window.scrollTo({ top: Math.max(0, view.getBoundingClientRect().top + window.scrollY - sticky - 12), behavior: "smooth" });
+  }
   ready(function () {
-    // One explainer, in plain words, above everything.
-    const intro = document.createElement("section");
-    intro.className = "panel";
-    intro.style.marginBottom = "14px";
-    intro.innerHTML = "<h2>What you are looking at</h2>" +
-      "<p class='lead'>A simulated person's <b>sensors</b> — heart pulse (PPG), skin conductance (EDA), and motion (IMU) — " +
-      "replayed second by second. The <b>top charts</b> are what the instrument measured. " +
-      "<b>Sensor confidence</b> shows when the evidence was good enough to act on. The <b>feedback engine</b> strip is " +
-      "the sound level that was presented, held, and released.</p>" +
-      "<p class='lead'><b>Listen:</b> click <b>Hear this session</b> once (browsers require one click before sound). " +
-      "The sound follows the recorded signals — calmer stretches are quieter and darker, impaired evidence holds it. " +
-      "<b>Inspect a decision:</b> open the <b>Evidence</b> tab; every action shows its measurements, its rule, and " +
-      "whether replay reproduces it.</p>";
-    const main = $("main");
-    main.insertBefore(intro, main.firstChild);
+    // "Open the evidence": switch views and select the first recorded decision.
+    document.querySelectorAll("[data-open-view]").forEach(function (link) {
+      link.addEventListener("click", function (event) {
+        event.preventDefault();
+        const name = link.dataset.openView;
+        openView(name);
+        if (name === "evidence") {
+          const buttons = document.querySelectorAll("#evidence-list button");
+          const decision = Array.prototype.find.call(buttons, function (b) {
+            const kind = b.querySelector(".ev-kind");
+            return kind && kind.textContent.indexOf("eval") !== 0;
+          }) || buttons[0];
+          if (decision) { decision.click(); }
+        }
+        revealView(name);
+      });
+    });
 
     // One-click hearing: the only deliberate gesture a visitor needs.
     const hear = document.createElement("button");
@@ -41,12 +55,11 @@
     if (bar) { bar.insertBefore(hear, bar.firstChild); }
 
     // Arrive already watching: dashboard view, silent playback running.
+    const still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     setTimeout(function () {
-      const tabs = document.querySelectorAll(".view-tab");
-      const dash = Array.prototype.find.call(tabs, (t) => t.dataset.view === "dashboard");
-      if (dash) { dash.click(); }
+      openView("dashboard");
       const play = $("play");
-      if (play && !play.disabled && play.textContent.indexOf("Play") !== -1) { play.click(); }
+      if (!still && play && !play.disabled && play.textContent.indexOf("Play") !== -1) { play.click(); }
     }, 1800);
   });
 })();

@@ -5,14 +5,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
   <title>CIRCLE · Resonance Workbench — offline demo</title>
+  <meta name="description" content="Replay a six-minute simulated physiology session in your browser: synchronized sensor charts, quality-gated decisions, adaptive audio, and the evidence behind every decision. Open source; nothing installed, nothing sent.">
+  <link rel="canonical" href="https://topherchris420.github.io/circle/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="CIRCLE">
+  <meta property="og:title" content="CIRCLE · Resonance Workbench, live in your browser">
+  <meta property="og:description" content="Replay a six-minute simulated physiology session in your browser: synchronized sensor charts, quality-gated decisions, adaptive audio, and the evidence behind every decision. Open source; nothing installed, nothing sent.">
+  <meta property="og:url" content="https://topherchris420.github.io/circle/">
+  <meta property="og:image" content="https://topherchris420.github.io/circle/social-card.png">
+  <meta property="og:image:width" content="1280">
+  <meta property="og:image:height" content="640">
+  <meta property="og:image:alt" content="CIRCLE: a human state is never one signal. The Resonance Workbench dashboard replaying a simulated session.">
+  <meta name="twitter:card" content="summary_large_image">
+  <style>
+    .demo-intro { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px 32px; align-items: end;
+      margin-bottom: 18px; border-left: 3px solid var(--teal); }
+    .demo-intro .lead { max-width: 74ch; }
+    .demo-steps { margin: 8px 0 0; padding-left: 1.3em; color: var(--ink-dim); display: grid; gap: 4px; max-width: 84ch; }
+    .demo-steps b { color: var(--ink); }
+    .demo-cta { display: flex; flex-direction: column; gap: 8px; min-width: 210px; }
+    .demo-cta p { margin: 2px 0 0; max-width: 28ch; }
+    .demo-button { display: block; text-align: center; text-decoration: none; padding: 10px 18px; border-radius: var(--radius);
+      border: 1px solid var(--line); background: var(--panel-2); color: var(--ink); font-weight: 600; white-space: nowrap; }
+    .demo-button:hover { border-color: var(--teal-dim); }
+    .demo-button.primary { background: var(--teal); border-color: var(--teal); color: var(--bg); }
+    .demo-button:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+    @media (max-width: 760px) {
+      .demo-intro { grid-template-columns: 1fr; }
+      .demo-more { display: none; }
+      .demo-cta { flex-direction: row; flex-wrap: wrap; }
+      .demo-cta .demo-button { flex: 1 1 140px; }
+    }
+  </style>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%2367c6c3' stroke-width='5'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="resonance.css">
+  <script src="demo-data.js" defer></script>
+  <script src="demo-shim.js" defer></script>
   <script src="audio-engine.js" defer></script>
   <script src="synth.js" defer></script>
   <script src="visual.js" defer></script>
   <script src="phantom.js" defer></script>
-  <script src="demo-data.js" defer></script>
-  <script src="demo-shim.js" defer></script>
   <script src="demo-guide.js" defer></script>
   <script src="resonance.js" defer></script>
 </head>
@@ -24,7 +56,6 @@
         <span class="brand-mark" aria-hidden="true"></span>
         <span class="brand-text">CIRCLE <em>Resonance Workbench</em></span>
       </a>
-      <div class="notice" role="status">This is a prerecorded simulated session (clean · seed 7 · active). No server, no sensors, no live data. Run <code>python tools/run_workbench.py</code> from the repository for live use.</div>
       <nav class="views" aria-label="Workbench views">
         <button class="view-tab" type="button" data-view="designer" aria-current="page">Design</button>
         <button class="view-tab" type="button" data-view="dashboard">Dashboard</button>
@@ -36,10 +67,33 @@
       </nav>
       <div class="masthead-side">
         <span class="badge" id="arm-badge">SIMULATION ONLY · OFFLINE DEMO</span>
-        <a class="quiet-link" href="index.html">Classic view ↗</a>
+        <a class="quiet-link" href="https://github.com/topherchris420/circle">Source on GitHub ↗</a>
       </div>
     </header>
     <main id="main" tabindex="-1">
+      <section class="panel demo-intro" aria-labelledby="demo-intro-title">
+        <div>
+          <p class="eyebrow">OFFLINE DEMO · NOTHING INSTALLED · NOTHING SENT</p>
+          <h2 id="demo-intro-title">What you are looking at</h2>
+          <p class="lead">A prerecorded simulated session (clean · seed 7 · active): six minutes of a simulated
+            person's pulse (PPG), skin conductance (EDA), and motion (IMU), the decisions made from them, and the
+            adaptive sound those decisions allowed. No server, no sensors, no live data.</p>
+          <ol class="demo-steps">
+            <li><b>Watch.</b> The session replays second by second<span class="demo-more">. The top charts are what
+              the instrument measured; <b>Sensor confidence</b> shows when the evidence was good enough to act on</span>.</li>
+            <li><b>Listen.</b> Press <b>Hear this session</b><span class="demo-more"> once (browsers need a click
+              before sound). The sound follows the recorded signals and holds when the evidence is impaired</span>.</li>
+            <li><b>Inspect.</b> <a href="#view-evidence" data-open-view="evidence">Open the evidence</a><span
+              class="demo-more">: every action shows its measurements, the rule that authorized it, and whether
+              replay reproduces it</span>.</li>
+          </ol>
+        </div>
+        <div class="demo-cta">
+          <a class="demo-button primary" href="https://github.com/topherchris420/circle#quick-start">Run it locally</a>
+          <a class="demo-button" href="https://github.com/topherchris420/circle">Source on GitHub ↗</a>
+          <p class="quiet small">MIT licensed. Python 3.11+; no account, device, or API key.</p>
+        </div>
+      </section>
       <div id="connection" class="notice" role="status" hidden></div>
       <div id="error" class="notice error" role="alert" hidden></div>
 
