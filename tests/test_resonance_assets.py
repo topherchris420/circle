@@ -68,6 +68,7 @@ class AudioEngineNodeTest(unittest.TestCase):
         document = json.loads(result.stdout)
         self.assertTrue(document["deterministic"])
         self.assertTrue(document["empty_ok"])
+        self.assertTrue(document["inputs_respect_availability"])
         self.assertEqual(document["summary"]["events"], 3)
         self.assertEqual(document["summary"]["muted"], 1)
         self.assertLessEqual(document["clamped"]["level"], 0.4)

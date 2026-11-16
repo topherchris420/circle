@@ -16,7 +16,8 @@
 
   /* Build the interpolation schedule from feedback events.
    * events: [{time_us, audible, parameters: {intensity, level, brightness,
-   *           tempo, spatial, breath_period_s}, gate_reasons: [...]}]
+   *           tempo, spatial, breath_period_s}, gate_reasons: [...],
+   *           inputs: {hr_bpm, scl_us, ...} (optional, the features read)}]
    * opts:   {maxGain, breathPeriodMinS, breathPeriodMaxS} (optional clamps)
    * Returns {points, summary} where points is sorted by time in seconds with
    * clamped parameters and a zero level for muted events. */
@@ -41,7 +42,8 @@
         tempo: clamp(Number(p.tempo) || 1, 0.25, 2),
         spatial: clamp(Number(p.spatial) || 0, 0, 1),
         breath_period_s: clamp(Number(p.breath_period_s) || 10, bMin, bMax),
-        gate_reasons: e.gate_reasons || []
+        gate_reasons: e.gate_reasons || [],
+        inputs: e.inputs || null
       };
       if (!audible) mutedCount++;
       if (level > maxLevel) maxLevel = level;
@@ -62,13 +64,16 @@
   }
 
   /* Linear interpolation of the schedule at session time t (seconds).
-   * Before the first point the first point holds; after the last, the last. */
+   * Before the first point the first point holds; after the last, the last.
+   * `inputs` is never interpolated or read ahead: it is the measured feature
+   * set of the latest event at or before t, and null before the first event,
+   * so a readout never shows a measurement before it was available. */
   function interpolateAt(schedule, t) {
     var pts = schedule.points;
     if (!pts.length) { return null; }
-    if (t <= pts[0].time_s) { return clone(pts[0], t); }
+    if (t <= pts[0].time_s) { return clone(pts[0], t, t === pts[0].time_s ? pts[0].inputs : null); }
     var last = pts[pts.length - 1];
-    if (t >= last.time_s) { return clone(last, t); }
+    if (t >= last.time_s) { return clone(last, t, last.inputs); }
     var lo = 0, hi = pts.length - 1;
     while (hi - lo > 1) {
       var mid = (lo + hi) >> 1;
@@ -76,7 +81,7 @@
     }
     var a = pts[lo], b = pts[hi];
     var f = (t - a.time_s) / (b.time_s - a.time_s || 1);
-    var out = { time_s: t, audible: a.audible || b.audible, gate_reasons: b.gate_reasons };
+    var out = { time_s: t, audible: a.audible || b.audible, gate_reasons: b.gate_reasons, inputs: a.inputs || null };
     var keys = ["intensity", "level", "brightness", "tempo", "spatial", "breath_period_s"];
     for (var k = 0; k < keys.length; k++) {
       var key = keys[k];
@@ -85,8 +90,8 @@
     return out;
   }
 
-  function clone(p, t) {
-    var out = { time_s: t, audible: p.audible, gate_reasons: p.gate_reasons };
+  function clone(p, t, inputs) {
+    var out = { time_s: t, audible: p.audible, gate_reasons: p.gate_reasons, inputs: inputs || null };
     var keys = ["intensity", "level", "brightness", "tempo", "spatial", "breath_period_s"];
     for (var i = 0; i < keys.length; i++) { out[keys[i]] = p[keys[i]]; }
     return out;
