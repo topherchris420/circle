@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <title>CIRCLE · First Light — optical phantom</title>
+  <meta name="description" content="A known-input optical phantom for CIRCLE First Light: a red field whose green level pulses at a rate you set, so a camera can be tested with no person involved.">
+  <style>
+    html, body { margin: 0; height: 100%; background: #000; color: #f5f5f7;
+      font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+    #field { position: fixed; inset: 0; background: rgb(235, 70, 30); }
+    #panel { position: fixed; left: 12px; right: 12px; bottom: 12px; max-width: 560px; margin: 0 auto; padding: 14px 16px;
+      border-radius: 14px; background: rgba(0, 0, 0, 0.82); border: 1px solid rgba(255, 255, 255, 0.2); }
+    #panel.hidden { display: none; }
+    h1 { margin: 0 0 6px; font-size: 16px; }
+    p { margin: 6px 0 0; color: rgba(245, 245, 247, 0.75); font-size: 13.5px; }
+    label { font-size: 13px; }
+    input { font: inherit; width: 84px; padding: 6px 8px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.3); background: #111; color: #fff; }
+    button { font: inherit; padding: 8px 16px; border-radius: 999px; border: 1px solid #fff; background: #fff; color: #000; cursor: pointer; margin-left: 8px; }
+    a { color: inherit; }
+  </style>
+</head>
+<body>
+  <div id="field" aria-hidden="true"></div>
+  <div id="panel">
+    <h1>Optical phantom: a known input, no person</h1>
+    <label for="rate">Pulse rate (bpm)</label>
+    <input id="rate" type="number" min="50" max="150" step="1" value="72" inputmode="numeric">
+    <button id="hide" type="button">Hide this panel</button>
+    <p>The red field's green level dips once per beat, the way a fingertip passes less light at each pulse. Set this
+      screen to full brightness, enter the same rate on the <a href="first-light.html">First Light page</a> on a
+      second device, and hold that camera a hand's width away. Tap the screen to show this panel again.</p>
+    <p>Programmed: <b id="shown">72</b> bpm. Screens and cameras differ; a refusal is a valid result.</p>
+  </div>
+  <script>
+    (function () {
+      "use strict";
+      const field = document.getElementById("field");
+      const rate = document.getElementById("rate");
+      const panel = document.getElementById("panel");
+      const shown = document.getElementById("shown");
+      function bpm() { const v = Number(rate.value); return v >= 50 && v <= 150 ? v : 72; }
+      // One beat: a fast dip (systole) and a slow return, 12% of the green level.
+      function pulse(phase) { return phase < 0.18 ? phase / 0.18 : Math.exp(-4.5 * (phase - 0.18) / 0.82); }
+      function draw(now) {
+        const phase = ((now / 1000) * bpm() / 60) % 1;
+        const green = Math.round(70 * (1 - 0.12 * pulse(phase)));
+        field.style.background = "rgb(235," + green + ",30)";
+        requestAnimationFrame(draw);
+      }
+      rate.addEventListener("input", function () { shown.textContent = String(bpm()); });
+      document.getElementById("hide").addEventListener("click", function (e) { e.stopPropagation(); panel.classList.add("hidden"); });
+      field.addEventListener("click", function () { panel.classList.remove("hidden"); });
+      requestAnimationFrame(draw);
+    })();
+  </script>
+</body>
+</html>

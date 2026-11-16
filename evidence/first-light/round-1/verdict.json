@@ -1,0 +1,2560 @@
+{
+ "schema": "circle-first-light-verdict/1",
+ "verifier_version": "1.0.0",
+ "bundle": "recorded-session.zip",
+ "integrity": "INTEGRITY_OK",
+ "replay": "REPLAY_MATCH",
+ "protocol": "PROTOCOL_FAIL",
+ "source": "SOURCE_MATCH",
+ "problems": [],
+ "bundle_sha256": "cb1a5dc0584cfbcea8e9ac91520cf01d616b587b1851daadb2cb31586fff6a72",
+ "mode": "recorded-reference",
+ "evaluations": 251,
+ "acts": 7,
+ "refusals": 244,
+ "frames": 7800,
+ "duration_s": 259.967,
+ "windows": [
+  {
+   "k": 0,
+   "cutoff_us": 9000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 72.37635705669481,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 1,
+   "cutoff_us": 10000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 73.17073170731707,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 2,
+   "cutoff_us": 11000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 73.17073170731707,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 3,
+   "cutoff_us": 12000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 72.20216606498195,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 4,
+   "cutoff_us": 13000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 72.20216606498195,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 5,
+   "cutoff_us": 14000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 72.20216606498195,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 6,
+   "cutoff_us": 15000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 73.43941248470013,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 7,
+   "cutoff_us": 16000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 77.61966364812419,
+   "reference_beats": 11,
+   "error_bpm": null
+  },
+  {
+   "k": 8,
+   "cutoff_us": 17000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 81.85538881309687,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 9,
+   "cutoff_us": 18000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 81.85538881309687,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 10,
+   "cutoff_us": 19000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 81.85538881309687,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 11,
+   "cutoff_us": 20000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 79.20792079207921,
+   "reference_beats": 11,
+   "error_bpm": null
+  },
+  {
+   "k": 12,
+   "cutoff_us": 21000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 76.92307692307692,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 13,
+   "cutoff_us": 22000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 76.92307692307692,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 14,
+   "cutoff_us": 23000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 76.92307692307692,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 15,
+   "cutoff_us": 24000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 76.92307692307692,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 16,
+   "cutoff_us": 25000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 76.72634271099744,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 17,
+   "cutoff_us": 26000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 76.72634271099744,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 18,
+   "cutoff_us": 27000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 76.72634271099744,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 19,
+   "cutoff_us": 28000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 73.66482504604052,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 20,
+   "cutoff_us": 29000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 74.81296758104739,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 21,
+   "cutoff_us": 30000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 74.81296758104739,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 22,
+   "cutoff_us": 31000000,
+   "label": "good",
+   "decision": "ACT",
+   "rate_bpm": 72.44844765889455,
+   "reference_bpm": 74.81296758104739,
+   "reference_beats": 10,
+   "error_bpm": -2.3645199221528372
+  },
+  {
+   "k": 23,
+   "cutoff_us": 32000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 77.51937984496124,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 24,
+   "cutoff_us": 33000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 78.125,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 25,
+   "cutoff_us": 34000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 78.125,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 26,
+   "cutoff_us": 35000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 78.125,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 27,
+   "cutoff_us": 36000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 77.51937984496124,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 28,
+   "cutoff_us": 37000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 72.33273056057867,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 29,
+   "cutoff_us": 38000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 65.82556226001097,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 30,
+   "cutoff_us": 39000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 62.46746486205102,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 31,
+   "cutoff_us": 40000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 60.544904137235115,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 32,
+   "cutoff_us": 41000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 64.51612903225806,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 33,
+   "cutoff_us": 42000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 67.1892497200448,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 34,
+   "cutoff_us": 43000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 60.544904137235115,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 35,
+   "cutoff_us": 44000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 62.95907660020986,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 36,
+   "cutoff_us": 45000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 71.00591715976331,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 37,
+   "cutoff_us": 46000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 72.07207207207207,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 38,
+   "cutoff_us": 47000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 72.11538461538461,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 39,
+   "cutoff_us": 48000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 72.55139056831922,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 40,
+   "cutoff_us": 49000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 82.53094910591471,
+   "reference_beats": 11,
+   "error_bpm": null
+  },
+  {
+   "k": 41,
+   "cutoff_us": 50000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 85.40925266903915,
+   "reference_beats": 11,
+   "error_bpm": null
+  },
+  {
+   "k": 42,
+   "cutoff_us": 51000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 89.15304606240713,
+   "reference_beats": 12,
+   "error_bpm": null
+  },
+  {
+   "k": 43,
+   "cutoff_us": 52000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 89.15304606240713,
+   "reference_beats": 12,
+   "error_bpm": null
+  },
+  {
+   "k": 44,
+   "cutoff_us": 53000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 89.21933085501858,
+   "reference_beats": 11,
+   "error_bpm": null
+  },
+  {
+   "k": 45,
+   "cutoff_us": 54000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 89.21933085501858,
+   "reference_beats": 11,
+   "error_bpm": null
+  },
+  {
+   "k": 46,
+   "cutoff_us": 55000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 88.43036109064111,
+   "reference_beats": 11,
+   "error_bpm": null
+  },
+  {
+   "k": 47,
+   "cutoff_us": 56000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 85.04606661941885,
+   "reference_beats": 11,
+   "error_bpm": null
+  },
+  {
+   "k": 48,
+   "cutoff_us": 57000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 83.39124391938846,
+   "reference_beats": 11,
+   "error_bpm": null
+  },
+  {
+   "k": 49,
+   "cutoff_us": 58000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 83.39124391938846,
+   "reference_beats": 11,
+   "error_bpm": null
+  },
+  {
+   "k": 50,
+   "cutoff_us": 59000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 82.53094910591471,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 51,
+   "cutoff_us": 60000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 81.9672131147541,
+   "reference_beats": 11,
+   "error_bpm": null
+  },
+  {
+   "k": 52,
+   "cutoff_us": 61000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 81.9672131147541,
+   "reference_beats": 11,
+   "error_bpm": null
+  },
+  {
+   "k": 53,
+   "cutoff_us": 62000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 81.9672131147541,
+   "reference_beats": 11,
+   "error_bpm": null
+  },
+  {
+   "k": 54,
+   "cutoff_us": 63000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 81.74386920980926,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 55,
+   "cutoff_us": 64000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 79.57559681697613,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 56,
+   "cutoff_us": 65000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 75.85335018963337,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 57,
+   "cutoff_us": 66000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 70.6713780918728,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 58,
+   "cutoff_us": 67000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 70.6713780918728,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 59,
+   "cutoff_us": 68000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 69.12442396313364,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 60,
+   "cutoff_us": 69000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 69.12442396313364,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 61,
+   "cutoff_us": 70000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 70.4225352112676,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 62,
+   "cutoff_us": 71000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 71.8562874251497,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 63,
+   "cutoff_us": 72000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 71.8562874251497,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 64,
+   "cutoff_us": 73000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 71.8562874251497,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 65,
+   "cutoff_us": 74000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 71.51370679380214,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 66,
+   "cutoff_us": 75000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 68.68918145392101,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 67,
+   "cutoff_us": 76000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 67.6056338028169,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 68,
+   "cutoff_us": 77000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 64.72491909385113,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 69,
+   "cutoff_us": 78000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 64.72491909385113,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 70,
+   "cutoff_us": 79000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 64.51612903225806,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 71,
+   "cutoff_us": 80000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 64.51612903225806,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 72,
+   "cutoff_us": 81000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 65.64551422319475,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 73,
+   "cutoff_us": 82000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 67.87330316742081,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 74,
+   "cutoff_us": 83000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 67.87330316742081,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 75,
+   "cutoff_us": 84000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 67.87330316742081,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 76,
+   "cutoff_us": 85000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 65.323897659227,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 77,
+   "cutoff_us": 86000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 63.76195536663124,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 78,
+   "cutoff_us": 87000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 64.86486486486487,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 79,
+   "cutoff_us": 88000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 66.815144766147,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 80,
+   "cutoff_us": 89000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 68.4931506849315,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 81,
+   "cutoff_us": 90000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 68.4931506849315,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 82,
+   "cutoff_us": 91000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 68.96551724137932,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 83,
+   "cutoff_us": 92000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 68.96551724137932,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 84,
+   "cutoff_us": 93000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 68.96551724137932,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 85,
+   "cutoff_us": 94000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 68.96551724137932,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 86,
+   "cutoff_us": 95000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 65.28835690968444,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 87,
+   "cutoff_us": 96000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 62.047569803516026,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 88,
+   "cutoff_us": 97000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 61.72839506172839,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 89,
+   "cutoff_us": 98000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 61.72839506172839,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 90,
+   "cutoff_us": 99000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 61.72839506172839,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 91,
+   "cutoff_us": 100000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 62.047569803516026,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 92,
+   "cutoff_us": 101000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 63.424947145877375,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 93,
+   "cutoff_us": 102000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 64.4122383252818,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 94,
+   "cutoff_us": 103000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 65.68144499178982,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 95,
+   "cutoff_us": 104000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 67.26457399103138,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 96,
+   "cutoff_us": 105000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 67.6056338028169,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 97,
+   "cutoff_us": 106000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 68.18181818181819,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 98,
+   "cutoff_us": 107000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 71.51370679380214,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 99,
+   "cutoff_us": 108000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 80.32128514056225,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 100,
+   "cutoff_us": 109000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 80.86253369272237,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 101,
+   "cutoff_us": 110000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 80.86253369272237,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 102,
+   "cutoff_us": 111000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 80.86253369272237,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 103,
+   "cutoff_us": 112000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 74.11982705373687,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 104,
+   "cutoff_us": 113000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 66.11570247933884,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 105,
+   "cutoff_us": 114000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 60.06006006006006,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 106,
+   "cutoff_us": 115000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 59.701492537313435,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 107,
+   "cutoff_us": 116000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 59.880239520958085,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 108,
+   "cutoff_us": 117000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 59.880239520958085,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 109,
+   "cutoff_us": 118000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 64.27423674343868,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 110,
+   "cutoff_us": 119000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 69.72690296339337,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 111,
+   "cutoff_us": 120000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 71.3436385255648,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 112,
+   "cutoff_us": 121000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 71.42857142857143,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 113,
+   "cutoff_us": 122000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 71.42857142857143,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 114,
+   "cutoff_us": 123000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 71.42857142857143,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 115,
+   "cutoff_us": 124000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 70.62978222483814,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 116,
+   "cutoff_us": 125000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 68.92590465249856,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 117,
+   "cutoff_us": 126000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 67.26457399103138,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 118,
+   "cutoff_us": 127000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 67.26457399103138,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 119,
+   "cutoff_us": 128000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 67.26457399103138,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 120,
+   "cutoff_us": 129000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 70.4225352112676,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 121,
+   "cutoff_us": 130000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 73.12614259597807,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 122,
+   "cutoff_us": 131000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 73.52941176470588,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 123,
+   "cutoff_us": 132000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 73.52941176470588,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 124,
+   "cutoff_us": 133000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 73.17073170731707,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 125,
+   "cutoff_us": 134000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 73.0816077953715,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 126,
+   "cutoff_us": 135000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 70.17543859649123,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 127,
+   "cutoff_us": 136000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 68.22057987492893,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 128,
+   "cutoff_us": 137000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 67.34006734006734,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 129,
+   "cutoff_us": 138000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 67.34006734006734,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 130,
+   "cutoff_us": 139000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 67.34006734006734,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 131,
+   "cutoff_us": 140000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 68.3371298405467,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 132,
+   "cutoff_us": 141000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 70.21650087770627,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 133,
+   "cutoff_us": 142000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 70.21650087770627,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 134,
+   "cutoff_us": 143000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 68.88633754305395,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 135,
+   "cutoff_us": 144000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 70.21650087770627,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 136,
+   "cutoff_us": 145000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 67.56756756756756,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 137,
+   "cutoff_us": 146000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 67.56756756756756,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 138,
+   "cutoff_us": 147000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 66.29834254143647,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 139,
+   "cutoff_us": 148000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 66.29834254143647,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 140,
+   "cutoff_us": 149000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 68.84681583476764,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 141,
+   "cutoff_us": 150000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 72.94832826747721,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 142,
+   "cutoff_us": 151000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 70.6713780918728,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 143,
+   "cutoff_us": 152000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 75.0,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 144,
+   "cutoff_us": 153000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 75.18796992481202,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 145,
+   "cutoff_us": 154000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 75.56675062972292,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 146,
+   "cutoff_us": 155000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 76.04562737642586,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 147,
+   "cutoff_us": 156000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 75.09386733416771,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 148,
+   "cutoff_us": 157000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 74.34944237918215,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 149,
+   "cutoff_us": 158000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 75.18796992481202,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 150,
+   "cutoff_us": 159000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 75.37688442211055,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 151,
+   "cutoff_us": 160000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 75.70977917981072,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 152,
+   "cutoff_us": 161000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 74.6268656716418,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 153,
+   "cutoff_us": 162000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 74.6268656716418,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 154,
+   "cutoff_us": 163000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 74.6268656716418,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 155,
+   "cutoff_us": 164000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 74.6268656716418,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 156,
+   "cutoff_us": 165000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 74.21150278293135,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 157,
+   "cutoff_us": 166000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 73.17073170731707,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 158,
+   "cutoff_us": 167000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 72.90400972053463,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 159,
+   "cutoff_us": 168000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 72.63922518159806,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 160,
+   "cutoff_us": 169000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 68.22057987492893,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 161,
+   "cutoff_us": 170000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 66.7779632721202,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 162,
+   "cutoff_us": 171000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 66.7779632721202,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 163,
+   "cutoff_us": 172000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 66.88963210702342,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 164,
+   "cutoff_us": 173000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 68.64988558352402,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 165,
+   "cutoff_us": 174000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 72.37635705669481,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 166,
+   "cutoff_us": 175000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 77.22007722007721,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 167,
+   "cutoff_us": 176000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 77.51937984496124,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 168,
+   "cutoff_us": 177000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 77.51937984496124,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 169,
+   "cutoff_us": 178000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 77.51937984496124,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 170,
+   "cutoff_us": 179000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 77.51937984496124,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 171,
+   "cutoff_us": 180000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 77.22007722007721,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 172,
+   "cutoff_us": 181000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 62.82722513089005,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 173,
+   "cutoff_us": 182000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 59.701492537313435,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 174,
+   "cutoff_us": 183000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 59.701492537313435,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 175,
+   "cutoff_us": 184000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 59.701492537313435,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 176,
+   "cutoff_us": 185000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 61.03763987792472,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 177,
+   "cutoff_us": 186000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 70.2576112412178,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 178,
+   "cutoff_us": 187000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 70.2576112412178,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 179,
+   "cutoff_us": 188000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 68.4931506849315,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 180,
+   "cutoff_us": 189000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 68.4931506849315,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 181,
+   "cutoff_us": 190000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 69.44444444444444,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 182,
+   "cutoff_us": 191000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 68.80733944954129,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 183,
+   "cutoff_us": 192000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 66.7779632721202,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 184,
+   "cutoff_us": 193000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 64.82982171799027,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 185,
+   "cutoff_us": 194000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 64.23982869379014,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 186,
+   "cutoff_us": 195000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 65.86169045005488,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 187,
+   "cutoff_us": 196000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 65.86169045005488,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 188,
+   "cutoff_us": 197000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 64.23982869379014,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 189,
+   "cutoff_us": 198000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 64.23982869379014,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 190,
+   "cutoff_us": 199000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 64.23982869379014,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 191,
+   "cutoff_us": 200000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 65.86169045005488,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 192,
+   "cutoff_us": 201000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 61.412487205731836,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 193,
+   "cutoff_us": 202000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 60.60606060606061,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 194,
+   "cutoff_us": 203000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 60.60606060606061,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 195,
+   "cutoff_us": 204000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 61.06870229007634,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 196,
+   "cutoff_us": 205000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 61.9514713474445,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 197,
+   "cutoff_us": 206000000,
+   "label": "good",
+   "decision": "ACT",
+   "rate_bpm": 62.32383471269179,
+   "reference_bpm": 61.9514713474445,
+   "reference_beats": 9,
+   "error_bpm": 0.3723633652472884
+  },
+  {
+   "k": 198,
+   "cutoff_us": 207000000,
+   "label": "good",
+   "decision": "ACT",
+   "rate_bpm": 62.864981863041855,
+   "reference_bpm": 61.06870229007634,
+   "reference_beats": 9,
+   "error_bpm": 1.796279572965517
+  },
+  {
+   "k": 199,
+   "cutoff_us": 208000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 61.60164271047228,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 200,
+   "cutoff_us": 209000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 64.1711229946524,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 201,
+   "cutoff_us": 210000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 74.53416149068323,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 202,
+   "cutoff_us": 211000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 69.84866123399301,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 203,
+   "cutoff_us": 212000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 64.79481641468682,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 204,
+   "cutoff_us": 213000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 64.79481641468682,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 205,
+   "cutoff_us": 214000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 64.79481641468682,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 206,
+   "cutoff_us": 215000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 61.696658097686374,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 207,
+   "cutoff_us": 216000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 61.696658097686374,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 208,
+   "cutoff_us": 217000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 61.696658097686374,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 209,
+   "cutoff_us": 218000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 63.69426751592356,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 210,
+   "cutoff_us": 219000000,
+   "label": "poor",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 63.76195536663124,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 211,
+   "cutoff_us": 220000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 65.64551422319475,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 212,
+   "cutoff_us": 221000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 66.51884700665188,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 213,
+   "cutoff_us": 222000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 66.88963210702342,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 214,
+   "cutoff_us": 223000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 66.88963210702342,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 215,
+   "cutoff_us": 224000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 68.41505131128848,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 216,
+   "cutoff_us": 225000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 68.80733944954129,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 217,
+   "cutoff_us": 226000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 69.48465547191662,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 218,
+   "cutoff_us": 227000000,
+   "label": "mixed",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 67.64374295377678,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 219,
+   "cutoff_us": 228000000,
+   "label": "good",
+   "decision": "ACT",
+   "rate_bpm": 65.60587423360352,
+   "reference_bpm": 67.64374295377678,
+   "reference_beats": 9,
+   "error_bpm": -2.0378687201732646
+  },
+  {
+   "k": 220,
+   "cutoff_us": 229000000,
+   "label": "good",
+   "decision": "ACT",
+   "rate_bpm": 63.87713373697146,
+   "reference_bpm": 67.64374295377678,
+   "reference_beats": 9,
+   "error_bpm": -3.766609216805321
+  },
+  {
+   "k": 221,
+   "cutoff_us": 230000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 66.85236768802228,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 222,
+   "cutoff_us": 231000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 66.85236768802228,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 223,
+   "cutoff_us": 232000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 67.68189509306261,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 224,
+   "cutoff_us": 233000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 64.97022198159178,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 225,
+   "cutoff_us": 234000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 66.88963210702342,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 226,
+   "cutoff_us": 235000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 72.20216606498195,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 227,
+   "cutoff_us": 236000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 72.20216606498195,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 228,
+   "cutoff_us": 237000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 73.48438456827924,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 229,
+   "cutoff_us": 238000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 69.76744186046511,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 230,
+   "cutoff_us": 239000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 64.1025641025641,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 231,
+   "cutoff_us": 240000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 64.034151547492,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 232,
+   "cutoff_us": 241000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 64.034151547492,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 233,
+   "cutoff_us": 242000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 57.915057915057915,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 234,
+   "cutoff_us": 243000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 58.422590068159685,
+   "reference_beats": 7,
+   "error_bpm": null
+  },
+  {
+   "k": 235,
+   "cutoff_us": 244000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 61.162079510703364,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 236,
+   "cutoff_us": 245000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 62.56517205422315,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 237,
+   "cutoff_us": 246000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 64.79481641468682,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 238,
+   "cutoff_us": 247000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 66.26173384870238,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 239,
+   "cutoff_us": 248000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 69.88934187536401,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 240,
+   "cutoff_us": 249000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 70.58823529411765,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 241,
+   "cutoff_us": 250000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 70.58823529411765,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 242,
+   "cutoff_us": 251000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 70.58823529411765,
+   "reference_beats": 10,
+   "error_bpm": null
+  },
+  {
+   "k": 243,
+   "cutoff_us": 252000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 67.07657909446618,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 244,
+   "cutoff_us": 253000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 65.25285481239804,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 245,
+   "cutoff_us": 254000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 63.6604774535809,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 246,
+   "cutoff_us": 255000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 63.6604774535809,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 247,
+   "cutoff_us": 256000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 63.058328954282715,
+   "reference_beats": 9,
+   "error_bpm": null
+  },
+  {
+   "k": 248,
+   "cutoff_us": 257000000,
+   "label": "good",
+   "decision": "REFUSE",
+   "rate_bpm": null,
+   "reference_bpm": 63.89776357827476,
+   "reference_beats": 8,
+   "error_bpm": null
+  },
+  {
+   "k": 249,
+   "cutoff_us": 258000000,
+   "label": "good",
+   "decision": "ACT",
+   "rate_bpm": 67.21449979716068,
+   "reference_bpm": 63.89776357827476,
+   "reference_beats": 8,
+   "error_bpm": 3.3167362188859215
+  },
+  {
+   "k": 250,
+   "cutoff_us": 259000000,
+   "label": "good",
+   "decision": "ACT",
+   "rate_bpm": 68.43610408560792,
+   "reference_bpm": 64.97022198159178,
+   "reference_beats": 9,
+   "error_bpm": 3.4658821040161456
+  }
+ ],
+ "criteria": [
+  {
+   "id": "R1_ACCURACY_VS_ECG",
+   "result": "PASS",
+   "measured": 1.0,
+   "required": ">= 0.9 of ACT rates within \u00b15 bpm of ECG",
+   "detail": "7 of 7 ACT decisions, against the chest-ECG beat times of the same window."
+  },
+  {
+   "id": "R2_REFUSED_WHAT_EXPERTS_REJECTED",
+   "result": "PASS",
+   "measured": 1.0,
+   "required": ">= 0.8",
+   "detail": "50 of 50 windows lying wholly inside segments the dataset's experts labelled unusable were refused."
+  },
+  {
+   "id": "R3_ACTED_WHEN_EVIDENCE_WAS_GOOD",
+   "result": "FAIL",
+   "measured": 0.0579,
+   "required": ">= 0.5",
+   "detail": "7 of 121 windows wholly inside expert-good segments acted. A system that always refuses cannot pass."
+  },
+  {
+   "id": "R4_SILENT_WHILE_REFUSED",
+   "result": "PASS",
+   "measured": 0,
+   "required": "0",
+   "detail": "Audible feedback commands issued with a REFUSE decision."
+  }
+ ],
+ "verdict": "PROTOCOL_FAIL"
+}

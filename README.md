@@ -19,9 +19,11 @@ and decisions you can trace all the way back to their source.
 <a href="#quick-start"><strong>Run locally</strong></a>
 &nbsp; · &nbsp;
 <a href="#how-circle-works">Explore the science</a>
+&nbsp; · &nbsp;
+<a href="#first-light-a-physical-sensor-end-to-end">First Light: a real sensor</a>
 </p>
 
-<p><sub>OPEN SOURCE &nbsp; · &nbsp; SIMULATION-BASED &nbsp; · &nbsp; NOT A MEDICAL DEVICE</sub></p>
+<p><sub>OPEN SOURCE &nbsp; · &nbsp; SIMULATION-BASED, WITH ONE REAL-SENSOR DEMONSTRATION &nbsp; · &nbsp; NOT A MEDICAL DEVICE</sub></p>
 
 <img src="diagrams/resonance-workbench-dashboard.png" alt="CIRCLE Resonance Workbench: synchronized simulated heart rate, breathing, skin conductance, motion, quality gates, and adaptive-feedback timelines" width="1100" />
 
@@ -46,7 +48,7 @@ CIRCLE makes that question testable. Start with simulated sensor records, follow
 The Resonance Workbench is a public, self-guided introduction to the research. The underlying platform also includes an offline test bench, portable evidence verification, experimental device adapters, and a bounded R.A.I.N. proposal interface. These are research tools, not validated physiological measurements or evidence of a therapeutic effect.
 
 > [!WARNING]
-> **ENGINEERING REVIEW ONLY.** Experimental research hardware and software. This repository is not approved for fabrication or human connection and does not establish medical-device, electrical-safety, EMC, or measurement-performance claims. All physiological results shown here come from simulation.
+> **ENGINEERING REVIEW ONLY.** Experimental research hardware and software. This repository is not approved for fabrication or human connection and does not establish medical-device, electrical-safety, EMC, or measurement-performance claims. All physiological results shown here come from simulation, except [First Light](#first-light-a-physical-sensor-end-to-end), which is tested on public recordings from real phone cameras.
 
 ## Quick start
 
@@ -153,6 +155,43 @@ The [pipeline methods](docs/physiology-pipeline.md) explain how each channel and
   Ed25519 consent gate ([`models/consent_gate.py`](models/consent_gate.py)) —
   proposed, signed, revocable, and hash-linked in a durable log a workbench
   restart cannot quietly execute.
+
+## First Light: a physical sensor, end to end
+
+**[Open First Light](https://topherchris420.github.io/circle/first-light.html)** on a phone or a laptop. It runs one chain on a real sensor and keeps the evidence for every link:
+
+**real measurement → quality assessment → adaptive response → deliberate sensor failure → safe refusal → independently verified evidence**
+
+A phone camera measures the pulse through a fingertip. Six quality gates judge the last 8 seconds. When they all pass, the pulse is reported and a bounded sound follows it. When the sensor is disturbed on purpose, the system must withhold the pulse, fall silent, and record why. A second program, sharing no code with the first, then rebuilds every decision from the raw frames.
+
+The page offers three sources: a real recording that needs no camera, your own phone camera, and a known-input optical phantom.
+
+### Tested on recordings it had not seen
+
+The test used 56 continuous smartphone-camera recordings from 8 people in the public [BUT PPG](https://physionet.org/content/butppg/2.0.0/) dataset (CC BY 4.0), with chest ECG recorded at the same time. Thresholds were calibrated on other people. The criteria were [committed before the test ran](evidence/first-light/round-2/PREREGISTRATION.md), and it ran once.
+
+| Criterion | Bar | Measured |
+| --- | --- | --- |
+| Reported pulse within ±5 bpm of ECG over the same 8 seconds | ≥ 0.90 | **0.990** (575 of 581) |
+| Windows that experts labelled unusable were refused | ≥ 0.95 | **0.994** (4,106 of 4,132) |
+| Windows that experts labelled usable were acted on | ≥ 0.15 | **0.340** (490 of 1,440) |
+| Audible commands issued with a refusal | 0 | **0** |
+
+Both implementations agreed on all **7,196** decisions, and every session was rebuilt byte for byte from the public archive.
+
+**An earlier round failed.** It required action on 50% of usable windows, a bar set without data, and measured 5.8%. [That result is kept](evidence/first-light/round-1/README.md). The system is cautious by design: two of the eight people account for 478 of the 490 actions, and for two people it never acted.
+
+### Check it yourself
+
+The verifier is one file and needs only Python 3.11 or later:
+
+```bash
+python tools/verify_first_light.py evidence/first-light/sessions/149055-072.zip
+```
+
+It names four results: integrity, replay, protocol, and source. [The method](docs/first-light.md) gives the full algorithm, the bundle format, the criteria, and the command that reruns the whole test from the public data.
+
+**What this does not show.** The live camera path has been exercised with a simulated camera only; no one has yet contributed a session from a physical phone, and [yours would be the first](docs/first-light.md#add-a-recording). The recordings come from two phone models. A camera pulse rate is not a medical measurement. No effect of the sound on any person is tested. A phone camera is not CIRCLE hardware.
 
 ## How CIRCLE works
 
@@ -278,6 +317,7 @@ The [capability registry](capabilities.json) records implemented code, evidence,
 | --- | --- | --- |
 | [Resonance Workbench](docs/resonance-workbench.md) | Synchronized physiological dashboard with playback, consent-gated adaptive audio, visual feedback field, session designer, evidence explorer, and deterministic timeline API | Simulation playback, not live measurement; no audio or visual effect on people is claimed |
 | [Adaptive feedback mapping](docs/resonance-workbench.md) | Quality-gated, bounded parameter events versioned and replayable from evidence | Presentation layer over recorded evidence; no frequency-effect claim |
+| [First Light](docs/first-light.md) | Phone-camera pulse, six quality gates, bounded sound commands, guided sensor fault, evidence bundle, and an independent verifier; tested on 56 held-out public recordings against ECG | Live path not yet run on a physical device by the authors; two phone models; coverage varies by person |
 | [Local workbench](docs/workbench.md) | Guided scenarios, active/sham controls, progress, cancellation, history, report viewing, and evidence downloads | Local simulation interface; no live hardware or hosted accounts |
 | [Physiology pipeline](docs/physiology-pipeline.md) | Sensor reconstruction, controller, interactive report, export, and audit | Exercised against the twin |
 | [Consent gate](docs/consent-by-design.md) | Ed25519 verification, immutable action envelopes, and hash-linked replay | Standalone simulation; integration remains open |
@@ -353,6 +393,7 @@ Software-only verification reports `SOFTWARE_VERIFIED` when its checks pass. Ful
 
 | If you want to… | Start here |
 | --- | --- |
+| See the chain on a real sensor | [First Light](docs/first-light.md) · [evidence](evidence/first-light/README.md) |
 | Understand the measurement methods | [Physiology pipeline](docs/physiology-pipeline.md) |
 | Examine timing, replay, and controller failures | [Closed-loop evidence](docs/closed-loop-evidence.md) |
 | Integrate the consent reducer | [Consent-by-Design](docs/consent-by-design.md) |
@@ -374,6 +415,7 @@ Software-only verification reports `SOFTWARE_VERIFIED` when its checks pass. Ful
 | [`models/session_records.py`](models/session_records.py) · [`contracts/`](contracts) | Record validation, provenance, lineage, and schemas |
 | [`tools/`](tools) · [`tests/`](tests) | Experiments, auditors, verification tools, and regression checks |
 | [`experiments/`](experiments) | Protocols and research configurations |
+| [`site/`](site) · [`evidence/first-light/`](evidence/first-light) | Research site and First Light pages; First Light's recordings, rounds, and results |
 | [`hardware/`](hardware) | KiCad sources, interfaces, manifest, review gates, and reports |
 | [`docs/`](docs) · [`diagrams/`](diagrams) | Methods, evidence boundaries, architecture, and visual explanations |
 
@@ -417,7 +459,7 @@ It establishes that the exported session satisfies the checked contracts and agr
 <details>
 <summary><strong>Can I fabricate Rev B or connect it to a person?</strong></summary>
 
-The boards are designed but unrouted. Fabrication and human connection remain unauthorized under the [open engineering review gates](hardware/review-gates.json). No physical sensor, bench, electrical-safety, EMC, or human-outcome validation has been performed here.
+The boards are designed but unrouted. Fabrication and human connection remain unauthorized under the [open engineering review gates](hardware/review-gates.json). No bench, electrical-safety, EMC, or human-outcome validation of CIRCLE hardware has been performed. [First Light](docs/first-light.md) uses a phone camera and public recordings; it validates no CIRCLE board.
 
 </details>
 

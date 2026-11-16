@@ -51,6 +51,9 @@ jobs:
               "workbench.html", "resonance.css", "resonance.js",
               "audio-engine.js", "synth.js", "visual.js", "phantom.js",
               "demo-data.js", "demo-shim.js", "demo-guide.js",
+              "first-light.html", "first-light.css", "first-light.js", "first-light-core.js",
+              "first-light-phantom.html", "first-light-recording-149055-072.js",
+              "first-light-recording-137025-054.js",
           }
           missing = sorted(name for name in required if not (root / name).is_file() or (root / name).stat().st_size == 0)
           if missing:
@@ -58,6 +61,7 @@ jobs:
           pages = {
               "index.html": ("site.css", "site.js", "demo-data.js", "workbench.html"),
               "workbench.html": ("resonance.css", "resonance.js", "demo-data.js", "demo-shim.js", "demo-guide.js"),
+              "first-light.html": ("first-light.css", "first-light-core.js", "first-light.js", "first-light-phantom.html"),
           }
           for page, assets in pages.items():
               html = (root / page).read_text(encoding="utf-8")

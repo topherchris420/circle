@@ -3,6 +3,7 @@
   "statuses": {
     "IMPLEMENTED": "Working code with tests in this repository.",
     "SIMULATION_VALIDATED": "Implemented and scored against known simulated truth; says nothing about hardware or people.",
+    "RECORDED_DATA_VALIDATED": "Implemented and tested on public recordings from physical sensors against an independent reference, with criteria committed before the test; not run on hardware by the authors.",
     "EXPERIMENTAL": "Implemented research code whose outputs are exploratory.",
     "CONTRACT_ONLY": "Interface contracts exist; the implementation is elsewhere or absent.",
     "DESIGNED_NOT_BUILT": "Design files exist; nothing has been fabricated or measured.",
@@ -514,6 +515,41 @@
         "Simulation only; no hardware control, human measurements, or physiological efficacy.",
         "Local single-user interface, not a hosted service or integration of the standalone consent gate.",
         "Audit results describe the export at completion; files modified later must be re-audited."
+      ],
+      "removable": true
+    },
+    {
+      "id": "first_light",
+      "layer": "HARDWARE_ADAPTER",
+      "status": "RECORDED_DATA_VALIDATED",
+      "summary": "A phone camera as the sensor: fingertip optical pulse measured in the browser, six quality gates, a controller that acts only on a full clean window, bounded sound commands, a guided deliberate sensor fault, and a deterministic evidence bundle. An independent standard-library Python verifier rebuilds every decision from raw frames and judges preregistered criteria. Tested on BUT PPG 2.0.0 held-out people: 56 sessions, 7,196 decisions reproduced, 575 of 581 actions within 5 bpm of chest ECG, 4,106 of 4,132 expert-poor windows refused, 490 of 1,440 expert-good windows acted on.",
+      "paths": [
+        "site/first-light.html",
+        "site/first-light-core.js",
+        "site/first-light.js",
+        "site/first-light-phantom.html",
+        "tools/verify_first_light.py",
+        "tools/run_first_light_round.py",
+        "tools/run_first_light_benchmark.py",
+        "tools/build_first_light_session.py",
+        "tools/build_first_light_bundle.js",
+        "docs/first-light.md"
+      ],
+      "evidence": [
+        "tests/test_first_light.py",
+        "evidence/first-light/round-2/result.json",
+        "evidence/first-light/round-2/PREREGISTRATION.md",
+        "evidence/first-light/round-1/README.md",
+        "evidence/first-light/benchmark.json",
+        "python tools/verify_first_light.py evidence/first-light/sessions/149055-072.zip"
+      ],
+      "not_claimed": [
+        "The authors have not run the live camera or phantom path on a physical device; it is exercised in a browser with a simulated camera. The physical evidence is the public dataset's recordings, from two phone models.",
+        "A camera pulse rate is not a medical measurement; accuracy means within 5 bpm of ECG rate over an 8-second window.",
+        "Coverage is person-dependent: two of eight held-out people account for 478 of 490 actions, and for two people the system never acted. Round 1 required 50% coverage and failed at 5.8%; that result is kept.",
+        "The sound is a recorded command; no one heard it in the tests and no effect on any person is tested or claimed.",
+        "Hashes detect change and do not authenticate a source: a live bundle's claim to come from a camera rests on its operator. Only dataset sessions can be rebuilt from their source.",
+        "A phone camera is not CIRCLE Rev B hardware; nothing here closes a hardware review gate, and the closed-loop physiology controller does not consume this stream."
       ],
       "removable": true
     }

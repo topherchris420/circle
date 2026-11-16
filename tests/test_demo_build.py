@@ -20,7 +20,10 @@ from tools.run_audio_rendering_benchmark import BROWSER_CANDIDATES
 
 DEMO_FILES = ("index.html", "site.css", "site.js", "resonance-workbench-dashboard.png",
               "workbench.html", "demo-data.js", "demo-shim.js", "resonance.css", "resonance.js",
-              "audio-engine.js", "synth.js", "visual.js", "phantom.js")
+              "audio-engine.js", "synth.js", "visual.js", "phantom.js",
+              "first-light.html", "first-light.css", "first-light.js", "first-light-core.js",
+              "first-light-phantom.html", "first-light-recording-149055-072.js",
+              "first-light-recording-137025-054.js")
 WORKBENCH_ASSETS = ("demo-data.js", "demo-shim.js", "demo-guide.js", "resonance.css", "resonance.js",
                     "audio-engine.js", "synth.js", "visual.js", "phantom.js")
 
@@ -68,6 +71,13 @@ class DemoBuildTest(unittest.TestCase):
         self.assertIn("simulated truth", site)
         workbench = (self.directory / "workbench.html").read_text(encoding="utf-8")
         self.assertIn('href="index.html"', workbench)
+
+    def test_site_links_first_light_and_ships_it_unchanged(self):
+        site = (self.directory / "index.html").read_text(encoding="utf-8")
+        self.assertIn('href="first-light.html"', site)
+        source = Path(__file__).resolve().parents[1] / "site"
+        for name in ("first-light.html", "first-light.js", "first-light-core.js", "first-light-recording-149055-072.js"):
+            self.assertEqual((self.directory / name).read_bytes(), (source / name).read_bytes(), name)
 
     def test_demo_is_labeled_as_simulation_and_offline(self):
         html = (self.directory / "workbench.html").read_text(encoding="utf-8")
