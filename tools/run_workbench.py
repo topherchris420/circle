@@ -240,7 +240,8 @@ def main(argv: list[str] | None = None) -> int:
                 server = make_server(workbench, args.port, args.phantom)
                 try:
                     url = f"http://127.0.0.1:{args.port}"
-                    print(f"CIRCLE workbench: {url}\nSessions: {workbench.root}\nSimulation only. Press Ctrl+C to stop.", flush=True)
+                    print(f"CIRCLE workbench: {url}\nResonance Workbench: {url}/resonance\n"
+                          f"Sessions: {workbench.root}\nSimulation only. Press Ctrl+C to stop.", flush=True)
                     if not args.no_browser:
                         webbrowser.open(url)
                     server.serve_forever(poll_interval=0.25)

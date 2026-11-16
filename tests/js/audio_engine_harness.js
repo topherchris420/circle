@@ -57,7 +57,21 @@ const p2 = engine.breathPhase(schedule, 100);
 assert(p1 === p2 && p1 >= 0 && p1 < 1, "breath phase deterministic and in [0,1)");
 out.breath_phase = p1;
 
-// 6. Empty schedule degrades gracefully.
+// 6. Measured inputs ride along with the schedule, never ahead of availability.
+const withInputs = engine.buildSchedule([
+  { time_us: 2e6, audible: true, gate_reasons: [], parameters: { level: 0.2 }, inputs: { hr_bpm: 70, scl_us: 4.2 } },
+  { time_us: 4e6, audible: true, gate_reasons: [], parameters: { level: 0.2 }, inputs: { hr_bpm: 72, scl_us: 4.5 } },
+  { time_us: 6e6, audible: true, gate_reasons: [], parameters: { level: 0.2 } },
+], { maxGain: 0.5 });
+assert(engine.interpolateAt(withInputs, 1).inputs === null, "no inputs before the first measurement");
+assert(engine.interpolateAt(withInputs, 2).inputs.scl_us === 4.2, "inputs available at their event time");
+assert(engine.interpolateAt(withInputs, 3.9).inputs.scl_us === 4.2, "latest available inputs, not the next ones");
+assert(engine.interpolateAt(withInputs, 4).inputs.hr_bpm === 72, "inputs advance at the next event");
+assert(engine.interpolateAt(withInputs, 9).inputs === null, "an event without inputs reports none");
+assert(engine.interpolateAt(schedule, 7.5).inputs === null, "events without inputs interpolate cleanly");
+out.inputs_respect_availability = true;
+
+// 7. Empty schedule degrades gracefully.
 assert(engine.interpolateAt({ points: [] }, 5) === null, "empty schedule returns null");
 out.empty_ok = true;
 

@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Try the offline demo
+    url: https://topherchris420.github.io/circle/
+    about: A prerecorded simulated session in your browser, with nothing installed. Many questions are answered by its Evidence view.
+  - name: Read the documentation map
+    url: https://github.com/topherchris420/circle#documentation
+    about: Methods, evidence boundaries, hardware design, and verification scopes.

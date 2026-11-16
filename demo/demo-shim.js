@@ -25,15 +25,21 @@
     }
     return Promise.reject(new Error("offline demo: unexpected request " + path));
   };
-  // Self-report: how many API calls the interface made against the recorded data.
+  // Self-test (only with ?selftest in the URL, so visitors keep a real tab title):
+  // report how many API calls the interface made and whether any script failed.
+  if (!/[?&]selftest\b/.test(window.location.search)) { return; }
   let served = 0;
+  let uncaught = 0;
+  window.addEventListener("error", function () { uncaught += 1; });
+  window.addEventListener("unhandledrejection", function () { uncaught += 1; });
   const counting = window.fetch;
   window.fetch = function (url, options) {
     return counting(url, options).then(function (response) { served += 1; return response; });
   };
   window.addEventListener("load", function () {
     setTimeout(function () {
-      document.title = "DEMO " + served + " API CALLS · " + (window.CIRCLE_DEMO ? "READY" : "BROKEN");
-    }, 2500);
+      const state = !window.CIRCLE_DEMO ? "BROKEN" : (uncaught ? uncaught + " UNCAUGHT ERRORS" : "READY");
+      document.title = "DEMO " + served + " API CALLS · " + state;
+    }, 3500);
   });
 })();

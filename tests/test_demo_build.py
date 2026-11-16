@@ -116,7 +116,7 @@ class DemoBrowserTest(unittest.TestCase):
         process = subprocess.Popen(
             [self.browser, "--headless=new", "--disable-gpu", "--disable-extensions", "--no-first-run",
              "--no-sandbox", "--disable-dev-shm-usage",  # CI containers require these.
-             f"--remote-debugging-port={debug_port}", f"http://127.0.0.1:{self.port}/index.html"],
+             f"--remote-debugging-port={debug_port}", f"http://127.0.0.1:{self.port}/index.html?selftest"],
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         try:
             import http.client
@@ -138,6 +138,7 @@ class DemoBrowserTest(unittest.TestCase):
                     break
                 time.sleep(0.5)
             self.assertIsNotNone(title, "the demo page never reported")
+            # READY also means no uncaught script error during load and the first seconds of playback.
             self.assertRegex(title, r"^DEMO \d+ API CALLS · READY$")
             calls = int(re.match(r"^DEMO (\d+)", title).group(1))
             self.assertGreaterEqual(calls, 3, "the interface made too few calls to have loaded its data")

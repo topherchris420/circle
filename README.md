@@ -50,16 +50,11 @@ The Resonance Workbench is a public, self-guided introduction to the research. T
 
 ## Quick start
 
-### Open the local workbench
+**Nothing to install:** [open the offline demo](https://topherchris420.github.io/circle/). It replays a prerecorded simulated session in your browser, with playback, adaptive audio, and the evidence behind every decision. Nothing is sent anywhere. It is built from [`demo/`](demo) by [`tools/build_demo.py`](tools/build_demo.py), and the same scenario and seed reproduce it locally.
 
-The easiest way to explore CIRCLE is its local browser workbench. The **Resonance
-Workbench** is the research interface: a synchronized physiological dashboard, an
-original consent-gated adaptive audio engine, a responsive visual feedback field,
-a guided session designer, and an evidence explorer that follows any feedback
-decision back to its measurements. Choose one of eight guided scenarios, run an
-active or sham session, and see the measurement checks alongside an independent
-audit. Your session history, interactive reports, and downloadable evidence stay
-on your computer.
+### Run it locally
+
+You need **Python 3.11+** and Git. No device, account, API key, or model server is required.
 
 ```bash
 git clone https://github.com/topherchris420/circle.git
@@ -68,76 +63,42 @@ python -m pip install -r requirements.txt
 python tools/run_workbench.py
 ```
 
-Requires **Python 3.11+**. The browser opens at **http://127.0.0.1:8765** —
-the Resonance Workbench lives at **/resonance**, and the classic guided view at
-**/**. Keep the terminal running; you can close and reopen the browser tab
-without losing the session. Start with **A clear signal**, then try **A loose
+<details>
+<summary>Prefer an isolated Python environment?</summary>
+
+After cloning and entering `circle`, create a virtual environment with `python -m venv .venv`. Activate it with `source .venv/bin/activate` on macOS/Linux or `.\.venv\Scripts\Activate.ps1` in Windows PowerShell, then run the install and launch commands above. If your system names Python `python3`, use that command instead.
+
+</details>
+
+The browser opens the guided workbench at **http://127.0.0.1:8765**. The **Resonance Workbench** pictured above is at **http://127.0.0.1:8765/resonance**, also linked from the guided view's sidebar. Keep the terminal running; you can close and reopen the browser tab without losing the session. Start with **A clear signal**, then try **A loose
 sensor** to explore why measurement quality and evidence integrity are separate
-results. No account, device, or API key is needed. All feedback is simulated.
+results. All feedback is simulated.
 
-<div align="center">
-
-<img src="diagrams/resonance-workbench-dashboard.png" alt="Resonance Workbench dashboard: heart rate, RMSSD, respiration, electrodermal activity, motion, quality gates, and the feedback engine on one synchronized timeline from a simulated session" width="1000" />
-
-<sub>A genuine capture of the Resonance Workbench, replaying a recorded six-minute simulated session (seed 7).<br />Charts share one time axis; the playhead, decision markers, and cue ticks line up across views.</sub>
-
-</div>
+The **Resonance Workbench** is the research interface: a synchronized physiological
+dashboard, an original consent-gated adaptive audio engine, a responsive visual
+feedback field, a guided session designer, and an evidence explorer that follows
+any feedback decision back to its measurements. Choose one of eight guided
+scenarios, run an active or sham session, and see the measurement checks alongside
+an independent audit. Your session history, interactive reports, and downloadable
+evidence stay on your computer.
 
 The dashboard's sibling views: the [session designer](diagrams/resonance-workbench-designer.png) with its
 consent-gated feedback settings, the [feedback studio](diagrams/resonance-workbench-studio.png) showing the
 live parameter mapping, the [visual field](diagrams/resonance-workbench-visual.png), and the
 [evidence explorer](diagrams/resonance-workbench-evidence.png). The
 [Resonance Workbench guide](docs/resonance-workbench.md) explains the architecture, the mapping table,
-benchmarks, and boundaries. It was designed after a lawful study of commercial
-neurotechnology products ([REA research](docs/rea-research/README.md)) — keeping
-their good patterns while adding what they rarely provide together: traceable
-measurements, explainable decisions, reproducible sessions, explicit consent.
+benchmarks, and boundaries. 
 
 [Workbench guide, downloads, and troubleshooting](docs/workbench.md) ·
 Use `--port 8766` if the default port is busy, or `--no-browser` to open it manually.
 
-### Reproduce what you see
+### Run your first session from the command line
 
-- **The film** (90 seconds): [`marketing/circle-film-90s.mp4`](marketing/circle-film-90s.mp4)
-  replays one simulated session, a sensor loss injected on purpose, the recorded
-  R.A.I.N. run, and a verification. Every frame of data is labeled simulation;
-  [how it was made](marketing/README.md) lists the source of each claim.
-- **Offline demo** (nothing installed): the same workbench replaying a prerecorded
-  simulated session runs at **https://topherchris420.github.io/circle/** (deployed
-  from [`demo/`](demo) by [`tools/build_demo.py`](tools/build_demo.py); audio consented, clearly labeled simulation).
-- **One-command independent replication**: every downloaded evidence bundle ships
-  `verify_replication.py`. On any machine with Python 3.11+:
-  `python verify_replication.py <directory>` recomputes every hash, rebuilds the
-  analysis and every decision from the raw samples, and names the verdict —
-  `REPLAY_MATCH`, `REPLAY_DIVERGENCE`, `INTEGRITY_FAILURE`, or
-  `INSUFFICIENT_EVIDENCE`. A matching replay shows the package reproduces from
-  its inputs; it does not show it measured the world.
-- **Bring your own instrument**: a documented adapter SDK maps
-  [BrainFlow](docs/hardware-agnostic-acquisition.md) boards and Lab Streaming
-  Layer outlets onto CIRCLE's stream contract; sources lacking EDA/PPG/IMU are
-  refused with recorded reasons, never silently accepted.
-- **Cryptographic consent**: audio feedback is a restricted mutation through the
-  Ed25519 consent gate ([`models/consent_gate.py`](models/consent_gate.py)) —
-  proposed, signed, revocable, and hash-linked in a durable log a workbench
-  restart cannot quietly execute.
-
-### Run your first session
-
-Prefer the command line? You need **Python 3.11+**, Git, and the dependencies in [`requirements.txt`](requirements.txt). No device, account, API key, or model server is required for the simulation.
+Everything the workbench does is also a script. From the `circle` directory:
 
 ```bash
-git clone https://github.com/topherchris420/circle.git
-cd circle
-python -m pip install -r requirements.txt
 python tools/run_physiology_twin.py --output outputs/physiology --audit
 ```
-
-<details>
-<summary>Prefer an isolated Python environment?</summary>
-
-After cloning and entering `circle`, create a virtual environment with `python -m venv .venv`. Activate it with `source .venv/bin/activate` on macOS/Linux or `.\.venv\Scripts\Activate.ps1` in Windows PowerShell, then run the install and experiment commands above. If your system names Python `python3`, use that command instead.
-
-</details>
 
 The default run simulates **six minutes**: rest, breath hold, a stressor, and recovery with adaptive haptic guidance. It also runs a matched sham arm for comparison, exports the session, scores estimates against hidden truth, and audits the exported evidence.
 
@@ -155,7 +116,7 @@ Open **`outputs/physiology/report.html`** in your browser. The report is self-co
 
 A successful reconstruction reports **`REPLAY_MATCH`**. That establishes agreement between the export and reconstruction from its inputs. The simulation scorecard separately measures agreement with the twin's truth.
 
-To explore before running anything, open the [committed example report](diagrams/circle-physiology-session.html) locally after cloning. The image above is a static preview of that interface.
+To explore before running anything, open the [committed example report](diagrams/circle-physiology-session.html) locally after cloning.
 
 ### Know what the run preserves
 
@@ -170,6 +131,28 @@ To explore before running anything, open the [committed example report](diagrams
 | `report.html` | Interactive view of the traces, decisions, scorecard, and execution evidence |
 
 The [pipeline methods](docs/physiology-pipeline.md) explain how each channel and metric is derived.
+
+### Reproduce what you see
+
+- **The film** (90 seconds): [`marketing/circle-film-90s.mp4`](marketing/circle-film-90s.mp4)
+  replays one simulated session, a sensor loss injected on purpose, the recorded
+  R.A.I.N. run, and a verification. Every frame of data is labeled simulation;
+  [how it was made](marketing/README.md) lists the source of each claim.
+- **One-command independent replication**: every downloaded evidence bundle ships
+  `verify_replication.py`. On any machine with Python 3.11+:
+  `python verify_replication.py <directory>` recomputes every hash, rebuilds the
+  analysis and every decision from the raw samples, and names the verdict —
+  `REPLAY_MATCH`, `REPLAY_DIVERGENCE`, `INTEGRITY_FAILURE`, or
+  `INSUFFICIENT_EVIDENCE`. A matching replay shows the package reproduces from
+  its inputs; it does not show it measured the world.
+- **Bring your own instrument**: a documented adapter SDK maps
+  [BrainFlow](docs/hardware-agnostic-acquisition.md) boards and Lab Streaming
+  Layer outlets onto CIRCLE's stream contract; sources lacking EDA/PPG/IMU are
+  refused with recorded reasons, never silently accepted.
+- **Cryptographic consent**: audio feedback is a restricted mutation through the
+  Ed25519 consent gate ([`models/consent_gate.py`](models/consent_gate.py)) —
+  proposed, signed, revocable, and hash-linked in a durable log a workbench
+  restart cannot quietly execute.
 
 ## How CIRCLE works
 
@@ -406,7 +389,7 @@ Useful contributions make a concrete question answerable:
 - **Advance hardware or firmware.** Work through the review gates, timestamping requirements, and known-input validation plans.
 - **Challenge a research hypothesis.** Define the comparison and a failure condition before running it; preserve the null result.
 
-[Open an issue](https://github.com/topherchris420/circle/issues) with the question, proposed change, evidence it would produce, and a condition that would count as failure. Include the seed and replay verdict when reporting a simulation issue. [GitHub Actions](https://github.com/topherchris420/circle/actions) records current CI results.
+[CONTRIBUTING.md](CONTRIBUTING.md) covers setup, the checks CI runs, and the house rules for evidence. [Open an issue](https://github.com/topherchris420/circle/issues/new/choose) with the question, proposed change, evidence it would produce, and a condition that would count as failure. Include the seed and replay verdict when reporting a simulation issue. [GitHub Actions](https://github.com/topherchris420/circle/actions) records current CI results.
 
 ## FAQ
 
@@ -437,6 +420,10 @@ It establishes that the exported session satisfies the checked contracts and agr
 The boards are designed but unrouted. Fabrication and human connection remain unauthorized under the [open engineering review gates](hardware/review-gates.json). No physical sensor, bench, electrical-safety, EMC, or human-outcome validation has been performed here.
 
 </details>
+
+## Cite CIRCLE
+
+If CIRCLE informs your research, please cite it. GitHub's **Cite this repository** button reads [`CITATION.cff`](CITATION.cff) and produces APA and BibTeX entries.
 
 ## License
 

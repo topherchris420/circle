@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If CIRCLE informs your research, please cite it as below."
+title: "CIRCLE: an open-source resonance workbench for traceable physiological feedback"
+type: software
+authors:
+  - given-names: Christopher
+    family-names: Woodyard
+    affiliation: Vers3Dynamics
+repository-code: "https://github.com/topherchris420/circle"
+url: "https://topherchris420.github.io/circle/"
+license: MIT
+abstract: >-
+  CIRCLE is a simulation-based research workbench. It turns simulated
+  physiological signals (PPG, EDA, IMU) into quality-gated decisions,
+  bounded adaptive audio and visual feedback, and exported evidence that can
+  be independently replayed and audited. It includes a consent gate, active
+  and sham session controls, an offline browser demo, acquisition adapters,
+  and Rev B hardware designs under engineering review. It is not a medical
+  device and makes no physiological or therapeutic claim.
+keywords:
+  - physiology
+  - biofeedback
+  - closed-loop control
+  - reproducibility
+  - consent
+  - simulation
+  - neurotechnology

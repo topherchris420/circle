@@ -1,0 +1,43 @@
+name: Propose an experiment or improvement
+description: A new estimator, acquisition source, consent integration, or a challenge to a research hypothesis.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        CIRCLE accepts work that makes a question answerable. Before anything runs, state what you will compare and what result would count against the idea. See [CONTRIBUTING.md](https://github.com/topherchris420/circle/blob/main/CONTRIBUTING.md#house-rules-for-evidence).
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: What do you want to find out or make possible?
+    validations:
+      required: true
+  - type: textarea
+    id: change
+    attributes:
+      label: Proposed change or comparison
+      description: What you would build or run, against what baseline or control (sham arm, unaided estimator, negative control…).
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence it would produce
+      description: Records, benchmarks, or verdicts someone else could check. Name the seeds you would use.
+    validations:
+      required: true
+  - type: textarea
+    id: failure
+    attributes:
+      label: What result would count as failure?
+      description: State it now, before running. A null result is still kept.
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundary
+    attributes:
+      label: Boundary
+      options:
+        - label: This proposal does not require fabricating Rev B hardware or connecting anything to a person.
+          required: true
