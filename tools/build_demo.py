@@ -1,11 +1,14 @@
-"""Build the static Resonance Workbench demo for GitHub Pages.
+"""Build the static CIRCLE website and Resonance Workbench demo for GitHub Pages.
 
 Runs one fixed simulated session, records its consent through the gate, builds
-its timeline, and emits a fully offline ``demo/`` directory: the same
-Resonance Workbench interface with a fetch shim serving the recorded data. A
-visitor can play the session back, hear the adaptive audio, watch the visual
-field, and inspect the evidence — with nothing installed and nothing sent
-anywhere.
+its timeline, and emits a fully offline ``demo/`` directory:
+
+- ``index.html``: the research site (sources in ``site/``). Its session figure
+  is drawn from the same recorded data the workbench replays.
+- ``workbench.html``: the same Resonance Workbench interface the local
+  workbench serves, with a fetch shim serving the recorded data. A visitor can
+  play the session back, hear the adaptive audio, watch the visual field, and
+  inspect the evidence — with nothing installed and nothing sent anywhere.
 
 Everything is clearly labeled simulation. The recorded session is clean /
 seed 7 / active with audio consent executed, so the demo is reproducible:
@@ -36,6 +39,10 @@ from tools.run_physiology_twin import export_run
 
 ASSETS = ROOT / "models" / "workbench_assets" / "resonance"
 SOCIAL_CARD = ROOT / "diagrams" / "social-card.png"
+SITE = ROOT / "site"
+SITE_FILES = ("index.html", "site.css", "site.js")
+SITE_IMAGES = (ROOT / "diagrams" / "resonance-workbench-dashboard.png",)
+WORKBENCH_PAGE = "workbench.html"
 DEMO_SCENARIO = "clean"
 DEMO_SEED = 7
 REPO_URL = "https://github.com/topherchris420/circle"
@@ -163,12 +170,12 @@ DESCRIPTION = ("Replay a six-minute simulated physiology session in your browser
 
 # Share metadata and demo-only styles, placed in <head>. Link previews use the committed social card.
 HEAD_EXTRA = f"""  <meta name="description" content="{DESCRIPTION}">
-  <link rel="canonical" href="{PAGES_URL}">
+  <link rel="canonical" href="{PAGES_URL}{WORKBENCH_PAGE}">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="CIRCLE">
   <meta property="og:title" content="CIRCLE · Resonance Workbench, live in your browser">
   <meta property="og:description" content="{DESCRIPTION}">
-  <meta property="og:url" content="{PAGES_URL}">
+  <meta property="og:url" content="{PAGES_URL}{WORKBENCH_PAGE}">
   <meta property="og:image" content="{PAGES_URL}social-card.png">
   <meta property="og:image:width" content="1280">
   <meta property="og:image:height" content="640">
@@ -215,6 +222,7 @@ INTRO = f"""<section class="panel demo-intro" aria-labelledby="demo-intro-title"
         </div>
         <div class="demo-cta">
           <a class="demo-button primary" href="{REPO_URL}#quick-start">Run it locally</a>
+          <a class="demo-button" href="index.html">About the research</a>
           <a class="demo-button" href="{REPO_URL}">Source on GitHub ↗</a>
           <p class="quiet small">MIT licensed. Python 3.11+; no account, device, or API key.</p>
         </div>
@@ -256,6 +264,7 @@ def build_demo(output: Path) -> dict:
     html = (ASSETS / "resonance.html").read_text(encoding="utf-8")
     html = html.replace('href="/resonance.css"', 'href="resonance.css"')
     html = html.replace('src="/resonance.js"', 'src="resonance.js"')
+    # The brand mark returns to the research site at the root.
     html = html.replace('href="/resonance"', 'href="index.html"')
     html = html.replace('href="/"', 'href="index.html"')
     html = re.sub(r'src="/resonance/([a-z.-]+\.js)"', r'src="\1"', html)
@@ -279,7 +288,16 @@ def build_demo(output: Path) -> dict:
     for marker in ("social-card.png", "demo-intro", 'quiet-link" href="' + REPO_URL):
         if marker not in html:
             raise RuntimeError(f"demo shell changed: could not place {marker!r}")
-    (output / "index.html").write_text(html, encoding="utf-8")
+    (output / WORKBENCH_PAGE).write_text(html, encoding="utf-8")
+    # The research site: static sources, plus the workbench capture it shows.
+    for name in SITE_FILES:
+        shutil.copyfile(SITE / name, output / name)
+    site_html = (output / "index.html").read_text(encoding="utf-8")
+    for marker in ('href="' + WORKBENCH_PAGE + '"', 'src="demo-data.js"', 'href="site.css"', 'src="site.js"'):
+        if marker not in site_html:
+            raise RuntimeError(f"site entrypoint changed: missing {marker!r}")
+    for image in SITE_IMAGES:
+        shutil.copyfile(image, output / image.name)
     shutil.copyfile(SOCIAL_CARD, output / "social-card.png")
     (output / "demo-data.js").write_text(
         "window.CIRCLE_DEMO = " + json.dumps(demo_data, allow_nan=False) + ";\n", encoding="utf-8")

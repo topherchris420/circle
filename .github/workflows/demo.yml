@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build and verify offline workbench
+    name: Build and verify website and offline workbench
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -37,7 +37,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Build the offline demo
+      - name: Build the website and offline workbench
         run: python tools/build_demo.py --output demo
 
       - name: Verify published entrypoint and assets
@@ -47,20 +47,26 @@ jobs:
 
           root = Path("demo")
           required = {
-              "index.html", "resonance.css", "resonance.js",
+              "index.html", "site.css", "site.js", "resonance-workbench-dashboard.png",
+              "workbench.html", "resonance.css", "resonance.js",
               "audio-engine.js", "synth.js", "visual.js", "phantom.js",
               "demo-data.js", "demo-shim.js", "demo-guide.js",
           }
           missing = sorted(name for name in required if not (root / name).is_file() or (root / name).stat().st_size == 0)
           if missing:
               raise SystemExit("Missing or empty Pages assets: " + ", ".join(missing))
-          html = (root / "index.html").read_text(encoding="utf-8")
-          for asset in ("resonance.css", "resonance.js", "demo-data.js", "demo-shim.js", "demo-guide.js"):
-              if asset not in html:
-                  raise SystemExit("Missing asset reference in demo/index.html: " + asset)
-          if 'src="/resonance' in html or 'href="/resonance.css"' in html:
-              raise SystemExit("An absolute asset path would break the /circle/ project site")
-          print("Validated offline Pages entrypoint and required assets.")
+          pages = {
+              "index.html": ("site.css", "site.js", "demo-data.js", "workbench.html"),
+              "workbench.html": ("resonance.css", "resonance.js", "demo-data.js", "demo-shim.js", "demo-guide.js"),
+          }
+          for page, assets in pages.items():
+              html = (root / page).read_text(encoding="utf-8")
+              for asset in assets:
+                  if asset not in html:
+                      raise SystemExit(f"Missing asset reference in demo/{page}: {asset}")
+              if 'src="/' in html.replace('src="//', '') or 'href="/' in html.replace('href="//', ''):
+                  raise SystemExit(f"An absolute path in demo/{page} would break the /circle/ project site")
+          print("Validated the Pages site, offline workbench, and required assets.")
           PY
           touch demo/.nojekyll
 
