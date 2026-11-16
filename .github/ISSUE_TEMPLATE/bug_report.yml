@@ -1,0 +1,51 @@
+name: Something doesn't work
+description: A crash, a wrong result, a confusing step, or a place where you got stuck.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. First-visit friction counts too: if a step in the README or the demo confused you, that is a bug worth filing.
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where did it happen?
+      options:
+        - Offline demo (topherchris420.github.io/circle)
+        - Local workbench (python tools/run_workbench.py)
+        - Command-line tools (tools/*.py)
+        - Installation or setup
+        - Documentation
+        - Hardware design files
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+      placeholder: I pressed "Hear this session" and the clock stayed at 00:00…
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How can we reproduce it?
+      description: The exact command or the clicks in order. For simulation results, include the scenario and seed.
+      render: shell
+      placeholder: python tools/run_physiology_twin.py --scenario poor_contact --seed 7 --output outputs/poor-contact --audit
+  - type: input
+    id: verdict
+    attributes:
+      label: Replay or audit verdict (if any)
+      placeholder: REPLAY_MATCH, REPLAY_DIVERGENCE, INTEGRITY_FAILURE, …
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: macOS 15, Python 3.12, Firefox 140
+  - type: textarea
+    id: logs
+    attributes:
+      label: Output or browser console errors
+      render: text
