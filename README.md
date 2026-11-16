@@ -41,6 +41,19 @@ and decisions you can trace all the way back to their source.
 
 ---
 
+**Built to make feedback accountable.**
+
+CIRCLE's ambition is an instrument that can explain what it observed, account for what it changed, and preserve the person's authority over what happens next.
+
+### One platform. Different ways to explore.
+
+- **Researchers:** Design experiments, compare active and sham conditions, and challenge the evidence through independent software replay.
+- **Engineers:** Investigate signal quality, controller decisions, and deliberate failure handling before attempting physical-device integration.
+- **Creative technologists:** Explore how recorded physiological rhythms become adaptive sound and responsive visuals, with every mapping inspectable.
+- **Curious visitors:** Experience the simulation workbench, or explore real phone-camera recordings and quality-gated feedback decisions.
+
+**Explore [First Light](https://topherchris420.github.io/circle/first-light.html):** Real smartphone-camera recordings are evaluated against ECG references, with each decision independently reconstructable. The live phone-camera path remains experimental and has not yet been physically tested by the authors.
+
 **What would make a system that responds to the body worthy of trust?**
 
 CIRCLE makes that question testable. Start with simulated sensor records, follow quality-gated decisions into bounded adaptive feedback, and inspect the evidence behind each response or refusal. Replay a session, compare active and sham conditions, or independently reconstruct its results from the exported record.
