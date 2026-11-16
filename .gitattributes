@@ -8,3 +8,4 @@
 *.kicad_sch text eol=lf
 *.svg text eol=lf
 *.pdf binary
+*.zip binary
