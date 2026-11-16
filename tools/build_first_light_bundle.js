@@ -6,9 +6,10 @@
  * twice, or pressing "Replay" in the page and downloading, yields the same bytes.
  *
  * Usage:
- *   node tools/build_first_light_bundle.js [--output path] [--check]
- *       the session the page replays (site/first-light-recording.js)
- *       --check  rebuild in memory and exit 1 if the committed bundle differs
+ *   node tools/build_first_light_bundle.js [--check]
+ *       every recording the page replays (site/first-light-recording-<name>.js) becomes
+ *       evidence/first-light/sessions/<name>.zip
+ *       --check  rebuild in memory and exit 1 if a committed bundle differs
  *   node tools/build_first_light_bundle.js --batch <dir>
  *       every <name>.recording.json in <dir> becomes <name>.zip beside it
  */
@@ -19,13 +20,16 @@ const vm = require("vm");
 
 const ROOT = path.resolve(__dirname, "..");
 const CORE = path.join(ROOT, "site", "first-light-core.js");
-const RECORDING = path.join(ROOT, "site", "first-light-recording.js");
-const DEFAULT_OUTPUT = path.join(ROOT, "evidence", "first-light", "recorded-session.zip");
+const SITE = path.join(ROOT, "site");
+const SESSIONS = path.join(ROOT, "evidence", "first-light", "sessions");
 
-function loadRecording() {
+/** The recordings the page replays, keyed by session name. */
+function loadRecordings() {
   const sandbox = { window: {} };
-  vm.runInNewContext(fs.readFileSync(RECORDING, "utf8"), sandbox, { filename: RECORDING });
-  return sandbox.window.FIRST_LIGHT_RECORDING;
+  for (const file of fs.readdirSync(SITE).filter((n) => /^first-light-recording-.*\.js$/.test(n)).sort()) {
+    vm.runInNewContext(fs.readFileSync(path.join(SITE, file), "utf8"), sandbox, { filename: file });
+  }
+  return sandbox.window.FIRST_LIGHT_RECORDINGS || {};
 }
 
 function build(recording) {
@@ -59,20 +63,24 @@ function main(argv) {
     return 0;
   }
   const check = argv.includes("--check");
-  const at = argv.indexOf("--output");
-  const output = at >= 0 ? path.resolve(argv[at + 1]) : DEFAULT_OUTPUT;
-  const { session, result } = build(loadRecording());
-  if (check) {
-    const committed = fs.existsSync(output) ? new Uint8Array(fs.readFileSync(output)) : null;
-    const same = committed && committed.length === result.zip.length && committed.every((b, i) => b === result.zip[i]);
-    console.log((same ? "MATCH " : "DIFFERS ") + describe(session, result));
-    return same ? 0 : 1;
+  const recordings = loadRecordings();
+  let differs = 0;
+  for (const name of Object.keys(recordings).sort()) {
+    const output = path.join(SESSIONS, name + ".zip");
+    const { session, result } = build(recordings[name]);
+    if (check) {
+      const committed = fs.existsSync(output) ? new Uint8Array(fs.readFileSync(output)) : null;
+      const same = committed && committed.length === result.zip.length && committed.every((b, i) => b === result.zip[i]);
+      if (!same) { differs += 1; }
+      console.log((same ? "MATCH " : "DIFFERS ") + name + ": " + describe(session, result));
+    } else {
+      fs.mkdirSync(SESSIONS, { recursive: true });
+      fs.writeFileSync(output, result.zip);
+      console.log(`wrote ${path.relative(ROOT, output)} (${result.zip.length} bytes): ${describe(session, result)}`);
+    }
   }
-  fs.mkdirSync(path.dirname(output), { recursive: true });
-  fs.writeFileSync(output, result.zip);
-  console.log(`wrote ${path.relative(ROOT, output)} (${result.zip.length} bytes): ${describe(session, result)}`);
-  return 0;
+  return differs ? 1 : 0;
 }
 
 if (require.main === module) { process.exitCode = main(process.argv.slice(2)); }
-module.exports = { build, loadRecording };
+module.exports = { build, loadRecordings };

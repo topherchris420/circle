@@ -22,7 +22,7 @@ heart rate for that window comes from the ECG beat times (median RR, at least
 five beats); the dataset's whole-record HR annotation is reported alongside.
 
 Usage:
-  python tools/run_first_light_benchmark.py --source butppg-2.0.0.zip [--output docs/first-light-benchmark.json]
+  python tools/run_first_light_benchmark.py --source butppg-2.0.0.zip [--output evidence/first-light/benchmark.json]
 """
 
 from __future__ import annotations
@@ -172,7 +172,7 @@ def select(calibration: list[dict]) -> tuple[dict, list[dict]]:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--source", type=Path, required=True, help="butppg-2.0.0.zip from PhysioNet")
-    parser.add_argument("--output", type=Path, default=ROOT / "docs" / "first-light-benchmark.json")
+    parser.add_argument("--output", type=Path, default=ROOT / "evidence" / "first-light" / "benchmark.json")
     parser.add_argument("--calibrate-only", action="store_true", help="select thresholds; do not touch held-out")
     args = parser.parse_args(argv)
     digest = hashlib.sha256(args.source.read_bytes()).hexdigest()

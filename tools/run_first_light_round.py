@@ -15,8 +15,9 @@ so a rate measured on one person says little about the system.
   --split calibration   even subject ids: where the bars were derived
   --split held-out      odd subject ids except round 1's person: the test
 
-The held-out run writes ``evidence/first-light/round-2/result.json``, the
-bundle of the session the page replays, and ``site/first-light-recording.js``.
+The held-out run writes ``evidence/first-light/round-2/result.json``. The
+recordings the page replays are written by ``tools/build_first_light_session.py
+--page`` and their bundles by ``tools/build_first_light_bundle.js``.
 
 Usage: python tools/run_first_light_round.py --source butppg-2.0.0.zip --split held-out
 """
@@ -26,7 +27,6 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -38,10 +38,9 @@ import build_first_light_session as sessions  # noqa: E402
 import verify_first_light as v  # noqa: E402
 
 ROUND = ROOT / "evidence" / "first-light" / "round-2"
-SHOWCASE_BUNDLE = ROOT / "evidence" / "first-light" / "recorded-session.zip"
 
 
-def run(source_path: Path, split: str, keep: Path | None = None) -> dict:
+def run(source_path: Path, split: str) -> dict:
     source = sessions.open_source(source_path)
     found = sessions.sessions(source, split)
     chosen = sessions.showcase(found)
@@ -55,10 +54,6 @@ def run(source_path: Path, split: str, keep: Path | None = None) -> dict:
             (work / f"{sessions.name(records)}.recording.json").write_text(json.dumps(doc), encoding="utf-8")
         subprocess.run(["node", str(ROOT / "tools" / "build_first_light_bundle.js"), "--batch", str(work)], check=True)
         results = [v.verify(work / f"{sessions.name(records)}.zip", source_path) for records in found]
-        if keep is not None:
-            shutil.copyfile(work / f"{sessions.name(chosen)}.zip", keep)
-            sessions.write_page_recording(json.loads(
-                (work / f"{sessions.name(chosen)}.recording.json").read_text(encoding="utf-8")))
     pooled = v.pool(results)
     rows = []
     for records, r in zip(found, results):
@@ -102,7 +97,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output", type=Path, default=None, help="where to write the result JSON")
     args = parser.parse_args(argv)
     held = args.split == "held-out"
-    doc = run(args.source, args.split, keep=SHOWCASE_BUNDLE if held else None)
+    doc = run(args.source, args.split)
     output = args.output or (ROUND / ("result.json" if held else "calibration.json"))
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(doc, indent=1) + "\n", encoding="utf-8")

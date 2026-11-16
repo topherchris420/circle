@@ -18,11 +18,22 @@ the experts' labels nor First Light's own results take part:
   3. Keep runs of at least 6 records (60 seconds).
 
 Round 2's test set is every such session from held-out people (odd subject
-ids), except person 135, whose recording was used in round 1. The session the
-web page replays is the longest of them; ties go to the lowest subject id,
-then the earliest record.
+ids), except person 135, whose recording was used in round 1.
 
-Usage: python tools/build_first_light_session.py --source butppg-2.0.0.zip [--list]
+The web page replays two of them, and says which is which:
+
+  preregistered  the longest test session (ties: lowest subject id, then the
+                 earliest record), fixed before the test ran
+  illustration   chosen AFTER the test, by outcome, because it shows every
+                 step: the shortest session whose own verdict is VERIFIED and
+                 that contains a deliberate disturbance the experts rejected,
+                 with at least five actions before it, none inside it, and at
+                 least one after it. It is an example, not evidence of typical
+                 performance; the evidence is the pooled test.
+
+Usage:
+  python tools/build_first_light_session.py --source butppg-2.0.0.zip --list
+  python tools/build_first_light_session.py --source butppg-2.0.0.zip --page
 """
 
 from __future__ import annotations
@@ -39,7 +50,8 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 import verify_first_light as v  # noqa: E402
 
-OUTPUT = ROOT / "site" / "first-light-recording.js"
+SITE = ROOT / "site"
+RESULT = ROOT / "evidence" / "first-light" / "round-2" / "result.json"
 SEAM_FACTOR = 6
 MIN_RECORDS = 6
 ROUND_1_SUBJECTS = (135,)
@@ -104,30 +116,71 @@ def open_source(path: Path) -> v.ButPpg:
     return v.ButPpg(path)
 
 
-def write_page_recording(doc: dict, output: Path = OUTPUT) -> None:
+def illustration(source: v.ButPpg, found: list[list[str]], verified: set[str]) -> list[str]:
+    """The post-hoc example session (see the module docstring). Uses outcomes, and says so."""
+    eligible = []
+    for run in found:
+        if name(run) not in verified:
+            continue
+        frames_csv, reference = v.build_recorded_session(source, run)
+        decisions, _ = v.run_controller(v.read_frames(frames_csv))
+        acts = [d["cutoff_us"] for d in decisions if d["decision"] == "ACT"]
+        for segment in reference["segments"]:
+            if segment["motion"] == "0" or segment["quality"] != 0:
+                continue
+            before = sum(1 for t in acts if t < segment["start_us"])
+            inside = sum(1 for t in acts if segment["start_us"] <= t <= segment["end_us"])
+            after = sum(1 for t in acts if t > segment["end_us"])
+            if before >= 5 and inside == 0 and after >= 1:
+                eligible.append(run)
+                break
+    return min(eligible, key=lambda run: (len(run), int(run[0][:3]), int(run[0][3:])))
+
+
+def page_file(run_name: str) -> Path:
+    return SITE / f"first-light-recording-{run_name}.js"
+
+
+def write_page_recording(doc: dict) -> Path:
+    output = page_file(doc["selection"]["chosen"])
     output.write_text(
         "/* CIRCLE First Light: a real smartphone-camera fingertip recording (BUT PPG 2.0.0, CC BY 4.0,\n"
-        " * doi:10.13026/bvsb-mz80), selected by tools/build_first_light_session.py. Generated; do not edit. */\n"
-        "window.FIRST_LIGHT_RECORDING = " + json.dumps(doc, separators=(",", ":")) + ";\n", encoding="utf-8")
+        " * doi:10.13026/bvsb-mz80), built by tools/build_first_light_session.py. Generated; do not edit. */\n"
+        "window.FIRST_LIGHT_RECORDINGS = window.FIRST_LIGHT_RECORDINGS || {};\n"
+        f"window.FIRST_LIGHT_RECORDINGS[{json.dumps(doc['selection']['chosen'])}] = "
+        + json.dumps(doc, separators=(",", ":")) + ";\n", encoding="utf-8")
+    return output
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--list", action="store_true", help="list the held-out test sessions and stop")
+    parser.add_argument("--page", action="store_true", help="write the two recordings the web page replays")
     args = parser.parse_args(argv)
     source = open_source(args.source)
     found = sessions(source, "held-out")
-    chosen = showcase(found)
-    print(f"{len(found)} held-out sessions under {RULE}; the page replays {name(chosen)} ({len(chosen)} records)")
-    if args.list:
+    longest = showcase(found)
+    print(f"{len(found)} held-out sessions under {RULE}; the longest is {name(longest)} ({len(longest)} records)")
+    if args.list or not args.page:
         for run in found:
             print(f"  {name(run)}  {len(run)} records")
         return 0
-    selection = {"rule": RULE, "sessions_in_test_set": len(found), "chosen": name(chosen), "records": len(chosen),
-                 "how": "the longest held-out session; record numbers and seam continuity only"}
-    write_page_recording(recording(source, chosen, selection))
-    print(f"wrote {OUTPUT} ({OUTPUT.stat().st_size} bytes)")
+    result = json.loads(RESULT.read_text(encoding="utf-8"))
+    verified = {row["session"] for row in result["sessions"] if row["session_verdict"] == "VERIFIED"}
+    example = illustration(source, found, verified)
+    roles = (
+        (longest, "preregistered", "the longest held-out session, fixed before the test ran; "
+                                   "record numbers and seam continuity only"),
+        (example, "illustration", "chosen after the test, by outcome: the shortest individually VERIFIED session "
+                                  "with a deliberate, expert-rejected disturbance that has at least five actions "
+                                  "before it, none inside it, and at least one after it"),
+    )
+    for run, role, how in roles:
+        selection = {"rule": RULE, "role": role, "sessions_in_test_set": len(found), "chosen": name(run),
+                     "records": len(run), "how": how}
+        output = write_page_recording(recording(source, run, selection))
+        print(f"{role}: {name(run)} -> {output.relative_to(ROOT)} ({output.stat().st_size} bytes)")
     return 0
 
 
