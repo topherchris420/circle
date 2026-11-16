@@ -2,341 +2,415 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
-  <title>CIRCLE · Resonance Workbench — offline demo</title>
-  <meta name="description" content="Replay a six-minute simulated physiology session in your browser: synchronized sensor charts, quality-gated decisions, adaptive audio, and the evidence behind every decision. Open source; nothing installed, nothing sent.">
+  <meta name="theme-color" content="#000000">
+  <title>CIRCLE · What gives a system grounds to act on the body?</title>
+  <meta name="description" content="CIRCLE is open research into closed-loop physiological feedback that keeps the evidence for every action and every refusal. Simulation-based; not a medical device.">
   <link rel="canonical" href="https://topherchris420.github.io/circle/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="CIRCLE">
-  <meta property="og:title" content="CIRCLE · Resonance Workbench, live in your browser">
-  <meta property="og:description" content="Replay a six-minute simulated physiology session in your browser: synchronized sensor charts, quality-gated decisions, adaptive audio, and the evidence behind every decision. Open source; nothing installed, nothing sent.">
+  <meta property="og:title" content="CIRCLE · A human state is never one signal">
+  <meta property="og:description" content="Open research into closed-loop physiological feedback that keeps the evidence for every action and every refusal. Simulation-based; not a medical device.">
   <meta property="og:url" content="https://topherchris420.github.io/circle/">
   <meta property="og:image" content="https://topherchris420.github.io/circle/social-card.png">
   <meta property="og:image:width" content="1280">
   <meta property="og:image:height" content="640">
   <meta property="og:image:alt" content="CIRCLE: a human state is never one signal. The Resonance Workbench dashboard replaying a simulated session.">
   <meta name="twitter:card" content="summary_large_image">
-  <style>
-    .demo-intro { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px 32px; align-items: end;
-      margin-bottom: 18px; border-left: 3px solid var(--teal); }
-    .demo-intro .lead { max-width: 74ch; }
-    .demo-steps { margin: 8px 0 0; padding-left: 1.3em; color: var(--ink-dim); display: grid; gap: 4px; max-width: 84ch; }
-    .demo-steps b { color: var(--ink); }
-    .demo-cta { display: flex; flex-direction: column; gap: 8px; min-width: 210px; }
-    .demo-cta p { margin: 2px 0 0; max-width: 28ch; }
-    .demo-button { display: block; text-align: center; text-decoration: none; padding: 10px 18px; border-radius: var(--radius);
-      border: 1px solid var(--line); background: var(--panel-2); color: var(--ink); font-weight: 600; white-space: nowrap; }
-    .demo-button:hover { border-color: var(--teal-dim); }
-    .demo-button.primary { background: var(--teal); border-color: var(--teal); color: var(--bg); }
-    .demo-button:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
-    @media (max-width: 760px) {
-      .demo-intro { grid-template-columns: 1fr; }
-      .demo-more { display: none; }
-      .demo-cta { flex-direction: row; flex-wrap: wrap; }
-      .demo-cta .demo-button { flex: 1 1 140px; }
-    }
-  </style>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%2367c6c3' stroke-width='5'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="resonance.css">
+  <link rel="stylesheet" href="site.css">
   <script src="demo-data.js" defer></script>
-  <script src="demo-shim.js" defer></script>
-  <script src="audio-engine.js" defer></script>
-  <script src="synth.js" defer></script>
-  <script src="visual.js" defer></script>
-  <script src="phantom.js" defer></script>
-  <script src="demo-guide.js" defer></script>
-  <script src="resonance.js" defer></script>
+  <script src="site.js" defer></script>
 </head>
-<body data-reduced-motion="false">
-  <a class="skip" href="#main">Skip to workbench</a>
-  <div class="app" id="app">
-    <header class="masthead">
-      <a class="brand" href="index.html" aria-label="CIRCLE Resonance Workbench">
-        <span class="brand-mark" aria-hidden="true"></span>
-        <span class="brand-text">CIRCLE <em>Resonance Workbench</em></span>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="nav" id="nav">
+    <div class="nav-inner">
+      <a class="wordmark" href="#top" aria-label="CIRCLE, back to top">
+        <span class="mark" aria-hidden="true"></span>CIRCLE
       </a>
-      <nav class="views" aria-label="Workbench views">
-        <button class="view-tab" type="button" data-view="designer" aria-current="page">Design</button>
-        <button class="view-tab" type="button" data-view="dashboard">Dashboard</button>
-        <button class="view-tab" type="button" data-view="studio">Feedback</button>
-        <button class="view-tab" type="button" data-view="visual">Field</button>
-        <button class="view-tab" type="button" data-view="evidence">Evidence</button>
-        <button class="view-tab" type="button" data-view="phantom">Phantom</button>
-        <button class="view-tab" type="button" data-view="history">History</button>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="#method">Method</a>
+        <a href="#session">Session</a>
+        <a href="#results">Results</a>
+        <a href="#authority">Authority</a>
+        <a href="#instrument">Instrument</a>
+        <a href="#run">Run it</a>
       </nav>
-      <div class="masthead-side">
-        <span class="badge" id="arm-badge">SIMULATION ONLY · OFFLINE DEMO</span>
-        <a class="quiet-link" href="https://github.com/topherchris420/circle">Source on GitHub ↗</a>
+      <div class="nav-actions">
+        <a class="nav-source" href="https://github.com/topherchris420/circle">GitHub</a>
+        <a class="btn btn-shimmer btn-sm" href="workbench.html"><span>Open workbench</span></a>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-sheet" aria-label="Menu">
+          <span></span><span></span>
+        </button>
       </div>
-    </header>
-    <main id="main" tabindex="-1">
-      <section class="panel demo-intro" aria-labelledby="demo-intro-title">
-        <div>
-          <p class="eyebrow">OFFLINE DEMO · NOTHING INSTALLED · NOTHING SENT</p>
-          <h2 id="demo-intro-title">What you are looking at</h2>
-          <p class="lead">A prerecorded simulated session (clean · seed 7 · active): six minutes of a simulated
-            person's pulse (PPG), skin conductance (EDA), and motion (IMU), the decisions made from them, and the
-            adaptive sound those decisions allowed. No server, no sensors, no live data.</p>
-          <ol class="demo-steps">
-            <li><b>Watch.</b> The session replays second by second<span class="demo-more">. The top charts are what
-              the instrument measured; <b>Sensor confidence</b> shows when the evidence was good enough to act on</span>.</li>
-            <li><b>Listen.</b> Press <b>Hear this session</b><span class="demo-more"> once (browsers need a click
-              before sound). The sound follows the recorded signals and holds when the evidence is impaired</span>.</li>
-            <li><b>Inspect.</b> <a href="#view-evidence" data-open-view="evidence">Open the evidence</a><span
-              class="demo-more">: every action shows its measurements, the rule that authorized it, and whether
-              replay reproduces it</span>.</li>
-          </ol>
-        </div>
-        <div class="demo-cta">
-          <a class="demo-button primary" href="https://github.com/topherchris420/circle#quick-start">Run it locally</a>
-          <a class="demo-button" href="https://github.com/topherchris420/circle">Source on GitHub ↗</a>
-          <p class="quiet small">MIT licensed. Python 3.11+; no account, device, or API key.</p>
-        </div>
-      </section>
-      <div id="connection" class="notice" role="status" hidden></div>
-      <div id="error" class="notice error" role="alert" hidden></div>
+    </div>
+    <div class="nav-sheet" id="nav-sheet" hidden>
+      <a href="#method">Method</a>
+      <a href="#session">Session</a>
+      <a href="#results">Results</a>
+      <a href="#authority">Authority</a>
+      <a href="#instrument">Instrument</a>
+      <a href="#run">Run it</a>
+      <a href="https://github.com/topherchris420/circle">Source on GitHub ↗</a>
+    </div>
+  </header>
 
-      <noscript><div class="notice">Enable JavaScript to use the Resonance Workbench, or run
-        <code>python tools/run_physiology_twin.py --audit</code> from a terminal.</div></noscript>
+  <main id="main">
+    <!-- ============ HERO ============ -->
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="hero-field" aria-hidden="true">
+        <svg id="hero-signals" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice"></svg>
+      </div>
+      <div class="hero-inner">
+        <p class="pill reveal"><span class="pill-dot" aria-hidden="true"></span>Open research · Simulation-based · Not a medical device</p>
+        <h1 id="hero-title" class="hero-title reveal">
+          A human state is never
+          <span class="line-shadow" data-text="one signal.">one signal.</span>
+        </h1>
+        <p class="hero-lead reveal">CIRCLE studies what gives a system grounds to act on the body. Guidance waits for
+          agreement between pulse and skin conductance, sufficient signal quality, and a sustained observed state,
+          and every action and every refusal keeps its evidence.</p>
+        <div class="hero-cta reveal">
+          <a class="btn btn-shimmer" href="workbench.html"><span>Open the workbench <i aria-hidden="true">→</i></span></a>
+          <a class="btn btn-ghost" href="#method">Read the method</a>
+        </div>
+        <p class="hero-note reveal">A prerecorded simulated session replays in your browser. Nothing installed, nothing sent.</p>
+      </div>
+      <ul class="hero-legend" aria-hidden="true">
+        <li><b>PPG</b> optical pulse</li>
+        <li><b>EDA</b> skin conductance</li>
+        <li><b>RESP</b> respiration</li>
+        <li><b>IMU</b> motion</li>
+      </ul>
+    </section>
 
-      <!-- ============ 1. SESSION DESIGNER ============ -->
-      <section id="view-designer" class="view" aria-labelledby="designer-title">
-        <div class="view-head">
-          <div><p class="eyebrow">SESSION DESIGNER</p>
-            <h1 id="designer-title">Design a session</h1>
-            <p class="lead">Choose what to explore, what feedback to present, and what limits to hold. The loop stays
-              deterministic; every choice you make is recorded with the session.</p></div>
-          <ol class="steps" aria-label="Design steps">
-            <li class="done">Scenario</li><li class="done">Measurements</li><li class="done">Feedback</li>
-            <li class="done">Limits</li><li class="done">Consent</li><li>Run</li><li>Inspect</li><li>Export</li>
-          </ol>
+    <!-- ============ QUESTION ============ -->
+    <section class="section question" aria-labelledby="question-title">
+      <div class="wrap">
+        <p class="eyebrow reveal">The question</p>
+        <h2 id="question-title" class="display reveal">What would make a system that responds to the body
+          <em>worthy of trust?</em></h2>
+        <div class="two-col reveal">
+          <p>A rise in heart rate is one observation. A rise in skin conductance is another. Neither, alone, is a
+            reason to act. CIRCLE makes the question testable: start with simulated sensor records, follow
+            quality-gated decisions into bounded feedback, and inspect the evidence behind each response or
+            refusal.</p>
+          <p>Replay a session, compare active and sham conditions, or independently reconstruct its results from the
+            exported record. These are research tools, not validated physiological measurements or evidence of a
+            therapeutic effect.</p>
         </div>
-        <form id="designer-form">
-          <div class="designer-grid">
-            <section class="panel" aria-labelledby="d-scenario">
-              <h2 id="d-scenario"><span class="step-n">1</span> Scenario &amp; source</h2>
-              <p class="panel-note">Simulated sensor streams — PPG, EDA, IMU — seeded and reproducible.</p>
-              <div id="scenario-list" class="scenario-list" role="radiogroup" aria-label="Scenario"><p class="quiet">Loading scenarios…</p></div>
-            </section>
-            <section class="panel" aria-labelledby="d-arm">
-              <h2 id="d-arm"><span class="step-n">2</span> Arm &amp; comparison</h2>
-              <fieldset>
-                <legend class="sr-only">Feedback mode</legend>
-                <label class="choice"><input type="radio" name="arm" value="active" checked>
-                  <span><b>Active</b><small>Simulated haptic cues enabled; controller decides.</small></span></label>
-                <label class="choice"><input type="radio" name="arm" value="sham">
-                  <span><b>Sham</b><small>Decisions recorded, cues withheld. The honest control.</small></span></label>
-              </fieldset>
-              <label class="check"><input type="checkbox" id="compare" checked>
-                <span>Include matched comparison<small>Same seed, opposite arm.</small></span></label>
-              <label class="field"><span>Simulation seed</span>
-                <input type="number" id="seed" min="0" max="4294967295" step="1" value="7" required></label>
-            </section>
-            <section class="panel" aria-labelledby="d-feedback">
-              <h2 id="d-feedback"><span class="step-n">3</span> Feedback modalities</h2>
-              <fieldset>
-                <legend class="sr-only">Feedback modalities</legend>
-                <label class="check"><input type="checkbox" id="mod-visual" checked>
-                  <span><b>Visual field</b><small>Canvas visualization mapped from signal features.</small></span></label>
-                <label class="check"><input type="checkbox" id="mod-audio">
-                  <span><b>Adaptive audio</b><small>Procedural synthesis. Requires your consent below.</small></span></label>
-              </fieldset>
-              <h2 class="mt"><span class="step-n">4</span> Safe limits</h2>
-              <label class="field"><span>Master level ceiling <b id="gain-out" class="mono">50%</b></span>
-                <input type="range" id="max-gain" min="5" max="50" step="5" value="50"
-                  aria-describedby="gain-help"><span id="gain-help" class="field-help">Hard cap on synthesis amplitude. The engine also limits peaks.</span></label>
-              <label class="field"><span>Breathing guidance <b id="breath-out" class="mono">6.0 breaths/min</b></span>
-                <input type="range" id="breath-bpm" min="4" max="10" step="0.5" value="6"
-                  aria-describedby="breath-help"><span id="breath-help" class="field-help">Paced-breathing oscillator when no respiration estimate is available. 4–10 bpm.</span></label>
-            </section>
-            <section class="panel consent-panel" aria-labelledby="d-consent">
-              <h2 id="d-consent"><span class="step-n">5</span> Consent</h2>
-              <p class="panel-note">Everything stays on this computer. Nothing records, connects, or shares unless you allow it.</p>
-              <label class="check consent-check"><input type="checkbox" id="consent-audio">
-                <span><b>I allow audio playback for this session.</b><small>Audio stays muted until you allow it. You can stop or mute at any time; the session records this choice.</small></span></label>
-              <ul class="consent-facts quiet">
-                <li>Data stays local · no account, no network calls</li>
-                <li>Stop, mute, and revoke controls stay visible during playback</li>
-                <li>No electrical stimulation exists in this workbench</li>
-              </ul>
-              <p id="consent-warning" class="notice inline" hidden></p>
-            </section>
-          </div>
-          <div class="designer-actions">
-            <button id="start" class="primary" type="submit" disabled>Run session <span aria-hidden="true">↗</span></button>
-            <p class="quiet run-note">Six simulated minutes, generated as fast as your computer allows.</p>
-          </div>
-        </form>
-      </section>
+      </div>
+    </section>
 
-      <!-- ============ 2. DASHBOARD ============ -->
-      <section id="view-dashboard" class="view" aria-labelledby="dash-title" hidden>
-        <div class="view-head">
-          <div><p class="eyebrow">UNIFIED PHYSIOLOGICAL DASHBOARD</p>
-            <h1 id="dash-title">Follow the session</h1>
-            <p class="lead" id="dash-meta">Synchronized timelines from the session’s recorded evidence. Every trace names its source.</p></div>
-          <div class="session-chips" id="dash-chips"></div>
-        </div>
-        <div class="playback panel" aria-label="Playback controls">
-          <button id="play" class="primary" type="button" aria-keyshortcuts="k" disabled>▶ Play</button>
-          <button id="mute" class="secondary" type="button" aria-keyshortcuts="m" disabled>🔇 Mute</button>
-          <div class="speed" role="group" aria-label="Playback speed">
-            <button type="button" data-speed="1" class="on" aria-pressed="true">1×</button>
-            <button type="button" data-speed="2" aria-pressed="false">2×</button>
-            <button type="button" data-speed="4" aria-pressed="false">4×</button>
-            <button type="button" data-speed="8" aria-pressed="false">8×</button>
+    <!-- ============ METHOD ============ -->
+    <section class="section" id="method" aria-labelledby="method-title">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <p class="eyebrow">01 · Method</p>
+          <h2 id="method-title" class="h2">Five stages. Each one keeps its own evidence.</h2>
+        </header>
+        <ol class="stages">
+          <li class="stage reveal"><span class="stage-n">01</span><h3>Observe</h3>
+            <p>Raw skin conductance (EDA), optical pulse (PPG), motion (IMU), and synchronization records: device times,
+              sequence numbers, availability, and declared gaps.</p></li>
+          <li class="stage reveal"><span class="stage-n">02</span><h3>Infer</h3>
+            <p>Recovered physiological features, with lineage to the exact samples used.</p></li>
+          <li class="stage reveal"><span class="stage-n">03</span><h3>Decide</h3>
+            <p>State, input cutoff, formula components, and explicit outcomes for acting, holding, or stopping.</p></li>
+          <li class="stage reveal"><span class="stage-n">04</span><h3>Intervene</h3>
+            <p>The scheduled command, the electrical onset, and the vibration detected from IMU samples.</p></li>
+          <li class="stage reveal"><span class="stage-n">05</span><h3>Reconstruct</h3>
+            <p>Analysis and derived records rebuilt from raw inputs, followed by an explicit replay verdict.</p></li>
+        </ol>
+
+        <div class="rules">
+          <p class="eyebrow reveal">Three rules make the loop inspectable</p>
+          <div class="rule reveal">
+            <h3>A decision can use only evidence available at the time.</h3>
+            <p>A sample must have been available by the decision time and taken at or before the input cutoff.
+              FIFO stalls, delayed delivery, and missing samples remain visible in the record.</p>
           </div>
-          <label class="scrub-field"><span class="sr-only">Session position</span>
-            <input type="range" id="scrub" min="0" max="360" step="0.25" value="0" disabled>
-            <span id="clock" class="mono" aria-live="off">00:00 / 06:00</span></label>
-        </div>
-        <div id="dash-empty" class="empty-state"><h2>No session selected</h2>
-          <p>Run a session in <a href="#view-designer">Design</a> or open one from <a href="#view-history">History</a>.</p></div>
-        <div id="dash-body" hidden>
-          <div class="chart-grid" id="chart-grid">
-            <figure class="chart" data-chart="hr"><figcaption>Heart rate <span class="unit">bpm · 10 s windows</span></figcaption></figure>
-            <figure class="chart" data-chart="hrv"><figcaption>HRV · RMSSD <span class="unit">ms · 60 s windows, good beats only</span></figcaption></figure>
-            <figure class="chart" data-chart="resp"><figcaption>Respiration <span class="unit">breaths/min · 10 s windows</span></figcaption></figure>
-            <figure class="chart" data-chart="eda"><figcaption>Electrodermal activity <span class="unit">SCL µS · 10 s windows</span></figcaption></figure>
-            <figure class="chart" data-chart="motion"><figcaption>Motion &amp; artifacts <span class="unit">fraction · 10 s windows</span></figcaption></figure>
-            <figure class="chart" data-chart="quality"><figcaption>Sensor confidence <span class="unit">gate state · per evaluation</span></figcaption></figure>
-            <figure class="chart wide" data-chart="feedback"><figcaption>Feedback engine <span class="unit">level &amp; intensity · per evaluation</span></figcaption></figure>
+          <div class="rule reveal">
+            <h3>Holding is a decision.</h3>
+            <p>Motion, poor contact, stale data, or disagreeing pathways can prevent guidance. After impairment, the
+              controller requires a full clean <b>40-second evidence window</b> before treating an elevated state as
+              sustained; repeated quality loss during guidance stops it.</p>
           </div>
-          <div class="dash-side">
-            <section class="panel" aria-labelledby="now-title">
-              <h2 id="now-title">Now</h2>
-              <dl id="now-readout" class="readout mono"></dl>
-            </section>
-            <section class="panel" aria-labelledby="events-title">
-              <h2 id="events-title">Session events</h2>
-              <ol id="event-feed" class="event-feed"></ol>
-            </section>
+          <div class="rule reveal">
+            <h3>Each stage earns its own evidence.</h3>
+            <p>A command does not prove vibration, and vibration does not establish a physiological effect.
+              <code>PHYSICALLY_OBSERVED</code> requires an observation record; in this test bench, that observation
+              is simulated too.</p>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- ============ 3. FEEDBACK STUDIO ============ -->
-      <section id="view-studio" class="view" aria-labelledby="studio-title" hidden>
-        <div class="view-head">
-          <div><p class="eyebrow">ADAPTIVE AUDIO ENGINE</p>
-            <h1 id="studio-title">Feedback studio</h1>
-            <p class="lead">Original procedural synthesis mapped from validated signal features. Quality-gated: when the
-              evidence degrades, the sound holds and says why.</p></div>
-          <div class="session-chips" id="studio-chips"></div>
-        </div>
-        <div class="studio-grid">
-          <section class="panel" aria-labelledby="audio-ctl-title">
-            <h2 id="audio-ctl-title">Engine</h2>
-            <label class="check consent-check"><input type="checkbox" id="audio-enable">
-              <span><b>Audio enabled</b><small>Uses the consent recorded for this session.</small></span></label>
-            <p id="consent-state" class="quiet small" role="status"></p>
-            <button id="allow-audio" class="secondary" type="button" hidden>Allow audio for this session</button>
-            <button id="revoke-audio" class="secondary" type="button" hidden>Revoke audio consent</button>
-            <label class="field"><span>Level <b id="level-out" class="mono">50%</b> <em class="quiet">(ceiling set at design)</em></span>
-              <input type="range" id="level" min="0" max="100" step="5" value="50"></label>
-            <label class="check"><input type="checkbox" id="breath-guide" checked>
-              <span><b>Breathing guidance</b><small>Slow swell at the guided period.</small></span></label>
-            <div class="engine-state"><span id="engine-state" role="status">Idle</span>
-              <span id="engine-detail" class="quiet"></span></div>
-            <p class="quiet small">No claim is made that any frequency causes a state. Parameters are a presentation of
-              recorded evidence, not a treatment.</p>
-          </section>
-          <section class="panel" aria-labelledby="map-title">
-            <h2 id="map-title">Parameter mapping</h2>
-            <p class="panel-note">Exactly which signal features drive each parameter, at the current playback position:</p>
-            <dl id="map-readout" class="readout mono"></dl>
-          </section>
-        </div>
-      </section>
+    <!-- ============ SESSION SPECIMEN ============ -->
+    <section class="section session" id="session" aria-labelledby="session-title">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <p class="eyebrow">02 · One recorded session</p>
+          <h2 id="session-title" class="h2">Six minutes, read end to end.</h2>
+          <p class="section-lead">Every line below is drawn from the same recorded simulation the workbench replays.
+            Move across the figure to read what the controller knew at each evaluation, and why it acted, held,
+            or let go.</p>
+        </header>
 
-      <!-- ============ 4. VISUAL FIELD ============ -->
-      <section id="view-visual" class="view" aria-labelledby="visual-title" hidden>
-        <div class="view-head">
-          <div><p class="eyebrow">RESPONSIVE VISUAL ENVIRONMENT</p>
-            <h1 id="visual-title">Field</h1>
-            <p class="lead">An algorithmically generated feedback field — restrained, cymatic-inspired geometry. It is a
-              rendering of signal features, not a measurement of an unseen phenomenon.</p></div>
-          <div class="session-chips" id="visual-chips"></div>
-        </div>
-        <div class="visual-wrap panel">
-          <canvas id="field-canvas" width="960" height="540" role="img"
-            aria-label="Feedback field visualization: concentric rings whose radius and texture follow feedback intensity, respiration phase, and signal quality"></canvas>
-          <div class="visual-readout"><dl id="visual-readout" class="readout mono"></dl></div>
-        </div>
-      </section>
+        <figure class="specimen reveal" id="specimen">
+          <div class="specimen-plot" id="specimen-plot">
+            <noscript><p class="quiet">Enable JavaScript to draw the recorded session, or open it in the
+              <a href="workbench.html">workbench</a>.</p></noscript>
+          </div>
+          <div class="specimen-readout" id="specimen-readout" aria-live="polite"></div>
+          <figcaption class="specimen-caption" id="specimen-caption">Simulation only. No person was measured.</figcaption>
+        </figure>
 
-      <!-- ============ 5. EVIDENCE EXPLORER ============ -->
-      <section id="view-evidence" class="view" aria-labelledby="evidence-title" hidden>
-        <div class="view-head">
-          <div><p class="eyebrow">EVIDENCE EXPLORER</p>
-            <h1 id="evidence-title">Follow one decision</h1>
-            <p class="lead">Select any feedback or decision event. Inspect what was measured, what was known, which rule
-              authorized it, and whether replay reproduces it.</p></div>
-          <div class="session-chips" id="evidence-chips"></div>
-        </div>
-        <div class="evidence-grid">
-          <section class="panel" aria-labelledby="ev-list-title">
-            <h2 id="ev-list-title">Decisions &amp; evaluations</h2>
-            <ol id="evidence-list" class="evidence-list"></ol>
-          </section>
-          <section class="panel" id="evidence-detail-wrap" aria-labelledby="ev-detail-title" aria-live="polite">
-            <h2 id="ev-detail-title">Detail</h2>
-            <div id="evidence-detail"><p class="quiet">Choose an event on the left.</p></div>
-          </section>
-        </div>
-      </section>
+        <ol class="moments" id="moments" aria-label="Recorded decisions and holds"></ol>
 
-      <!-- ============ 6. PHANTOM ============ -->
-      <section id="view-phantom" class="view" aria-labelledby="phantom-title" hidden>
-        <div class="view-head">
-          <div><p class="eyebrow">ELECTRONIC PHANTOM EVIDENCE</p>
-            <h1 id="phantom-title">A known input</h1>
-            <p class="lead">The board as its own electronic phantom: the ADS1299 test signal driven through the
-              acquisition bridge and judged against the datasheet. No person is measured.</p></div>
-          <div class="session-chips" id="phantom-chips"></div>
+        <div class="session-cta reveal">
+          <a class="btn btn-shimmer" href="workbench.html"><span>Replay it with sound <i aria-hidden="true">→</i></span></a>
+          <p>The workbench adds synchronized playback, consent-gated adaptive audio, a visual field, and an evidence
+            explorer that follows any decision back to its measurements.</p>
         </div>
-        <div id="phantom-missing" class="empty-state" hidden>
-          <h2>No phantom attached</h2>
-          <p>Run <code>python tools/openbci_cyton.py simulate --mode phantom --output outputs/cyton-phantom</code>,
-            then start the workbench with <code>--phantom outputs/cyton-phantom</code>.</p>
-        </div>
-        <div id="phantom-body" hidden>
-          <div class="panel" style="margin-bottom:14px"><p id="phantom-note" class="lead"></p></div>
-          <div class="evidence-grid">
-            <section class="panel" aria-labelledby="ph-checks-title">
-              <h2 id="ph-checks-title">Phantom checks</h2>
-              <div class="table-wrap"><table><thead><tr><th scope="col">Check</th><th scope="col">Status</th>
-                <th scope="col">Criterion</th></tr></thead><tbody id="phantom-checks"></tbody></table></div>
-            </section>
-            <section class="panel" aria-labelledby="ph-clock-title">
-              <h2 id="ph-clock-title">Sample clock</h2>
-              <div class="table-wrap"><table><thead><tr><th scope="col">Segment</th><th scope="col">Rate</th>
-                <th scope="col">Drift</th></tr></thead><tbody id="phantom-clock"></tbody></table></div>
-              <h2 class="mt">Channels</h2>
-              <div class="table-wrap"><table><thead><tr><th scope="col">Channel</th><th scope="col">Status</th>
-                <th scope="col">Detail</th></tr></thead><tbody id="phantom-channels"></tbody></table></div>
-            </section>
+      </div>
+    </section>
+
+    <!-- ============ RESULTS ============ -->
+    <section class="section" id="results" aria-labelledby="results-title">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <p class="eyebrow">03 · Results</p>
+          <h2 id="results-title" class="h2">Recorded results, including the ones that failed.</h2>
+          <p class="section-lead">The checked-in physiology benchmark covers 50 seeds, 100–149. Its numbers describe
+            agreement with <b>simulated truth</b> under the stated scoring conditions, not sensor accuracy,
+            assembled-hardware performance, or human outcomes.</p>
+        </header>
+
+        <div class="headline-results">
+          <div class="figure-stat reveal">
+            <p class="stat"><span>999</span><small>of 1,000</small></p>
+            <p class="stat-label">benchmark checks passed</p>
+            <p>Seed 147 failed the skin-conductance response sensitivity threshold: 11 of 14 responses detected,
+              below the required 0.85. The <a href="https://github.com/topherchris420/circle/blob/main/docs/physiology-benchmark.json">benchmark</a>
+              retains the failure.</p>
+          </div>
+          <div class="figure-stat reveal">
+            <p class="stat"><span>240</span><small>of 240</small></p>
+            <p class="stat-label">scenario runs passed · controller 1.2.0</p>
+            <p>Eight scenario families on fresh confirmatory seeds 600–629. An earlier controller passed 199 of 210;
+              its failures produced the clean-window precondition. The
+              <a href="https://github.com/topherchris420/circle/blob/main/docs/closed-loop-evidence.md">evidence history</a>
+              preserves both rounds.</p>
           </div>
         </div>
-      </section>
 
-      <!-- ============ 7. HISTORY ============ -->
-      <section id="view-history" class="view" aria-labelledby="history-title" hidden>
-        <div class="view-head">
-          <div><p class="eyebrow">SESSION HISTORY</p>
-            <h1 id="history-title">Past sessions</h1>
-            <p class="lead">Saved on this computer. Open one to load its timeline, or export its evidence.</p></div>
+        <div class="table-wrap reveal">
+          <table class="results">
+            <thead><tr><th scope="col">Measurement</th><th scope="col">Recorded result</th><th scope="col">Evaluation condition</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Heartbeat detection</th><td>Mean F1 <b>0.9999</b></td><td>Motion-free PPG; ±50 ms matching tolerance</td></tr>
+              <tr><th scope="row">Heart rate</th><td>Mean absolute error <b>0.39 bpm</b></td><td>Recovered from raw sensor codes</td></tr>
+              <tr><th scope="row">HRV · RMSSD</th><td>Mean absolute error <b>1.5 ms</b></td><td>60-second windows</td></tr>
+              <tr><th scope="row">Respiratory rate</th><td>Mean absolute error <b>0.36 breaths/min</b></td><td>Recovered respiratory modulation</td></tr>
+              <tr><th scope="row">Skin conductance responses</th><td>Sensitivity <b>0.98</b> · PPV <b>1.00</b></td><td>Motion-free responses ≥ 0.05 µS</td></tr>
+              <tr><th scope="row">PPG FIFO timing</th><td>Worst error <b>39.18 µs</b></td><td>Reconstructed sample timestamps</td></tr>
+              <tr><th scope="row">Haptic onset detection</th><td>Worst error <b>2.97 ms</b></td><td>IMU detection versus the twin’s onset</td></tr>
+            </tbody>
+          </table>
         </div>
-        <ol id="history-list" class="history-list"></ol>
-        <p id="storage" class="quiet"></p>
-      </section>
-    </main>
-    <footer class="foot">
-      <span>CIRCLE · Resonance Workbench · a Vers3Dynamics research project</span>
-      <p>Engineering review only. All data and feedback are simulated. No hardware connected; no person measured;
-        no clinical claim. Audio is a presentation of recorded evidence, not a demonstrated physiological effect.</p>
-    </footer>
-  </div>
+
+        <div class="split reveal">
+          <div>
+            <h3 class="h3">Measurement quality and evidence integrity are different questions.</h3>
+            <p>With the default seed 7, the poor-contact scenario withholds guidance, passes 14 of 19 scorecard checks,
+              and exits with code 1. Its audit still reports <code>REPLAY_MATCH</code>: the impaired session can be
+              reconstructed faithfully.</p>
+          </div>
+          <div>
+            <h3 class="h3">Replay names its result.</h3>
+            <ul class="verdicts" aria-label="Replay verdicts">
+              <li class="ok">REPLAY_MATCH</li><li>REPLAY_DIVERGENCE</li><li>TIMING_VIOLATION</li>
+              <li>VERSION_MISMATCH</li><li>EVIDENCE_INTEGRITY_FAILURE</li><li>MISSING_SOURCE</li>
+              <li>INSUFFICIENT_EVIDENCE</li>
+            </ul>
+            <p class="quiet">A matching replay shows the package reproduces from its inputs. It does not show it
+              measured the world.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ WORKBENCH ============ -->
+    <section class="section workbench" aria-labelledby="workbench-title">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <p class="eyebrow">04 · Resonance Workbench</p>
+          <h2 id="workbench-title" class="h2">The research interface, in your browser.</h2>
+          <p class="section-lead">The same interface the local workbench serves, replaying one prerecorded session:
+            clean · seed 7 · active. No server, no sensors, no live data.</p>
+        </header>
+        <a class="screen reveal" href="workbench.html" aria-label="Open the Resonance Workbench">
+          <img src="resonance-workbench-dashboard.png" width="1440" height="1000" loading="lazy" decoding="async"
+            alt="The Resonance Workbench dashboard: synchronized simulated heart rate, HRV, respiration, skin conductance, motion, sensor confidence, and feedback-engine timelines.">
+        </a>
+        <p class="screen-note reveal">Actual workbench capture. A recorded six-minute simulation, not live human measurements.</p>
+        <dl class="views reveal">
+          <div><dt>Design</dt><dd>Scenario, arm, feedback, limits, and consent: every choice recorded with the session.</dd></div>
+          <div><dt>Dashboard</dt><dd>Synchronized timelines from the recorded evidence. Every trace names its source.</dd></div>
+          <div><dt>Feedback</dt><dd>Procedural audio mapped from validated features. When evidence degrades, it holds and says why.</dd></div>
+          <div><dt>Field</dt><dd>A rendering of signal features, not a measurement of an unseen phenomenon.</dd></div>
+          <div><dt>Evidence</dt><dd>Follow one decision to what was measured, which rule authorized it, and whether replay reproduces it.</dd></div>
+          <div><dt>Phantom</dt><dd>The ADS1299 internal test signal judged against the datasheet. No person is measured.</dd></div>
+        </dl>
+        <p class="reveal"><a class="btn btn-shimmer" href="workbench.html"><span>Open the workbench <i aria-hidden="true">→</i></span></a></p>
+      </div>
+    </section>
+
+    <!-- ============ AUTHORITY ============ -->
+    <section class="section" id="authority" aria-labelledby="authority-title">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <p class="eyebrow">05 · Human authority</p>
+          <h2 id="authority-title" class="h2">Who has authority to turn a proposal into a change?</h2>
+          <p class="section-lead">A restricted proposal becomes an immutable envelope: its mutation, proposal
+            timestamp, state-history hash, action UUID, and an empty signature slot. It waits as data while the loop
+            continues processing telemetry.</p>
+        </header>
+        <ol class="states">
+          <li class="reveal"><code>PENDING_SIGNATURE</code><p>The proposal is registered; telemetry continues; the mutation waits.</p></li>
+          <li class="reveal"><code>EXECUTED</code><p>Consent verifies against the registered Ed25519 human public key; the signature and execution frame are recorded.</p></li>
+          <li class="reveal"><code>REJECTED</code><p>Proposal, consent, or execution checks fail. No automatic retry follows.</p></li>
+        </ol>
+        <p class="boundary reveal"><b>Current boundary.</b> The gate is standalone; the physiological controller and
+          protocol runner do not yet route through it. In the workbench, audio feedback is the restricted mutation:
+          proposed, signed, revocable, and hash-linked in a durable log.
+          <a href="https://github.com/topherchris420/circle/blob/main/docs/consent-by-design.md">Consent integration contract</a></p>
+      </div>
+    </section>
+
+    <!-- ============ INSTRUMENT ============ -->
+    <section class="section" id="instrument" aria-labelledby="instrument-title">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <p class="eyebrow">06 · From simulation to an instrument</p>
+          <h2 id="instrument-title" class="h2">Rev B is designed, not built.</h2>
+          <p class="section-lead">The hardware exists to make acquisition timing and intervention evidence observable.
+            Isolation, interlocks, and current limiting are design provisions awaiting independent review and
+            measurement.</p>
+        </header>
+        <div class="boards">
+          <div class="board reveal">
+            <p class="board-dim">85 × 55 mm</p>
+            <h3>Main board</h3>
+            <ul><li>ESP32-S3</li><li>ADS1220 EDA front end</li><li>ICM-42688-P IMU</li><li>SDMMC storage</li>
+              <li>DRV2605L haptics with current-edge detection</li></ul>
+          </div>
+          <div class="board reveal">
+            <p class="board-dim">25 × 18 mm</p>
+            <h3>Optical board</h3>
+            <ul><li>MAX30102 red/IR sensor</li></ul>
+          </div>
+          <div class="board board-status reveal">
+            <h3>Status</h3>
+            <dl>
+              <div><dt>52</dt><dd>unrouted nets in the PCB allowlist</dd></div>
+              <div><dt>18</dt><dd>open review gates; fabrication and human use are not authorized</dd></div>
+            </dl>
+          </div>
+        </div>
+        <p class="boundary reveal">Next physical milestones: known-input phantoms, bench fixtures, isolation testing, and
+          actuator loopback. The OpenBCI Cyton phantom is a practical route: its ADS1299 internal test signal can supply
+          known input through the acquisition chain without a person.
+          <a href="https://github.com/topherchris420/circle/blob/main/docs/physical-evidence-ladder.md">Physical evidence ladder</a></p>
+
+        <div class="extensions">
+          <h3 class="h3 reveal">Research extensions, held at arm’s length from the core instrument.</h3>
+          <div class="table-wrap reveal">
+            <table class="results">
+              <thead><tr><th scope="col">Extension</th><th scope="col">Question or method</th><th scope="col">Evidence boundary</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">Resonance</th><td>Coupled-cavity models, blinded comparisons, falsifiable geometry hypotheses</td><td>Experimental simulation; no chamber or measured geometry effect</td></tr>
+                <tr><th scope="row">Emergence</th><td>ATOM correlation search against circular-shift surrogate nulls, family-wise corrected</td><td>Exploratory associations; no causal or consciousness claim</td></tr>
+                <tr><th scope="row">PNT</th><td>Translation-only 15-state estimator versus an unaided baseline on shared simulated IMU data</td><td>Simulation benchmark; quantum sensing remains speculative</td></tr>
+                <tr><th scope="row">R.A.I.N. protocol</th><td>Versioned experiment manifest, result, and analysis contracts</td><td>Contracts here; executor elsewhere</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="quiet reveal">Each hypothesis needs a predefined comparison, appropriate controls, and a result that
+            could count against it.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ BOUNDARIES ============ -->
+    <section class="section limits" aria-labelledby="limits-title">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <p class="eyebrow">07 · Boundaries</p>
+          <h2 id="limits-title" class="h2">What CIRCLE does not claim.</h2>
+        </header>
+        <div class="faq">
+          <div class="reveal"><h3>It cannot tell what someone is feeling.</h3>
+            <p>An arousal index is an engineering trigger. Physiological signals alone cannot establish a person’s
+              emotion, intent, diagnosis, or consciousness. The twin is phenomenological and not fitted to any person.</p></div>
+          <div class="reveal"><h3>A passing audit is not a measurement of the world.</h3>
+            <p>It establishes that an export satisfies the checked contracts and agrees with independent reconstruction
+              from its raw inputs, not that those inputs describe reality or that an intervention caused a change.</p></div>
+          <div class="reveal"><h3>No frequency is claimed to cause a state.</h3>
+            <p>Audio and visual feedback are presentations of recorded evidence, not a demonstrated physiological
+              effect. The twin assumes paced breathing changes its simulated physiology; effects in people would need
+              separate evidence.</p></div>
+          <div class="reveal"><h3>It is not approved for fabrication or human connection.</h3>
+            <p>No physical sensor, bench, electrical-safety, EMC, or human-outcome validation has been performed.
+              All physiological results shown here come from simulation.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ RUN ============ -->
+    <section class="section run" id="run" aria-labelledby="run-title">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <p class="eyebrow">08 · Run it yourself</p>
+          <h2 id="run-title" class="h2">Reproduce every number on this page.</h2>
+          <p class="section-lead">Python 3.11+ and Git. No device, account, API key, or model server.</p>
+        </header>
+        <div class="code reveal">
+          <div class="code-bar"><span>Terminal</span><button class="copy" type="button" data-copy="code-start">Copy</button></div>
+<pre id="code-start"><code>git clone https://github.com/topherchris420/circle.git
+cd circle
+python -m pip install -r requirements.txt
+python tools/run_workbench.py</code></pre>
+        </div>
+        <div class="code reveal">
+          <div class="code-bar"><span>Session, sham comparison, and independent audit</span><button class="copy" type="button" data-copy="code-twin">Copy</button></div>
+<pre id="code-twin"><code>python tools/run_physiology_twin.py --output outputs/physiology --audit</code></pre>
+        </div>
+        <p class="quiet reveal">Every downloaded evidence bundle ships <code>verify_replication.py</code>: it recomputes
+          every hash, rebuilds the analysis and every decision from the raw samples, and names the verdict.</p>
+        <div class="run-links reveal">
+          <a href="https://github.com/topherchris420/circle#quick-start">Quick start</a>
+          <a href="https://github.com/topherchris420/circle/blob/main/docs/physiology-pipeline.md">Pipeline methods</a>
+          <a href="https://github.com/topherchris420/circle/blob/main/docs/closed-loop-evidence.md">Closed-loop evidence</a>
+          <a href="https://github.com/topherchris420/circle/blob/main/capabilities.json">Capability registry</a>
+          <a href="https://github.com/topherchris420/circle/blob/main/CONTRIBUTING.md">Contributing</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap foot-inner">
+      <p class="wordmark"><span class="mark" aria-hidden="true"></span>CIRCLE</p>
+      <p>A Vers3Dynamics research project · MIT licensed ·
+        <a href="https://github.com/topherchris420/circle">Source on GitHub</a></p>
+      <p class="quiet">Engineering review only. Experimental research hardware and software. All physiological results
+        shown here come from simulation. No hardware connected, no person measured, no clinical claim.</p>
+    </div>
+  </footer>
 </body>
 </html>

@@ -18,8 +18,11 @@ import unittest
 from tools.build_demo import build_demo
 from tools.run_audio_rendering_benchmark import BROWSER_CANDIDATES
 
-DEMO_FILES = ("index.html", "demo-data.js", "demo-shim.js", "resonance.css", "resonance.js",
+DEMO_FILES = ("index.html", "site.css", "site.js", "resonance-workbench-dashboard.png",
+              "workbench.html", "demo-data.js", "demo-shim.js", "resonance.css", "resonance.js",
               "audio-engine.js", "synth.js", "visual.js", "phantom.js")
+WORKBENCH_ASSETS = ("demo-data.js", "demo-shim.js", "demo-guide.js", "resonance.css", "resonance.js",
+                    "audio-engine.js", "synth.js", "visual.js", "phantom.js")
 
 
 def find_browser() -> str | None:
@@ -47,15 +50,27 @@ class DemoBuildTest(unittest.TestCase):
             self.assertGreater(path.stat().st_size, 100, name)
 
     def test_demo_uses_relative_assets_only(self):
-        html = (self.directory / "index.html").read_text(encoding="utf-8")
+        html = (self.directory / "workbench.html").read_text(encoding="utf-8")
         self.assertNotIn('href="/resonance', html)
         self.assertNotIn('src="/resonance', html)
-        for name in DEMO_FILES:
-            if name.endswith((".js", ".css")):
-                self.assertIn(name, html)
+        for name in WORKBENCH_ASSETS:
+            self.assertIn(name, html)
+        site = (self.directory / "index.html").read_text(encoding="utf-8")
+        for asset in ("site.css", "site.js", "demo-data.js", "resonance-workbench-dashboard.png"):
+            self.assertIn(asset, site)
+        for page in (html, site):
+            self.assertIsNone(re.search(r'(?:src|href)="/(?!/)', page), "a root-absolute path breaks /circle/")
+
+    def test_site_links_the_workbench_and_states_its_boundaries(self):
+        site = (self.directory / "index.html").read_text(encoding="utf-8")
+        self.assertIn('href="workbench.html"', site)
+        self.assertIn("Not a medical device", site)
+        self.assertIn("simulated truth", site)
+        workbench = (self.directory / "workbench.html").read_text(encoding="utf-8")
+        self.assertIn('href="index.html"', workbench)
 
     def test_demo_is_labeled_as_simulation_and_offline(self):
-        html = (self.directory / "index.html").read_text(encoding="utf-8")
+        html = (self.directory / "workbench.html").read_text(encoding="utf-8")
         self.assertIn("OFFLINE DEMO", html)
         self.assertIn("SIMULATION ONLY", html)
         self.assertIn("prerecorded simulated session", html)
@@ -75,7 +90,7 @@ class DemoBuildTest(unittest.TestCase):
         self.assertGreater(len(timeline["feedback"]["events"]), 20)
 
     def test_no_external_network_targets(self):
-        for name in ("demo-shim.js", "resonance.js", "demo-data.js"):
+        for name in ("demo-shim.js", "resonance.js", "demo-data.js", "site.js", "site.css"):
             text = (self.directory / name).read_text(encoding="utf-8")
             for match in re.findall(r"https?://[^\"'\s)<>]+", text):
                 self.assertTrue(re.match(r"https?://(www\.)?w3\.org/", match) or
@@ -116,7 +131,7 @@ class DemoBrowserTest(unittest.TestCase):
         process = subprocess.Popen(
             [self.browser, "--headless=new", "--disable-gpu", "--disable-extensions", "--no-first-run",
              "--no-sandbox", "--disable-dev-shm-usage",  # CI containers require these.
-             f"--remote-debugging-port={debug_port}", f"http://127.0.0.1:{self.port}/index.html?selftest"],
+             f"--remote-debugging-port={debug_port}", f"http://127.0.0.1:{self.port}/workbench.html?selftest"],
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         try:
             import http.client
@@ -132,7 +147,7 @@ class DemoBrowserTest(unittest.TestCase):
                     time.sleep(0.5)
                     continue
                 for target in targets:
-                    if "index.html" in (target.get("url") or ""):
+                    if "workbench.html" in (target.get("url") or ""):
                         title = unescape(target.get("title") or "")
                 if title and title.startswith("DEMO"):
                     break

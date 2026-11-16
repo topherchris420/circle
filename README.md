@@ -50,7 +50,7 @@ The Resonance Workbench is a public, self-guided introduction to the research. T
 
 ## Quick start
 
-**Nothing to install:** [open the offline demo](https://topherchris420.github.io/circle/). It replays a prerecorded simulated session in your browser, with playback, adaptive audio, and the evidence behind every decision. Nothing is sent anywhere. It is built from [`demo/`](demo) by [`tools/build_demo.py`](tools/build_demo.py), and the same scenario and seed reproduce it locally.
+**Nothing to install:** [open the offline demo](https://topherchris420.github.io/circle/workbench.html). It replays a prerecorded simulated session in your browser, with playback, adaptive audio, and the evidence behind every decision. Nothing is sent anywhere. The [research site](https://topherchris420.github.io/circle/) and its [workbench](https://topherchris420.github.io/circle/workbench.html) are built into [`demo/`](demo) from [`site/`](site) by [`tools/build_demo.py`](tools/build_demo.py), and the same scenario and seed reproduce them locally.
 
 ### Run it locally
 
