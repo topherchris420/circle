@@ -75,6 +75,12 @@ jobs:
           python tools/muse_gadget.py capabilities --simulate
           python tools/muse_gadget.py check --simulate --output outputs/muse-gadget-attempt
 
+      - name: First Light (real camera recordings; independent verifier; bundles rebuilt by the browser code)
+        run: |
+          python tools/verify_first_light.py evidence/first-light/sessions/149055-072.zip
+          python tools/verify_first_light.py --pool evidence/first-light/sessions/*.zip
+          node tools/build_first_light_bundle.js --check
+
       - name: Verify diagrams rendering
         run: python tools/render_diagrams.py
 

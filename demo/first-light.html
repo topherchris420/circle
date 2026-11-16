@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#000000">
+  <title>CIRCLE · First Light — a physical sensor, measured, refused, and verified</title>
+  <meta name="description" content="A phone camera measures a pulse through a fingertip. Quality gates decide whether to act, a deliberate sensor failure is refused, and an independent verifier rebuilds every decision. Tested on 56 real recordings against chest ECG. Not a medical device.">
+  <link rel="canonical" href="https://topherchris420.github.io/circle/first-light.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="CIRCLE">
+  <meta property="og:title" content="CIRCLE · First Light">
+  <meta property="og:description" content="Real measurement, quality gates, adaptive response, deliberate sensor failure, safe refusal, and independently verified evidence. Run it on your own phone.">
+  <meta property="og:url" content="https://topherchris420.github.io/circle/first-light.html">
+  <meta property="og:image" content="https://topherchris420.github.io/circle/social-card.png">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%2367c6c3' stroke-width='5'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="first-light.css">
+  <script src="first-light-core.js" defer></script>
+  <script src="first-light.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="bar">
+    <a class="wordmark" href="index.html" aria-label="CIRCLE research site"><span class="mark" aria-hidden="true"></span>CIRCLE</a>
+    <nav aria-label="Site">
+      <a href="workbench.html">Workbench</a>
+      <a href="https://github.com/topherchris420/circle/blob/main/docs/first-light.md">Method</a>
+      <a href="https://github.com/topherchris420/circle">GitHub</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="intro">
+      <p class="eyebrow">First Light · physical-sensor demonstration</p>
+      <h1>Real light through a real fingertip. <em>Every decision kept.</em></h1>
+      <p class="lead">A phone camera measures a pulse. Six quality gates decide whether that evidence is good enough
+        to act on. A bounded sound follows the measurement. The sensor is disturbed on purpose, and the system must
+        refuse. Then a second, independent program rebuilds every decision from the raw frames.</p>
+      <p class="pill"><span class="pill-dot" aria-hidden="true"></span>Not a medical device · Camera frames never leave this page</p>
+    </section>
+
+    <ol class="chain" id="chain" aria-label="The chain this page demonstrates">
+      <li data-step="measure"><b>Measure</b><span>Camera frames, 30 a second</span></li>
+      <li data-step="assess"><b>Assess</b><span>Six gates on the last 8 seconds</span></li>
+      <li data-step="respond"><b>Respond</b><span>A bounded sound follows the pulse</span></li>
+      <li data-step="disturb"><b>Disturb</b><span>The sensor is failed on purpose</span></li>
+      <li data-step="refuse"><b>Refuse</b><span>Silence, with the reason on record</span></li>
+      <li data-step="verify"><b>Verify</b><span>Every decision rebuilt from raw frames</span></li>
+    </ol>
+
+    <section class="panel" aria-labelledby="source-title">
+      <h2 id="source-title">Choose a source</h2>
+      <div class="modes" role="radiogroup" aria-labelledby="source-title">
+        <button type="button" role="radio" aria-checked="true" data-mode="recorded" class="mode">
+          <b>Watch a real recording</b>
+          <span>A smartphone-camera recording from a public dataset, with chest ECG as the reference. No camera needed.</span>
+        </button>
+        <button type="button" role="radio" aria-checked="false" data-mode="camera" class="mode">
+          <b>Use your camera</b>
+          <span>Your fingertip on your phone's rear camera and light. You lift your finger to fail the sensor.</span>
+        </button>
+        <button type="button" role="radio" aria-checked="false" data-mode="phantom" class="mode">
+          <b>Known-input phantom</b>
+          <span>Point the camera at a second screen that pulses at a rate you set. No person involved.</span>
+        </button>
+      </div>
+
+      <div class="mode-detail" id="detail-recorded">
+        <label for="recording">Recording</label>
+        <select id="recording">
+          <option value="149055-072">Person 149 · 3 minutes · illustration, chosen after the test because it shows every step</option>
+          <option value="137025-054">Person 137 · 5 minutes · the preregistered session: the system refuses throughout</option>
+        </select>
+        <label for="speed">Speed</label>
+        <select id="speed">
+          <option value="8">8× (about 25 seconds)</option>
+          <option value="1">1× real time, sound available</option>
+          <option value="30">30×</option>
+        </select>
+        <p class="note" id="recording-note"></p>
+      </div>
+      <div class="mode-detail" id="detail-camera" hidden>
+        <p class="note">Works where the browser can switch the camera light on (Chrome on Android does). Without the
+          light, press your fingertip against a bright lamp. Rest your hand on a table. The gates were calibrated on
+          two phone models; on yours they may refuse, and that refusal is a valid result. The session takes about a
+          minute.</p>
+      </div>
+      <div class="mode-detail" id="detail-phantom" hidden>
+        <label for="phantom-rate">Rate programmed on the phantom screen (bpm)</label>
+        <input id="phantom-rate" type="number" min="50" max="150" step="1" value="72" inputmode="numeric">
+        <p class="note">Open <a href="first-light-phantom.html" target="_blank" rel="noopener">the phantom screen</a>
+          on a second device at full brightness. Hold this camera a hand's width away so the red field fills the
+          view. Cover the lens when asked. Not yet run on physical devices by the authors: treat a pass or a failure
+          as a first result.</p>
+      </div>
+
+      <div class="controls">
+        <button type="button" class="btn primary" id="start">Start</button>
+        <button type="button" class="btn" id="stop" disabled>Finish now</button>
+        <button type="button" class="btn" id="sound" aria-pressed="false">Sound off</button>
+        <span class="note" id="sound-note">Sound is optional and capped at 30% level.</span>
+      </div>
+      <p class="notice" id="notice" role="status" hidden></p>
+    </section>
+
+    <section class="stage" aria-label="Live session">
+      <div class="panel readout">
+        <div class="ring-wrap">
+          <div class="ring" id="ring" data-state="idle" aria-hidden="true"><span id="rate">—</span><small>bpm</small></div>
+        </div>
+        <p class="state" id="state" role="status" aria-live="polite">Not started</p>
+        <p class="why" id="why">Press Start. Nothing is measured until you do.</p>
+        <p class="prompt" id="prompt" hidden></p>
+        <video id="video" playsinline muted hidden></video>
+      </div>
+
+      <div class="panel">
+        <h2>Pulse waveform <span class="h-note">last 6.5 seconds, detrended green channel</span></h2>
+        <canvas id="wave" width="640" height="150" role="img" aria-label="Live pulse waveform"></canvas>
+        <h2>Quality gates <span class="h-note">all six must pass, on a window with no earlier failure in it</span></h2>
+        <ul class="gates" id="gates">
+          <li data-gate="FRAMES"><i></i><b>Camera frames</b><span>—</span></li>
+          <li data-gate="CONTACT"><i></i><b>Fingertip contact</b><span>—</span></li>
+          <li data-gate="EXPOSURE"><i></i><b>Exposure</b><span>—</span></li>
+          <li data-gate="STEADY"><i></i><b>Steady light</b><span>—</span></li>
+          <li data-gate="PERIODIC"><i></i><b>Pulse rhythm</b><span>—</span></li>
+          <li data-gate="RATE"><i></i><b>Plausible rate</b><span>—</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="record-title">
+      <h2 id="record-title">The record so far</h2>
+      <ul class="legend" aria-label="Legend">
+        <li><span class="key dot"></span>Pulse reported (acted)</li>
+        <li id="legend-ecg" hidden><span class="key line"></span>Chest ECG over the same 8 seconds</li>
+        <li><span class="key act"></span>Acted</li>
+        <li><span class="key refuse"></span>Refused</li>
+        <li id="legend-poor" hidden><span class="key poor"></span>Experts labelled unusable</li>
+      </ul>
+      <div class="chart" id="chart"><svg id="plot" viewBox="0 0 960 300" preserveAspectRatio="none" role="img"
+        aria-label="Pulse reported over time, with the decision made at each evaluation"></svg>
+        <div class="tip" id="tip" hidden></div></div>
+      <p class="note" id="segment-note"></p>
+      <details class="ledger">
+        <summary>Every evaluation, as a table</summary>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Time</th><th>Decision</th><th>Pulse</th><th id="th-ecg" hidden>ECG</th><th>Why</th></tr></thead>
+            <tbody id="ledger"></tbody>
+          </table>
+        </div>
+      </details>
+    </section>
+
+    <section class="panel" aria-labelledby="evidence-title">
+      <h2 id="evidence-title">Evidence</h2>
+      <p class="note" id="evidence-empty">When a session ends, its evidence bundle appears here: every raw frame, every
+        decision, every feedback command, and their SHA-256 hashes.</p>
+      <div id="evidence" hidden>
+        <dl class="tiles" id="tiles"></dl>
+        <p id="selfcheck" class="check"></p>
+        <p class="note">That check re-ran this page's own code, so it is not independent. The independent check is
+          a separate Python program that shares no code with this page:</p>
+        <pre class="code"><code id="command"></code></pre>
+        <div class="controls">
+          <a class="btn primary" id="download" download>Download the evidence bundle</a>
+          <a class="btn" href="https://github.com/topherchris420/circle/blob/main/tools/verify_first_light.py">Read the verifier</a>
+        </div>
+        <p class="note" id="bundle-note"></p>
+      </div>
+      <div class="inspect">
+        <label for="inspect">Check a bundle someone sent you (stays on this device)</label>
+        <input type="file" id="inspect" accept=".zip">
+        <p class="check" id="inspect-result"></p>
+      </div>
+    </section>
+
+    <section class="panel results" aria-labelledby="results-title">
+      <h2 id="results-title">What has been tested</h2>
+      <p>The same code that runs on this page was tested on real smartphone-camera recordings it had not seen,
+        with chest ECG recorded at the same time. The criteria were committed before the test ran.</p>
+      <dl class="tiles">
+        <div><dt>Reported pulse within 5 bpm of ECG</dt><dd>99.0%</dd><p>575 of 581 actions</p></div>
+        <div><dt>Unusable windows refused</dt><dd>99.4%</dd><p>4,106 of 4,132, as labelled by the dataset's experts</p></div>
+        <div><dt>Usable windows acted on</dt><dd>34%</dd><p>490 of 1,440. Two of eight people account for 478</p></div>
+        <div><dt>Decisions reproduced independently</dt><dd>7,196 of 7,196</dd><p>56 sessions, two implementations</p></div>
+      </dl>
+      <p class="note">Recordings: BUT PPG 2.0.0 (Brno University of Technology, PhysioNet, CC BY 4.0,
+        doi:10.13026/bvsb-mz80), held-out people only. An earlier round failed a criterion and is kept:
+        <a href="https://github.com/topherchris420/circle/tree/main/evidence/first-light">all rounds and results</a>.</p>
+      <h2>What this does not show</h2>
+      <ul class="bounds">
+        <li>A camera pulse rate is not a medical measurement. Accuracy here means within 5 bpm of ECG over 8 seconds.</li>
+        <li>The system is cautious by design. For some people and phones it never acts.</li>
+        <li>The sound is a bounded command. No effect on any person is tested or claimed.</li>
+        <li>Hashes detect change. They do not prove a live bundle came from a camera; only the public-dataset
+          sessions can be rebuilt from their source.</li>
+        <li>This uses a phone camera, not CIRCLE's own hardware, which is designed and not built.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>CIRCLE is a Vers3Dynamics research project by Christopher Woodyard. MIT licensed.
+      <a href="index.html">Research site</a> · <a href="https://github.com/topherchris420/circle">Source</a></p>
+  </footer>
+</body>
+</html>

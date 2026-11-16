@@ -5,6 +5,8 @@ its timeline, and emits a fully offline ``demo/`` directory:
 
 - ``index.html``: the research site (sources in ``site/``). Its session figure
   is drawn from the same recorded data the workbench replays.
+- ``first-light.html``: the physical-sensor demonstration (sources in ``site/``),
+  copied unchanged with its real-camera recordings and the optical phantom page.
 - ``workbench.html``: the same Resonance Workbench interface the local
   workbench serves, with a fetch shim serving the recorded data. A visitor can
   play the session back, hear the adaptive audio, watch the visual field, and
@@ -41,6 +43,11 @@ ASSETS = ROOT / "models" / "workbench_assets" / "resonance"
 SOCIAL_CARD = ROOT / "diagrams" / "social-card.png"
 SITE = ROOT / "site"
 SITE_FILES = ("index.html", "site.css", "site.js")
+# First Light: the physical-sensor demonstration. Static pages, copied unchanged; its recordings are
+# real camera data from BUT PPG 2.0.0 (CC BY 4.0), built by tools/build_first_light_session.py.
+FIRST_LIGHT_FILES = ("first-light.html", "first-light.css", "first-light.js", "first-light-core.js",
+                     "first-light-phantom.html", "first-light-recording-149055-072.js",
+                     "first-light-recording-137025-054.js")
 SITE_IMAGES = (ROOT / "diagrams" / "resonance-workbench-dashboard.png",)
 WORKBENCH_PAGE = "workbench.html"
 DEMO_SCENARIO = "clean"
@@ -290,10 +297,11 @@ def build_demo(output: Path) -> dict:
             raise RuntimeError(f"demo shell changed: could not place {marker!r}")
     (output / WORKBENCH_PAGE).write_text(html, encoding="utf-8")
     # The research site: static sources, plus the workbench capture it shows.
-    for name in SITE_FILES:
+    for name in SITE_FILES + FIRST_LIGHT_FILES:
         shutil.copyfile(SITE / name, output / name)
     site_html = (output / "index.html").read_text(encoding="utf-8")
-    for marker in ('href="' + WORKBENCH_PAGE + '"', 'src="demo-data.js"', 'href="site.css"', 'src="site.js"'):
+    for marker in ('href="' + WORKBENCH_PAGE + '"', 'src="demo-data.js"', 'href="site.css"', 'src="site.js"',
+                   'href="first-light.html"'):
         if marker not in site_html:
             raise RuntimeError(f"site entrypoint changed: missing {marker!r}")
     for image in SITE_IMAGES:
