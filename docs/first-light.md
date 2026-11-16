@@ -17,7 +17,7 @@ First Light is CIRCLE's first demonstration on a physical sensor. It shows one c
 
 ## Results
 
-All results below come from real smartphone-camera video in the [BUT PPG 2.0.0](https://physionet.org/content/butppg/2.0.0/) dataset (Brno University of Technology, PhysioNet, CC BY 4.0, doi:10.13026/bvsb-mz80). It holds fingertip recordings from Xiaomi Mi9 and Huawei P20 Pro cameras, with chest ECG recorded at the same time and expert quality labels. People were asked to disturb the measurement on purpose: press harder, move the finger, walk, cough, laugh, change the light, talk.
+All results below come from real smartphone-camera video in the [BUT PPG 2.0.0](https://physionet.org/content/butppg/2.0.0/) dataset (Brno University of Technology, PhysioNet, CC BY 4.0, doi:10.13026/tn53-8153). It holds fingertip recordings from Xiaomi Mi9 and Huawei P20 Pro cameras, with chest ECG recorded at the same time and expert quality labels. People were asked to disturb the measurement on purpose: press harder, move the finger, walk, cough, laugh, change the light, talk.
 
 People with even subject ids were used to calibrate thresholds. People with odd ids were held out.
 
