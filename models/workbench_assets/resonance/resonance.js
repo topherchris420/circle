@@ -13,7 +13,7 @@
   const isActive = (run) => ["running", "cancelling"].includes(run.status);
   const scenarioById = (id) => config && config.scenarios.find((s) => s.id === id);
   const node = (tag, text, cls) => { const el = document.createElement(tag); if (text !== undefined) el.textContent = text; if (cls) el.className = cls; return el; };
-  const fmtTime = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+  const fmtTime = (s) => { s = Math.max(0, s || 0); return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(Math.floor(s % 60)).padStart(2, "0")}`; };
   const fmt = (v, d = 1) => (typeof v === "number" && isFinite(v)) ? v.toFixed(d) : "—";
 
   /* ---------------- API ---------------- */
@@ -348,7 +348,8 @@
   }
   function frame(now) {
     if (playback.playing) {
-      playback.t += ((now - playback.startWall) / 1000) * playback.speed;
+      // A frame timestamp can precede the wall time captured on Play; never step backwards.
+      playback.t = Math.max(0, playback.t + (Math.max(0, now - playback.startWall) / 1000) * playback.speed);
       playback.startWall = now;
       if (playback.t >= playback.duration) { playback.t = playback.duration; playback.playing = false; synth.stop(); $("play").textContent = "▶ Play"; }
       playback.updateClock();
@@ -423,8 +424,8 @@
       ["intensity", fmt(point.intensity, 3)], ["level (cap " + (timeline.feedback.config.max_gain).toFixed(2) + ")", fmt(point.level, 3)],
       ["brightness", fmt(point.brightness, 3)], ["tempo", fmt(point.tempo, 3)],
       ["spatial", fmt(point.spatial, 3)], ["breath period", fmt(point.breath_period_s, 1) + " s"],
-      ["inputs: HR", point.inputs ? (point.inputs.hr_bpm != null ? fmt(point.inputs.hr_bpm, 1) + " bpm" : "—") : "—"],
-      ["inputs: SCL", point ? (point.inputs.scl_us != null ? fmt(point.inputs.scl_us, 2) + " µS" : "—") : "—"],
+      ["inputs: HR", point.inputs && point.inputs.hr_bpm != null ? fmt(point.inputs.hr_bpm, 1) + " bpm" : "—"],
+      ["inputs: SCL", point.inputs && point.inputs.scl_us != null ? fmt(point.inputs.scl_us, 2) + " µS" : "—"],
       ["gate", point.gate_reasons.length ? point.gate_reasons.join(", ") : "pass"]
     ] : [["engine", "idle"]];
     const mapEl = $("map-readout") || $("visual-readout");

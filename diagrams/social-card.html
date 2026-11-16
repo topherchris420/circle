@@ -1,0 +1,52 @@
+<!doctype html>
+<!--
+  CIRCLE social preview card (1280 x 640): source for diagrams/social-card.png.
+  Used as the GitHub repository social preview and the offline demo's
+  OpenGraph / Twitter image. Re-render after changing the copy or the
+  dashboard capture, e.g. with Playwright:
+    page.setViewportSize({width: 1280, height: 640});
+    page.goto("file://.../diagrams/social-card.html");
+    page.screenshot({path: "diagrams/social-card.png"});
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CIRCLE social card</title>
+<style>
+  :root { --ink: #e8eef0; --dim: #a7b4ba; --faint: #6d7d84; --bg: #10171a; --line: #2b3b42; --teal: #67c6c3; --amber: #d9a441; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1280px; height: 640px; overflow: hidden; }
+  body { background: radial-gradient(120% 140% at 0% 0%, #17252a 0%, var(--bg) 55%); color: var(--ink);
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; position: relative; }
+  .copy { position: absolute; left: 72px; top: 64px; width: 600px; }
+  .eyebrow { font-size: 15px; letter-spacing: 0.16em; color: var(--teal); font-weight: 600; margin: 0 0 30px; }
+  .brand { display: flex; align-items: center; gap: 18px; margin-bottom: 34px; }
+  .mark { width: 46px; height: 46px; border-radius: 50%; border: 10px solid var(--teal); }
+  .word { font-size: 64px; font-weight: 800; letter-spacing: 0.05em; line-height: 1; }
+  h1 { font-family: "Inter Display", Inter, sans-serif; font-size: 44px; line-height: 1.1; letter-spacing: -0.015em; margin: 0 0 22px; font-weight: 700; text-wrap: balance; }
+  .sub { font-size: 21px; line-height: 1.45; color: var(--dim); margin: 0; max-width: 560px; }
+  .sub b { color: var(--ink); font-weight: 600; }
+  .foot { position: absolute; left: 72px; bottom: 56px; display: flex; align-items: center; gap: 18px; }
+  .pill { font-size: 13px; letter-spacing: 0.12em; color: var(--amber); border: 1.5px solid var(--amber); border-radius: 99px; padding: 6px 14px; font-weight: 600; }
+  .url { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 17px; color: var(--teal); margin: 26px 0 0; }
+  .shot { position: absolute; left: 690px; top: 70px; width: 760px; border-radius: 12px; overflow: hidden;
+    border: 1px solid var(--line); box-shadow: 0 30px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(103,198,195,0.08); }
+  .shot img { display: block; width: 760px; height: auto; }
+  .fade { position: absolute; inset: auto 0 0 690px; height: 140px; background: linear-gradient(180deg, rgba(16,23,26,0), var(--bg)); }
+</style>
+</head>
+<body>
+  <div class="copy">
+    <p class="eyebrow">OPEN-SOURCE RESONANCE WORKBENCH</p>
+    <div class="brand"><span class="mark"></span><span class="word">CIRCLE</span></div>
+    <h1>A human state is never one signal.</h1>
+    <p class="sub">Simulated physiology becomes <b>quality-gated decisions</b> and <b>adaptive sound</b>. Every decision traces back to its evidence.</p>
+    <p class="url">&#9654; Live demo: topherchris420.github.io/circle</p>
+  </div>
+  <div class="shot"><img src="resonance-workbench-dashboard.png" alt=""></div>
+  <div class="fade"></div>
+  <div class="foot">
+    <span class="pill">SIMULATION ONLY · NOT A MEDICAL DEVICE</span>
+  </div>
+</body>
+</html>
