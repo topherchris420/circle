@@ -1,29 +1,28 @@
-"""Select and package First Light's recorded session from the public BUT PPG dataset.
+"""Enumerate First Light's recorded sessions from the public BUT PPG dataset.
 
-The recorded session is one unedited stretch of a real smartphone-camera
-fingertip recording from a held-out person, during which the person was asked
-to disturb the measurement on purpose (press harder, move the finger on the
-lens, walk, cough, laugh, change the light, talk), with rest in between. Every
-10-second segment carries the dataset experts' quality label and a chest-ECG
-reference recorded at the same time.
+A session is one unedited stretch of a real smartphone-camera fingertip
+recording. The dataset cut longer recordings into 10-second records; a session
+joins consecutive records back together wherever the seam is continuous. During
+many sessions the person was asked to disturb the measurement on purpose (press
+harder, move the finger on the lens, walk, cough, laugh, change the light,
+talk), with rest in between. Every record carries the dataset experts' quality
+label and a chest-ECG reference recorded at the same time.
 
-The session is chosen by a mechanical rule, from labels and continuity only,
-never from First Light's own results:
+Sessions are defined from record numbers and signal continuity only. Neither
+the experts' labels nor First Light's own results take part:
 
-  1. Held-out people (odd subject ids), fingertip, three-channel records.
-  2. Join consecutive record numbers into runs while each seam is continuous:
+  1. One person, fingertip, three-channel records.
+  2. Join consecutive record numbers while each seam is continuous:
      |first green sample of the next record - last green sample of this one|
      <= 6 x the median absolute sample-to-sample green change of this record.
-     (The dataset cut longer recordings into 10-second segments.)
-  3. Trim each run to start and end on an expert-good rest segment.
-  4. Keep runs that contain at least one expert-poor deliberate perturbation.
-  5. Take the longest; ties go to the lowest subject id, then the earliest record.
+  3. Keep runs of at least 6 records (60 seconds).
 
-Writes ``site/first-light-recording.js`` (frames, reference, and this
-provenance) for the browser, which replays it through exactly the code a live
-camera session uses.
+Round 2's test set is every such session from held-out people (odd subject
+ids), except person 135, whose recording was used in round 1. The session the
+web page replays is the longest of them; ties go to the lowest subject id,
+then the earliest record.
 
-Usage: python tools/build_first_light_session.py --source butppg-2.0.0.zip
+Usage: python tools/build_first_light_session.py --source butppg-2.0.0.zip [--list]
 """
 
 from __future__ import annotations
@@ -42,6 +41,9 @@ import verify_first_light as v  # noqa: E402
 
 OUTPUT = ROOT / "site" / "first-light-recording.js"
 SEAM_FACTOR = 6
+MIN_RECORDS = 6
+ROUND_1_SUBJECTS = (135,)
+RULE = "session-rule/2"
 
 
 def continuous(previous: list[tuple[int, int, int]], following: list[tuple[int, int, int]]) -> bool:
@@ -50,21 +52,24 @@ def continuous(previous: list[tuple[int, int, int]], following: list[tuple[int, 
     return abs(following[0][1] - previous[-1][1]) <= SEAM_FACTOR * max(typical, 1)
 
 
-def candidate_runs(source: v.ButPpg):
+def sessions(source: v.ButPpg, split: str) -> list[list[str]]:
+    """Every session of the split ("held-out": odd subject ids except round 1's; "calibration": even)."""
     annotations = source.table("quality-hr-ann.csv")
     info = source.table("subject-info.csv")
     by_subject: dict[int, list[str]] = {}
     for record in sorted(annotations):
         subject = int(record[:3])
-        if subject % 2 == 1 and info[record]["Ear/finger"] == "1":
+        wanted = subject % 2 == 1 and subject not in ROUND_1_SUBJECTS if split == "held-out" else subject % 2 == 0
+        if wanted and info[record]["Ear/finger"] == "1":
             by_subject.setdefault(subject, []).append(record)
-    for subject, ids in sorted(by_subject.items()):
+    found = []
+    for _, ids in sorted(by_subject.items()):
         cache = {}
         for record in ids:
             try:
                 cache[record] = source.ppg(record)
             except ValueError:
-                pass
+                pass                                  # single-channel layout: no contact test possible
         run: list[str] = []
         for record in ids + [None]:
             joins = (record is not None and run and record in cache and int(record[3:]) == int(run[-1][3:]) + 1
@@ -72,54 +77,57 @@ def candidate_runs(source: v.ButPpg):
             if joins:
                 run.append(record)
                 continue
-            if run:
-                yield subject, run, annotations, info
+            if len(run) >= MIN_RECORDS:
+                found.append(run)
             run = [record] if record in cache else []
+    return found
 
 
-def select(source: v.ButPpg) -> tuple[list[str], dict]:
-    rest_good = lambda r, a, i: a[r]["Quality"] == "1" and i[r]["Motion"] == "0"
-    best, considered = None, 0
-    for subject, run, annotations, info in candidate_runs(source):
-        while run and not rest_good(run[0], annotations, info):
-            run = run[1:]
-        while run and not rest_good(run[-1], annotations, info):
-            run = run[:-1]
-        if not any(annotations[r]["Quality"] == "0" and info[r]["Motion"] != "0" for r in run):
-            continue
-        considered += 1
-        key = (len(run), -subject, -int(run[0][3:]))
-        if best is None or key > best[0]:
-            best = (key, run)
-    records = best[1]
-    return records, {"rule": __doc__.split("never from First Light's own results:")[1].split("Writes")[0].strip(),
-                     "runs_meeting_rule": considered, "chosen": f"{records[0]}-{records[-1][3:]}",
-                     "records": len(records), "seam_factor": SEAM_FACTOR}
+def showcase(found: list[list[str]]) -> list[str]:
+    return max(found, key=lambda run: (len(run), -int(run[0][:3]), -int(run[0][3:])))
+
+
+def name(run: list[str]) -> str:
+    return f"{run[0]}-{run[-1][3:]}"
+
+
+def recording(source: v.ButPpg, run: list[str], selection: dict) -> dict:
+    frames_csv, reference = v.build_recorded_session(source, run)
+    return {"schema": "circle-first-light-recording/1", "selection": selection,
+            "frames_csv": frames_csv.decode("utf-8"), "reference": reference}
+
+
+def open_source(path: Path) -> v.ButPpg:
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    if digest != v.BUT_PPG_SHA256:
+        raise SystemExit(f"{path} is not BUT PPG 2.0.0 (SHA-256 {digest})")
+    return v.ButPpg(path)
+
+
+def write_page_recording(doc: dict, output: Path = OUTPUT) -> None:
+    output.write_text(
+        "/* CIRCLE First Light: a real smartphone-camera fingertip recording (BUT PPG 2.0.0, CC BY 4.0,\n"
+        " * doi:10.13026/bvsb-mz80), selected by tools/build_first_light_session.py. Generated; do not edit. */\n"
+        "window.FIRST_LIGHT_RECORDING = " + json.dumps(doc, separators=(",", ":")) + ";\n", encoding="utf-8")
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--source", type=Path, required=True)
-    parser.add_argument("--output", type=Path, default=OUTPUT)
+    parser.add_argument("--list", action="store_true", help="list the held-out test sessions and stop")
     args = parser.parse_args(argv)
-    digest = hashlib.sha256(args.source.read_bytes()).hexdigest()
-    if digest != v.BUT_PPG_SHA256:
-        raise SystemExit(f"{args.source} is not BUT PPG 2.0.0 (SHA-256 {digest})")
-    source = v.ButPpg(args.source)
-    records, selection = select(source)
-    frames_csv, reference = v.build_recorded_session(source, records)
-    recording = {"schema": "circle-first-light-recording/1", "selection": selection,
-                 "frames_csv": frames_csv.decode("utf-8"), "reference": reference}
-    args.output.write_text(
-        "/* CIRCLE First Light: a real smartphone-camera fingertip recording (BUT PPG 2.0.0, CC BY 4.0,\n"
-        " * doi:10.13026/bvsb-mz80), selected by tools/build_first_light_session.py. Generated; do not edit. */\n"
-        "window.FIRST_LIGHT_RECORDING = " + json.dumps(recording, separators=(",", ":")) + ";\n", encoding="utf-8")
-    lines = frames_csv.count(b"\n") - 1
-    print(f"selected {selection['chosen']} ({len(records)} segments, {lines} frames) of "
-          f"{selection['runs_meeting_rule']} runs meeting the rule")
-    for s in reference["segments"]:
-        print(f"  {s['record']}  quality {s['quality']}  motion {s['motion']}  ECG-annotated {s['reference_hr_bpm']:g} bpm")
-    print(f"wrote {args.output} ({args.output.stat().st_size} bytes)")
+    source = open_source(args.source)
+    found = sessions(source, "held-out")
+    chosen = showcase(found)
+    print(f"{len(found)} held-out sessions under {RULE}; the page replays {name(chosen)} ({len(chosen)} records)")
+    if args.list:
+        for run in found:
+            print(f"  {name(run)}  {len(run)} records")
+        return 0
+    selection = {"rule": RULE, "sessions_in_test_set": len(found), "chosen": name(chosen), "records": len(chosen),
+                 "how": "the longest held-out session; record numbers and seam continuity only"}
+    write_page_recording(recording(source, chosen, selection))
+    print(f"wrote {OUTPUT} ({OUTPUT.stat().st_size} bytes)")
     return 0
 
 

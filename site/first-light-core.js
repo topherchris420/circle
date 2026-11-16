@@ -51,7 +51,7 @@
     brightness_span_bpm: 70.0,
   });
 
-  const CRITERIA_ID = "first-light-criteria/1";
+  const CRITERIA_ID = "first-light-criteria/2";
   const GATES = ["FRAMES", "CONTACT", "EXPOSURE", "STEADY", "PERIODIC", "RATE"];
 
   const REASON_TEXT = {

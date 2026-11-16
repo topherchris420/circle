@@ -47,6 +47,7 @@ WINDOW = (1_000_000, 9_000_000)
 # from the physics of a torch-lit fingertip and are not tuned.
 GRID = {
     "harmonic_ratio": [0.9, 0.7],
+    "lowpass_len": [7, 11, 15],
     "periodicity_min": [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85],
     "step_max": [0.02, 0.03, 0.05, 0.08],
     "rate_min_bpm": [40.0, 45.0, 50.0],
@@ -96,20 +97,26 @@ def features(frames) -> dict:
         raise AssertionError("BUT PPG frames are expected to put the first evaluation at 9 s")
     result = v.evaluate(frames, end, cutoff)
     out = {"gates": result["gates"], **{k: result["features"][k] for k in ("step", "out_of_contact")}}
-    saved = v.ALGORITHM["harmonic_ratio"]
+    saved = dict(v.ALGORITHM)
     try:
         for ratio in GRID["harmonic_ratio"]:
-            v.ALGORITHM["harmonic_ratio"] = ratio
-            out[f"rate@{ratio}"], out[f"periodicity@{ratio}"] = (
-                v.evaluate(frames, end, cutoff)["features"][k] for k in ("rate_bpm", "periodicity"))
+            for lowpass in GRID["lowpass_len"]:
+                v.ALGORITHM.update(harmonic_ratio=ratio, lowpass_len=lowpass)
+                out[f"rate@{ratio}|{lowpass}"], out[f"periodicity@{ratio}|{lowpass}"] = (
+                    v.evaluate(frames, end, cutoff)["features"][k] for k in ("rate_bpm", "periodicity"))
     finally:
-        v.ALGORITHM["harmonic_ratio"] = saved
+        v.ALGORITHM.clear()
+        v.ALGORITHM.update(saved)
     return out
+
+
+def variant(params: dict) -> str:
+    return f"{params['harmonic_ratio']}|{params['lowpass_len']}"
 
 
 def admitted(row: dict, params: dict) -> bool:
     f = row["features"]
-    rate, periodicity = f[f"rate@{params['harmonic_ratio']}"], f[f"periodicity@{params['harmonic_ratio']}"]
+    rate, periodicity = f[f"rate@{variant(params)}"], f[f"periodicity@{variant(params)}"]
     return (f["gates"]["FRAMES"] == f["gates"]["CONTACT"] == f["gates"]["EXPOSURE"] == "pass"
             and f["step"] is not None and f["step"] <= params["step_max"]
             and periodicity is not None and periodicity >= params["periodicity_min"]
@@ -120,7 +127,7 @@ def score(rows: list[dict], params: dict, reference: str = "ecg") -> dict:
     good = [r for r in rows if r["quality"] == 1]
     poor = [r for r in rows if r["quality"] == 0]
     chosen = [r for r in rows if admitted(r, params)]
-    rate = lambda r: r["features"][f"rate@{params['harmonic_ratio']}"]
+    rate = lambda r: r["features"][f"rate@{variant(params)}"]
     if reference == "ecg":
         judged = [r for r in chosen if r["ecg_hr"] is not None and r["ecg_beats"] >= MIN_BEATS]
         errors = [rate(r) - r["ecg_hr"] for r in judged]
@@ -139,10 +146,12 @@ def score(rows: list[dict], params: dict, reference: str = "ecg") -> dict:
 
 def grid_points():
     for ratio in GRID["harmonic_ratio"]:
-        for q in GRID["periodicity_min"]:
-            for step in GRID["step_max"]:
-                for floor in GRID["rate_min_bpm"]:
-                    yield {"harmonic_ratio": ratio, "periodicity_min": q, "step_max": step, "rate_min_bpm": floor}
+        for lowpass in GRID["lowpass_len"]:
+            for q in GRID["periodicity_min"]:
+                for step in GRID["step_max"]:
+                    for floor in GRID["rate_min_bpm"]:
+                        yield {"harmonic_ratio": ratio, "lowpass_len": lowpass, "periodicity_min": q,
+                               "step_max": step, "rate_min_bpm": floor}
 
 
 def select(calibration: list[dict]) -> tuple[dict, list[dict]]:
@@ -156,7 +165,7 @@ def select(calibration: list[dict]) -> tuple[dict, list[dict]]:
     if not feasible:
         raise SystemExit("selection-rule/2 is infeasible on calibration")
     best = max(feasible, key=lambda t: (t["good_coverage"], t["periodicity_min"], -t["step_max"],
-                                        t["rate_min_bpm"], t["harmonic_ratio"]))
+                                        t["rate_min_bpm"], t["harmonic_ratio"], -t["lowpass_len"]))
     return {k: best[k] for k in GRID}, table
 
 
@@ -205,7 +214,7 @@ def main(argv: list[str] | None = None) -> int:
     wrong = []
     for r in held:
         if admitted(r, selected) and r["ecg_hr"] is not None and r["ecg_beats"] >= MIN_BEATS:
-            rate = r["features"][f"rate@{selected['harmonic_ratio']}"]
+            rate = r["features"][f"rate@{variant(selected)}"]
             if abs(rate - r["ecg_hr"]) > TOLERANCE_BPM:
                 wrong.append({"record": r["record"], "expert_quality": r["quality"], "motion": r["motion"],
                               "estimate_bpm": round(rate, 1), "ecg_bpm": round(r["ecg_hr"], 1),
