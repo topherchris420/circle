@@ -62,6 +62,15 @@ class AudioEngineNodeTest(unittest.TestCase):
     """Runs the node harness when node is available (CI images include it)."""
 
     @unittest.skipIf(shutil.which("node") is None, "node is not installed")
+    @unittest.skipIf(shutil.which("node") is None, "node is not installed")
+    def test_rendered_audio_and_visuals_respond(self):
+        output = subprocess.run(["node", str(ROOT / "tests" / "js" / "feedback_render_harness.js")],
+                                capture_output=True, text=True, timeout=60, check=True)
+        result = json.loads(output.stdout)
+        for key in ("breathing_connected", "audio_responds", "consent_silences",
+                    "visual_responds", "visual_refuses"):
+            self.assertTrue(result[key], key)
+
     def test_scheduling_engine_properties(self):
         result = subprocess.run(["node", str(ROOT / "tests" / "js" / "audio_engine_harness.js")],
                                 capture_output=True, text=True, timeout=60, check=True)

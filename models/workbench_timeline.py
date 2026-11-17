@@ -55,6 +55,10 @@ class _LedgerEvaluation:
         self.input_cutoff_us = int(record["input_cutoff_us"])
         self.gate_reasons = tuple(r for r in record["gate"] if r != "PASS")
         self.features = dict(record["features"])
+        # The ledger stores measured arousal beside features; restore it for feedback.
+        arousal = record.get("arousal_index")
+        if isinstance(arousal, (int, float)) and math.isfinite(arousal):
+            self.features["arousal_index"] = float(arousal)
         self.state = str(record.get("state_after") or "")
         self.decision_id = record.get("decision_id")
 

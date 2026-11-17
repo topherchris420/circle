@@ -76,7 +76,8 @@
     var boGain = ctx.createOscillator(); boGain.type = "sine"; boGain.frequency.value = 1 / 10;
     var boDepth = ctx.createGain(); boDepth.gain.value = 0;
     bo.connect(breathGain); bo2.connect(breathGain);
-    boGain.connect(boDepth.gain);
+    // The low-frequency oscillator must feed the modulation node audio input.
+    boGain.connect(boDepth);
     boDepth.connect(breathGain.gain);
     breathGain.connect(master);
     bo.start(); bo2.start(); boGain.start();
