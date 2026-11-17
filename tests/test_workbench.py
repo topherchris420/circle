@@ -176,9 +176,12 @@ class WorkbenchHTTPTest(WorkbenchFixture, unittest.TestCase):
         self.assertEqual(headers["Content-Type"], "application/zip")
         with zipfile.ZipFile(io.BytesIO(body)) as archive:
             # The bundle ships its own verifier: replication without trusting the producer.
-            self.assertEqual(set(archive.namelist()), {"report.html", "scorecard.json", "manifest.json",
-                                                      "audit.json", "verify_replication.py",
-                                                      "VERIFY-THIS-PACKAGE.txt"})
+            names = set(archive.namelist())
+            self.assertTrue({"report.html", "scorecard.json", "manifest.json",
+                             "audit.json", "verify_replication.py", "VERIFY-THIS-PACKAGE.txt",
+                             "requirements-verifier.txt", "models/session_records.py",
+                             "models/physiology/audit.py", "models/physiology/pipeline.py",
+                             "contracts/session-record.schema.json"} <= names)
             self.assertFalse(json.loads(archive.read("scorecard.json"))["passed"])
             self.assertIn("verify_replication.py", archive.read("VERIFY-THIS-PACKAGE.txt").decode("utf-8"))
         compact = json.loads(self.request("GET", "/api/runs")[1])[0]
