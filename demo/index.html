@@ -410,7 +410,8 @@ python tools/run_workbench.py</code></pre>
           <div class="code-bar"><span>Session, sham comparison, and independent audit</span><button class="copy" type="button" data-copy="code-twin">Copy</button></div>
 <pre id="code-twin"><code>python tools/run_physiology_twin.py --output outputs/physiology --audit</code></pre>
         </div>
-        <p class="quiet reveal">Every downloaded evidence bundle ships <code>verify_replication.py</code>: it recomputes
+        <p class="quiet reveal">Every downloaded evidence bundle ships <code>verify_replication.py</code> and the code it
+          rebuilds with, so it runs without this repository (Python 3.11+ with numpy and jsonschema): it recomputes
           every hash, rebuilds the analysis and every decision from the raw samples, and names the verdict.</p>
         <div class="run-links reveal">
           <a href="https://github.com/topherchris420/circle#quick-start">Quick start</a>

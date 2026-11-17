@@ -180,6 +180,6 @@ geometry or cavity claims.
 | Browser audio rendering benchmark | **Implemented** | Real headless-browser audio graph (null sink): start, underruns, level vs. ceiling, stop, clock offset — [results](audio-rendering-benchmark.json) |
 | R.A.I.N. bridge (`tools/run_rain_bridge.py`) | **Implemented** | Deterministic stand-in proposer, validated and executed beside human/fixed/random baselines; honest NOT_SUPPORTED outcomes |
 | Offline public demo (`tools/build_demo.py`, GitHub Pages) | **Implemented** | Prerecorded simulated session; zero network; self-verifying page |
-| One-command replication (`tools/verify_replication.py`) | **Implemented** | Verdicts REPLAY_MATCH / REPLAY_DIVERGENCE / INTEGRITY_FAILURE / INSUFFICIENT_EVIDENCE; ships inside every bundle.zip |
+| One-command replication (`tools/verify_replication.py`) | **Implemented** | Verdicts REPLAY_MATCH / REPLAY_DIVERGENCE / INTEGRITY_FAILURE / INSUFFICIENT_EVIDENCE; ships inside every bundle.zip with `circle-replay/`, the code it rebuilds with, so it runs outside the repository (`tests/test_replication_standalone.py`) |
 | Hardware-agnostic adapters (BrainFlow, LSL) | **Implemented (fakes)** | Contract-checked through fakes; live boards need the optional packages and real hardware |
 | Calibrated physical experiment | **Open** | The next evidence milestone: a known input through a real board, recorded in the phantom view with failures published alongside successes |

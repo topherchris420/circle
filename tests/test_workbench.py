@@ -12,6 +12,7 @@ from unittest.mock import patch
 import zipfile
 
 from models.workbench import BusyError, Workbench, validate_settings, write_json
+from tools.verify_replication import replay_kit
 from tools.run_workbench import exclusive_directory, make_server
 
 SETTINGS = {"scenario": "clean", "seed": 7, "arm": "active", "compare": True}
@@ -176,11 +177,16 @@ class WorkbenchHTTPTest(WorkbenchFixture, unittest.TestCase):
         self.assertEqual(headers["Content-Type"], "application/zip")
         with zipfile.ZipFile(io.BytesIO(body)) as archive:
             # The bundle ships its own verifier: replication without trusting the producer.
+            # ... and the code that verifier rebuilds with, so it runs outside this repository.
+            kit = {arcname for arcname, _ in replay_kit()}
             self.assertEqual(set(archive.namelist()), {"report.html", "scorecard.json", "manifest.json",
                                                       "audit.json", "verify_replication.py",
-                                                      "VERIFY-THIS-PACKAGE.txt"})
+                                                      "VERIFY-THIS-PACKAGE.txt"} | kit)
             self.assertFalse(json.loads(archive.read("scorecard.json"))["passed"])
-            self.assertIn("verify_replication.py", archive.read("VERIFY-THIS-PACKAGE.txt").decode("utf-8"))
+            note = archive.read("VERIFY-THIS-PACKAGE.txt").decode("utf-8")
+            self.assertIn("verify_replication.py", note)
+            self.assertIn("pip install -r circle-replay/REQUIREMENTS.txt", note)
+            self.assertIn("--circle-root", note)
         compact = json.loads(self.request("GET", "/api/runs")[1])[0]
         self.assertTrue(compact["summary"]["audit_valid"])
         self.assertEqual(compact["summary"]["scorecard"], {"passed": 1, "total": 2})

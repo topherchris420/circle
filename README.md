@@ -154,12 +154,17 @@ The [pipeline methods](docs/physiology-pipeline.md) explain how each channel and
   R.A.I.N. run, and a verification. Every frame of data is labeled simulation;
   [how it was made](marketing/README.md) lists the source of each claim.
 - **One-command independent replication**: every downloaded evidence bundle ships
-  `verify_replication.py`. On any machine with Python 3.11+:
-  `python verify_replication.py <directory>` recomputes every hash, rebuilds the
+  `verify_replication.py` and `circle-replay/`, the exact code it rebuilds with, so
+  it runs without this repository. On Python 3.11+:
+  `python -m pip install -r circle-replay/REQUIREMENTS.txt` (numpy and jsonschema),
+  then `python verify_replication.py .` recomputes every hash, rebuilds the
   analysis and every decision from the raw samples, and names the verdict —
   `REPLAY_MATCH`, `REPLAY_DIVERGENCE`, `INTEGRITY_FAILURE`, or
-  `INSUFFICIENT_EVIDENCE`. A matching replay shows the package reproduces from
-  its inputs; it does not show it measured the world.
+  `INSUFFICIENT_EVIDENCE`. The shipped code is checked, not trusted: its analysis
+  sources must hash to the `pipeline_source` the export recorded. For a check
+  independent of whoever made the bundle, add `--circle-root <your checkout>` of
+  the commit named in `circle-replay/SOURCE.json`. A matching replay shows the
+  package reproduces from its inputs; it does not show it measured the world.
 - **Bring your own instrument**: a documented adapter SDK maps
   [BrainFlow](docs/hardware-agnostic-acquisition.md) boards and Lab Streaming
   Layer outlets onto CIRCLE's stream contract; sources lacking EDA/PPG/IMU are

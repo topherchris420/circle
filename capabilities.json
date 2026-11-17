@@ -235,16 +235,18 @@
       "id": "replication_verifier",
       "layer": "CLOSED_LOOP",
       "status": "IMPLEMENTED",
-      "summary": "One-command independent replication of an exported experiment package: recomputes every artifact hash, rebuilds analysis and decisions from raw inputs, and names the verdict REPLAY_MATCH, REPLAY_DIVERGENCE, INTEGRITY_FAILURE, or INSUFFICIENT_EVIDENCE. Workbench bundles ship the verifier with the evidence.",
+      "summary": "One-command independent replication of an exported experiment package: recomputes every artifact hash, rebuilds analysis and decisions from raw inputs, and names the verdict REPLAY_MATCH, REPLAY_DIVERGENCE, INTEGRITY_FAILURE, or INSUFFICIENT_EVIDENCE. Workbench bundles ship the verifier with the evidence and with circle-replay/, the exact reconstruction code and data files it needs, so a downloaded bundle verifies outside the repository on Python 3.11+ with numpy and jsonschema; --circle-root rebuilds with the verifier's own checkout instead.",
       "paths": [
         "tools/verify_replication.py"
       ],
       "evidence": [
-        "tests/test_replication_verifier.py"
+        "tests/test_replication_verifier.py",
+        "tests/test_replication_standalone.py"
       ],
       "not_claimed": [
         "A matching replay establishes internal reproducibility of the package from its inputs, not physical truth, software correctness for a question, or any clinical claim.",
-        "Cryptographic integrity is a floor for replication, not proof of scientific accuracy."
+        "Cryptographic integrity is a floor for replication, not proof of scientific accuracy.",
+        "The reconstruction code shipped in a bundle comes from the bundle's producer. Its analysis sources must match the recorded pipeline_source digest, but independence from the producer requires --circle-root with the verifier's own checkout of the recorded commit."
       ],
       "removable": false
     },
