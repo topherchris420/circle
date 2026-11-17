@@ -9,10 +9,19 @@ on:
 
 # Pages is deployed as a first-class Actions artifact, not by pushing to
 # gh-pages with GITHUB_TOKEN (which does not trigger a Pages build).
+#
+# The repository's Settings > Pages > Source must be "GitHub Actions". While it
+# is "Deploy from a branch", every push to main also starts GitHub's own
+# "pages build and deployment" (Jekyll rendering README.md), and whichever
+# deployment finishes last is what the public URL serves. On 2026-11-16 the
+# Jekyll build finished nine seconds later and replaced the site. The deploy job
+# below therefore waits for any such build of the same commit, deploys after
+# it, and then verifies the live site with tools/check_live_site.py.
 permissions:
   contents: read
   pages: write
   id-token: write
+  actions: read
 
 concurrency:
   group: circle-github-pages
@@ -74,6 +83,16 @@ jobs:
           PY
           touch demo/.nojekyll
 
+      - name: Stamp the build with its commit
+        run: |
+          printf '{"commit": "%s", "run": "%s"}\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" > demo/circle-deploy.json
+
+      - name: Check the built site as a visitor would (under /circle/)
+        run: |
+          mkdir -p "$RUNNER_TEMP/www" && cp -r demo "$RUNNER_TEMP/www/circle"
+          python -m http.server 8000 --bind 127.0.0.1 --directory "$RUNNER_TEMP/www" >/dev/null 2>&1 &
+          python tools/check_live_site.py http://127.0.0.1:8000/circle/ --expect-commit "$GITHUB_SHA" --wait 20 --interval 2
+
       - name: Configure GitHub Pages
         if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v5
@@ -93,6 +112,35 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Checkout the site checker
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: tools/check_live_site.py
+          sparse-checkout-cone-mode: false
+
+      - name: Let any branch-mode Pages build of this commit finish first
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          query="repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${GITHUB_SHA}&per_page=100"
+          branch_builds='[.workflow_runs[] | select(.path == "dynamic/pages/pages-build-deployment")]'
+          if [ "$(gh api "$query" --jq "$branch_builds | length" || echo 0)" != "0" ]; then
+            echo "::warning title=GitHub Pages source::Settings > Pages > Source is 'Deploy from a branch', so GitHub also publishes a Jekyll build of README.md on every push. This deploy waits for it and goes last; set the source to 'GitHub Actions' to remove the race."
+          fi
+          for attempt in $(seq 1 60); do
+            if ! pending="$(gh api "$query" --jq "$branch_builds | map(select(.status != \"completed\")) | length")"; then
+              echo "::warning::Could not list workflow runs; deploying without waiting. The live check below will say whether the site survived."
+              exit 0
+            fi
+            if [ "$pending" = "0" ]; then exit 0; fi
+            echo "Waiting for $pending branch-mode Pages build(s) of ${GITHUB_SHA} to finish (attempt $attempt)"
+            sleep 10
+          done
+          echo "::warning::A branch-mode Pages build was still running after 10 minutes; deploying anyway. The live check below will say whether the site survived."
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Verify the public site is this build
+        run: python3 tools/check_live_site.py "${{ steps.deployment.outputs.page_url }}" --expect-commit "$GITHUB_SHA" --wait 600 --interval 30

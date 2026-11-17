@@ -1,0 +1,28 @@
+name: Website health
+
+# Checks the public CIRCLE website as a visitor would: every page, and every
+# script, stylesheet, and image those pages load. A failed run means the public
+# site is broken right now, even if every build and deploy is green; see
+# docs/github-pages.md#troubleshooting.
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Public website serves the CIRCLE build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the site checker
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: tools/check_live_site.py
+          sparse-checkout-cone-mode: false
+
+      - name: Check https://topherchris420.github.io/circle/
+        run: python3 tools/check_live_site.py --wait 300 --interval 60
