@@ -11,7 +11,7 @@ The CIRCLE website is published at:
 | `/circle/first-light.html` | First Light: real phone-camera recordings, the live camera path, and the optical phantom | [`site/`](../site) |
 | `/circle/first-light-phantom.html` | The known-input optical phantom First Light measures | [`site/`](../site) |
 
-Both pages are prerecorded, simulation-only demonstrations. They do not access live sensors or provide the local Python workbench's backend. Every number on the research site is either drawn at load time from the recorded session (`demo-data.js`) or quoted from the README's recorded results; update both together.
+The research site and workbench are prerecorded simulation demos, with no local Python backend. First Light additionally offers public real phone-camera recordings and an experimental live camera path, which the authors have not yet physically tested. Every number on the research site is either drawn at load time from the recorded session (`demo-data.js`) or quoted from the README's recorded results; update both together.
 
 ## One-time GitHub Pages setting
 

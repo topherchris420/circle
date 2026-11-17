@@ -106,3 +106,18 @@ run artifacts. It adds no runtime dependencies beyond `requirements.txt`.
 human connection, and it does not connect the standalone consent gate to the
 physiology controller. See [the evidence contract](closed-loop-evidence.md) and
 [the consent integration contract](consent-by-design.md) for those boundaries.
+
+## Independent verification of downloaded session bundles
+
+The `bundle.zip` now includes the replay Python modules, session schema,
+`verify_replication.py`, and `requirements-verifier.txt`. After extraction:
+
+```bash
+python -m pip install -r requirements-verifier.txt
+python verify_replication.py .
+```
+
+Python 3.11+ is needed, plus NumPy and jsonschema, which are external
+dependencies. Use `python -I verify_replication.py .` to check that the
+package does not rely on the original checkout. Matching replay proves
+internal reconstruction, not physical truth or clinical effectiveness.
