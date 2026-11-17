@@ -4,13 +4,17 @@ from __future__ import annotations
 
 from dataclasses import replace
 from pathlib import Path
+import subprocess
+import sys
 import tempfile
+import zipfile
 import unittest
 
 from models.physiology.experiment import run_session
 from models.physiology.scenarios import SCENARIOS
 from tools.run_physiology_twin import export_run
 from tools.verify_replication import verify
+from tools.run_workbench import add_verification_support
 
 
 class ReplicationVerifierTest(unittest.TestCase):
@@ -59,6 +63,25 @@ class ReplicationVerifierTest(unittest.TestCase):
             # must be a named failure mode, never a quiet success.
             self.assertIn(result["verdict"], ("INSUFFICIENT_EVIDENCE", "REPLAY_DIVERGENCE", "INTEGRITY_FAILURE"))
             self.assertTrue(result.get("problems") or result.get("replay_status"))
+
+    def test_downloaded_bundle_replays_outside_checkout(self):
+        """Extraction must replay from its own files, not the producer checkout."""
+        with tempfile.TemporaryDirectory() as tmp:
+            archive_path = Path(tmp) / "portable.zip"
+            extracted = Path(tmp) / "external"
+            extracted.mkdir()
+            with zipfile.ZipFile(archive_path, "w", zipfile.ZIP_DEFLATED) as archive:
+                for source in self.directory.rglob("*"):
+                    if source.is_file():
+                        archive.write(source, source.relative_to(self.directory).as_posix())
+                add_verification_support(archive)
+            with zipfile.ZipFile(archive_path) as archive:
+                archive.extractall(extracted)
+            result = subprocess.run(
+                [sys.executable, "-I", str(extracted / "verify_replication.py"), str(extracted)],
+                cwd=extracted, capture_output=True, text=True, timeout=120)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("VERDICT: REPLAY_MATCH", result.stdout)
 
     def test_empty_directory_is_insufficient(self):
         with tempfile.TemporaryDirectory() as tmp:

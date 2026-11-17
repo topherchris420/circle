@@ -155,11 +155,13 @@ The [pipeline methods](docs/physiology-pipeline.md) explain how each channel and
   [how it was made](marketing/README.md) lists the source of each claim.
 - **One-command independent replication**: every downloaded evidence bundle ships
   `verify_replication.py`. On any machine with Python 3.11+:
-  `python verify_replication.py <directory>` recomputes every hash, rebuilds the
+  `python -m pip install -r requirements-verifier.txt`, then
+  `python verify_replication.py .` from the extracted folder recomputes every hash, rebuilds the
   analysis and every decision from the raw samples, and names the verdict —
   `REPLAY_MATCH`, `REPLAY_DIVERGENCE`, `INTEGRITY_FAILURE`, or
   `INSUFFICIENT_EVIDENCE`. A matching replay shows the package reproduces from
-  its inputs; it does not show it measured the world.
+  its inputs; it does not show it measured the world. The bundle includes the
+  replay Python source and schema; NumPy and jsonschema must be installed separately.
 - **Bring your own instrument**: a documented adapter SDK maps
   [BrainFlow](docs/hardware-agnostic-acquisition.md) boards and Lab Streaming
   Layer outlets onto CIRCLE's stream contract; sources lacking EDA/PPG/IMU are
@@ -168,6 +170,10 @@ The [pipeline methods](docs/physiology-pipeline.md) explain how each channel and
   Ed25519 consent gate ([`models/consent_gate.py`](models/consent_gate.py)) —
   proposed, signed, revocable, and hash-linked in a durable log a workbench
   restart cannot quietly execute.
+
+Proposed next studies: [physical phone-camera validation](docs/first-light-device-validation.md)
+and [uncoached visitor onboarding](docs/onboarding-observation-protocol.md).
+These protocols are planned, not completed trials.
 
 ## First Light: a physical sensor, end to end
 

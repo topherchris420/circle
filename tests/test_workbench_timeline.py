@@ -11,7 +11,8 @@ import unittest
 from models.physiology.experiment import run_session
 from models.physiology.scenarios import SCENARIOS
 from models.workbench import DEFAULT_CONSENT, DEFAULT_FEEDBACK, validate_settings
-from models.workbench_timeline import build_timeline
+from models.workbench_timeline import _LedgerEvaluation, build_timeline
+from models.physiology.feedback import feedback_events
 from tools.run_physiology_twin import export_run
 
 RUN_SETTINGS = validate_settings({"scenario": "clean", "seed": 7, "arm": "active", "compare": False})
@@ -89,6 +90,23 @@ class TimelineTest(unittest.TestCase):
             if not event["audible"]:
                 self.assertEqual(event["parameters"]["level"], 0.0)
                 self.assertTrue(event["gate_reasons"])
+
+    def test_recorded_arousal_changes_adaptive_feedback(self):
+        """Measured arousal must reach the audible and visual parameter stream."""
+        def record(index, t, gate=("PASS",)):
+            return {"decision_time_us": t * 1_000_000, "input_cutoff_us": t * 1_000_000,
+                    "gate": list(gate), "state_after": "IDLE", "decision_id": None,
+                    "features": {"hr_bpm": 73.0, "scl_us": 4.2, "scr_rate_per_min": 2.0},
+                    "arousal_index": index}
+        low, high = feedback_events([_LedgerEvaluation(record(0.0, 1)),
+                                     _LedgerEvaluation(record(1.8, 2))])
+        for name in ("intensity", "level", "brightness", "tempo", "spatial"):
+            self.assertGreater(high.parameters[name], low.parameters[name], name)
+        self.assertEqual(high.inputs["arousal_index"], 1.8)
+        self.assertLessEqual(high.parameters["level"], 0.5)
+        held = feedback_events([_LedgerEvaluation(record(1.8, 3, ("MOTION_EXCESSIVE",)))])[0]
+        self.assertFalse(held.audible)
+        self.assertEqual(held.parameters["level"], 0.0)
 
     def test_audit_summary_is_included_when_present(self):
         self.assertIsNone(self.document["session"]["audit"])

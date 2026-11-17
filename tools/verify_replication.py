@@ -19,7 +19,9 @@ inputs describe the physical world, that the software was correct for the
 question asked, or any clinical claim. Cryptographic integrity is not proof of
 scientific accuracy; it is only the floor on which replication stands.
 
-Usage: python tools/verify_replication.py <run-directory> [--json out.json]
+Usage in a checkout: python tools/verify_replication.py <run-directory> [--json out.json]
+Usage in an extracted bundle: install requirements-verifier.txt then run
+python verify_replication.py . from the extracted directory.
 """
 
 from __future__ import annotations
@@ -30,7 +32,9 @@ import json
 from pathlib import Path
 import sys
 
-ROOT = Path(__file__).resolve().parents[1]
+# Support both repository layout (tools/) and extracted bundles (root).
+HERE = Path(__file__).resolve().parent
+ROOT = HERE if (HERE / "models" / "physiology" / "audit.py").is_file() else HERE.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
