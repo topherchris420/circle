@@ -377,6 +377,18 @@ The [checked-in verification summary](hardware/reports/verification-summary.json
 
 The next physical milestones are known-input phantoms, bench fixtures, isolation testing, and actuator loopback. The [physical evidence ladder](docs/physical-evidence-ladder.md) defines what each stage must establish before later work can proceed.
 
+#### Conceptual hardware exploration: Resonance Headset
+
+A separate **visual design study** explores a possible over-ear headset form factor for passive EEG sensing and voluntary adaptive-audio feedback. This is not the CIRCLE Rev B design above and does not change its hardware readiness or review gates.
+
+<div align="center">
+
+<img src="diagrams/resonance-headset-concept.gif" alt="Nine-frame photorealistic concept animation of a headset transitioning from assembled to exploded mechanical layers and back; proposed housings, passive EEG contact holders, earcups, cushions, and electronics are illustrative" width="506" />
+
+<sub>Photorealistic concept animation only. Not a CAD-accurate representation, fabricated device, demonstrated EEG system, medical device, or brain-stimulation hardware. Component placement and mechanical feasibility have not been validated.</sub>
+
+</div>
+
 ### Research extensions
 
 The core instrument can stand independently of the research questions attached to it. The [module registry check](tools/check_module_registry.py) enforces that boundary.
