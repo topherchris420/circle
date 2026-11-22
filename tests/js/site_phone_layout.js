@@ -9,6 +9,7 @@
  * Prints one JSON document; exits 0 when every check holds.
  */
 "use strict";
+const assert = require("node:assert/strict");
 const fs = require("fs");
 const http = require("http");
 const path = require("path");
@@ -41,6 +42,19 @@ function serve() {
   try {
     for (const phone of PHONES) {
       const context = await browser.newContext({ ...devices[phone] });
+      const flow = await context.newPage();
+      await flow.emulateMedia({ reducedMotion: "reduce" });
+      await flow.goto(base);
+      await flow.locator(".hero-cta a[href='workbench.html']").tap();
+      const hear = flow.locator("#hear-session");
+      await flow.waitForFunction(() => document.querySelector("#hear-session")?.disabled === false);
+      assert.equal(await flow.locator("#play").textContent(), "▶ Play");
+      await hear.tap();
+      await flow.getByRole("button", { name: "Mute session" }).waitFor();
+      await flow.waitForFunction(() => Number(document.querySelector("#scrub").value) > 0);
+      await hear.tap();
+      assert.equal(await flow.locator("#demo-audio-status").textContent(), "Muted");
+      await flow.close();
       for (const page of PAGES) {
         const tab = await context.newPage();
         const errors = [];

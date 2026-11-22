@@ -117,10 +117,14 @@
     renderHistory();
   }
   async function loadTimeline(id) {
+    const firstLoad = !timeline;
     timeline = await api(`/api/runs/${id}/timeline`);
     buildCharts(); buildEvidence(); playback.reset(); updateStudioFromTimeline();
     $("dash-empty").hidden = false; $("dash-body").hidden = true;
     if (timeline.windows.length) { $("dash-empty").hidden = true; $("dash-body").hidden = false; }
+    $("scrub").disabled = false;
+    if (firstLoad && hear && !reducedMotion) playback.toggle();
+    updateEngineState();
     if (currentView === "visual") { renderCurrentFrame(true); }
   }
 
@@ -132,12 +136,13 @@
       if (!timeline) return;
       this.playing = !this.playing;
       if (this.playing) {
-        if (synth.enabled) synth.ensureContext();
+        if (this.t >= this.duration) this.t = 0;
         this.startWall = performance.now();
         if (!rafOn) { rafOn = true; requestAnimationFrame(frame); }
       }
       $("play").textContent = this.playing ? "⏸ Pause" : "▶ Play";
       if (!this.playing) synth.stop();
+      updateEngineState();
     },
     seek(t) { this.t = Math.max(0, Math.min(this.duration, t)); this.updateClock(); renderCurrentFrame(true); },
     updateClock() {
@@ -303,14 +308,54 @@
   });
   $("revoke-audio").addEventListener("click", async () => {
     if (!selected) return;
-    try { await api(`/api/runs/${selected}/revoke`, {}); synth.enabled = false; $("audio-enable").checked = false; synth.stop(); await loadTimeline(selected); }
+    try { await api(`/api/runs/${selected}/revoke`, {}); muteAudio(); await loadTimeline(selected); }
     catch (exc) { error(exc.message); }
   });
-  $("audio-enable").addEventListener("change", () => {
-    synth.enabled = $("audio-enable").checked;
-    if (synth.enabled) { synth.ensureContext(); if (synth.ctx && synth.ctx.state === "suspended") synth.ctx.resume(); }
-    else synth.stop();
+  const hear = $("hear-session");
+  let startingAudio = false;
+  let audioError = "";
+  let audioRequest = 0;
+  function muteAudio() {
+    audioRequest++;
+    startingAudio = false;
+    audioError = "";
+    synth.enabled = false;
+    $("audio-enable").checked = false;
+    synth.stop();
     updateEngineState();
+  }
+  async function enableAudio() {
+    if (!timeline || $("audio-enable").disabled || startingAudio) return;
+    const request = ++audioRequest;
+    startingAudio = true;
+    audioError = "";
+    updateEngineState();
+    try {
+      const ctx = synth.ensureContext();
+      if (!ctx) throw new Error();
+      ctx.onstatechange = updateEngineState;
+      if (ctx.state !== "running") await ctx.resume();
+      if (request !== audioRequest) return;
+      if (ctx.state !== "running" || $("audio-enable").disabled) throw new Error();
+      synth.enabled = true;
+      $("audio-enable").checked = true;
+    } catch {
+      if (request !== audioRequest) return;
+      muteAudio();
+      audioError = "Audio could not start. Tap to retry.";
+    } finally {
+      if (request === audioRequest) startingAudio = false;
+      updateEngineState();
+    }
+  }
+  $("audio-enable").addEventListener("change", () => {
+    if ($("audio-enable").checked) enableAudio(); else muteAudio();
+  });
+  if (hear) hear.addEventListener("click", () => {
+    if (!timeline || startingAudio || $("audio-enable").disabled) return;
+    if (synth.enabled && synth.ctx?.state === "running") { muteAudio(); return; }
+    if (!playback.playing) playback.toggle();
+    enableAudio();
   });
   $("level").addEventListener("input", () => {
     synth.userLevel = Number($("level").value) / 100;
@@ -318,12 +363,27 @@
   });
   $("breath-guide").addEventListener("change", () => { synth.breath = $("breath-guide").checked; });
   $("mute").addEventListener("click", () => {
-    synth.enabled = false; $("audio-enable").checked = false; synth.stop(); updateEngineState();
+    muteAudio();
   });
   function updateEngineState() {
     const st = synth.state();
-    $("engine-state").textContent = !timeline ? "Idle" :
-      st.enabled ? (st.muted_reasons.length ? "Holding (quality gate)" : "Sounding") : "Muted";
+    const active = st.enabled && synth.ctx?.state === "running";
+    let state = "Muted";
+    if (!timeline) state = "Loading session…";
+    else if (startingAudio) state = "Starting audio…";
+    else if (audioError) state = audioError;
+    else if (st.enabled && !active) state = "Audio interrupted. Tap to resume.";
+    else if (active) state = !playback.playing ? "Paused" :
+      (st.muted_reasons.length ? "Holding (quality gate)" : "Audio enabled");
+    $("engine-state").textContent = state;
+    $("mute").disabled = !st.enabled && !startingAudio;
+    if (hear) {
+      hear.disabled = !timeline || startingAudio || $("audio-enable").disabled;
+      const label = !timeline ? "Loading session…" : active ? "Mute session" : "Hear this session";
+      if (hear.textContent !== label) hear.textContent = label;
+      const status = $("demo-audio-status");
+      if (status.textContent !== state) status.textContent = state;
+    }
     $("engine-detail").textContent = st.muted_reasons.length ? "reasons: " + st.muted_reasons.join(", ") : "";
   }
 
@@ -337,7 +397,7 @@
     const point = engine.interpolateAt(schedule, playback.t);
     const phase = engine.breathPhase(schedule, playback.t);
     const qualityOk = point ? point.audible : false;
-    synth.update(point, playback.t, synth.ctx ? synth.ctx.currentTime : 0);
+    if (playback.playing) synth.update(point, playback.t, synth.ctx ? synth.ctx.currentTime : 0);
     updateEngineState();
     if (typeof currentView === "string" && currentView === "visual") {
       visual.render(point, phase, qualityOk, { reducedMotion: reducedMotion, wallTime: playback.t, force });
@@ -566,5 +626,6 @@
   }
   const hashView = location.hash.match(/^#view-(\w+)$/);
   if (hashView && views.includes(hashView[1])) showView(hashView[1]);
+  else if (hear) showView("dashboard");
   poll();
 })();

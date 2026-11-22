@@ -58,16 +58,23 @@ def free_port() -> int:
 
 def run_benchmark_page(browser: str, url: str, timeout_s: float = 90) -> dict:
     """Serve the bench page to a real headless browser; return its result document."""
+    with tempfile.TemporaryDirectory(prefix="circle-audio-browser-") as profile:
+        return _render_in_browser(browser, url, timeout_s, profile)
+
+
+def _render_in_browser(browser: str, url: str, timeout_s: float, profile: str) -> dict:
     debug_port = free_port()
     process = subprocess.Popen(
         [browser, "--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check",
          "--disable-extensions", "--autoplay-policy=no-user-gesture-required",
          "--no-sandbox", "--disable-dev-shm-usage",  # CI containers require these.
-         f"--remote-debugging-port={debug_port}", url],
+         f"--user-data-dir={profile}", f"--remote-debugging-port={debug_port}", url],
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
         deadline = time.monotonic() + timeout_s
         while time.monotonic() < deadline:
+            if process.poll() is not None:
+                raise RuntimeError(f"benchmark browser exited with status {process.returncode}")
             try:
                 connection = http.client.HTTPConnection("127.0.0.1", debug_port, timeout=5)
                 connection.request("GET", "/json/list")
@@ -89,6 +96,7 @@ def run_benchmark_page(browser: str, url: str, timeout_s: float = 90) -> dict:
             process.wait(10)
         except subprocess.TimeoutExpired:
             process.kill()
+            process.wait()
 
 
 def main(argv: list[str] | None = None) -> int:

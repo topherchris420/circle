@@ -143,29 +143,6 @@ GUIDE = """/* CIRCLE demo guide: no instructions required.
       });
     });
 
-    // One-click hearing: the only deliberate gesture a visitor needs.
-    const hear = document.createElement("button");
-    hear.className = "primary";
-    hear.type = "button";
-    hear.textContent = "\\u266B Hear this session";
-    hear.style.marginRight = "10px";
-    hear.addEventListener("click", function () {
-      const enable = $("audio-enable");
-      if (enable && !enable.disabled) { enable.checked = true; enable.dispatchEvent(new Event("change")); }
-      const play = $("play");
-      if (play && play.textContent.indexOf("Play") !== -1) { play.click(); }
-      hear.textContent = "\\u266A Playing \\u2014 mute any time";
-    });
-    const bar = document.querySelector(".playback");
-    if (bar) { bar.insertBefore(hear, bar.firstChild); }
-
-    // Arrive already watching: dashboard view, silent playback running.
-    const still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    setTimeout(function () {
-      openView("dashboard");
-      const play = $("play");
-      if (!still && play && !play.disabled && play.textContent.indexOf("Play") !== -1) { play.click(); }
-    }, 1800);
   });
 })();
 """
@@ -228,7 +205,9 @@ INTRO = f"""<section class="panel demo-intro" aria-labelledby="demo-intro-title"
           </ol>
         </div>
         <div class="demo-cta">
-          <a class="demo-button primary" href="{REPO_URL}#quick-start">Run it locally</a>
+          <button class="demo-button primary" id="hear-session" type="button" disabled>Loading session…</button>
+          <p id="demo-audio-status" role="status">Loading recorded replay…</p>
+          <a class="demo-button" href="{REPO_URL}#quick-start">Run it locally</a>
           <a class="demo-button" href="index.html">About the research</a>
           <a class="demo-button" href="{REPO_URL}">Source on GitHub ↗</a>
           <p class="quiet small">MIT licensed. Python 3.11+; no account, device, or API key.</p>

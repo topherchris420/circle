@@ -14,7 +14,7 @@ and decisions you can trace all the way back to their source.
 </p>
 
 <p>
-<a href="https://topherchris420.github.io/circle/"><strong>Experience the demo</strong></a>
+<a href="https://topherchris420.github.io/circle/workbench.html"><strong>Experience the demo</strong></a>
 &nbsp; · &nbsp;
 <a href="#quick-start"><strong>Run locally</strong></a>
 &nbsp; · &nbsp;

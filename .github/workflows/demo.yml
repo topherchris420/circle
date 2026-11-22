@@ -93,6 +93,12 @@ jobs:
           python -m http.server 8000 --bind 127.0.0.1 --directory "$RUNNER_TEMP/www" >/dev/null 2>&1 &
           python tools/check_live_site.py http://127.0.0.1:8000/circle/ --expect-commit "$GITHUB_SHA" --wait 20 --interval 2
 
+      - name: Test phone layout, first tap, playback and mute
+        run: |
+          npm install --prefix "$RUNNER_TEMP/circle-browser" playwright@1.56.1
+          "$RUNNER_TEMP/circle-browser/node_modules/.bin/playwright" install --with-deps chromium
+          NODE_PATH="$RUNNER_TEMP/circle-browser/node_modules" node tests/js/site_phone_layout.js
+
       - name: Configure GitHub Pages
         if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v5

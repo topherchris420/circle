@@ -248,7 +248,14 @@
     if (app.mode !== "recorded") { guide(record); }
   }
 
+  let cancelPending = null;
+  function setBusy(busy) {
+    $("start").disabled = busy;
+    $("stop").disabled = !busy;
+    document.querySelectorAll(".mode, #recording, #speed, #phantom-rate").forEach(n => { n.disabled = busy; });
+  }
   function begin(mode, reference) {
+    cancelPending = null;
     app.session = new FL.Session({ onDecision: onDecision });
     app.mode = mode; app.reference = reference || null; app.marks = []; app.rows = []; app.last = null; app.command = null;
     app.lastResult = null; app.lit = {}; app.sawAct = false; app.step = null; app.cursor = undefined; app.duration = 0;
@@ -258,22 +265,27 @@
     $("legend-ecg").hidden = $("legend-poor").hidden = $("th-ecg").hidden = mode !== "recorded";
     $("segment-note").textContent = "";
     app.running = true;
-    $("start").disabled = true; $("stop").disabled = false;
-    document.querySelectorAll(".mode, #recording, #speed, #phantom-rate").forEach(function (n) { n.disabled = true; });
+    setBusy(true);
     notice("");
     drawGates(null); drawReadout(); drawPlot();
     document.querySelector(".stage").scrollIntoView({ block: "start", behavior: "smooth" });
   }
 
   function finish(reason) {
+    if (cancelPending) {
+      cancelPending();
+      cancelPending = null;
+      setBusy(false);
+      notice("Startup canceled.");
+      return;
+    }
     if (!app.running) { return; }
     app.running = false;
     if (app.source && app.source.stop) { app.source.stop(); }
     app.source = null;
     app.command = null; soundApply(null);
     $("prompt").hidden = true; $("video").hidden = true;
-    $("start").disabled = false; $("stop").disabled = true;
-    document.querySelectorAll(".mode, #recording, #speed, #phantom-rate").forEach(function (n) { n.disabled = false; });
+    setBusy(false);
     drawGates(app.lastResult); drawPlot(); drawWave(); app.dirty = false;
     $("ring").dataset.state = "idle";
     $("rate").textContent = "—";
@@ -385,8 +397,12 @@
   }
 
   function startRecorded() {
+    let canceled = false;
+    cancelPending = () => { canceled = true; };
+    setBusy(true);
     const name = $("recording").value;
     const go = function () {
+      if (canceled) return;
       const rec = window.FIRST_LIGHT_RECORDINGS[name];
       const frames = FL.parseFramesCsv(rec.frames_csv);
       app.recordingName = name;
@@ -420,7 +436,7 @@
     const script = document.createElement("script");
     script.src = "first-light-recording-" + name + ".js";
     script.onload = go;
-    script.onerror = function () { notice("The recording file could not be loaded."); };
+    script.onerror = function () { if (!canceled) { cancelPending = null; setBusy(false); notice("The recording could not load. Tap Start to retry."); } };
     document.head.appendChild(script);
   }
 
@@ -428,10 +444,23 @@
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       notice("This browser cannot open a camera here. Camera access needs HTTPS or localhost."); return;
     }
+    const video = $("video");
+    let stream = null, lock = null, alive = true;
+    function stopCamera() {
+      alive = false;
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        if (video.srcObject === stream) { video.srcObject = null; video.hidden = true; }
+      }
+      if (lock) lock.release();
+    }
+    cancelPending = stopCamera;
+    setBusy(true);
     notice("Asking for the camera…");
     navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: "environment" },
-      width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 30 } } }).then(function (stream) {
-      const video = $("video");
+      width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 30 } } }).then(function (acquired) {
+      stream = acquired;
+      if (!alive) { stopCamera(); return; }
       const track = stream.getVideoTracks()[0];
       let torch = "unsupported";
       const caps = track.getCapabilities ? track.getCapabilities() : {};
@@ -440,9 +469,11 @@
         : Promise.resolve();
       video.srcObject = stream; video.hidden = false;
       return Promise.all([video.play(), ready]).then(function () {
+        if (!alive) return;
         const settings = track.getSettings ? track.getSettings() : {};
         const reference = mode === "phantom" ? { schema: "circle-first-light-reference/1", kind: "optical-phantom",
           rate_bpm: Number($("phantom-rate").value) } : null;
+        app.source = { stop: stopCamera };
         begin(mode, reference);
         const canvas = document.createElement("canvas");
         canvas.width = canvas.height = 32;
@@ -451,8 +482,8 @@
         app.device = { source: "camera", torch: torch, width: settings.width || video.videoWidth, height: settings.height || video.videoHeight,
           frame_rate: settings.frameRate || null, roi: "central half of the frame, averaged over a 32 × 32 grid",
           timebase: null, sound: sound.on ? "enabled" : "off" };
-        let t0 = null, alive = true, lock = null;
-        if (navigator.wakeLock) { navigator.wakeLock.request("screen").then(function (l) { lock = l; }, function () {}); }
+        let t0 = null;
+        if (navigator.wakeLock) { navigator.wakeLock.request("screen").then(function (l) { if (alive) lock = l; else l.release(); }, function () {}); }
         const sample = function (now, meta) {
           if (!alive) { return; }
           const stamp = meta && typeof meta.captureTime === "number" ? meta.captureTime : now;
@@ -467,13 +498,15 @@
           }
           if (useFrameCallback) { video.requestVideoFrameCallback(sample); } else { requestAnimationFrame(sample); }
         };
-        app.source = { stop: function () { alive = false; stream.getTracks().forEach(function (t) { t.stop(); }); video.srcObject = null; if (lock) { lock.release(); } } };
         prompt("hold");
         if (torch !== "on" && mode === "camera") { notice("The browser could not switch the camera light on. Press your fingertip against a bright lamp instead."); }
         if (useFrameCallback) { video.requestVideoFrameCallback(sample); } else { requestAnimationFrame(sample); }
       });
     }).catch(function (error) {
-      notice("The camera could not be opened: " + (error && error.message ? error.message : error) + ".");
+      if (!alive) return;
+      if (app.running) finish("camera startup failed");
+      else { stopCamera(); cancelPending = null; setBusy(false); }
+      notice("Choose a recording or retry the camera: " + (error && error.message ? error.message : error) + ".");
     });
   }
 
@@ -504,7 +537,9 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".mode").forEach(function (b) { b.addEventListener("click", function () { chooseMode(b.dataset.mode); }); });
+    window.addEventListener("pagehide", () => finish("page closed"));
     $("start").addEventListener("click", function () {
+      if (app.running || cancelPending) return;
       if (app.mode === "recorded") { startRecorded(); } else { startCamera(app.mode); }
     });
     $("stop").addEventListener("click", function () { finish("ended by you"); });
