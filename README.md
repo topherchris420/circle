@@ -36,6 +36,8 @@ Follow simulated physiological signals as they change the sound and visuals. Ope
 
 ---
 
+**Explore → Influence → Discover.** Replay a simulated session, choose which feedback to examine, and inspect the evidence behind an action or a refusal. Consent and uncertainty are part of the experience, never obstacles to hide. [Experience design](docs/EXPERIENCE_DESIGN.md).
+
 **Built to make feedback accountable.**
 
 CIRCLE's ambition is an instrument that can explain what it observed, account for what it changed, and preserve the person's authority over what happens next.
