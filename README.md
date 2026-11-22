@@ -2,15 +2,10 @@
 
 <div align="center">
 
-<sub>VERS3DYNAMICS &nbsp;/&nbsp; RESONANCE WORKBENCH</sub>
-
 <h2>A human state is never one signal.</h2>
 
-<p><strong>From signals to sound. From decisions to evidence.</strong></p>
-
 <p>
-Explore how simulated physiological rhythms become adaptive audio, responsive visuals,<br />
-and decisions you can trace all the way back to their source.
+Follow simulated physiological signals as they change the sound and visuals. Open the decision trace to see which signals drove each change.
 </p>
 
 <p>
