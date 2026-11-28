@@ -72,7 +72,7 @@ def run(source_path: Path, split: str) -> dict:
             "session_verdict": r.get("verdict")})
     return {"schema": "circle-first-light-round/1", "round": 2, "split": split,
             "algorithm": v.ALGORITHM["id"], "criteria": v.CRITERIA["id"], "session_rule": sessions.RULE,
-            "dataset": {"name": "BUT PPG", "version": "2.0.0", "doi": "10.13026/bvsb-mz80",
+            "dataset": {"name": "BUT PPG", "version": "2.0.0", "doi": v.BUT_PPG_DOI,
                         "archive_sha256": v.BUT_PPG_SHA256},
             "page_session": sessions.name(chosen), "pooled": pooled, "sessions": rows}
 

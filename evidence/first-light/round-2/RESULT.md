@@ -1,5 +1,7 @@
 # First Light, round 2: result
 
+Dataset citation: [BUT PPG 2.0.0](https://doi.org/10.13026/tn53-8153). See the [citation correction](../README.md#citation-correction) for archived metadata.
+
 The test in [`PREREGISTRATION.md`](PREREGISTRATION.md) ran once, after that
 file was committed and pushed. It passed. Full output:
 [`result.json`](result.json).

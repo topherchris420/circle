@@ -14,8 +14,18 @@ which needs only Python 3.11. The method is in [`docs/first-light.md`](../../doc
 | [`round-1/`](round-1/README.md) | The first round, which failed a criterion; kept unchanged |
 
 The recordings come from BUT PPG 2.0.0 (Brno University of Technology, PhysioNet, CC BY 4.0,
-doi:10.13026/bvsb-mz80). The other 54 round-2 bundles are not stored; the round's command rebuilds
+[doi:10.13026/tn53-8153](https://doi.org/10.13026/tn53-8153). The other 54 round-2 bundles are not stored; the round's command rebuilds
 them from the public archive.
+
+## Citation correction
+
+PhysioNet's DOI for **BUT PPG 2.0.0** is [`10.13026/tn53-8153`](https://doi.org/10.13026/tn53-8153).
+The archived round summaries, recording payloads, and sealed bundles may still carry
+`10.13026/bvsb-mz80`. That string is a citation error, not a different dataset.
+The version, source URL, archive hash, and numerical results are unchanged.
+The verifier keeps the old string when reconstructing historical bundle metadata so
+it can still compare the full reference against the sealed original. Newly generated
+benchmark and round summaries use the corrected DOI.
 
 ## Live recordings
 

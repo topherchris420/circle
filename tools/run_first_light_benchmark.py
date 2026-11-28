@@ -1,7 +1,7 @@
 """Calibrate and test First Light's quality gates on real smartphone-camera recordings.
 
 Source: the Brno University of Technology Smartphone PPG Database (BUT PPG) 2.0.0,
-PhysioNet, CC BY 4.0, doi:10.13026/bvsb-mz80. 50 people; 3,888 ten-second
+PhysioNet, CC BY 4.0, doi:10.13026/tn53-8153. 50 people; 3,888 ten-second
 recordings from Xiaomi Mi9 and Huawei P20 Pro cameras at 30 frames per second,
 each with a chest-ECG reference and an expert quality label (good = heart rate
 can be read reliably from the PPG; poor = it cannot).
@@ -222,7 +222,7 @@ def main(argv: list[str] | None = None) -> int:
     doc = {
         "schema": "circle-first-light-benchmark/1",
         "algorithm": v.ALGORITHM["id"],
-        "dataset": {"name": "BUT PPG", "version": "2.0.0", "doi": "10.13026/bvsb-mz80",
+        "dataset": {"name": "BUT PPG", "version": "2.0.0", "doi": v.BUT_PPG_DOI,
                     "url": "https://physionet.org/content/butppg/2.0.0/", "license": "CC BY 4.0",
                     "archive_sha256": digest},
         "split": "by person: even subject ids calibrate, odd subject ids are held out",
