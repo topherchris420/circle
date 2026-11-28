@@ -123,6 +123,9 @@ CRITERIA = {
 
 MODES = ("live-finger", "live-phantom", "recorded-reference")
 FEATURE_TOLERANCE = 1e-9            # relative; both implementations use the same IEEE-754 operations
+BUT_PPG_DOI = "10.13026/tn53-8153"
+# Preserve the historical reference metadata for byte-compatible sealed bundle replay.
+BUT_PPG_ARCHIVED_REFERENCE_DOI = "10.13026/bvsb-mz80"
 BUT_PPG_SHA256 = "9b910fc884f63eca1c5d3a00c5710f838e0053dce94f8a02196bd0adc2ffa33c"
 
 
@@ -709,7 +712,7 @@ def build_recorded_session(source: ButPpg, records: list[str]) -> tuple[bytes, d
                                     "qrs": sums.get(f"{record}/{record}.qrs")}})
     reference = {"schema": "circle-first-light-reference/1", "kind": "but-ppg-ecg",
                  "dataset": {"name": "Brno University of Technology Smartphone PPG Database (BUT PPG)",
-                             "version": "2.0.0", "doi": "10.13026/bvsb-mz80",
+                             "version": "2.0.0", "doi": BUT_PPG_ARCHIVED_REFERENCE_DOI,
                              "url": "https://physionet.org/content/butppg/2.0.0/", "license": "CC BY 4.0",
                              "archive_sha256": BUT_PPG_SHA256},
                  "segments": segments, "qrs_us": qrs_us}
